@@ -1,14 +1,27 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
+import TourCard from '../components/exploreScreen/TourCard';
+import { tours } from '../data/dummyTours';
 
 export default function ExploreScreen() {
     return (
-        <View style={styles.container}>
-            <Text>Explore Screen</Text>
-        </View>
+        <ScrollView contentContainerStyle={styles.container}>
+            {tours.map((tour) => (
+                <TourCard
+                    key={tour.id}
+                    title={tour.title}
+                    location={tour.location}
+                    description={tour.description}
+                    stops={tour.stops}
+                    rating={tour.rating}
+                />
+            ))}
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    container: {
+        padding: 16,
+    },
 });
