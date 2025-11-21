@@ -1,0 +1,36 @@
+// src/i18n/strings.ts
+export const strings = {
+  en: {
+    profile: 'Profile',
+    manageAccount: 'Manage your account',
+    personalInfo: 'Personal Information',
+    appPreferences: 'App Preferences',
+    contact: 'Contact',
+    terms: 'Terms & Conditions',
+    faq: 'Frequently Asked Questions',
+    darkMode: 'Dark Mode',
+    language: 'Language',
+  },
+  es: {
+    profile: 'Perfil',
+    manageAccount: 'Administrar su cuenta',
+    personalInfo: 'Información personal',
+    appPreferences: 'Preferencias de la app',
+    contact: 'Contacto',
+    terms: 'Términos y condiciones',
+    faq: 'Preguntas frecuentes',
+    darkMode: 'Modo oscuro',
+    language: 'Idioma',
+  },
+  nl: {
+    profile: 'Profiel',
+    manageAccount: 'Beheer uw account',
+    personalInfo: 'Persoonlijke informatie',
+    appPreferences: 'App-voorkeuren',
+    contact: 'Contact',
+    terms: 'Algemene voorwaarden',
+    faq: 'Veelgestelde vragen',
+    darkMode: 'Donkere modus',
+    language: 'Taal',
+  },
+};

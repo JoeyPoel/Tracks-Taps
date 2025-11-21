@@ -4,7 +4,8 @@ import { Ionicons, MaterialIcons, Entypo } from '@expo/vector-icons';
 import SettingsItem from '../components/profileScreen/SettingsItem';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useTheme } from '../theme/ThemeContext';
+import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 
 type RootStackParamList = {
   Profile: undefined;
@@ -14,35 +15,36 @@ type RootStackParamList = {
 export default function ProfileScreen() {
   const { theme } = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { t } = useLanguage();
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.bgPrimary }]}>
-      <Text style={[styles.header, { color: theme.textPrimary }]}>Profile</Text>
-      <Text style={[styles.subHeader, { color: theme.textSecondary }]}>Manage your account</Text>
+      <Text style={[styles.header, { color: theme.textPrimary }]}>{t('profile')}</Text>
+      <Text style={[styles.subHeader, { color: theme.textSecondary }]}>{t('manageAccount')}</Text>
 
       <SettingsItem
         icon={<Ionicons name="person-outline" size={24} color={theme.secondary} />}
-        title="Personal Information"
+        title={t('personalInfo') || 'Personal Information'}
         onPress={() => console.log('Personal Information pressed')}
       />
       <SettingsItem
         icon={<Ionicons name="settings" size={24} color={theme.secondary} />}
-        title="App Preferences"
+        title={t('appPreferences')}
         onPress={() => navigation.navigate('AppPreferences')}
       />
       <SettingsItem
         icon={<MaterialIcons name="email" size={24} color={theme.secondary} />}
-        title="Contact"
+        title={t('contact') || 'Contact'}
         onPress={() => console.log('Contact pressed')}
       />
       <SettingsItem
         icon={<Entypo name="text-document" size={24} color={theme.secondary} />}
-        title="Terms & Conditions"
+        title={t('terms') || 'Terms & Conditions'}
         onPress={() => console.log('Terms & Conditions pressed')}
       />
       <SettingsItem
         icon={<Ionicons name="help-circle-outline" size={24} color={theme.secondary} />}
-        title="Frequently Asked Questions"
+        title={t('faq') || 'Frequently Asked Questions'}
         onPress={() => console.log('FAQ pressed')}
       />
     </ScrollView>

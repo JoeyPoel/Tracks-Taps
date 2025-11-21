@@ -1,17 +1,16 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTheme } from '../../theme/ThemeContext';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../../context/ThemeContext';
 
 interface ActiveTourCardProps {
   title: string;
   progress: number; // 0 to 1
-  progressText: string;
   onResume: () => void;
 }
 
-export default function ActiveTourCard({ title, progress, progressText, onResume }: ActiveTourCardProps) {
+export default function ActiveTourCard({ title, progress, onResume }: ActiveTourCardProps) {
   const { theme } = useTheme();
 
   return (
@@ -41,7 +40,7 @@ export default function ActiveTourCard({ title, progress, progressText, onResume
               />
             )}
           </View>
-          <Text style={[styles.progressText, { color: theme.textSecondary }]}>{progressText}</Text>
+          <Text style={[styles.progressText, { color: theme.textSecondary }]}>{progress * 100}% Completed</Text>
         </View>
 
         <View style={[styles.imageContainer, { backgroundColor: theme.bgTertiary }]}>

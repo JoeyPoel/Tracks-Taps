@@ -1,5 +1,5 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { lightTheme, darkTheme } from '@/src/theme/theme';
+import { darkTheme, lightTheme } from '@/src/context/theme';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 
 type ThemeType = typeof lightTheme;
 

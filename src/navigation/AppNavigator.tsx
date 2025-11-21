@@ -1,13 +1,13 @@
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import React from 'react';
 
-import DefaultStack from './DefaultStack';
+import { useTheme } from '@/src/context/ThemeContext';
 import ExploreScreen from '@/src/screens/ExploreScreen';
-import TourDetailScreen from '@/src/screens/TourDetailScreen';
-import ProfileScreen from '@/src/screens/ProfileScreen';
 import MapScreen from '@/src/screens/MapScreen';
-import { useTheme } from '@/src/theme/ThemeContext';
+import ProfileScreen from '@/src/screens/ProfileScreen';
+import TourDetailScreen from '@/src/screens/TourDetailScreen';
+import DefaultStack from './DefaultStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -46,7 +46,7 @@ export default function AppNavigator() {
       />
       <Tab.Screen
         name="tourdetail"
-        children={() => <DefaultStack name="TourDetail" screen={TourDetailScreen} />}
+        children={() => <DefaultStack name="Tour Detail" screen={TourDetailScreen} />}
         options={{ tabBarLabel: 'Tour' }}
       />
       <Tab.Screen

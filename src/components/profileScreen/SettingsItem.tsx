@@ -1,7 +1,7 @@
-import React, { ReactNode } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '@/src/theme/ThemeContext';
+import React, { ReactNode } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface SettingsItemProps {
   icon: ReactNode;

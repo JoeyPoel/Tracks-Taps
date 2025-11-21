@@ -1,9 +1,9 @@
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import TourCard from '../components/exploreScreen/TourCard';
 import ActiveTourCard from '../components/exploreScreen/ActiveTourCard';
+import TourCard from '../components/exploreScreen/TourCard';
+import { useTheme } from '../context/ThemeContext';
 import { tours } from '../data/dummyTours';
-import { useTheme } from '../theme/ThemeContext';
 
 export default function ExploreScreen() {
   const { theme } = useTheme();
@@ -11,7 +11,6 @@ export default function ExploreScreen() {
   const activeTourProps = {
     title: 'Paris Highlights',
     progress: 0.6,
-    progressText: '60% completed',
     onResume: () => console.log('Resuming tour'),
   };
 

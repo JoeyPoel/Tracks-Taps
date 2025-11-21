@@ -1,11 +1,14 @@
 import React from 'react';
-import AppNavigator from '@/src/navigation/AppNavigator';
-import { ThemeProvider } from '@/src/theme/ThemeContext';
+import AppNavigator from '../src/navigation/AppNavigator';
+import { ThemeProvider } from '@/src/context/ThemeContext';
+import { LanguageProvider } from '@/src/context/LanguageContext';
 
 export default function Index() {
   return (
-    <ThemeProvider>
-      <AppNavigator />
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider>
+        <AppNavigator />
+      </ThemeProvider>
+    </LanguageProvider>
   );
 }

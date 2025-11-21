@@ -1,6 +1,6 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Animated, StyleSheet, LayoutChangeEvent } from 'react-native';
-import { useTheme } from '../theme/ThemeContext';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, LayoutChangeEvent, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 interface CustomTabBarProps {
   tabs: string[];

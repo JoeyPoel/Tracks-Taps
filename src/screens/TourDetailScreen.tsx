@@ -1,9 +1,9 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { View, Animated, StyleSheet, ScrollView, LayoutChangeEvent } from 'react-native';
-import { useTheme } from '../theme/ThemeContext';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, LayoutChangeEvent, ScrollView, StyleSheet, View } from 'react-native';
 import CustomTabBar from '../components/CustomTabBar';
-import TourDetailHeader from '../components/tourdetailScreen/TourDetailHeader';
 import SectionHeader from '../components/SectionHeader';
+import TourDetailHeader from '../components/tourdetailScreen/TourDetailHeader';
+import { useTheme } from '../context/ThemeContext';
 
 const tabs = ['Overview', 'Itinerary', 'Reviews'];
 
