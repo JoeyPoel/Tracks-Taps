@@ -1,15 +1,18 @@
 import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { useTheme } from '../theme/ThemeContext';
 
-interface UnderlinedTextProps {
+interface SectionHeaderProps {
   text: string;
-  color: string;
+  color: string; // for the underline
 }
 
-export default function SectionHeader({ text, color }: UnderlinedTextProps) {
+export default function SectionHeader({ text, color }: SectionHeaderProps) {
+  const { theme } = useTheme();
+
   return (
     <View style={styles.container}>
-      <Text style={[styles.text]}>{text}</Text>
+      <Text style={[styles.text, { color: theme.textPrimary }]}>{text}</Text>
       <View style={[styles.underline, { backgroundColor: color }]} />
     </View>
   );
@@ -18,6 +21,7 @@ export default function SectionHeader({ text, color }: UnderlinedTextProps) {
 const styles = StyleSheet.create({
   container: {
     alignSelf: 'flex-start',
+    marginVertical: 8,
   },
   text: {
     fontWeight: '600',

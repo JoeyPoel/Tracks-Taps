@@ -1,37 +1,40 @@
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import TourCard from '../components/exploreScreen/TourCard';
-import { tours } from '../data/dummyTours';
 import ActiveTourCard from '../components/exploreScreen/ActiveTourCard';
+import { tours } from '../data/dummyTours';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function ExploreScreen() {
-    const activeTourProps = {
-        title: 'Paris Highlights',
-        progress: 0.6,
-        progressText: '60% completed',
-        onResume: () => console.log('Resuming tour'),
-    };
+  const { theme } = useTheme();
 
-    return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <ActiveTourCard {...activeTourProps} />
+  const activeTourProps = {
+    title: 'Paris Highlights',
+    progress: 0.6,
+    progressText: '60% completed',
+    onResume: () => console.log('Resuming tour'),
+  };
 
-            {tours.map((tour) => (
-                <TourCard
-                    key={tour.id}
-                    title={tour.title}
-                    location={tour.location}
-                    description={tour.description}
-                    stops={tour.stops}
-                    rating={tour.rating}
-                />
-            ))}
-        </ScrollView>
-    );
+  return (
+    <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+      <ActiveTourCard {...activeTourProps} />
+
+      {tours.map((tour) => (
+        <TourCard
+          key={tour.id}
+          title={tour.title}
+          location={tour.location}
+          description={tour.description}
+          stops={tour.stops}
+          rating={tour.rating}
+        />
+      ))}
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        padding: 16,
-    },
+  container: {
+    padding: 16,
+  },
 });

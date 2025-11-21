@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { View, Animated, StyleSheet, ScrollView, LayoutChangeEvent } from 'react-native';
-import { lightTheme } from '@/src/theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 import CustomTabBar from '../components/CustomTabBar';
 import TourDetailHeader from '../components/tourdetailScreen/TourDetailHeader';
 import SectionHeader from '../components/SectionHeader';
@@ -8,10 +8,10 @@ import SectionHeader from '../components/SectionHeader';
 const tabs = ['Overview', 'Itinerary', 'Reviews'];
 
 export default function TourDetailScreen() {
+  const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
   const contentAnim = useRef(new Animated.Value(0)).current;
-  const theme = lightTheme;
 
   useEffect(() => {
     if (containerWidth > 0) {
@@ -22,9 +22,7 @@ export default function TourDetailScreen() {
     }
   }, [activeTab, containerWidth]);
 
-  const handleLayout = (e: LayoutChangeEvent) => {
-    setContainerWidth(e.nativeEvent.layout.width);
-  };
+  const handleLayout = (e: LayoutChangeEvent) => setContainerWidth(e.nativeEvent.layout.width);
 
   const headerProps = {
     title: 'Amazing Tour',
@@ -34,6 +32,7 @@ export default function TourDetailScreen() {
     reviews: 128,
     description: 'Experience the beauty and culture of Paris on this guided tour.',
     onStartTour: () => console.log('Tour started!'),
+    theme,
   };
 
   const renderTabContent = (tab: string) => {

@@ -1,10 +1,10 @@
 import React from 'react';
 import { ScrollView, Text, StyleSheet } from 'react-native';
 import { Ionicons, MaterialIcons, Entypo } from '@expo/vector-icons';
-import { lightTheme } from '@/src/theme/theme';
 import SettingsItem from '../components/profileScreen/SettingsItem';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTheme } from '../theme/ThemeContext';
 
 type RootStackParamList = {
   Profile: undefined;
@@ -12,7 +12,7 @@ type RootStackParamList = {
 };
 
 export default function ProfileScreen() {
-  const theme = lightTheme;
+  const { theme } = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (

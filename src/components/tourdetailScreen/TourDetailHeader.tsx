@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { lightTheme } from '@/src/theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 
 interface TourDetailHeaderProps {
   title: string;
@@ -22,7 +22,7 @@ export default function TourDetailHeader({
   description,
   onStartTour,
 }: TourDetailHeaderProps) {
-  const theme = lightTheme;
+  const { theme } = useTheme();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
@@ -47,7 +47,7 @@ export default function TourDetailHeader({
       <Text style={[styles.description, { color: theme.textPrimary }]}>{description}</Text>
 
       <TouchableOpacity style={[styles.button, { backgroundColor: theme.primary }]} onPress={onStartTour}>
-        <Text style={styles.buttonText}>Start Tour!</Text>
+        <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>Start Tour!</Text>
       </TouchableOpacity>
     </View>
   );
@@ -62,5 +62,5 @@ const styles = StyleSheet.create({
   reviewCount: { marginLeft: 6, fontSize: 14 },
   description: { fontSize: 14, marginVertical: 12 },
   button: { paddingVertical: 12, borderRadius: 8, alignItems: 'center' },
-  buttonText: { color: 'white', fontWeight: '700', fontSize: 16 },
+  buttonText: { fontWeight: '700', fontSize: 16 },
 });

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Animated, StyleSheet, LayoutChangeEvent } from 'react-native';
-import { lightTheme } from '@/src/theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 
 interface CustomTabBarProps {
   tabs: string[];
@@ -9,7 +9,7 @@ interface CustomTabBarProps {
 }
 
 export default function CustomTabBar({ tabs, activeIndex, onTabPress }: CustomTabBarProps) {
-  const theme = lightTheme;
+  const { theme } = useTheme();
   const [tabBarWidth, setTabBarWidth] = useState(0);
   const slideAnim = useRef(new Animated.Value(0)).current;
 
@@ -22,14 +22,12 @@ export default function CustomTabBar({ tabs, activeIndex, onTabPress }: CustomTa
     }
   }, [activeIndex, tabBarWidth]);
 
-  const handleLayout = (e: LayoutChangeEvent) => {
-    setTabBarWidth(e.nativeEvent.layout.width);
-  };
+  const handleLayout = (e: LayoutChangeEvent) => setTabBarWidth(e.nativeEvent.layout.width);
 
   const tabWidth = tabBarWidth / tabs.length;
 
   return (
-    <View style={styles.tabBar} onLayout={handleLayout}>
+    <View style={[styles.tabBar, { borderBottomColor: theme.borderSecondary }]} onLayout={handleLayout}>
       {tabs.map((tab, index) => (
         <TouchableOpacity key={tab} style={styles.tab} onPress={() => onTabPress(index)}>
           <Text
@@ -44,10 +42,7 @@ export default function CustomTabBar({ tabs, activeIndex, onTabPress }: CustomTa
       ))}
       {tabBarWidth > 0 && (
         <Animated.View
-          style={[
-            styles.indicator,
-            { backgroundColor: theme.primary, width: tabWidth, left: slideAnim },
-          ]}
+          style={[styles.indicator, { backgroundColor: theme.primary, width: tabWidth, left: slideAnim }]}
         />
       )}
     </View>
@@ -55,12 +50,7 @@ export default function CustomTabBar({ tabs, activeIndex, onTabPress }: CustomTa
 }
 
 const styles = StyleSheet.create({
-  tabBar: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    position: 'relative',
-  },
+  tabBar: { flexDirection: 'row', borderBottomWidth: 1, position: 'relative' },
   tab: { flex: 1, alignItems: 'center', paddingVertical: 12 },
   indicator: { height: 3, position: 'absolute', bottom: 0 },
 });

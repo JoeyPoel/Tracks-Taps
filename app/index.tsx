@@ -1,11 +1,11 @@
 import React from 'react';
-import AppNavigator from '../src/navigation/AppNavigator';
-import {SafeAreaProvider} from "react-native-safe-area-context";
+import AppNavigator from '@/src/navigation/AppNavigator';
+import { ThemeProvider } from '@/src/theme/ThemeContext';
 
 export default function Index() {
-    return(
-        <SafeAreaProvider>
-            <AppNavigator />;
-        </SafeAreaProvider>
-    );
+  return (
+    <ThemeProvider>
+      <AppNavigator />
+    </ThemeProvider>
+  );
 }

@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Switch } from 'react-native';
-import { lightTheme, darkTheme } from '@/src/theme/theme';
+import { darkTheme } from '@/src/theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function AppPreferencesScreen() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const theme = isDarkMode ? darkTheme : lightTheme;
-
-  const toggleDarkMode = () => setIsDarkMode(prev => !prev);
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
@@ -14,7 +12,7 @@ export default function AppPreferencesScreen() {
 
       <View style={styles.preferenceItem}>
         <Text style={[styles.preferenceText, { color: theme.textPrimary }]}>Dark Mode</Text>
-        <Switch value={isDarkMode} onValueChange={toggleDarkMode} />
+        <Switch value={theme === darkTheme} onValueChange={toggleTheme} />
       </View>
 
       {/* Add more app preferences here */}
