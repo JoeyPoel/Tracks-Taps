@@ -6,14 +6,13 @@ import TourDetailHeader from '../components/tourdetailScreen/TourDetailHeader';
 import { useTheme } from '../context/ThemeContext';
 import { tours } from '../data/dummyTours';
 import { reviews } from '../data/dummyReviews';
-
-const tabs = ['Overview', 'Itinerary', 'Reviews'];
+import { useLanguage } from '../context/LanguageContext';
 
 export default function TourDetailScreen() {
   const { theme } = useTheme();
-  // TODO NEEDS TO BE REPLACED WITH BACKEND LOGIC
-  const tour = tours[1]; // Example: Paris Art Tour
+  const { t } = useLanguage();
 
+  const tour = tours[1]; // Example: Paris Art Tour
   const tourReviews = reviews.filter(r => r.tourId === tour.id);
   const reviewCount = tourReviews.length;
   const averageRating =
@@ -48,29 +47,27 @@ export default function TourDetailScreen() {
     theme,
   };
 
+  const tabs = [t('overview'), t('itinerary'), t('reviewsTab')];
+
   const renderTabContent = (tab: string) => {
     switch (tab) {
-      case 'Overview':
+      case t('overview'):
         return (
           <>
-            <SectionHeader text="Tour Map" color={theme.secondary} />
-            <SectionHeader text="Top Players this week" color={theme.secondary} />
-            <SectionHeader text="Reviews" color={theme.secondary} />
+            <SectionHeader text={t('tourMap')} color={theme.secondary} />
+            <SectionHeader text={t('topPlayers')} color={theme.secondary} />
+            <SectionHeader text={t('reviewsTab')} color={theme.secondary} />
           </>
         );
-      case 'Itinerary':
+      case t('itinerary'):
         return (
           <>
-            <SectionHeader text="Tour Wide Challenges" color={theme.secondary} />
-            <SectionHeader text="Tour Stops" color={theme.secondary} />
+            <SectionHeader text={t('tourWideChallenges')} color={theme.secondary} />
+            <SectionHeader text={t('tourStops')} color={theme.secondary} />
           </>
         );
-      case 'Reviews':
-        return (
-          <>
-            <SectionHeader text="User Reviews" color={theme.secondary} />
-          </>
-        );
+      case t('reviewsTab'):
+        return <SectionHeader text={t('userReviews')} color={theme.secondary} />;
       default:
         return null;
     }

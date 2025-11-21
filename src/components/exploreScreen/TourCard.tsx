@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface TourCardProps {
   title: string;
@@ -19,6 +20,7 @@ export default function TourCard({
   rating,
 }: TourCardProps) {
   const { theme } = useTheme();
+  const { t } = useLanguage();
 
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.5 ? 1 : 0;
@@ -43,7 +45,9 @@ export default function TourCard({
         <Text style={[styles.description, { color: theme.textPrimary }]}>{description}</Text>
 
         <View style={styles.footer}>
-          <Text style={[styles.stops, { color: theme.textPrimary }]}>{stops} Stops</Text>
+          <Text style={[styles.stops, { color: theme.textPrimary }]}>
+            {stops} {t('stops')}
+          </Text>
 
           <View style={styles.ratingRow}>
             {Array.from({ length: fullStars }, (_, i) => (

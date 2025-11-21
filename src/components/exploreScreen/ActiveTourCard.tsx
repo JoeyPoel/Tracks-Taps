@@ -3,15 +3,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface ActiveTourCardProps {
   title: string;
-  progress: number; // 0 to 1
+  progress: number;
   onResume: () => void;
 }
 
 export default function ActiveTourCard({ title, progress, onResume }: ActiveTourCardProps) {
   const { theme } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <LinearGradient
@@ -19,8 +21,13 @@ export default function ActiveTourCard({ title, progress, onResume }: ActiveTour
       style={styles.gradientBorder}
     >
       <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
-        <Text style={[styles.subtitle, { color: theme.textSecondary }]}>YOUR CURRENT ADVENTURE</Text>
-        <Text style={[styles.title, { color: theme.primary }]}>{title}</Text>
+        <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+          {t('currentAdventure')}
+        </Text>
+
+        <Text style={[styles.title, { color: theme.primary }]}>
+          {title}
+        </Text>
 
         <View style={styles.progressContainer}>
           <View style={[styles.progressBar, { backgroundColor: theme.bgTertiary }]}>
@@ -40,7 +47,10 @@ export default function ActiveTourCard({ title, progress, onResume }: ActiveTour
               />
             )}
           </View>
-          <Text style={[styles.progressText, { color: theme.textSecondary }]}>{progress * 100}% Completed</Text>
+
+          <Text style={[styles.progressText, { color: theme.textSecondary }]}>
+            {progress * 100}% {t('completed')}
+          </Text>
         </View>
 
         <View style={[styles.imageContainer, { backgroundColor: theme.bgTertiary }]}>
@@ -51,7 +61,9 @@ export default function ActiveTourCard({ title, progress, onResume }: ActiveTour
           style={[styles.button, { backgroundColor: theme.primary }]}
           onPress={onResume}
         >
-          <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>Resume Tour</Text>
+          <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>
+            {t('resumeTour')}
+          </Text>
         </TouchableOpacity>
       </View>
     </LinearGradient>

@@ -24,27 +24,27 @@ export default function ProfileScreen() {
 
       <SettingsItem
         icon={<Ionicons name="person-outline" size={24} color={theme.secondary} />}
-        title={t('personalInfo') || 'Personal Information'}
+        title={t('personalInfo')}
         onPress={() => console.log('Personal Information pressed')}
       />
       <SettingsItem
         icon={<Ionicons name="settings" size={24} color={theme.secondary} />}
         title={t('appPreferences')}
-        onPress={() => navigation.navigate('AppPreferences')}
+        onPress={() => navigation.navigate('AppPreferences')} // stack screen is static
       />
       <SettingsItem
         icon={<MaterialIcons name="email" size={24} color={theme.secondary} />}
-        title={t('contact') || 'Contact'}
+        title={t('contact')}
         onPress={() => console.log('Contact pressed')}
       />
       <SettingsItem
         icon={<Entypo name="text-document" size={24} color={theme.secondary} />}
-        title={t('terms') || 'Terms & Conditions'}
+        title={t('terms')}
         onPress={() => console.log('Terms & Conditions pressed')}
       />
       <SettingsItem
         icon={<Ionicons name="help-circle-outline" size={24} color={theme.secondary} />}
-        title={t('faq') || 'Frequently Asked Questions'}
+        title={t('faq')}
         onPress={() => console.log('FAQ pressed')}
       />
     </ScrollView>

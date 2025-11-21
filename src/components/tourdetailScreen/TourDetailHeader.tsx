@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface TourDetailHeaderProps {
   title: string;
@@ -23,6 +24,7 @@ export default function TourDetailHeader({
   onStartTour,
 }: TourDetailHeaderProps) {
   const { theme } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
@@ -31,7 +33,9 @@ export default function TourDetailHeader({
       <View style={styles.row}>
         <Ionicons name="location-outline" size={14} color={theme.iconSecondary} />
         <Text style={[styles.location, { color: theme.textSecondary }]}>{location}</Text>
-        <Text style={[styles.by, { color: theme.textSecondary }]}>by {author}</Text>
+        <Text style={[styles.by, { color: theme.textSecondary }]}>
+          {t('by')} {author}
+        </Text>
       </View>
 
       <View style={styles.row}>
@@ -40,14 +44,14 @@ export default function TourDetailHeader({
         ))}
         {rating % 1 >= 0.5 && <Ionicons name="star-half" size={16} color={theme.starColor} />}
         <Text style={[styles.reviewCount, { color: theme.textSecondary }]}>
-          ({reviews} reviews)
+          ({reviews} {t('reviews')})
         </Text>
       </View>
 
       <Text style={[styles.description, { color: theme.textPrimary }]}>{description}</Text>
 
       <TouchableOpacity style={[styles.button, { backgroundColor: theme.primary }]} onPress={onStartTour}>
-        <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>Start Tour!</Text>
+        <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>{t('startTour')}</Text>
       </TouchableOpacity>
     </View>
   );

@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
-
 import { useTheme } from '@/src/context/ThemeContext';
+import { useLanguage } from '@/src/context/LanguageContext';
 import ExploreScreen from '@/src/screens/ExploreScreen';
 import MapScreen from '@/src/screens/MapScreen';
 import ProfileScreen from '@/src/screens/ProfileScreen';
@@ -13,6 +13,7 @@ const Tab = createBottomTabNavigator();
 
 export default function AppNavigator() {
   const { theme } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <Tab.Navigator
@@ -22,11 +23,10 @@ export default function AppNavigator() {
         tabBarInactiveTintColor: theme.textSecondary,
         tabBarStyle: {
           backgroundColor: theme.bgPrimary,
-          borderTopColor: theme.borderSecondary
+          borderTopColor: theme.borderSecondary,
         },
         tabBarIcon: ({ color, size }) => {
           let iconName: string;
-
           switch (route.name) {
             case 'explore': iconName = 'search-outline'; break;
             case 'tourdetail': iconName = 'information-circle-outline'; break;
@@ -34,7 +34,6 @@ export default function AppNavigator() {
             case 'profile': iconName = 'person-outline'; break;
             default: iconName = 'help-outline';
           }
-
           return <Ionicons name={iconName as any} size={size} color={color} />;
         },
       })}
@@ -42,22 +41,22 @@ export default function AppNavigator() {
       <Tab.Screen
         name="explore"
         children={() => <DefaultStack name="Explore" screen={ExploreScreen} />}
-        options={{ tabBarLabel: 'Explore' }}
+        options={{ tabBarLabel: t('explore') }}
       />
       <Tab.Screen
         name="tourdetail"
-        children={() => <DefaultStack name="Tour Detail" screen={TourDetailScreen} />}
-        options={{ tabBarLabel: 'Tour' }}
+        children={() => <DefaultStack name="TourDetail" screen={TourDetailScreen} />}
+        options={{ tabBarLabel: t('tour') }}
       />
       <Tab.Screen
         name="map"
         children={() => <DefaultStack name="Map" screen={MapScreen} />}
-        options={{ tabBarLabel: 'Map' }}
+        options={{ tabBarLabel: t('map') }}
       />
       <Tab.Screen
         name="profile"
         children={() => <DefaultStack name="Profile" screen={ProfileScreen} />}
-        options={{ tabBarLabel: 'Profile' }}
+        options={{ tabBarLabel: t('profile') }}
       />
     </Tab.Navigator>
   );
