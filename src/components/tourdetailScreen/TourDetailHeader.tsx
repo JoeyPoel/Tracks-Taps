@@ -54,7 +54,7 @@ export default function TourDetailHeader({
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16 },
+  container: { paddingVertical: 16 },
   title: { fontSize: 20, fontWeight: '700', marginBottom: 8 },
   row: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
   location: { marginLeft: 4, fontSize: 14 },

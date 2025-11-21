@@ -1,8 +1,6 @@
-import React, { useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions } from 'react-native';
+import React, { useRef, useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, Animated, StyleSheet, LayoutChangeEvent } from 'react-native';
 import { lightTheme } from '@/src/theme/theme';
-
-const { width } = Dimensions.get('window');
 
 interface CustomTabBarProps {
   tabs: string[];
@@ -12,33 +10,46 @@ interface CustomTabBarProps {
 
 export default function CustomTabBar({ tabs, activeIndex, onTabPress }: CustomTabBarProps) {
   const theme = lightTheme;
-  const slideAnim = useRef(new Animated.Value(activeIndex * (width / tabs.length))).current;
+  const [tabBarWidth, setTabBarWidth] = useState(0);
+  const slideAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.spring(slideAnim, {
-      toValue: activeIndex * (width / tabs.length),
-      useNativeDriver: false,
-    }).start();
-  }, [activeIndex]);
+    if (tabBarWidth > 0) {
+      Animated.spring(slideAnim, {
+        toValue: activeIndex * (tabBarWidth / tabs.length),
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [activeIndex, tabBarWidth]);
+
+  const handleLayout = (e: LayoutChangeEvent) => {
+    setTabBarWidth(e.nativeEvent.layout.width);
+  };
+
+  const tabWidth = tabBarWidth / tabs.length;
 
   return (
-    <View style={styles.tabBar}>
+    <View style={styles.tabBar} onLayout={handleLayout}>
       {tabs.map((tab, index) => (
         <TouchableOpacity key={tab} style={styles.tab} onPress={() => onTabPress(index)}>
-          <Text style={{
-            color: activeIndex === index ? theme.primary : theme.textSecondary,
-            fontWeight: activeIndex === index ? '700' : '500',
-          }}>
+          <Text
+            style={{
+              color: activeIndex === index ? theme.primary : theme.textSecondary,
+              fontWeight: activeIndex === index ? '700' : '500',
+            }}
+          >
             {tab}
           </Text>
         </TouchableOpacity>
       ))}
-      <Animated.View
-        style={[
-          styles.indicator,
-          { backgroundColor: theme.primary, width: width / tabs.length, left: slideAnim },
-        ]}
-      />
+      {tabBarWidth > 0 && (
+        <Animated.View
+          style={[
+            styles.indicator,
+            { backgroundColor: theme.primary, width: tabWidth, left: slideAnim },
+          ]}
+        />
+      )}
     </View>
   );
 }
