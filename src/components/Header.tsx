@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         justifyContent: 'center',
         borderBottomWidth: 1,
-        borderBottomColor: lightTheme.textOnSecondary,
+        borderBottomColor: lightTheme.borderSecondary,
     },
     title: {
         fontSize: 20,
