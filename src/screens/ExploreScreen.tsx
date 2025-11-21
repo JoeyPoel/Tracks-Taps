@@ -3,7 +3,8 @@ import { ScrollView, StyleSheet } from 'react-native';
 import ActiveTourCard from '../components/exploreScreen/ActiveTourCard';
 import TourCard from '../components/exploreScreen/TourCard';
 import { useTheme } from '../context/ThemeContext';
-import { tours } from '../data/dummyTours';
+import { tours} from '../data/dummyTours';
+import { reviews } from '../data/dummyReviews';
 
 export default function ExploreScreen() {
   const { theme } = useTheme();
@@ -17,17 +18,27 @@ export default function ExploreScreen() {
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.bgPrimary }]}>
       <ActiveTourCard {...activeTourProps} />
+    
+      {tours.map((tour) => { // TODO REPLACE WITH LOGIC FROM BACKEND
+        const tourReviews = reviews.filter(r => r.tourId === tour.id);
+        const reviewCount = tourReviews.length;
 
-      {tours.map((tour) => (
-        <TourCard
-          key={tour.id}
-          title={tour.title}
-          location={tour.location}
-          description={tour.description}
-          stops={tour.stops}
-          rating={tour.rating}
-        />
-      ))}
+        const rating =
+          reviewCount > 0
+            ? tourReviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+            : 0;
+
+        return (
+          <TourCard
+            key={tour.id}
+            title={tour.title}
+            location={tour.location}
+            description={tour.description}
+            stops={tour.stops}
+            rating={rating}
+          />
+        );
+      })}
     </ScrollView>
   );
 }

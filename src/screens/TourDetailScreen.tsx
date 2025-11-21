@@ -4,11 +4,23 @@ import CustomTabBar from '../components/CustomTabBar';
 import SectionHeader from '../components/SectionHeader';
 import TourDetailHeader from '../components/tourdetailScreen/TourDetailHeader';
 import { useTheme } from '../context/ThemeContext';
+import { tours } from '../data/dummyTours';
+import { reviews } from '../data/dummyReviews';
 
 const tabs = ['Overview', 'Itinerary', 'Reviews'];
 
 export default function TourDetailScreen() {
   const { theme } = useTheme();
+  // TODO NEEDS TO BE REPLACED WITH BACKEND LOGIC
+  const tour = tours[1]; // Example: Paris Art Tour
+
+  const tourReviews = reviews.filter(r => r.tourId === tour.id);
+  const reviewCount = tourReviews.length;
+  const averageRating =
+    reviewCount > 0
+      ? tourReviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+      : 0;
+
   const [activeTab, setActiveTab] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
   const contentAnim = useRef(new Animated.Value(0)).current;
@@ -22,15 +34,16 @@ export default function TourDetailScreen() {
     }
   }, [activeTab, containerWidth]);
 
-  const handleLayout = (e: LayoutChangeEvent) => setContainerWidth(e.nativeEvent.layout.width);
+  const handleLayout = (e: LayoutChangeEvent) =>
+    setContainerWidth(e.nativeEvent.layout.width);
 
   const headerProps = {
-    title: 'Amazing Tour',
-    location: 'Paris, France',
-    author: 'John Doe',
-    rating: 4.5,
-    reviews: 128,
-    description: 'Experience the beauty and culture of Paris on this guided tour.',
+    title: tour.title,
+    location: tour.location,
+    author: tour.author,
+    rating: averageRating,
+    reviews: reviewCount,
+    description: tour.description,
     onStartTour: () => console.log('Tour started!'),
     theme,
   };
@@ -53,7 +66,11 @@ export default function TourDetailScreen() {
           </>
         );
       case 'Reviews':
-        return <SectionHeader text="User Reviews" color={theme.secondary} />;
+        return (
+          <>
+            <SectionHeader text="User Reviews" color={theme.secondary} />
+          </>
+        );
       default:
         return null;
     }

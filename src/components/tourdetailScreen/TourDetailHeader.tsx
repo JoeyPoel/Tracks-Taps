@@ -31,7 +31,7 @@ export default function TourDetailHeader({
       <View style={styles.row}>
         <Ionicons name="location-outline" size={14} color={theme.iconSecondary} />
         <Text style={[styles.location, { color: theme.textSecondary }]}>{location}</Text>
-        <Text style={[styles.by, { color: theme.textSecondary }]}> by {author}</Text>
+        <Text style={[styles.by, { color: theme.textSecondary }]}>by {author}</Text>
       </View>
 
       <View style={styles.row}>

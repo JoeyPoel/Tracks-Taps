@@ -1,11 +1,4 @@
-export interface Tour {
-    id: number;
-    title: string;
-    location: string;
-    description: string;
-    stops: number;
-    rating: number;
-}
+import { Tour } from "../types/Tour";
 
 export const tours: Tour[] = [
     {
@@ -14,7 +7,7 @@ export const tours: Tour[] = [
         location: "London",
         description: "Explore the oldest pubs in the city, each with a rich and storied history.",
         stops: 3,
-        rating: 4.5,
+        author: "Alice Morgan",
     },
     {
         id: 2,
@@ -22,7 +15,7 @@ export const tours: Tour[] = [
         location: "Paris",
         description: "Discover the famous art galleries and hidden street art of Paris.",
         stops: 5,
-        rating: 4.0,
+        author: "John Doe",
     },
     {
         id: 3,
@@ -30,6 +23,6 @@ export const tours: Tour[] = [
         location: "Rome",
         description: "Taste traditional Roman dishes in the city's best local restaurants.",
         stops: 4,
-        rating: 3.7,
+        author: "Marco Rossi",
     },
 ];

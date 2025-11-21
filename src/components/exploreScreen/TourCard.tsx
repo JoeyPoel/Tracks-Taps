@@ -11,7 +11,13 @@ interface TourCardProps {
   rating: number;
 }
 
-export default function TourCard({ title, location, description, stops, rating }: TourCardProps) {
+export default function TourCard({
+  title,
+  location,
+  description,
+  stops,
+  rating,
+}: TourCardProps) {
   const { theme } = useTheme();
 
   const fullStars = Math.floor(rating);
@@ -29,7 +35,9 @@ export default function TourCard({ title, location, description, stops, rating }
 
         <View style={styles.row}>
           <Ionicons name="location-outline" size={14} color={theme.textSecondary} />
-          <Text style={[styles.location, { color: theme.textSecondary }]}>{location}</Text>
+          <Text style={[styles.location, { color: theme.textSecondary }]}>
+            {location}
+          </Text>
         </View>
 
         <Text style={[styles.description, { color: theme.textPrimary }]}>{description}</Text>
@@ -41,11 +49,14 @@ export default function TourCard({ title, location, description, stops, rating }
             {Array.from({ length: fullStars }, (_, i) => (
               <Ionicons key={`full-${i}`} name="star" size={14} color={theme.starColor} />
             ))}
-            {halfStar === 1 && <Ionicons name="star-half" size={14} color={theme.starColor} />}
+
+            {halfStar === 1 && (
+              <Ionicons name="star-half" size={14} color={theme.starColor} />
+            )}
+
             {Array.from({ length: emptyStars }, (_, i) => (
               <Ionicons key={`empty-${i}`} name="star-outline" size={14} color={theme.starColor} />
             ))}
-            <Text style={[styles.reviewCount, { color: theme.textSecondary }]}>({rating.toFixed(1)})</Text>
           </View>
         </View>
       </View>
@@ -64,5 +75,4 @@ const styles = StyleSheet.create({
   footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   stops: { fontSize: 14 },
   ratingRow: { flexDirection: 'row', alignItems: 'center' },
-  reviewCount: { marginLeft: 4, fontSize: 13 },
 });
