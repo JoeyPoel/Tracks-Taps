@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
 interface TourGameModesProps {
@@ -11,12 +12,13 @@ interface TourGameModesProps {
 
 export default function TourGameModes({ modes, challengesCount, stopsCount }: TourGameModesProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     return (
         <View style={[styles.container, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
             <View style={styles.headerRow}>
                 <Ionicons name="game-controller-outline" size={20} color={theme.primary} />
-                <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>Game Modes</Text>
+                <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('gameModes')}</Text>
             </View>
 
             <View style={styles.tagsRow}>
@@ -29,11 +31,11 @@ export default function TourGameModes({ modes, challengesCount, stopsCount }: To
 
             <View style={[styles.headerRow, { marginTop: 16 }]}>
                 <Ionicons name="radio-button-on-outline" size={20} color={theme.primary} />
-                <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>Challenges Included</Text>
+                <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('challengesIncluded')}</Text>
             </View>
 
             <Text style={[styles.description, { color: theme.textSecondary }]}>
-                {challengesCount} unique challenges across {stopsCount} stops
+                {challengesCount} {t('uniqueChallengesAcross')} {stopsCount} {t('stops')}
             </Text>
         </View>
     );

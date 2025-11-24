@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
 interface TourAboutProps {
@@ -8,10 +9,11 @@ interface TourAboutProps {
 
 export default function TourAbout({ description }: TourAboutProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     return (
         <View style={styles.container}>
-            <Text style={[styles.title, { color: theme.textPrimary }]}>About this tour</Text>
+            <Text style={[styles.title, { color: theme.textPrimary }]}>{t('aboutThisTour')}</Text>
             <Text style={[styles.description, { color: theme.textSecondary }]}>
                 {description}
             </Text>

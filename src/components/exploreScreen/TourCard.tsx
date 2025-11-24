@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
 interface TourCardProps {
@@ -32,6 +33,7 @@ export default function TourCard({
   difficulty,
 }: TourCardProps) {
   const { theme } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <View style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
@@ -64,7 +66,7 @@ export default function TourCard({
 
       <View style={styles.content}>
         <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
-        <Text style={[styles.author, { color: theme.textSecondary }]}>by {author}</Text>
+        <Text style={[styles.author, { color: theme.textSecondary }]}>{t('by')} {author}</Text>
 
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
@@ -79,7 +81,7 @@ export default function TourCard({
 
           <View style={styles.statItem}>
             <Ionicons name="location-outline" size={16} color={theme.textSecondary} />
-            <Text style={[styles.statText, { color: theme.textSecondary }]}>{stops} stops</Text>
+            <Text style={[styles.statText, { color: theme.textSecondary }]}>{stops} {t('stops')}</Text>
           </View>
         </View>
 
@@ -96,7 +98,7 @@ export default function TourCard({
 
           <View style={styles.pointsContainer}>
             <Ionicons name="flash" size={18} color={theme.primary} />
-            <Text style={[styles.pointsText, { color: theme.primary }]}>{points} pts</Text>
+            <Text style={[styles.pointsText, { color: theme.primary }]}>{points} {t('pts')}</Text>
           </View>
         </View>
       </View>

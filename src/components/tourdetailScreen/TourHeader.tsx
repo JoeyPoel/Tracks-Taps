@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
 interface TourHeaderProps {
@@ -11,6 +12,7 @@ interface TourHeaderProps {
 
 export default function TourHeader({ title, author, imageUrl }: TourHeaderProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     return (
         <ImageBackground source={{ uri: imageUrl }} style={styles.background}>
@@ -21,7 +23,7 @@ export default function TourHeader({ title, author, imageUrl }: TourHeaderProps)
                 <View style={styles.content}>
                     <Text style={[styles.title, { color: theme.fixedWhite }]}>{title}</Text>
                     <Text style={[styles.author, { color: theme.fixedWhite }]}>
-                        Created by {author}
+                        {t('createdBy')} {author}
                     </Text>
                 </View>
             </LinearGradient>

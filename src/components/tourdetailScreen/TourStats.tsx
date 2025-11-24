@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
 interface TourStatsProps {
@@ -11,6 +12,7 @@ interface TourStatsProps {
 
 export default function TourStats({ distance, duration, stops, points }: TourStatsProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     const StatItem = ({ label, value }: { label: string; value: string | number }) => (
         <View style={[styles.statItem, { backgroundColor: theme.bgSecondary }]}>
@@ -21,10 +23,10 @@ export default function TourStats({ distance, duration, stops, points }: TourSta
 
     return (
         <View style={styles.container}>
-            <StatItem label="Distance" value={distance} />
-            <StatItem label="Duration" value={duration} />
-            <StatItem label="Stops" value={stops} />
-            <StatItem label="Points" value={points} />
+            <StatItem label={t('distance')} value={distance} />
+            <StatItem label={t('duration')} value={duration} />
+            <StatItem label={t('stops')} value={stops} />
+            <StatItem label={t('points')} value={points} />
         </View>
     );
 }

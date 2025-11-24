@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
 interface Review {
@@ -22,6 +23,7 @@ interface TourReviewsProps {
 
 export default function TourReviews({ reviews, averageRating, totalReviews }: TourReviewsProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     const renderStars = (rating: number) => {
         return Array.from({ length: 5 }).map((_, index) => (
@@ -37,14 +39,14 @@ export default function TourReviews({ reviews, averageRating, totalReviews }: To
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.textPrimary }]}>Reviews</Text>
+                <Text style={[styles.title, { color: theme.textPrimary }]}>{t('reviews')}</Text>
                 <View style={styles.ratingRow}>
                     <Ionicons name="star" size={20} color={theme.starColor} />
                     <Text style={[styles.averageRating, { color: theme.textPrimary }]}>
                         {averageRating.toFixed(1)}
                     </Text>
                     <Text style={[styles.reviewCount, { color: theme.textSecondary }]}>
-                        ({totalReviews} reviews)
+                        ({totalReviews} {t('reviews')})
                     </Text>
                 </View>
             </View>
