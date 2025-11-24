@@ -38,6 +38,11 @@ export const strings = {
     gameModes: 'Game Modes',
     challengesIncluded: 'Challenges Included',
     uniqueChallengesAcross: 'unique challenges across',
+    // Profile card keys
+    level: 'Level',
+    explorer: 'Explorer',
+    levelProgress: 'Level Progress',
+    created: 'Created',
   },
   es: {
     profile: 'Perfil',
@@ -77,6 +82,11 @@ export const strings = {
     gameModes: 'Modos de Juego',
     challengesIncluded: 'Desafíos Incluidos',
     uniqueChallengesAcross: 'desafíos únicos en',
+    // Profile card keys
+    level: 'Nivel',
+    explorer: 'Explorador',
+    levelProgress: 'Progreso de Nivel',
+    created: 'Creado',
   },
   nl: {
     profile: 'Profiel',
@@ -116,5 +126,10 @@ export const strings = {
     gameModes: 'Spelmodi',
     challengesIncluded: 'Uitdagingen Inbegrepen',
     uniqueChallengesAcross: 'unieke uitdagingen over',
+    // Profile card keys
+    level: 'Niveau',
+    explorer: 'Verkenner',
+    levelProgress: 'Niveauvoortgang',
+    created: 'Gemaakt',
   },
 };

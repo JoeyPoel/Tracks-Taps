@@ -1,11 +1,12 @@
-import React from 'react';
-import { ScrollView, Text, StyleSheet } from 'react-native';
-import { Ionicons, MaterialIcons, Entypo } from '@expo/vector-icons';
-import SettingsItem from '../components/profileScreen/SettingsItem';
+import { Entypo, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useTheme } from '../context/ThemeContext';
+import React from 'react';
+import { ScrollView, StyleSheet, Text } from 'react-native';
+import SettingsItem from '../components/profileScreen/SettingsItem';
+import UserProfileCard from '../components/profileScreen/UserProfileCard';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 
 type RootStackParamList = {
   Profile: undefined;
@@ -19,6 +20,17 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+      <UserProfileCard
+        name="Jan Kowalski"
+        level={8}
+        levelProgress={56}
+        avatarUrl="https://i.pravatar.cc/200?img=12"
+        points={4560}
+        completedTours={6}
+        createdTours={2}
+        onEditPress={() => console.log('Edit profile pressed')}
+      />
+
       <Text style={[styles.header, { color: theme.textPrimary }]}>{t('profile')}</Text>
       <Text style={[styles.subHeader, { color: theme.textSecondary }]}>{t('manageAccount')}</Text>
 
@@ -52,7 +64,7 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16 },
-  header: { fontSize: 22, fontWeight: '700', marginBottom: 4 },
-  subHeader: { fontSize: 14, marginBottom: 16 },
+  container: { padding: 0, paddingBottom: 16 },
+  header: { fontSize: 22, fontWeight: '700', marginBottom: 4, paddingHorizontal: 16, marginTop: 24 },
+  subHeader: { fontSize: 14, marginBottom: 16, paddingHorizontal: 16 },
 });
