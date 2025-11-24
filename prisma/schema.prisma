@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum SessionStatus {
+  WAITING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  name         String
+  level        Int      @default(1)
+  score        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  createdTours  Tour[]       @relation("TourAuthor")
+  reviews       Review[]
+  participations ActiveTour[] @relation("TourParticipant")
+}
+
+model Tour {
+  id              Int        @id @default(autoincrement())
+  title           String
+  location        String
+  description     String
+  imageUrl        String
+  distance        Float // Stored as Float for calculations
+  duration        Int // Stored in minutes
+  points          Int
+  modes           String[] // PostgreSQL array for modes
+  difficulty      Difficulty
+  challengesCount Int        @default(0) // Cache field
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  // Relations
+  authorId    Int
+  author      User         @relation("TourAuthor", fields: [authorId], references: [id])
+  stops       Stop[]
+  challenges  Challenge[] // Global challenges for the tour
+  reviews     Review[]
+  activeTours ActiveTour[]
+}
+
+model Stop {
+  id        Int      @id @default(autoincrement())
+  tourId    Int
+  tour      Tour     @relation(fields: [tourId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  challenges Challenge[] // Stop-specific challenges
+}
+
+model Challenge {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Polymorphic Relations (Nullable FKs)
+  tourId Int?
+  tour   Tour? @relation(fields: [tourId], references: [id])
+  stopId Int?
+  stop   Stop? @relation(fields: [stopId], references: [id])
+}
+
+model ActiveTour {
+  id        Int           @id @default(autoincrement())
+  tourId    Int
+  tour      Tour          @relation(fields: [tourId], references: [id])
+  status    SessionStatus @default(WAITING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // Relations
+  participants User[] @relation("TourParticipant")
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  content   String
+  rating    Int
+  photos    String[] // PostgreSQL array for photo URLs
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  tourId   Int
+  tour     Tour @relation(fields: [tourId], references: [id])
+  authorId Int
+  author   User @relation(fields: [authorId], references: [id])
+}

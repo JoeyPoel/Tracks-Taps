@@ -7,6 +7,7 @@ import SettingsItem from '../components/profileScreen/SettingsItem';
 import UserProfileCard from '../components/profileScreen/UserProfileCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useUser } from '../hooks/useUser';
 
 type RootStackParamList = {
   Profile: undefined;
@@ -18,16 +19,26 @@ export default function ProfileScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useLanguage();
 
+  const { user, loading } = useUser('joey@example.com');
+
+  if (loading) {
+    return (
+      <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center', flex: 1 }]}>
+        <Text style={{ color: theme.textPrimary }}>Loading profile...</Text>
+      </ScrollView>
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.bgPrimary }]}>
       <UserProfileCard
-        name="Jan Kowalski"
-        level={8}
-        levelProgress={56}
-        avatarUrl="https://i.pravatar.cc/200?img=12"
-        points={4560}
-        completedTours={6}
-        createdTours={2}
+        name={user?.name || 'Guest'}
+        level={user?.level || 1}
+        levelProgress={0} // This would need a calculation based on score/level logic
+        avatarUrl="https://i.pravatar.cc/200?img=12" // Placeholder or from DB if added
+        points={user?.score || 0}
+        completedTours={user?.participations?.filter((p: { status: string }) => p.status === 'COMPLETED').length || 0}
+        createdTours={user?.createdTours?.length || 0}
         onEditPress={() => console.log('Edit profile pressed')}
       />
 

@@ -41,3 +41,11 @@ app-example
 # generated native folders
 /ios
 /android
+
+# Prisma
+prisma/migrations/
+prisma/migration_lock.toml
+prisma/seed.ts
+prisma/seed.ts
+
+.env

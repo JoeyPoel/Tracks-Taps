@@ -10,6 +10,6 @@ export interface Tour {
     duration: string;
     points: number;
     modes: string[];
-    difficulty?: string;
+    difficulty: string;
     challengesCount: number;
 }
