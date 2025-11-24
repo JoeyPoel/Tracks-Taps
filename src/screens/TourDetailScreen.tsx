@@ -13,7 +13,7 @@ import { tours } from '../data/dummyTours';
 export default function TourDetailScreen() {
   const { theme } = useTheme();
 
-  const tour = tours[1]; // Example: Paris Art Tour
+  const tour = tours[1]; // Example: Maastricht Culinary Trail
   const tourReviews = reviews.filter(r => r.tourId === tour.id);
   const reviewCount = tourReviews.length;
   const averageRating =
@@ -21,28 +21,17 @@ export default function TourDetailScreen() {
       ? tourReviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
       : 0;
 
-  // Mock data for components
-  const mockReviewsData = [
-    {
-      id: '1',
-      userId: '1',
-      userName: 'Emma de Vries',
-      userAvatar: 'https://i.pravatar.cc/150?img=1',
-      rating: 5,
-      date: '2024-11-20',
-      comment: 'Amazing tour! Had so much fun with friends. The challenges were creative and the route was perfect!',
-      images: ['https://picsum.photos/200/200?random=1', 'https://picsum.photos/200/200?random=2'],
-    },
-    {
-      id: '2',
-      userId: '2',
-      userName: 'Lucas Bakker',
-      userAvatar: 'https://i.pravatar.cc/150?img=2',
-      rating: 5,
-      date: '2024-11-18',
-      comment: 'Best pub golf experience ever! Great mix of challenges and amazing locations.',
-    },
-  ];
+  // Convert reviews to component format
+  const reviewsData = tourReviews.map(review => ({
+    id: review.id.toString(),
+    userId: review.userId,
+    userName: review.userName,
+    userAvatar: review.userAvatar,
+    rating: review.rating,
+    date: review.date,
+    comment: review.comment,
+    images: review.images,
+  }));
 
   const handleStartTour = () => {
     console.log('Tour started!');
@@ -52,36 +41,35 @@ export default function TourDetailScreen() {
     <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <TourHeader
-          title="Maastricht Culinary Trail"
-          author="Lucas Bakker"
-          imageUrl="https://picsum.photos/600/400?random=3"
+          title={tour.title}
+          author={tour.author}
+          imageUrl={tour.imageUrl}
         />
 
         <TourStats
-          distance="3.2 km"
-          duration="165m"
-          stops={7}
-          points={780}
-        />
-
-        <TourAbout
-          description="Taste your way through Maastricht's best food spots while completing fun culinary challenges and learning about local cuisine."
-        />
-
-        <TourGameModes
-          modes={['Taste Quest', 'Bingo Mode']}
-          challengesCount={14}
-          stopsCount={7}
+          distance={tour.distance}
+          duration={tour.duration}
+          stops={tour.stops}
+          points={tour.points}
         />
 
         <StartTourButton onPress={handleStartTour} />
 
-        <TourReviews
-          reviews={mockReviewsData}
-          averageRating={4.8}
-          totalReviews={102}
+        <TourAbout
+          description={tour.description}
         />
 
+        <TourGameModes
+          modes={tour.modes}
+          challengesCount={tour.challengesCount}
+          stopsCount={tour.stops}
+        />
+
+        <TourReviews
+          reviews={reviewsData}
+          averageRating={averageRating}
+          totalReviews={reviewCount}
+        />
       </ScrollView>
     </View>
   );
