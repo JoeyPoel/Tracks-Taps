@@ -4,6 +4,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
+import TourButton from '../TourButton';
 
 interface ActiveTourCardProps {
   title: string;
@@ -57,14 +58,10 @@ export default function ActiveTourCard({ title, progress, onResume }: ActiveTour
           <Ionicons name="image-outline" size={48} color={theme.iconMuted} />
         </View>
 
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: theme.primary }]}
+        <TourButton 
           onPress={onResume}
-        >
-          <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>
-            {t('resumeTour')}
-          </Text>
-        </TouchableOpacity>
+          buttonText={t('resumeTour')}
+        />
       </View>
     </LinearGradient>
   );

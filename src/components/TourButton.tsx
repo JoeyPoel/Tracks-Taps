@@ -2,16 +2,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useLanguage } from '../../context/LanguageContext';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../context/ThemeContext';
 
 interface StartTourButtonProps {
     onPress: () => void;
+    buttonText: string;
 }
 
-export default function StartTourButton({ onPress }: StartTourButtonProps) {
+export default function StartTourButton({ onPress, buttonText }: StartTourButtonProps) {
     const { theme } = useTheme();
-    const { t } = useLanguage();
 
     return (
         <View style={styles.container}>
@@ -24,7 +23,7 @@ export default function StartTourButton({ onPress }: StartTourButtonProps) {
                 >
                     <Ionicons name="play" size={20} color={theme.fixedWhite} />
                     <Text style={[styles.buttonText, { color: theme.fixedWhite }]}>
-                        {t('startTour')}
+                        {buttonText}
                     </Text>
                 </LinearGradient>
             </TouchableOpacity>

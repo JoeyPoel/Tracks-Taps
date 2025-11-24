@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import StartTourButton from '../components/tourdetailScreen/StartTourButton';
+import StartTourButton from '../components/TourButton';
 import TourAbout from '../components/tourdetailScreen/TourAbout';
 import TourGameModes from '../components/tourdetailScreen/TourGameModes';
 import TourHeader from '../components/tourdetailScreen/TourHeader';
@@ -9,9 +9,11 @@ import TourStats from '../components/tourdetailScreen/TourStats';
 import { useTheme } from '../context/ThemeContext';
 import { reviews } from '../data/dummyReviews';
 import { tours } from '../data/dummyTours';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function TourDetailScreen() {
   const { theme } = useTheme();
+  const { t } = useLanguage();
 
   const tour = tours[1]; // Example: Maastricht Culinary Trail
   const tourReviews = reviews.filter(r => r.tourId === tour.id);
@@ -53,7 +55,7 @@ export default function TourDetailScreen() {
           points={tour.points}
         />
 
-        <StartTourButton onPress={handleStartTour} />
+        <StartTourButton onPress={handleStartTour} buttonText={t('startTour')}/>
 
         <TourAbout
           description={tour.description}
