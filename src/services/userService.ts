@@ -18,6 +18,14 @@ export const userService = {
     async getUserByEmail(email: string) {
         return await prisma.user.findUnique({
             where: { email },
+            include: {
+                participations: {
+                    include: {
+                        tour: true,
+                    },
+                },
+                createdTours: true,
+            },
         });
     },
 };

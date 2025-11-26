@@ -1,8 +1,9 @@
 import { userService } from '../../src/services/userService';
 
-export async function GET({ params }: { params: { userId: string, email: string } }) {
-    const userId = params.userId;
-    const email = params.email;
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const email = searchParams.get('email');
+    const userId = searchParams.get('userId');
 
     try {
         let user;
