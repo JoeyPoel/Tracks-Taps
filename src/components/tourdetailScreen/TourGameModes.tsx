@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
@@ -15,7 +16,16 @@ export default function TourGameModes({ modes, challengesCount, stopsCount }: To
     const { t } = useLanguage();
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
+        <LinearGradient
+            colors={[
+                `${theme.fixedGradientFrom}22`,
+                `${theme.fixedGradientTo}22`
+            ]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[styles.container, { borderColor: theme.secondary }]}
+        >
+
             <View style={styles.headerRow}>
                 <Ionicons name="game-controller-outline" size={20} color={theme.primary} />
                 <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('gameModes')}</Text>
@@ -23,8 +33,8 @@ export default function TourGameModes({ modes, challengesCount, stopsCount }: To
 
             <View style={styles.tagsRow}>
                 {modes.map((mode, index) => (
-                    <View key={index} style={[styles.tag, { backgroundColor: theme.primary }]}>
-                        <Text style={[styles.tagText, { color: theme.textOnPrimary }]}>{mode}</Text>
+                    <View key={index} style={[styles.tag, { backgroundColor: theme.secondary }]}>
+                        <Text style={[styles.tagText, { color: theme.textPrimary }]}>{mode}</Text>
                     </View>
                 ))}
             </View>
@@ -37,7 +47,7 @@ export default function TourGameModes({ modes, challengesCount, stopsCount }: To
             <Text style={[styles.description, { color: theme.textSecondary }]}>
                 {challengesCount} {t('uniqueChallengesAcross')} {stopsCount} {t('stops')}
             </Text>
-        </View>
+        </LinearGradient>
     );
 }
 
