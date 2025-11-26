@@ -8,10 +8,10 @@ import { useActiveTours } from '../hooks/useActiveTours';
 import { useTours } from '../hooks/useTours';
 import { useUser } from '../hooks/useUser';
 
-import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ExploreScreen() {
-  const router = useRouter();
+  const navigation = useNavigation();
   const { theme } = useTheme();
   const { t } = useLanguage();
   // TODO: Replace hardcoded email with actual auth context
@@ -64,7 +64,7 @@ export default function ExploreScreen() {
           points={tour.points}
           modes={tour.modes}
           difficulty={tour.difficulty}
-          onPress={() => router.push({ pathname: '/tour/[id]', params: { id: tour.id } })}
+          onPress={() => (navigation as any).navigate('TourDetail', { id: tour.id })}
         />
       ))}
     </ScrollView>

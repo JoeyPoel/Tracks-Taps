@@ -6,6 +6,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import TourDetailScreen from '@/src/screens/TourDetailScreen';
+
 const Stack = createNativeStackNavigator();
 
 export default function DefaultStack({ screen: ScreenComponent, name }: any) {
@@ -60,6 +62,14 @@ export default function DefaultStack({ screen: ScreenComponent, name }: any) {
           }}
         />
       )}
+
+      <Stack.Screen
+        name="TourDetail"
+        component={TourDetailScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack.Navigator>
   );
 }
