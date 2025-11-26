@@ -44,11 +44,6 @@ export default function AppNavigator() {
         options={{ tabBarLabel: t('explore') }}
       />
       <Tab.Screen
-        name="tourdetail"
-        children={() => <DefaultStack name="TourDetail" screen={TourDetailScreen} />}
-        options={{ tabBarLabel: t('tour') }}
-      />
-      <Tab.Screen
         name="map"
         children={() => <DefaultStack name="Map" screen={MapScreen} />}
         options={{ tabBarLabel: t('map') }}

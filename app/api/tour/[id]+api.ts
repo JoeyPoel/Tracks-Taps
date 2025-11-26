@@ -1,6 +1,6 @@
 import { tourService } from '../../../src/services/tourService';
 
-export async function GET(request: Request, { id }: { id: string }) {
+export async function GET({ id }: { id: string }) {
     if (!id) {
         return Response.json({ error: 'Missing tourId' }, { status: 400 });
     }

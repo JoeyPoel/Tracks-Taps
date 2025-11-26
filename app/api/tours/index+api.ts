@@ -1,6 +1,6 @@
 import { tourService } from '../../../src/services/tourService';
 
-export async function GET(request: Request) {
+export async function GET() {
     try {
         const tours = await tourService.getAllTours();
         return Response.json(tours);
