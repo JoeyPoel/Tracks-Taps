@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { usePathname, useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
@@ -17,18 +17,24 @@ export default function AppHeader({
   rightIcon,
   showBackButton = false,
 }: AppHeaderProps) {
-  const route = useRoute();
-  const navigation = useNavigation();
+  const pathname = usePathname();
+  const router = useRouter();
   const { theme } = useTheme();
-  const title = route.name;
+
+  // Determine title based on pathname
+  let title = 'Tracks&Taps';
+  if (pathname.includes('/map')) title = 'Map';
+  else if (pathname.includes('/profile')) title = 'Profile';
+  else if (pathname.includes('/preferences')) title = 'App Preferences';
+  else if (pathname === '/' || pathname.includes('/explore')) title = 'Explore';
 
   const isExplore = title === 'Explore';
 
   const handleBackPress = () => {
     if (onBackPress) {
       onBackPress();
-    } else if (navigation.canGoBack()) {
-      navigation.goBack();
+    } else if (router.canGoBack()) {
+      router.back();
     }
   };
 
@@ -48,7 +54,7 @@ export default function AppHeader({
         {isExplore ? (
           <Text style={styles.exploreText}>
             <Text style={{ color: theme.primary }}>Tracks</Text>
-            <Text style={{ color: theme.secondary }}>&Traps</Text>
+            <Text style={{ color: theme.secondary }}>&Taps</Text>
           </Text>
         ) : (
           <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>

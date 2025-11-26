@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,12 +17,12 @@ export default function TourHeader({ title, author, imageUrl }: TourHeaderProps)
     const { theme } = useTheme();
     const { t } = useLanguage();
 
-    const navigation = useNavigation();
+    const router = useRouter();
 
     return (
         <ImageBackground source={{ uri: imageUrl }} style={styles.background}>
             <SafeAreaView style={styles.safeArea} edges={['top']}>
-                <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
+                <Pressable onPress={() => router.back()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={theme.fixedWhite} />
                 </Pressable>
             </SafeAreaView>

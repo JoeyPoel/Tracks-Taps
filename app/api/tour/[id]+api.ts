@@ -1,12 +1,17 @@
-import { tourService } from '../../../src/services/tourService';
+import { tourService } from "@/src/services/tourService";
 
-export async function GET({ id }: { id: string }) {
+export async function GET(request: Request, { id }: { id: string }) {
     if (!id) {
         return Response.json({ error: 'Missing tourId' }, { status: 400 });
     }
 
+    const tourId = Number(id);
+    if (isNaN(tourId)) {
+        return Response.json({ error: 'Invalid tourId' }, { status: 400 });
+    }
+
     try {
-        const tour = await tourService.getTourById(parseInt(id));
+        const tour = await tourService.getTourById(tourId);
         if (!tour) {
             return Response.json({ error: 'Tour not found' }, { status: 404 });
         }

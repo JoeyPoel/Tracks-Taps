@@ -1,4 +1,4 @@
-import { useRoute } from '@react-navigation/native';
+import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import StartTourButton from '../components/TourButton';
@@ -11,12 +11,12 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useTourDetails } from '../hooks/useTourDetails';
 
-export default function TourDetailScreen() {
+export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
   const { t } = useLanguage();
-  const route = useRoute();
-  const { id } = route.params as { id: number };
-  const { tour, loading, error } = useTourDetails(id);
+  const { tour, loading, error } = useTourDetails(tourId);
+
+  console.log(tourId);
 
   if (loading) {
     return (

@@ -1,6 +1,5 @@
 import { Entypo, Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 import SettingsItem from '../components/profileScreen/SettingsItem';
@@ -9,14 +8,9 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUser } from '../hooks/useUser';
 
-type RootStackParamList = {
-  Profile: undefined;
-  AppPreferences: undefined;
-};
-
 export default function ProfileScreen() {
   const { theme } = useTheme();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const router = useRouter();
   const { t } = useLanguage();
 
   const { user, loading } = useUser('joey@example.com');
@@ -53,7 +47,7 @@ export default function ProfileScreen() {
       <SettingsItem
         icon={<Ionicons name="settings" size={24} color={theme.secondary} />}
         title={t('appPreferences')}
-        onPress={() => navigation.navigate('AppPreferences')} // stack screen is static
+        onPress={() => router.push('/preferences')} // stack screen is static
       />
       <SettingsItem
         icon={<MaterialIcons name="email" size={24} color={theme.secondary} />}
