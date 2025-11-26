@@ -11,7 +11,6 @@ export default function TourDetailRoute() {
 
     return (
         <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: theme.bgPrimary }}>
-            <AppHeader />
             {tourId && <TourDetailScreen tourId={tourId} />}
         </SafeAreaView>
     );
