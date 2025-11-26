@@ -12,7 +12,7 @@ export default function ProfileTab() {
         <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: theme.bgPrimary }}>
             <AppHeader
                 rightIcon="settings-outline"
-                onRightIconPress={() => router.push('/preferences')}
+                onRightIconPress={() => router.push('/profile/preferences')}
             />
             <ProfileScreen />
         </SafeAreaView>

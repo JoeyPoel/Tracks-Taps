@@ -47,7 +47,7 @@ export default function ProfileScreen() {
       <SettingsItem
         icon={<Ionicons name="settings" size={24} color={theme.secondary} />}
         title={t('appPreferences')}
-        onPress={() => router.push('/preferences')} // stack screen is static
+        onPress={() => router.push('/profile/preferences')} // stack screen is static
       />
       <SettingsItem
         icon={<MaterialIcons name="email" size={24} color={theme.secondary} />}
