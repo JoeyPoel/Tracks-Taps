@@ -1,7 +1,8 @@
 import { tourService } from '../../src/services/tourService';
 
-export async function GET({ params }: { params: { userId: string } }) {
-    const userId = params.userId;
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
 
     if (!userId) {
         return Response.json({ error: 'Missing userId' }, { status: 400 });
