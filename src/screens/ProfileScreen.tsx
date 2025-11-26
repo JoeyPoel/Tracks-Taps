@@ -69,7 +69,7 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 0, paddingBottom: 16 },
+  container: { padding: 16 },
   header: { fontSize: 22, fontWeight: '700', marginBottom: 4, paddingHorizontal: 16, marginTop: 24 },
   subHeader: { fontSize: 14, marginBottom: 16, paddingHorizontal: 16 },
 });
