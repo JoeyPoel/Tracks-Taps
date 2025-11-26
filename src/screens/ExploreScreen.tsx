@@ -46,7 +46,7 @@ export default function ExploreScreen() {
         <ActiveTourCard
           title={activeTour.tour.title}
           progress={0.5} // TODO: Calculate actual progress
-          onResume={() => console.log('Resuming tour', activeTour.id)}
+          onResume={() => router.push({ pathname: '/active-tour/[id]' as any, params: { id: activeTour.id } })}
         />
       )}
 
