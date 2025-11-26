@@ -71,11 +71,11 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           points={tour.points}
         />
 
-        <StartTourButton onPress={handleStartTour} buttonText={t('startTour')} />
-
         <TourAbout
           description={tour.description}
         />
+
+        <StartTourButton onPress={handleStartTour} buttonText={t('startTour')} />
 
         <TourGameModes
           modes={tour.modes}
