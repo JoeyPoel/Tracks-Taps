@@ -78,7 +78,7 @@ export const darkTheme = {
   infoText: "#DBEAFE",
 
   bgPrimary: "#0F172A",
-  bgSecondary: "#1E293B",
+  bgSecondary: "#1e2632ff",
   bgTertiary: "#334155",
   bgInput: "#1E293B",
   bgDisabled: "#475569",

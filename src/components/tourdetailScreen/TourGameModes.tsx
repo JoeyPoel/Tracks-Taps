@@ -24,7 +24,7 @@ export default function TourGameModes({ modes, challengesCount, stopsCount }: To
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[styles.container, { borderColor: theme.secondary }]}
-        >
+            >
 
             <View style={styles.headerRow}>
                 <Ionicons name="game-controller-outline" size={20} color={theme.primary} />

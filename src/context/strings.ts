@@ -43,6 +43,8 @@ export const strings = {
     explorer: 'Explorer',
     levelProgress: 'Level Progress',
     created: 'Created',
+    completeAllChallengesToContinue: 'Complete all challenges to continue',
+    Stop: 'Stop',
   },
   es: {
     profile: 'Perfil',
@@ -87,6 +89,8 @@ export const strings = {
     explorer: 'Explorador',
     levelProgress: 'Progreso de Nivel',
     created: 'Creado',
+    completeAllChallengesToContinue: 'Completa todos los desafíos para continuar',
+    Stop: 'Parada',
   },
   nl: {
     profile: 'Profiel',
@@ -131,5 +135,7 @@ export const strings = {
     explorer: 'Verkenner',
     levelProgress: 'Niveauvoortgang',
     created: 'Gemaakt',
+    completeAllChallengesToContinue: 'Voltooi alle uitdagingen om door te gaan',
+    Stop: 'Stop',
   },
 };
