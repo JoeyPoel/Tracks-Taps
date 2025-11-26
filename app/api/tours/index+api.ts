@@ -1,0 +1,11 @@
+import { tourService } from '../../../src/services/tourService';
+
+export async function GET(request: Request) {
+    try {
+        const tours = await tourService.getAllTours();
+        return Response.json(tours);
+    } catch (error) {
+        console.error('Error fetching tours:', error);
+        return Response.json({ error: 'Failed to fetch tours', details: String(error) }, { status: 500 });
+    }
+}

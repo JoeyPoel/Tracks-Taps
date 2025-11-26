@@ -1,50 +1,72 @@
 import React from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text } from 'react-native';
 import ActiveTourCard from '../components/exploreScreen/ActiveTourCard';
 import TourCard from '../components/exploreScreen/TourCard';
+import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
-import { reviews } from '../data/dummyReviews';
-import { tours } from '../data/dummyTours';
+import { useActiveTours } from '../hooks/useActiveTours';
+import { useTours } from '../hooks/useTours';
+import { useUser } from '../hooks/useUser';
+
+import { useRouter } from 'expo-router';
 
 export default function ExploreScreen() {
+  const router = useRouter();
   const { theme } = useTheme();
+  const { t } = useLanguage();
+  // TODO: Replace hardcoded email with actual auth context
+  const { user } = useUser('joey@example.com');
+  const { tours, loading: toursLoading, error: toursError } = useTours();
+  const { activeTours, loading: activeLoading, error: activeError } = useActiveTours(user?.id);
 
-  const activeTourProps = {
-    title: 'Paris Highlights',
-    progress: 0.6,
-    onResume: () => console.log('Resuming tour'),
-  };
+  const loading = toursLoading || activeLoading;
+  const error = toursError || activeError;
+
+  if (loading) {
+    return (
+      <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.bgPrimary, flex: 1, justifyContent: 'center' }]}>
+        <ActivityIndicator size="large" color={theme.primary} />
+      </ScrollView>
+    );
+  }
+
+  if (error) {
+    return (
+      <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.bgPrimary, flex: 1, justifyContent: 'center' }]}>
+        <Text style={{ color: theme.textPrimary }}>Error loading tours: {error}</Text>
+      </ScrollView>
+    );
+  }
+
+  const activeTour = activeTours.length > 0 ? activeTours[0] : null;
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.bgPrimary }]}>
-      <ActiveTourCard {...activeTourProps} />
+      {activeTour && (
+        <ActiveTourCard
+          title={activeTour.tour.title}
+          progress={0.5} // TODO: Calculate actual progress
+          onResume={() => console.log('Resuming tour', activeTour.id)}
+        />
+      )}
 
-      {tours.map((tour) => {
-        const tourReviews = reviews.filter(r => r.tourId === tour.id);
-        const reviewCount = tourReviews.length;
-
-        const rating =
-          reviewCount > 0
-            ? tourReviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
-            : 0;
-
-        return (
-          <TourCard
-            key={tour.id}
-            title={tour.title}
-            author={tour.author}
-            imageUrl={tour.imageUrl}
-            distance={tour.distance}
-            duration={tour.duration}
-            stops={tour.stops}
-            rating={rating}
-            reviewCount={reviewCount}
-            points={tour.points}
-            modes={tour.modes}
-            difficulty={tour.difficulty}
-          />
-        );
-      })}
+      {tours.map((tour) => (
+        <TourCard
+          key={tour.id}
+          title={tour.title}
+          author={tour.author.name}
+          imageUrl={tour.imageUrl}
+          distance={`${tour.distance} km`}
+          duration={`${tour.duration} min`}
+          stops={tour._count?.stops || 0}
+          rating={4.5} // TODO: Implement reviews
+          reviewCount={0}
+          points={tour.points}
+          modes={tour.modes}
+          difficulty={tour.difficulty}
+          onPress={() => router.push({ pathname: '/tour/[id]', params: { id: tour.id } })}
+        />
+      ))}
     </ScrollView>
   );
 }

@@ -1,32 +1,25 @@
-import { useEffect, useState } from 'react';
-import { Tour } from '../types/Tour';
+import { useFetch } from './useFetch';
+
+export interface Tour {
+    id: number;
+    title: string;
+    location: string;
+    description: string;
+    imageUrl: string;
+    distance: number;
+    duration: number;
+    points: number;
+    modes: string[];
+    difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+    author: {
+        name: string;
+    };
+    _count: {
+        stops: number;
+    };
+}
 
 export function useTours() {
-    const [tours, setTours] = useState<Tour[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        async function fetchTours() {
-            try {
-                // In Expo, relative URLs for API routes might need full localhost path if not handled by proxy
-                // But Expo Router usually handles /api/tours if running in same instance
-                // We'll assume relative path works for now, or use localhost
-                const response = await fetch('/api/tours');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch tours');
-                }
-                const data = await response.json();
-                setTours(data);
-            } catch (err) {
-                setError(err instanceof Error ? err.message : 'Unknown error');
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchTours();
-    }, []);
-
-    return { tours, loading, error };
+    const { data, loading, error } = useFetch<Tour[]>('/api/tours');
+    return { tours: data || [], loading, error };
 }

@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -17,6 +17,7 @@ interface TourCardProps {
   points: number;
   modes?: string[];
   difficulty?: string;
+  onPress?: () => void;
 }
 
 export default function TourCard({
@@ -31,78 +32,81 @@ export default function TourCard({
   points,
   modes = [],
   difficulty,
+  onPress,
 }: TourCardProps) {
   const { theme } = useTheme();
   const { t } = useLanguage();
 
   return (
-    <View style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
-      <ImageBackground source={{ uri: imageUrl }} style={styles.imageBackground}>
-        <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.8)']}
-          style={styles.gradient}
-        >
-          {difficulty && (
-            <View style={[styles.difficultyBadge, { backgroundColor: theme.bgSecondary }]}>
-              <Text style={[styles.difficultyText, { color: theme.textPrimary }]}>
-                {difficulty}
+    <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
+      <View style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
+        <ImageBackground source={{ uri: imageUrl }} style={styles.imageBackground}>
+          <LinearGradient
+            colors={['transparent', 'rgba(0,0,0,0.8)']}
+            style={styles.gradient}
+          >
+            {difficulty && (
+              <View style={[styles.difficultyBadge, { backgroundColor: theme.bgSecondary }]}>
+                <Text style={[styles.difficultyText, { color: theme.textPrimary }]}>
+                  {difficulty}
+                </Text>
+              </View>
+            )}
+
+            {modes.length > 0 && (
+              <View style={styles.modesContainer}>
+                {modes.map((mode, index) => (
+                  <View key={index} style={[styles.modeTag, { backgroundColor: theme.secondary }]}>
+                    <Text style={[styles.modeText, { color: theme.textOnSecondary }]}>
+                      {mode}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </LinearGradient>
+        </ImageBackground>
+
+        <View style={styles.content}>
+          <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
+          <Text style={[styles.author, { color: theme.textSecondary }]}>{t('by')} {author}</Text>
+
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Ionicons name="navigate-outline" size={16} color={theme.textSecondary} />
+              <Text style={[styles.statText, { color: theme.textSecondary }]}>{distance}</Text>
+            </View>
+
+            <View style={styles.statItem}>
+              <Ionicons name="time-outline" size={16} color={theme.textSecondary} />
+              <Text style={[styles.statText, { color: theme.textSecondary }]}>{duration}</Text>
+            </View>
+
+            <View style={styles.statItem}>
+              <Ionicons name="location-outline" size={16} color={theme.textSecondary} />
+              <Text style={[styles.statText, { color: theme.textSecondary }]}>{stops} {t('stops')}</Text>
+            </View>
+          </View>
+
+          <View style={styles.footer}>
+            <View style={styles.ratingContainer}>
+              <Ionicons name="star" size={18} color={theme.starColor} />
+              <Text style={[styles.ratingText, { color: theme.textPrimary }]}>
+                {rating.toFixed(1)}
+              </Text>
+              <Text style={[styles.reviewCount, { color: theme.textSecondary }]}>
+                ({reviewCount})
               </Text>
             </View>
-          )}
 
-          {modes.length > 0 && (
-            <View style={styles.modesContainer}>
-              {modes.map((mode, index) => (
-                <View key={index} style={[styles.modeTag, { backgroundColor: theme.secondary }]}>
-                  <Text style={[styles.modeText, { color: theme.textOnSecondary }]}>
-                    {mode}
-                  </Text>
-                </View>
-              ))}
+            <View style={styles.pointsContainer}>
+              <Ionicons name="flash" size={18} color={theme.primary} />
+              <Text style={[styles.pointsText, { color: theme.primary }]}>{points} {t('pts')}</Text>
             </View>
-          )}
-        </LinearGradient>
-      </ImageBackground>
-
-      <View style={styles.content}>
-        <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
-        <Text style={[styles.author, { color: theme.textSecondary }]}>{t('by')} {author}</Text>
-
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <Ionicons name="navigate-outline" size={16} color={theme.textSecondary} />
-            <Text style={[styles.statText, { color: theme.textSecondary }]}>{distance}</Text>
-          </View>
-
-          <View style={styles.statItem}>
-            <Ionicons name="time-outline" size={16} color={theme.textSecondary} />
-            <Text style={[styles.statText, { color: theme.textSecondary }]}>{duration}</Text>
-          </View>
-
-          <View style={styles.statItem}>
-            <Ionicons name="location-outline" size={16} color={theme.textSecondary} />
-            <Text style={[styles.statText, { color: theme.textSecondary }]}>{stops} {t('stops')}</Text>
-          </View>
-        </View>
-
-        <View style={styles.footer}>
-          <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={18} color={theme.starColor} />
-            <Text style={[styles.ratingText, { color: theme.textPrimary }]}>
-              {rating.toFixed(1)}
-            </Text>
-            <Text style={[styles.reviewCount, { color: theme.textSecondary }]}>
-              ({reviewCount})
-            </Text>
-          </View>
-
-          <View style={styles.pointsContainer}>
-            <Ionicons name="flash" size={18} color={theme.primary} />
-            <Text style={[styles.pointsText, { color: theme.primary }]}>{points} {t('pts')}</Text>
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -199,4 +203,3 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 });
-
