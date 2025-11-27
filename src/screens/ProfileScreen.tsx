@@ -13,7 +13,7 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { t } = useLanguage();
 
-  const { user, loading } = useUser('joey@example.com');
+  const { user, loading } = useUser('Joey@example.com');
 
   if (loading) {
     return (

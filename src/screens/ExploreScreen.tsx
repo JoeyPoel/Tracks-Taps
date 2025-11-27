@@ -15,7 +15,7 @@ export default function ExploreScreen() {
   const { theme } = useTheme();
   const { t } = useLanguage();
   // TODO: Replace hardcoded email with actual auth context
-  const { user } = useUser('joey@example.com');
+  const { user } = useUser('Joey@example.com');
   const { tours, loading: toursLoading, error: toursError } = useTours();
   const { activeTours, loading: activeLoading, error: activeError } = useActiveTours(user?.id);
 

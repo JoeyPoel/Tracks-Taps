@@ -7,6 +7,7 @@ import StopCard from '../components/activeTourScreen/StopCard';
 import CustomTabBar from '../components/CustomTabBar';
 import AppHeader from '../components/Header';
 import { useTheme } from '../context/ThemeContext';
+import { useFetch } from '../hooks/useFetch';
 
 export default function ActiveTourScreen({ activeTourId }: { activeTourId: number }) {
     const { theme } = useTheme();
@@ -15,11 +16,24 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
     const [showFloatingPoints, setShowFloatingPoints] = useState(false);
     const [floatingPointsAmount, setFloatingPointsAmount] = useState(0);
     const [activeTab, setActiveTab] = useState(0);
+    const [currentStopIndex, setCurrentStopIndex] = useState(0);
 
-    // Challenge States
-    const [arrivalClaimed, setArrivalClaimed] = useState(false);
-    const [triviaSubmitted, setTriviaSubmitted] = useState(false);
-    const [triviaSelected, setTriviaSelected] = useState<number | null>(null);
+    // Fetch active tour data
+    const { data: activeTour, loading, error } = useFetch<any>(`/api/active-tour/${activeTourId}`);
+
+    // Local state for immediate UI updates before refetch/sync
+    const [completedChallenges, setCompletedChallenges] = useState<Set<number>>(new Set());
+    const [triviaSelected, setTriviaSelected] = useState<{ [key: number]: number }>({}); // challengeId -> selectedIndex
+
+    // Sync completed challenges from API
+    React.useEffect(() => {
+        if (activeTour?.activeChallenges) {
+            const completed = new Set<number>(activeTour.activeChallenges
+                .filter((ac: any) => ac.completed)
+                .map((ac: any) => ac.challengeId));
+            setCompletedChallenges(completed);
+        }
+    }, [activeTour]);
 
     const triggerFloatingPoints = (amount: number) => {
         setFloatingPointsAmount(amount);
@@ -27,33 +41,51 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         setPoints(prev => prev + amount);
     };
 
-    const handleClaimArrival = () => {
-        if (arrivalClaimed) return;
-        setArrivalClaimed(true);
-        triggerFloatingPoints(50);
-    };
+    const handleChallengeComplete = async (challenge: any) => {
+        if (completedChallenges.has(challenge.id)) return;
 
-    const handleSubmitTrivia = () => {
-        if (triviaSelected === null || triviaSubmitted) return;
-        setTriviaSubmitted(true);
-        // Mock correct answer check (index 0 is correct)
-        if (triviaSelected === 0) {
-            triggerFloatingPoints(100);
+        // Optimistic update
+        setCompletedChallenges(prev => new Set(prev).add(challenge.id));
+        triggerFloatingPoints(challenge.points);
+
+        try {
+            await fetch('/api/active-challenge/complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    activeTourId,
+                    challengeId: challenge.id
+                })
+            });
+        } catch (err) {
+            console.error('Failed to complete challenge', err);
+            // Revert if failed? For now, keep optimistic.
         }
     };
 
-    // Mock stop data
-    const stop = {
-        id: 1,
-        name: 'Utrecht Historical Bingo',
-        description: 'This is a description of the stop.',
-        latitude: 52.0907,
-        longitude: 5.1214,
-        tourId: 1,
-        order: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+    const handleClaimArrival = (challenge: any) => {
+        handleChallengeComplete(challenge);
     };
+
+    const handleSubmitTrivia = (challenge: any) => {
+        const selectedIndex = triviaSelected[challenge.id];
+        if (selectedIndex === undefined || completedChallenges.has(challenge.id)) return;
+
+        const selectedOption = challenge.options[selectedIndex];
+        if (selectedOption === challenge.answer) {
+            handleChallengeComplete(challenge);
+        } else {
+            // Handle wrong answer (maybe show alert)
+            alert('Wrong answer, try again!');
+        }
+    };
+
+    if (loading) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>Loading tour...</Text></View>;
+    if (error) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.danger }}>{error}</Text></View>;
+    if (!activeTour) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>Tour not found</Text></View>;
+
+    const currentStop = activeTour.tour.stops[currentStopIndex];
+    const stopChallenges = currentStop?.challenges || [];
 
     return (
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
@@ -68,55 +100,50 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
             />
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
-                <StopCard stop={stop} />
+                {currentStop && <StopCard stop={currentStop} />}
 
-                <ActiveChallengeCard
-                    title="Arrival Check"
-                    points={50}
-                    description="You've reached the first stop! Check in to claim your points."
-                    type="location"
-                    isCompleted={arrivalClaimed}
-                    onPress={handleClaimArrival}
-                    actionLabel="Claim Points"
-                >
-                    <Text style={[styles.successText, { color: theme.primary }]}>
-                        You're at the right location!
-                    </Text>
-                </ActiveChallengeCard>
-
-                <ActiveChallengeCard
-                    title="Pub Trivia"
-                    points={100}
-                    description="Test your knowledge about this historic pub!"
-                    type="trivia"
-                    isCompleted={triviaSubmitted}
-                    onPress={handleSubmitTrivia}
-                    actionLabel="Submit Answer"
-                >
-                    <View>
-                        <Text style={[styles.questionText, { color: theme.textPrimary }]}>
-                            In what year was this pub established?
-                        </Text>
-                        <View style={styles.optionsContainer}>
-                            {['1652', '1705', '1823', '1901'].map((option, index) => (
-                                <TouchableOpacity
-                                    key={index}
-                                    style={styles.optionRow}
-                                    onPress={() => !triviaSubmitted && setTriviaSelected(index)}
-                                >
-                                    <View style={[
-                                        styles.radioButton,
-                                        { borderColor: theme.textSecondary },
-                                        triviaSelected === index && { borderColor: theme.primary, backgroundColor: theme.primary }
-                                    ]}>
-                                        {triviaSelected === index && <View style={styles.radioButtonInner} />}
-                                    </View>
-                                    <Text style={[styles.optionText, { color: theme.textPrimary }]}>{option}</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-                    </View>
-                </ActiveChallengeCard>
+                {stopChallenges.map((challenge: any) => (
+                    <ActiveChallengeCard
+                        key={challenge.id}
+                        title={challenge.title}
+                        points={challenge.points}
+                        description={challenge.description}
+                        type={challenge.type.toLowerCase()}
+                        isCompleted={completedChallenges.has(challenge.id)}
+                        onPress={() => challenge.type === 'LOCATION' ? handleClaimArrival(challenge) : handleSubmitTrivia(challenge)}
+                        actionLabel={challenge.type === 'LOCATION' ? "Claim Points" : "Submit Answer"}
+                    >
+                        {challenge.type === 'LOCATION' ? (
+                            <Text style={[styles.successText, { color: theme.primary }]}>
+                                You're at the right location!
+                            </Text>
+                        ) : (
+                            <View>
+                                <Text style={[styles.questionText, { color: theme.textPrimary }]}>
+                                    {challenge.content}
+                                </Text>
+                                <View style={styles.optionsContainer}>
+                                    {challenge.options.map((option: string, index: number) => (
+                                        <TouchableOpacity
+                                            key={index}
+                                            style={styles.optionRow}
+                                            onPress={() => !completedChallenges.has(challenge.id) && setTriviaSelected(prev => ({ ...prev, [challenge.id]: index }))}
+                                        >
+                                            <View style={[
+                                                styles.radioButton,
+                                                { borderColor: theme.textSecondary },
+                                                triviaSelected[challenge.id] === index && { borderColor: theme.primary, backgroundColor: theme.primary }
+                                            ]}>
+                                                {triviaSelected[challenge.id] === index && <View style={styles.radioButtonInner} />}
+                                            </View>
+                                            <Text style={[styles.optionText, { color: theme.textPrimary }]}>{option}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </View>
+                        )}
+                    </ActiveChallengeCard>
+                ))}
             </ScrollView>
 
             {showFloatingPoints && (

@@ -64,4 +64,45 @@ export const tourService = {
             },
         });
     },
+
+    async getActiveTourById(id: number) {
+        return await prisma.activeTour.findUnique({
+            where: { id },
+            include: {
+                tour: {
+                    include: {
+                        stops: {
+                            orderBy: { order: 'asc' },
+                            include: {
+                                challenges: true
+                            }
+                        },
+                        challenges: true,
+                    }
+                },
+                activeChallenges: true,
+            }
+        });
+    },
+
+    async completeChallenge(activeTourId: number, challengeId: number) {
+        return await prisma.activeChallenge.upsert({
+            where: {
+                activeTourId_challengeId: {
+                    activeTourId,
+                    challengeId,
+                },
+            },
+            update: {
+                completed: true,
+                completedAt: new Date(),
+            },
+            create: {
+                activeTourId,
+                challengeId,
+                completed: true,
+                completedAt: new Date(),
+            },
+        });
+    },
 };

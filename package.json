@@ -52,7 +52,7 @@
     "typescript": "~5.9.2"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed_new.ts"
   },
   "private": true,
   "description": "This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).",
