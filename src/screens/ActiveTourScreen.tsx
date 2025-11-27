@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
-import ConfettiCannon from 'react-native-confetti-cannon';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import ChallengeItem from '../components/activeTourScreen/ChallengeItem';
+import Confetti from '../components/activeTourScreen/Confetti';
 import FloatingPoints from '../components/activeTourScreen/FloatingPoints';
 import StopCard from '../components/activeTourScreen/StopCard';
 import TourNavigation from '../components/activeTourScreen/TourNavigation';
@@ -29,7 +29,6 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         floatingPointsAmount,
         setShowFloatingPoints,
         showConfetti,
-        confettiRef,
         handleClaimArrival,
         handleSubmitTrivia,
         handlePrevStop,
@@ -102,17 +101,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                 />
             )}
 
-            {showConfetti && (
-                <ConfettiCannon
-                    count={200}
-                    origin={{ x: Dimensions.get('window').width / 2, y: -100 }}
-                    autoStart={true}
-                    ref={confettiRef}
-                    fadeOut={true}
-                    fallSpeed={3000}
-                    explosionSpeed={350}
-                />
-            )}
+            {showConfetti && <Confetti />}
         </View>
     );
 }

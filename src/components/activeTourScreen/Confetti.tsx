@@ -7,19 +7,17 @@ const COLORS = [
   '#FFC107', '#2196F3', '#E91E63', '#4CAF50', '#9C27B0', '#F44336', '#00BCD4'
 ];
 
-const NUM_CONFETTI = 60;
+const NUM_CONFETTI = 80;
 
 const ConfettiPiece = () => {
   // 1. Setup Animation Values
   // Start at -100 (just above screen)
-  const animatedY = useRef(new Animated.Value(-100)).current; 
+  const animatedY = useRef(new Animated.Value(-50)).current; 
   const animatedRotate = useRef(new Animated.Value(0)).current;
   const animatedOpacity = useRef(new Animated.Value(1)).current; 
 
   // 2. Randomize Properties
   const [props] = useState(() => {
-    // Duration: 4000ms to 7000ms (4s - 7s)
-    // This is the "middle ground" speed you requested
     const duration = 4000 + Math.random() * 3000; 
     
     return {

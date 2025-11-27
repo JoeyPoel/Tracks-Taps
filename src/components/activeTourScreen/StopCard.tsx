@@ -22,7 +22,7 @@ export default function StopCard({ stop }: { stop: Stop }) {
             >
             <View>
                 <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>
-                    {`${t('Stop')} ${stop.id}: Stopname`}
+                    {`${t('Stop')} ${stop.id}: ${stop.name}`}
                 </Text>
                 <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
                     {t('completeAllChallengesToContinue')}

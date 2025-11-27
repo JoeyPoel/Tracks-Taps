@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import ConfettiCannon from 'react-native-confetti-cannon';
+import { useEffect, useState } from 'react';
 import { useFetch } from './useFetch';
 
 export const useActiveTour = (activeTourId: number) => {
@@ -8,7 +7,6 @@ export const useActiveTour = (activeTourId: number) => {
     const [floatingPointsAmount, setFloatingPointsAmount] = useState(0);
     const [currentStopIndex, setCurrentStopIndex] = useState(0);
     const [showConfetti, setShowConfetti] = useState(false);
-    const confettiRef = useRef<ConfettiCannon>(null);
 
     // Fetch active tour data
     const { data: activeTour, loading, error } = useFetch<any>(`/api/active-tour/${activeTourId}`);
@@ -149,7 +147,6 @@ export const useActiveTour = (activeTourId: number) => {
 
     const handleFinishTour = () => {
         setShowConfetti(true);
-        confettiRef.current?.start();
     };
 
     return {
@@ -165,7 +162,6 @@ export const useActiveTour = (activeTourId: number) => {
         floatingPointsAmount,
         setShowFloatingPoints,
         showConfetti,
-        confettiRef,
         handleClaimArrival,
         handleSubmitTrivia,
         handlePrevStop,
