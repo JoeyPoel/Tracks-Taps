@@ -68,7 +68,7 @@ export default function ActiveTourCard({ title, progress, onResume }: ActiveTour
 }
 
 const styles = StyleSheet.create({
-  gradientBorder: { borderRadius: 12, padding: 2, margin: 16 },
+  gradientBorder: { borderRadius: 12, padding: 2 },
   container: { borderRadius: 10, padding: 16 },
   subtitle: { fontSize: 12, fontWeight: '500', marginBottom: 4 },
   title: { fontSize: 18, fontWeight: '700', marginBottom: 12 },

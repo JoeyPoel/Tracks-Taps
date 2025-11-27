@@ -2,6 +2,8 @@ import { Entypo, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
+import ProfileStats from '../components/profileScreen/ProfileStats';
+import RecentAchievements from '../components/profileScreen/RecentAchievements';
 import SettingsItem from '../components/profileScreen/SettingsItem';
 import UserProfileCard from '../components/profileScreen/UserProfileCard';
 import { useLanguage } from '../context/LanguageContext';
@@ -23,21 +25,32 @@ export default function ProfileScreen() {
     );
   }
 
+  // Mock data for new UI elements
+  const achievements = [
+    { id: '1', title: 'Tour Master', description: 'Completed 5 tours', icon: 'ribbon' as const, color: '#FFC107' },
+    { id: '2', title: 'Rising Star', description: 'Earned 4000+ points', icon: 'trending-up' as const, color: '#2AC3FF' },
+    { id: '3', title: 'Social Butterfly', description: 'Invited 3 friends', icon: 'people' as const, color: '#FF375D' },
+  ];
+
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.bgPrimary }]}>
       <UserProfileCard
         name={user?.name || 'Guest'}
         level={user?.level || 1}
-        levelProgress={0} // This would need a calculation based on score/level logic
-        avatarUrl="https://i.pravatar.cc/200?img=12" // Placeholder or from DB if added
-        points={user?.score || 0}
-        completedTours={user?.participations?.filter((p: { status: string }) => p.status === 'COMPLETED').length || 0}
-        createdTours={user?.createdTours?.length || 0}
+        levelProgress={56} // Mock progress
+        avatarUrl="https://i.pravatar.cc/200?img=12"
         onEditPress={() => console.log('Edit profile pressed')}
       />
 
-      <Text style={[styles.header, { color: theme.textPrimary }]}>{t('profile')}</Text>
-      <Text style={[styles.subHeader, { color: theme.textSecondary }]}>{t('manageAccount')}</Text>
+      <ProfileStats
+        toursDone={user?.participations?.filter((p: { status: string }) => p.status === 'COMPLETED').length || 0}
+        totalPoints={user?.score || 0}
+        friends={3} // Mock friends count
+      />
+
+      <RecentAchievements achievements={achievements} />
+
+      <Text style={[styles.header, { color: theme.textPrimary }]}>{t('manageAccount')}</Text>
 
       <SettingsItem
         icon={<Ionicons name="person-outline" size={24} color={theme.secondary} />}
@@ -47,7 +60,7 @@ export default function ProfileScreen() {
       <SettingsItem
         icon={<Ionicons name="settings" size={24} color={theme.secondary} />}
         title={t('appPreferences')}
-        onPress={() => router.push('/profile/preferences')} // stack screen is static
+        onPress={() => router.push('/profile/preferences')}
       />
       <SettingsItem
         icon={<MaterialIcons name="email" size={24} color={theme.secondary} />}
