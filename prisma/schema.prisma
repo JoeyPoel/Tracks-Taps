@@ -123,6 +123,7 @@ model ActiveChallenge {
   challenge    Challenge  @relation(fields: [challengeId], references: [id])
   completed    Boolean    @default(false)
   completedAt  DateTime?
+  failed       Boolean    @default(false)
 
   @@unique([activeTourId, challengeId])
 }

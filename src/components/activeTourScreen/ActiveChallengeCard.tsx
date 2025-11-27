@@ -25,8 +25,9 @@ export default function ActiveChallengeCard({
     isCompleted,
     onPress,
     actionLabel,
-    children
-}: ActiveChallengeCardProps) {
+    children,
+    disabled = false
+}: ActiveChallengeCardProps & { disabled?: boolean }) {
     const { theme } = useTheme();
 
     const getIconName = () => {
@@ -70,7 +71,8 @@ export default function ActiveChallengeCard({
                 {description}
             </Text>
 
-            {!isCompleted && children}
+            {/* Always render children if provided, to show options even if completed/failed */}
+            {children}
 
             {isCompleted ? (
                 <View style={styles.completedContainer}>
@@ -79,8 +81,13 @@ export default function ActiveChallengeCard({
                 </View>
             ) : (
                 <TouchableOpacity
-                    style={[styles.button, { backgroundColor: getIconColor() }]}
+                    style={[
+                        styles.button,
+                        { backgroundColor: getIconColor() },
+                        disabled && { backgroundColor: theme.textSecondary, opacity: 0.5 }
+                    ]}
                     onPress={onPress}
+                    disabled={disabled}
                 >
                     <Text style={styles.buttonText}>{actionLabel}</Text>
                 </TouchableOpacity>

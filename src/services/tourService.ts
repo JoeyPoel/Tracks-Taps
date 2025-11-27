@@ -105,4 +105,23 @@ export const tourService = {
             },
         });
     },
+
+    async failChallenge(activeTourId: number, challengeId: number) {
+        return await prisma.activeChallenge.upsert({
+            where: {
+                activeTourId_challengeId: {
+                    activeTourId,
+                    challengeId,
+                },
+            },
+            update: {
+                failed: true,
+            },
+            create: {
+                activeTourId,
+                challengeId,
+                failed: true,
+            },
+        });
+    },
 };

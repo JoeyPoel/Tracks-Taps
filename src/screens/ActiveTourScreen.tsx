@@ -23,28 +23,35 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
 
     // Local state for immediate UI updates before refetch/sync
     const [completedChallenges, setCompletedChallenges] = useState<Set<number>>(new Set());
+    const [failedChallenges, setFailedChallenges] = useState<Set<number>>(new Set());
     const [triviaSelected, setTriviaSelected] = useState<{ [key: number]: number }>({}); // challengeId -> selectedIndex
 
-    // Sync completed challenges from API and calculate current stop
+    // Sync completed and failed challenges from API and calculate current stop
     React.useEffect(() => {
         if (activeTour?.activeChallenges && activeTour?.tour?.stops) {
-            const completed = new Set<number>(activeTour.activeChallenges
-                .filter((ac: any) => ac.completed)
-                .map((ac: any) => ac.challengeId));
+            const completed = new Set<number>();
+            const failed = new Set<number>();
+
+            activeTour.activeChallenges.forEach((ac: any) => {
+                if (ac.completed) completed.add(ac.challengeId);
+                if (ac.failed) failed.add(ac.challengeId);
+            });
+
             setCompletedChallenges(completed);
+            setFailedChallenges(failed);
 
             // Calculate current stop index
             let index = 0;
             const stops = activeTour.tour.stops;
             for (let i = 0; i < stops.length; i++) {
                 const stop = stops[i];
-                const allChallengesCompleted = stop.challenges.every((c: any) => completed.has(c.id));
-                if (!allChallengesCompleted) {
+                const allChallengesDone = stop.challenges.every((c: any) => completed.has(c.id) || failed.has(c.id));
+                if (!allChallengesDone) {
                     index = i;
                     break;
                 }
-                // If it's the last stop and all completed, we can stay there or handle completion
-                if (i === stops.length - 1 && allChallengesCompleted) {
+                // If it's the last stop and all completed/failed, we can stay there or handle completion
+                if (i === stops.length - 1 && allChallengesDone) {
                     index = i;
                 }
             }
@@ -59,7 +66,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
     };
 
     const handleChallengeComplete = async (challenge: any) => {
-        if (completedChallenges.has(challenge.id)) return;
+        if (completedChallenges.has(challenge.id) || failedChallenges.has(challenge.id)) return;
 
         // Optimistic update
         const newCompleted = new Set(completedChallenges);
@@ -67,20 +74,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         setCompletedChallenges(newCompleted);
         triggerFloatingPoints(challenge.points);
 
-        // Check if we should advance to next stop
-        const currentStop = activeTour.tour.stops[currentStopIndex];
-        const stopChallenges = currentStop.challenges;
-        const allStopChallengesDone = stopChallenges.every((c: any) => newCompleted.has(c.id));
-
-        if (allStopChallengesDone) {
-            setTimeout(() => {
-                if (currentStopIndex < activeTour.tour.stops.length - 1) {
-                    setCurrentStopIndex(prev => prev + 1);
-                } else {
-                    alert("Tour Completed! Congratulations!");
-                }
-            }, 1000);
-        }
+        checkAutoAdvance(newCompleted, failedChallenges);
 
         try {
             await fetch('/api/active-challenge/complete', {
@@ -93,7 +87,46 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
             });
         } catch (err) {
             console.error('Failed to complete challenge', err);
-            // Revert if failed? For now, keep optimistic.
+        }
+    };
+
+    const handleChallengeFail = async (challenge: any) => {
+        if (completedChallenges.has(challenge.id) || failedChallenges.has(challenge.id)) return;
+
+        // Optimistic update
+        const newFailed = new Set(failedChallenges);
+        newFailed.add(challenge.id);
+        setFailedChallenges(newFailed);
+
+        checkAutoAdvance(completedChallenges, newFailed);
+
+        try {
+            await fetch('/api/active-challenge/fail', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    activeTourId,
+                    challengeId: challenge.id
+                })
+            });
+        } catch (err) {
+            console.error('Failed to fail challenge', err);
+        }
+    };
+
+    const checkAutoAdvance = (completed: Set<number>, failed: Set<number>) => {
+        const currentStop = activeTour.tour.stops[currentStopIndex];
+        const stopChallenges = currentStop.challenges;
+        const allStopChallengesDone = stopChallenges.every((c: any) => completed.has(c.id) || failed.has(c.id));
+
+        if (allStopChallengesDone) {
+            setTimeout(() => {
+                if (currentStopIndex < activeTour.tour.stops.length - 1) {
+                    setCurrentStopIndex(prev => prev + 1);
+                } else {
+                    alert("Tour Completed! Congratulations!");
+                }
+            }, 1500);
         }
     };
 
@@ -103,14 +136,13 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
 
     const handleSubmitTrivia = (challenge: any) => {
         const selectedIndex = triviaSelected[challenge.id];
-        if (selectedIndex === undefined || completedChallenges.has(challenge.id)) return;
+        if (selectedIndex === undefined || completedChallenges.has(challenge.id) || failedChallenges.has(challenge.id)) return;
 
         const selectedOption = challenge.options[selectedIndex];
         if (selectedOption === challenge.answer) {
             handleChallengeComplete(challenge);
         } else {
-            // Handle wrong answer (maybe show alert)
-            alert('Wrong answer, try again!');
+            handleChallengeFail(challenge);
         }
     };
 
@@ -136,48 +168,91 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 {currentStop && <StopCard stop={currentStop} />}
 
-                {stopChallenges.map((challenge: any) => (
-                    <ActiveChallengeCard
-                        key={challenge.id}
-                        title={challenge.title}
-                        points={challenge.points}
-                        description={challenge.description}
-                        type={challenge.type.toLowerCase()}
-                        isCompleted={completedChallenges.has(challenge.id)}
-                        onPress={() => challenge.type === 'LOCATION' ? handleClaimArrival(challenge) : handleSubmitTrivia(challenge)}
-                        actionLabel={challenge.type === 'LOCATION' ? "Claim Points" : "Submit Answer"}
-                    >
-                        {challenge.type === 'LOCATION' ? (
-                            <Text style={[styles.successText, { color: theme.primary }]}>
-                                You're at the right location!
-                            </Text>
-                        ) : (
-                            <View>
-                                <Text style={[styles.questionText, { color: theme.textPrimary }]}>
-                                    {challenge.content}
+                {stopChallenges.map((challenge: any) => {
+                    const isFailed = failedChallenges.has(challenge.id);
+                    const isCompleted = completedChallenges.has(challenge.id);
+                    const isDone = isFailed || isCompleted;
+
+                    return (
+                        <ActiveChallengeCard
+                            key={challenge.id}
+                            title={challenge.title}
+                            points={challenge.points}
+                            description={challenge.description}
+                            type={challenge.type.toLowerCase()}
+                            isCompleted={isCompleted}
+                            onPress={() => challenge.type === 'LOCATION' ? handleClaimArrival(challenge) : handleSubmitTrivia(challenge)}
+                            actionLabel={
+                                isFailed ? "Wrong Answer" :
+                                    isCompleted ? "Completed" :
+                                        challenge.type === 'LOCATION' ? "Claim Points" : "Submit Answer"
+                            }
+                            disabled={isDone}
+                        >
+                            {challenge.type === 'LOCATION' ? (
+                                <Text style={[styles.successText, { color: theme.primary }]}>
+                                    You're at the right location!
                                 </Text>
-                                <View style={styles.optionsContainer}>
-                                    {challenge.options.map((option: string, index: number) => (
-                                        <TouchableOpacity
-                                            key={index}
-                                            style={styles.optionRow}
-                                            onPress={() => !completedChallenges.has(challenge.id) && setTriviaSelected(prev => ({ ...prev, [challenge.id]: index }))}
-                                        >
-                                            <View style={[
-                                                styles.radioButton,
-                                                { borderColor: theme.textSecondary },
-                                                triviaSelected[challenge.id] === index && { borderColor: theme.primary, backgroundColor: theme.primary }
-                                            ]}>
-                                                {triviaSelected[challenge.id] === index && <View style={styles.radioButtonInner} />}
-                                            </View>
-                                            <Text style={[styles.optionText, { color: theme.textPrimary }]}>{option}</Text>
-                                        </TouchableOpacity>
-                                    ))}
+                            ) : (
+                                <View>
+                                    <Text style={[styles.questionText, { color: theme.textPrimary }]}>
+                                        {challenge.content}
+                                    </Text>
+                                    <View style={styles.optionsContainer}>
+                                        {challenge.options.map((option: string, index: number) => {
+                                            const isSelected = triviaSelected[challenge.id] === index;
+                                            const isCorrect = option === challenge.answer;
+
+                                            let borderColor = theme.textSecondary;
+                                            let backgroundColor = 'transparent';
+
+                                            if (isDone) {
+                                                if (isCorrect) {
+                                                    borderColor = theme.primary; // Show correct answer
+                                                    backgroundColor = theme.primary + '33'; // Light green bg
+                                                } else if (isSelected && isFailed) {
+                                                    borderColor = theme.danger; // Show selected wrong answer
+                                                    backgroundColor = theme.danger + '33'; // Light red bg
+                                                }
+                                            } else if (isSelected) {
+                                                borderColor = theme.primary;
+                                                backgroundColor = theme.primary;
+                                            }
+
+                                            return (
+                                                <TouchableOpacity
+                                                    key={index}
+                                                    style={styles.optionRow}
+                                                    onPress={() => !isDone && setTriviaSelected(prev => ({ ...prev, [challenge.id]: index }))}
+                                                    disabled={isDone}
+                                                >
+                                                    <View style={[
+                                                        styles.radioButton,
+                                                        { borderColor },
+                                                        isSelected && !isDone && { backgroundColor: theme.primary }
+                                                    ]}>
+                                                        {isSelected && !isDone && <View style={styles.radioButtonInner} />}
+                                                    </View>
+                                                    <Text style={[
+                                                        styles.optionText,
+                                                        { color: theme.textPrimary },
+                                                        isDone && isCorrect && { color: theme.primary, fontWeight: 'bold' },
+                                                        isDone && isSelected && isFailed && { color: theme.danger }
+                                                    ]}>{option}</Text>
+                                                </TouchableOpacity>
+                                            )
+                                        })}
+                                    </View>
+                                    {isFailed && (
+                                        <Text style={{ color: theme.danger, marginTop: 8, fontWeight: 'bold' }}>
+                                            Wrong answer! The correct answer was: {challenge.answer}
+                                        </Text>
+                                    )}
                                 </View>
-                            </View>
-                        )}
-                    </ActiveChallengeCard>
-                ))}
+                            )}
+                        </ActiveChallengeCard>
+                    )
+                })}
             </ScrollView>
 
             {showFloatingPoints && (
