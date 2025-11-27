@@ -25,13 +25,30 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
     const [completedChallenges, setCompletedChallenges] = useState<Set<number>>(new Set());
     const [triviaSelected, setTriviaSelected] = useState<{ [key: number]: number }>({}); // challengeId -> selectedIndex
 
-    // Sync completed challenges from API
+    // Sync completed challenges from API and calculate current stop
     React.useEffect(() => {
-        if (activeTour?.activeChallenges) {
+        if (activeTour?.activeChallenges && activeTour?.tour?.stops) {
             const completed = new Set<number>(activeTour.activeChallenges
                 .filter((ac: any) => ac.completed)
                 .map((ac: any) => ac.challengeId));
             setCompletedChallenges(completed);
+
+            // Calculate current stop index
+            let index = 0;
+            const stops = activeTour.tour.stops;
+            for (let i = 0; i < stops.length; i++) {
+                const stop = stops[i];
+                const allChallengesCompleted = stop.challenges.every((c: any) => completed.has(c.id));
+                if (!allChallengesCompleted) {
+                    index = i;
+                    break;
+                }
+                // If it's the last stop and all completed, we can stay there or handle completion
+                if (i === stops.length - 1 && allChallengesCompleted) {
+                    index = i;
+                }
+            }
+            setCurrentStopIndex(index);
         }
     }, [activeTour]);
 
@@ -45,8 +62,25 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         if (completedChallenges.has(challenge.id)) return;
 
         // Optimistic update
-        setCompletedChallenges(prev => new Set(prev).add(challenge.id));
+        const newCompleted = new Set(completedChallenges);
+        newCompleted.add(challenge.id);
+        setCompletedChallenges(newCompleted);
         triggerFloatingPoints(challenge.points);
+
+        // Check if we should advance to next stop
+        const currentStop = activeTour.tour.stops[currentStopIndex];
+        const stopChallenges = currentStop.challenges;
+        const allStopChallengesDone = stopChallenges.every((c: any) => newCompleted.has(c.id));
+
+        if (allStopChallengesDone) {
+            setTimeout(() => {
+                if (currentStopIndex < activeTour.tour.stops.length - 1) {
+                    setCurrentStopIndex(prev => prev + 1);
+                } else {
+                    alert("Tour Completed! Congratulations!");
+                }
+            }, 1000);
+        }
 
         try {
             await fetch('/api/active-challenge/complete', {
