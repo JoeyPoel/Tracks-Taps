@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 
 interface BuyTokensModalProps {
@@ -17,22 +17,54 @@ const PACKAGES = [
 
 export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps) {
     const { theme } = useTheme();
+    const slideAnim = React.useRef(new Animated.Value(Dimensions.get('window').height)).current;
+
+    React.useEffect(() => {
+        if (visible) {
+            Animated.spring(slideAnim, {
+                toValue: 0,
+                useNativeDriver: true,
+                damping: 20,
+                stiffness: 90,
+            }).start();
+        } else {
+            slideAnim.setValue(Dimensions.get('window').height);
+        }
+    }, [visible]);
+
+    const handleClose = () => {
+        Animated.timing(slideAnim, {
+            toValue: Dimensions.get('window').height,
+            duration: 250,
+            useNativeDriver: true,
+        }).start(() => {
+            onClose();
+        });
+    };
 
     return (
         <Modal
             visible={visible}
-            animationType="slide"
+            animationType="fade"
             transparent={true}
-            onRequestClose={onClose}
+            onRequestClose={handleClose}
         >
             <View style={styles.modalOverlay}>
-                <View style={[styles.modalContent, { backgroundColor: theme.bgPrimary }]}>
+                <Animated.View
+                    style={[
+                        styles.modalContent,
+                        {
+                            backgroundColor: theme.bgPrimary,
+                            transform: [{ translateY: slideAnim }]
+                        }
+                    ]}
+                >
                     <View style={styles.header}>
                         <View style={styles.titleRow}>
                             <Ionicons name="disc" size={24} color="#FFC107" />
                             <Text style={[styles.title, { color: theme.textPrimary }]}>Buy Tokens</Text>
                         </View>
-                        <TouchableOpacity onPress={onClose}>
+                        <TouchableOpacity onPress={handleClose}>
                             <Ionicons name="close" size={24} color={theme.textSecondary} />
                         </TouchableOpacity>
                     </View>
@@ -102,7 +134,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                             </View>
                         </View>
                     </View>
-                </View>
+                </Animated.View>
             </View>
         </Modal>
     );
