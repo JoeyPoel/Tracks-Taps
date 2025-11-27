@@ -5,7 +5,7 @@ export interface UserProfile {
     name: string;
     email: string;
     level: number;
-    score: number;
+    xp: number;
     tokens: number;
     participations: {
         tour: {
@@ -36,7 +36,7 @@ export function useUser(email: string) {
                 }
                 const data = await response.json();
                 // Mock tokens for now
-                setUser({ ...data, tokens: 1500 });
+                setUser({ ...data});
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Unknown error');
             } finally {

@@ -25,7 +25,8 @@ model User {
   passwordHash String
   name         String
   level        Int      @default(1)
-  score        Int      @default(0)
+  xp           Int      @default(0)
+  tokens       Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

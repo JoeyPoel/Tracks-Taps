@@ -54,7 +54,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
             <ActiveTourHeader
                 level={user?.level || 1}
-                currentXP={user?.score || 0}
+                currentXP={user?.xp || 0}
                 maxXP={2000} // Mock max XP
                 currentStop={currentStopIndex + 1}
                 totalStops={activeTour.tour.stops.length}

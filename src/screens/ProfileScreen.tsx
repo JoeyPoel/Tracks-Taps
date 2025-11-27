@@ -46,7 +46,7 @@ export default function ProfileScreen() {
       <UserProfileCard
         name={user?.name || 'Guest'}
         level={user?.level || 1}
-        currentXP={user?.score || 0}
+        currentXP={user?.xp || 0}
         maxXP={2000}
         avatarUrl="https://i.pravatar.cc/200?img=12"
         onEditPress={() => console.log('Edit profile pressed')}
@@ -54,7 +54,7 @@ export default function ProfileScreen() {
 
       <ProfileStats
         toursDone={user?.participations?.filter((p: { status: string }) => p.status === 'COMPLETED').length || 0}
-        totalPoints={user?.score || 0}
+        totalPoints={user?.xp || 0}
         friends={3} // Mock friends count
       />
 

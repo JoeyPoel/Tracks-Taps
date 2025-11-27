@@ -21,16 +21,17 @@ async function main() {
             passwordHash: 'hashedpassword',
             name: 'Joey',
             level: 5,
-            score: 1250,
+            xp: 1250,
+            tokens: 150,
         },
     });
 
     const alice = await prisma.user.create({
-        data: { email: 'alice@example.com', passwordHash: 'pw', name: 'Alice', level: 3, score: 400 },
+        data: { email: 'alice@example.com', passwordHash: 'pw', name: 'Alice', level: 3, xp: 400, tokens: 50 },
     });
 
     const bob = await prisma.user.create({
-        data: { email: 'bob@example.com', passwordHash: 'pw', name: 'Bob', level: 8, score: 3000 },
+        data: { email: 'bob@example.com', passwordHash: 'pw', name: 'Bob', level: 8, xp: 3000, tokens: 500 },
     });
 
     // 2. Create Tours
@@ -82,8 +83,41 @@ async function main() {
         },
     });
 
+    // Helper to create stops and challenges
+    const createStopsAndChallenges = async (tourId: number, stopsData: any[]) => {
+        for (const stopData of stopsData) {
+            const stop = await prisma.stop.create({
+                data: {
+                    tourId: tourId,
+                    name: stopData.name,
+                    description: stopData.description,
+                    order: stopData.order,
+                    number: stopData.number,
+                    latitude: stopData.lat,
+                    longitude: stopData.lng,
+                },
+            });
+
+            for (const challengeData of stopData.challenges) {
+                await prisma.challenge.create({
+                    data: {
+                        title: challengeData.title,
+                        description: challengeData.description,
+                        type: challengeData.type,
+                        points: challengeData.points,
+                        content: challengeData.content,
+                        options: challengeData.options,
+                        answer: challengeData.answer,
+                        stopId: stop.id,
+                        tourId: tourId,
+                    },
+                });
+            }
+        }
+    };
+
     // 3. Create Stops & Challenges for Utrecht Tour
-    const stopsData = [
+    const utrechtStops = [
         {
             name: 'Dom Tower',
             description: 'The tallest church tower in the Netherlands. A landmark you cannot miss.',
@@ -174,49 +208,138 @@ async function main() {
                     answer: 'A Church',
                 }
             ]
-        },
-        {
-            name: 'Relax at the Park',
-            description: 'A peaceful end to the tour. No challenges here, just enjoy.',
-            order: 5,
-            number: 5,
-            lat: 52.0950,
-            lng: 5.1250,
-            challenges: [] // No challenges
         }
     ];
 
-    for (const stopData of stopsData) {
-        const stop = await prisma.stop.create({
-            data: {
-                tourId: utrechtTour.id,
-                name: stopData.name,
-                description: stopData.description,
-                order: stopData.order,
-                number: stopData.number,
-                latitude: stopData.lat,
-                longitude: stopData.lng,
-            },
-        });
+    await createStopsAndChallenges(utrechtTour.id, utrechtStops);
 
-        for (const challengeData of stopData.challenges) {
-            await prisma.challenge.create({
-                data: {
-                    title: challengeData.title,
-                    description: challengeData.description,
-                    type: challengeData.type,
-                    points: challengeData.points,
-                    content: challengeData.content,
-                    options: challengeData.options,
-                    answer: challengeData.answer,
-                    stopId: stop.id,
-                    tourId: utrechtTour.id, // Explicitly connect to tour
+    // 4. Create Stops & Challenges for Amsterdam Tour
+    const amsterdamStops = [
+        {
+            name: 'Rijksmuseum',
+            description: 'The Dutch national museum dedicated to arts and history.',
+            order: 1,
+            number: 1,
+            lat: 52.3600,
+            lng: 4.8852,
+            challenges: [
+                {
+                    title: 'Art Lover',
+                    description: 'Find the Night Watch.',
+                    type: ChallengeType.LOCATION,
+                    points: 50,
                 },
-            });
+                {
+                    title: 'Masterpiece Trivia',
+                    description: 'Who painted The Night Watch?',
+                    type: ChallengeType.TRIVIA,
+                    points: 100,
+                    content: 'Who is the painter of the famous Night Watch?',
+                    options: ['Rembrandt', 'Van Gogh', 'Vermeer', 'Mondrian'],
+                    answer: 'Rembrandt',
+                }
+            ]
+        },
+        {
+            name: 'Vondelpark',
+            description: 'The most famous park in the Netherlands.',
+            order: 2,
+            number: 2,
+            lat: 52.3580,
+            lng: 4.8686,
+            challenges: [
+                {
+                    title: 'Park Stroll',
+                    description: 'Take a walk through the park.',
+                    type: ChallengeType.LOCATION,
+                    points: 30,
+                }
+            ]
+        },
+        {
+            name: 'Anne Frank House',
+            description: 'The writer\'s house and biographical museum.',
+            order: 3,
+            number: 3,
+            lat: 52.3752,
+            lng: 4.8840,
+            challenges: [
+                {
+                    title: 'History Lesson',
+                    description: 'Visit the Anne Frank House.',
+                    type: ChallengeType.LOCATION,
+                    points: 80,
+                }
+            ]
         }
-    }
+    ];
 
-    // 4. Create Active Tour for Joey
+    await createStopsAndChallenges(amsterdamTour.id, amsterdamStops);
+
+    // 5. Create Stops & Challenges for Rotterdam Tour
+    const rotterdamStops = [
+        {
+            name: 'Erasmus Bridge',
+            description: 'The Swan of Rotterdam.',
+            order: 1,
+            number: 1,
+            lat: 51.9089,
+            lng: 4.4876,
+            challenges: [
+                {
+                    title: 'Bridge Run',
+                    description: 'Run across the bridge.',
+                    type: ChallengeType.LOCATION,
+                    points: 100,
+                }
+            ]
+        },
+        {
+            name: 'Cube Houses',
+            description: 'Innovative houses built on pylons.',
+            order: 2,
+            number: 2,
+            lat: 51.9207,
+            lng: 4.4906,
+            challenges: [
+                {
+                    title: 'Architectural Wonder',
+                    description: 'Take a photo of a Cube House.',
+                    type: ChallengeType.LOCATION,
+                    points: 75,
+                },
+                {
+                    title: 'Cube Trivia',
+                    description: 'Who designed the Cube Houses?',
+                    type: ChallengeType.TRIVIA,
+                    points: 125,
+                    content: 'Who is the architect behind the Cube Houses?',
+                    options: ['Piet Blom', 'Rem Koolhaas', 'Winy Maas', 'Ben van Berkel'],
+                    answer: 'Piet Blom',
+                }
+            ]
+        },
+        {
+            name: 'Markthal',
+            description: 'A residential and office building with a market hall underneath.',
+            order: 3,
+            number: 3,
+            lat: 51.9193,
+            lng: 4.4867,
+            challenges: [
+                {
+                    title: 'Foodie Heaven',
+                    description: 'Find a tasty snack.',
+                    type: ChallengeType.LOCATION,
+                    points: 50,
+                }
+            ]
+        }
+    ];
+
+    await createStopsAndChallenges(rotterdamTour.id, rotterdamStops);
+
+    // 6. Create Active Tour for Joey
     const activeTour = await prisma.activeTour.create({
         data: {
             tourId: utrechtTour.id,
@@ -227,7 +350,7 @@ async function main() {
         },
     });
 
-    // 5. Create Active Challenges (Simulate progress)
+    // 7. Create Active Challenges (Simulate progress)
     // Let's say Joey has completed the first stop's challenges
     const firstStop = await prisma.stop.findFirst({
         where: { tourId: utrechtTour.id, order: 1 },
@@ -247,7 +370,7 @@ async function main() {
         }
     }
 
-    // 6. Create Reviews
+    // 8. Create Reviews
     await prisma.review.create({
         data: {
             content: 'Amazing tour! The pubs were great and the history was fascinating.',
