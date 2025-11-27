@@ -12,7 +12,7 @@ const NUM_CONFETTI = 80;
 const ConfettiPiece = () => {
   // 1. Setup Animation Values
   // Start at -100 (just above screen)
-  const animatedY = useRef(new Animated.Value(-50)).current; 
+  const animatedY = useRef(new Animated.Value(-100)).current; 
   const animatedRotate = useRef(new Animated.Value(0)).current;
   const animatedOpacity = useRef(new Animated.Value(1)).current; 
 
