@@ -23,11 +23,12 @@ export default function ActiveChallengeCard({
     description,
     type,
     isCompleted,
+    isFailed,
     onPress,
     actionLabel,
     children,
     disabled = false
-}: ActiveChallengeCardProps & { disabled?: boolean }) {
+}: ActiveChallengeCardProps & { disabled?: boolean, isFailed?: boolean }) {
     const { theme } = useTheme();
 
     const getIconName = () => {
@@ -48,12 +49,24 @@ export default function ActiveChallengeCard({
         }
     };
 
+    const getBorderColor = () => {
+        if (isCompleted) return theme.success; // Green
+        if (isFailed) return theme.danger; // Red
+        return theme.borderPrimary;
+    };
+
+    const getBackgroundColors = (): [string, string, ...string[]] => {
+        if (isCompleted) return [theme.success + '20', theme.success + '10']; // Light green gradient
+        if (isFailed) return [theme.danger + '20', theme.danger + '10']; // Light red gradient
+        return [theme.bgSecondary, theme.bgTertiary];
+    };
+
     return (
         <LinearGradient
-            colors={[theme.bgSecondary, theme.bgTertiary]}
+            colors={getBackgroundColors()}
             style={[
                 styles.card,
-                { borderColor: isCompleted ? theme.success : theme.borderPrimary }
+                { borderColor: getBorderColor() }
             ]}
         >
             <View style={styles.cardHeader}>
@@ -78,6 +91,11 @@ export default function ActiveChallengeCard({
                 <View style={styles.completedContainer}>
                     <Ionicons name="checkmark-circle-outline" size={24} color={theme.success} />
                     <Text style={[styles.completedText, { color: theme.success }]}>Challenge Completed!</Text>
+                </View>
+            ) : isFailed ? (
+                <View style={styles.completedContainer}>
+                    <Ionicons name="close-circle-outline" size={24} color={theme.danger} />
+                    <Text style={[styles.completedText, { color: theme.danger }]}>Challenge Failed</Text>
                 </View>
             ) : (
                 <TouchableOpacity

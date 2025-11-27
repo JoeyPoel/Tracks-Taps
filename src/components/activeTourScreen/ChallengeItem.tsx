@@ -32,6 +32,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
             description={challenge.description}
             type={challenge.type.toLowerCase()}
             isCompleted={isCompleted}
+            isFailed={isFailed}
             onPress={() => challenge.type === 'LOCATION' ? onClaimArrival(challenge) : onSubmitTrivia(challenge)}
             actionLabel={
                 isFailed ? "Wrong Answer" :
