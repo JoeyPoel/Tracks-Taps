@@ -80,7 +80,11 @@ export const tourService = {
                         challenges: true,
                     }
                 },
-                activeChallenges: true,
+                activeChallenges: {
+                    include: {
+                        challenge: true
+                    }
+                },
             }
         });
     },

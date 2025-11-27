@@ -46,7 +46,8 @@ export default function ProfileScreen() {
       <UserProfileCard
         name={user?.name || 'Guest'}
         level={user?.level || 1}
-        levelProgress={56} // Mock progress
+        currentXP={user?.score || 0}
+        maxXP={2000}
         avatarUrl="https://i.pravatar.cc/200?img=12"
         onEditPress={() => console.log('Edit profile pressed')}
       />

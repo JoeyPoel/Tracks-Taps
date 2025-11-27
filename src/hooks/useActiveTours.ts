@@ -11,6 +11,6 @@ export interface ActiveTour {
 
 export function useActiveTours(userId?: number) {
     const url = userId ? `/api/active-tours?userId=${userId}` : null;
-    const { data, loading, error } = useFetch<ActiveTour[]>(url);
-    return { activeTours: data || [], loading, error };
+    const { data, loading, error, refetch } = useFetch<ActiveTour[]>(url);
+    return { activeTours: data || [], loading, error, refetch };
 }

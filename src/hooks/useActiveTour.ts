@@ -3,13 +3,14 @@ import { useFetch } from './useFetch';
 
 export const useActiveTour = (activeTourId: number) => {
     const [points, setPoints] = useState(0);
+    const [streak, setStreak] = useState(0);
     const [showFloatingPoints, setShowFloatingPoints] = useState(false);
     const [floatingPointsAmount, setFloatingPointsAmount] = useState(0);
     const [currentStopIndex, setCurrentStopIndex] = useState(0);
     const [showConfetti, setShowConfetti] = useState(false);
 
     // Fetch active tour data
-    const { data: activeTour, loading, error } = useFetch<any>(`/api/active-tour/${activeTourId}`);
+    const { data: activeTour, loading, error, refetch } = useFetch<any>(`/api/active-tour/${activeTourId}`);
 
     // Local state for immediate UI updates before refetch/sync
     const [completedChallenges, setCompletedChallenges] = useState<Set<number>>(new Set());
@@ -21,14 +22,42 @@ export const useActiveTour = (activeTourId: number) => {
         if (activeTour?.activeChallenges && activeTour?.tour?.stops) {
             const completed = new Set<number>();
             const failed = new Set<number>();
+            let xp = 0;
 
             activeTour.activeChallenges.forEach((ac: any) => {
-                if (ac.completed) completed.add(ac.challengeId);
+                if (ac.completed) {
+                    completed.add(ac.challengeId);
+                    if (ac.challenge?.points) {
+                        xp += ac.challenge.points;
+                    }
+                }
                 if (ac.failed) failed.add(ac.challengeId);
             });
 
             setCompletedChallenges(completed);
             setFailedChallenges(failed);
+            setPoints(xp);
+
+            // Calculate Streak
+            const allChallenges: any[] = [];
+            activeTour.tour.stops.forEach((stop: any) => {
+                if (stop.challenges) {
+                    allChallenges.push(...stop.challenges);
+                }
+            });
+
+            let currentStreak = 0;
+            for (const challenge of allChallenges) {
+                if (completed.has(challenge.id)) {
+                    currentStreak++;
+                } else if (failed.has(challenge.id)) {
+                    currentStreak = 0;
+                } else {
+                    // Not attempted yet, stop counting streak
+                    break;
+                }
+            }
+            setStreak(currentStreak);
 
             let index = 0;
             const stops = activeTour.tour.stops;
@@ -76,6 +105,7 @@ export const useActiveTour = (activeTourId: number) => {
         newCompleted.add(challenge.id);
         setCompletedChallenges(newCompleted);
         triggerFloatingPoints(challenge.points);
+        setStreak(prev => prev + 1);
 
         checkAutoAdvance(newCompleted, failedChallenges);
 
@@ -88,6 +118,7 @@ export const useActiveTour = (activeTourId: number) => {
                     challengeId: challenge.id
                 })
             });
+            refetch();
         } catch (err) {
             console.error('Failed to complete challenge', err);
         }
@@ -100,6 +131,7 @@ export const useActiveTour = (activeTourId: number) => {
         const newFailed = new Set(failedChallenges);
         newFailed.add(challenge.id);
         setFailedChallenges(newFailed);
+        setStreak(0);
 
         checkAutoAdvance(completedChallenges, newFailed);
 
@@ -112,6 +144,7 @@ export const useActiveTour = (activeTourId: number) => {
                     challengeId: challenge.id
                 })
             });
+            refetch();
         } catch (err) {
             console.error('Failed to fail challenge', err);
         }
@@ -167,5 +200,7 @@ export const useActiveTour = (activeTourId: number) => {
         handlePrevStop,
         handleNextStop,
         handleFinishTour,
+        streak,
+        points,
     };
 };

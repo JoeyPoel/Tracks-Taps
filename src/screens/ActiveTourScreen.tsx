@@ -38,6 +38,8 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         handlePrevStop,
         handleNextStop,
         handleFinishTour,
+        streak,
+        points,
     } = useActiveTour(activeTourId);
 
     if (loading) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>Loading tour...</Text></View>;
@@ -56,8 +58,8 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                 maxXP={2000} // Mock max XP
                 currentStop={currentStopIndex + 1}
                 totalStops={activeTour.tour.stops.length}
-                streak={1} // Mock streak
-                tokens={user?.tokens || 0}
+                streak={streak}
+                tokens={points}
                 onClose={() => router.back()}
             />
 

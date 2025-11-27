@@ -1,4 +1,5 @@
-import React from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text } from 'react-native';
 import ActiveTourCard from '../components/exploreScreen/ActiveTourCard';
 import TourCard from '../components/exploreScreen/TourCard';
@@ -8,8 +9,6 @@ import { useActiveTours } from '../hooks/useActiveTours';
 import { useTours } from '../hooks/useTours';
 import { useUser } from '../hooks/useUser';
 
-import { useRouter } from 'expo-router';
-
 export default function ExploreScreen() {
   const router = useRouter();
   const { theme } = useTheme();
@@ -17,7 +16,15 @@ export default function ExploreScreen() {
   // TODO: Replace hardcoded email with actual auth context
   const { user } = useUser('Joey@example.com');
   const { tours, loading: toursLoading, error: toursError } = useTours();
-  const { activeTours, loading: activeLoading, error: activeError } = useActiveTours(user?.id);
+  const { activeTours, loading: activeLoading, error: activeError, refetch: refetchActiveTours } = useActiveTours(user?.id);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (user?.id) {
+        refetchActiveTours();
+      }
+    }, [user?.id, refetchActiveTours])
+  );
 
   const loading = toursLoading || activeLoading;
   const error = toursError || activeError;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface FetchState<T> {
     data: T | null;
@@ -12,6 +12,12 @@ export function useFetch<T>(url: string | null) {
         loading: true,
         error: null,
     });
+
+    const [trigger, setTrigger] = useState(0);
+
+    const refetch = useCallback(() => {
+        setTrigger(prev => prev + 1);
+    }, []);
 
     useEffect(() => {
         if (!url) {
@@ -48,7 +54,7 @@ export function useFetch<T>(url: string | null) {
         return () => {
             isMounted = false;
         };
-    }, [url]);
+    }, [url, trigger]);
 
-    return state;
+    return { ...state, refetch };
 }

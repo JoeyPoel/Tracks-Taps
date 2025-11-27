@@ -8,7 +8,8 @@ import { useTheme } from '../../context/ThemeContext';
 interface UserProfileCardProps {
     name: string;
     level: number;
-    levelProgress: number;
+    currentXP: number;
+    maxXP: number;
     avatarUrl?: string;
     onEditPress?: () => void;
 }
@@ -16,7 +17,8 @@ interface UserProfileCardProps {
 export default function UserProfileCard({
     name,
     level,
-    levelProgress,
+    currentXP,
+    maxXP,
     avatarUrl,
     onEditPress,
 }: UserProfileCardProps) {
@@ -65,14 +67,14 @@ export default function UserProfileCard({
                         <View style={styles.progressSection}>
                             <View style={styles.progressLabels}>
                                 <Text style={[styles.progressLabel, { color: theme.textSecondary }]}>Next level</Text>
-                                <Text style={[styles.progressValue, { color: theme.textPrimary }]}>560 / 1000 XP</Text>
+                                <Text style={[styles.progressValue, { color: theme.textPrimary }]}>{currentXP} / {maxXP} XP</Text>
                             </View>
                             <View style={[styles.progressBarBg, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
                                 <LinearGradient
                                     colors={[theme.warning, theme.danger]}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 0 }}
-                                    style={[styles.progressBarFill, { width: '56%' }]}
+                                    style={[styles.progressBarFill, { width: `${(currentXP / maxXP) * 100}%` }]}
                                 />
                             </View>
                         </View>
