@@ -1,11 +1,13 @@
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import ConfettiCannon from 'react-native-confetti-cannon';
 import ActiveChallengeCard from '../components/activeTourScreen/ActiveChallengeCard';
 import FloatingPoints from '../components/activeTourScreen/FloatingPoints';
 import StopCard from '../components/activeTourScreen/StopCard';
 import CustomTabBar from '../components/CustomTabBar';
 import AppHeader from '../components/Header';
+import StartTourButton from '../components/TourButton';
 import { useTheme } from '../context/ThemeContext';
 import { useFetch } from '../hooks/useFetch';
 
@@ -17,6 +19,8 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
     const [floatingPointsAmount, setFloatingPointsAmount] = useState(0);
     const [activeTab, setActiveTab] = useState(0);
     const [currentStopIndex, setCurrentStopIndex] = useState(0);
+    const [showConfetti, setShowConfetti] = useState(false);
+    const confettiRef = useRef<ConfettiCannon>(null);
 
     // Fetch active tour data
     const { data: activeTour, loading, error } = useFetch<any>(`/api/active-tour/${activeTourId}`);
@@ -40,7 +44,16 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
             setCompletedChallenges(completed);
             setFailedChallenges(failed);
 
-            // Calculate current stop index
+            // Calculate current stop index only on initial load if not set
+            // (We don't want to jump around if user manually navigated)
+            // But for now, let's keep the auto-sync logic simple or maybe disable it if we want manual control?
+            // The user asked for manual buttons, so maybe we should trust manual navigation more.
+            // However, the previous requirement was auto-advance.
+            // Let's keep auto-advance but allow manual override.
+
+            // To prevent overriding manual navigation, we could check if currentStopIndex is 0 (initial)
+            // But useEffect runs on updates too. Let's just set it once or if we really want to sync.
+            // Let's rely on the user's manual navigation mostly, but initial load is fine.
             let index = 0;
             const stops = activeTour.tour.stops;
             for (let i = 0; i < stops.length; i++) {
@@ -123,8 +136,6 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
             setTimeout(() => {
                 if (currentStopIndex < activeTour.tour.stops.length - 1) {
                     setCurrentStopIndex(prev => prev + 1);
-                } else {
-                    alert("Tour Completed! Congratulations!");
                 }
             }, 1500);
         }
@@ -146,12 +157,30 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         }
     };
 
+    const handlePrevStop = () => {
+        if (currentStopIndex > 0) {
+            setCurrentStopIndex(prev => prev - 1);
+        }
+    };
+
+    const handleNextStop = () => {
+        if (activeTour && currentStopIndex < activeTour.tour.stops.length - 1) {
+            setCurrentStopIndex(prev => prev + 1);
+        }
+    };
+
+    const handleFinishTour = () => {
+        setShowConfetti(true);
+        confettiRef.current?.start();
+    };
+
     if (loading) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>Loading tour...</Text></View>;
     if (error) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.danger }}>{error}</Text></View>;
     if (!activeTour) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>Tour not found</Text></View>;
 
     const currentStop = activeTour.tour.stops[currentStopIndex];
     const stopChallenges = currentStop?.challenges || [];
+    const isLastStop = currentStopIndex === activeTour.tour.stops.length - 1;
 
     return (
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
@@ -168,97 +197,140 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 {currentStop && <StopCard stop={currentStop} />}
 
-                {stopChallenges.map((challenge: any) => {
-                    const isFailed = failedChallenges.has(challenge.id);
-                    const isCompleted = completedChallenges.has(challenge.id);
-                    const isDone = isFailed || isCompleted;
+                {stopChallenges.length === 0 ? (
+                    <View style={styles.noChallengesContainer}>
+                        <Text style={[styles.noChallengesText, { color: theme.textSecondary }]}>
+                            No challenges at this stop. Enjoy the view!
+                        </Text>
+                    </View>
+                ) : (
+                    stopChallenges.map((challenge: any) => {
+                        const isFailed = failedChallenges.has(challenge.id);
+                        const isCompleted = completedChallenges.has(challenge.id);
+                        const isDone = isFailed || isCompleted;
 
-                    return (
-                        <ActiveChallengeCard
-                            key={challenge.id}
-                            title={challenge.title}
-                            points={challenge.points}
-                            description={challenge.description}
-                            type={challenge.type.toLowerCase()}
-                            isCompleted={isCompleted}
-                            onPress={() => challenge.type === 'LOCATION' ? handleClaimArrival(challenge) : handleSubmitTrivia(challenge)}
-                            actionLabel={
-                                isFailed ? "Wrong Answer" :
-                                    isCompleted ? "Completed" :
-                                        challenge.type === 'LOCATION' ? "Claim Points" : "Submit Answer"
-                            }
-                            disabled={isDone}
-                        >
-                            {challenge.type === 'LOCATION' ? (
-                                <Text style={[styles.successText, { color: theme.primary }]}>
-                                    You're at the right location!
-                                </Text>
-                            ) : (
-                                <View>
-                                    <Text style={[styles.questionText, { color: theme.textPrimary }]}>
-                                        {challenge.content}
+                        return (
+                            <ActiveChallengeCard
+                                key={challenge.id}
+                                title={challenge.title}
+                                points={challenge.points}
+                                description={challenge.description}
+                                type={challenge.type.toLowerCase()}
+                                isCompleted={isCompleted}
+                                onPress={() => challenge.type === 'LOCATION' ? handleClaimArrival(challenge) : handleSubmitTrivia(challenge)}
+                                actionLabel={
+                                    isFailed ? "Wrong Answer" :
+                                        isCompleted ? "Completed" :
+                                            challenge.type === 'LOCATION' ? "Claim Points" : "Submit Answer"
+                                }
+                                disabled={isDone}
+                            >
+                                {challenge.type === 'LOCATION' ? (
+                                    <Text style={[styles.successText, { color: theme.primary }]}>
+                                        You're at the right location!
                                     </Text>
-                                    <View style={styles.optionsContainer}>
-                                        {challenge.options.map((option: string, index: number) => {
-                                            const isSelected = triviaSelected[challenge.id] === index;
-                                            const isCorrect = option === challenge.answer;
-
-                                            let borderColor = theme.textSecondary;
-                                            let backgroundColor = 'transparent';
-
-                                            if (isDone) {
-                                                if (isCorrect) {
-                                                    borderColor = theme.primary; // Show correct answer
-                                                    backgroundColor = theme.primary + '33'; // Light green bg
-                                                } else if (isSelected && isFailed) {
-                                                    borderColor = theme.danger; // Show selected wrong answer
-                                                    backgroundColor = theme.danger + '33'; // Light red bg
-                                                }
-                                            } else if (isSelected) {
-                                                borderColor = theme.primary;
-                                                backgroundColor = theme.primary;
-                                            }
-
-                                            return (
-                                                <TouchableOpacity
-                                                    key={index}
-                                                    style={styles.optionRow}
-                                                    onPress={() => !isDone && setTriviaSelected(prev => ({ ...prev, [challenge.id]: index }))}
-                                                    disabled={isDone}
-                                                >
-                                                    <View style={[
-                                                        styles.radioButton,
-                                                        { borderColor },
-                                                        isSelected && !isDone && { backgroundColor: theme.primary }
-                                                    ]}>
-                                                        {isSelected && !isDone && <View style={styles.radioButtonInner} />}
-                                                    </View>
-                                                    <Text style={[
-                                                        styles.optionText,
-                                                        { color: theme.textPrimary },
-                                                        isDone && isCorrect && { color: theme.primary, fontWeight: 'bold' },
-                                                        isDone && isSelected && isFailed && { color: theme.danger }
-                                                    ]}>{option}</Text>
-                                                </TouchableOpacity>
-                                            )
-                                        })}
-                                    </View>
-                                    {isFailed && (
-                                        <Text style={{ color: theme.danger, marginTop: 8, fontWeight: 'bold' }}>
-                                            Wrong answer! The correct answer was: {challenge.answer}
+                                ) : (
+                                    <View>
+                                        <Text style={[styles.questionText, { color: theme.textPrimary }]}>
+                                            {challenge.content}
                                         </Text>
-                                    )}
-                                </View>
-                            )}
-                        </ActiveChallengeCard>
-                    )
-                })}
+                                        <View style={styles.optionsContainer}>
+                                            {challenge.options.map((option: string, index: number) => {
+                                                const isSelected = triviaSelected[challenge.id] === index;
+                                                const isCorrect = option === challenge.answer;
+
+                                                let borderColor = theme.textSecondary;
+                                                let backgroundColor = 'transparent';
+
+                                                if (isDone) {
+                                                    if (isCorrect) {
+                                                        borderColor = theme.primary; // Show correct answer
+                                                        backgroundColor = theme.primary + '33'; // Light green bg
+                                                    } else if (isSelected && isFailed) {
+                                                        borderColor = theme.danger; // Show selected wrong answer
+                                                        backgroundColor = theme.danger + '33'; // Light red bg
+                                                    }
+                                                } else if (isSelected) {
+                                                    borderColor = theme.primary;
+                                                    backgroundColor = theme.primary;
+                                                }
+
+                                                return (
+                                                    <TouchableOpacity
+                                                        key={index}
+                                                        style={styles.optionRow}
+                                                        onPress={() => !isDone && setTriviaSelected(prev => ({ ...prev, [challenge.id]: index }))}
+                                                        disabled={isDone}
+                                                    >
+                                                        <View style={[
+                                                            styles.radioButton,
+                                                            { borderColor },
+                                                            isSelected && !isDone && { backgroundColor: theme.primary }
+                                                        ]}>
+                                                            {isSelected && !isDone && <View style={styles.radioButtonInner} />}
+                                                        </View>
+                                                        <Text style={[
+                                                            styles.optionText,
+                                                            { color: theme.textPrimary },
+                                                            isDone && isCorrect && { color: theme.primary, fontWeight: 'bold' },
+                                                            isDone && isSelected && isFailed && { color: theme.danger }
+                                                        ]}>{option}</Text>
+                                                    </TouchableOpacity>
+                                                )
+                                            })}
+                                        </View>
+                                        {isFailed && (
+                                            <Text style={{ color: theme.danger, marginTop: 8, fontWeight: 'bold' }}>
+                                                Wrong answer! The correct answer was: {challenge.answer}
+                                            </Text>
+                                        )}
+                                    </View>
+                                )}
+                            </ActiveChallengeCard>
+                        )
+                    })
+                )}
+
+                {/* Navigation Buttons */}
+                <View style={styles.navigationContainer}>
+                    {currentStopIndex > 0 && (
+                        <TouchableOpacity
+                            style={[styles.navButton, styles.secondaryButton, { borderColor: theme.textSecondary }]}
+                            onPress={handlePrevStop}
+                        >
+                            <Text style={[styles.navButtonText, { color: theme.textSecondary }]}>Back</Text>
+                        </TouchableOpacity>
+                    )}
+
+                    {isLastStop ? (
+                        <View style={{ flex: 1 }}>
+                            <StartTourButton onPress={handleFinishTour} buttonText="Finish Tour" />
+                        </View>
+                    ) : (
+                        <TouchableOpacity
+                            style={[styles.navButton, styles.primaryButton, { backgroundColor: theme.primary }]}
+                            onPress={handleNextStop}
+                        >
+                            <Text style={[styles.navButtonText, { color: '#FFFFFF' }]}>Next</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
             </ScrollView>
 
             {showFloatingPoints && (
                 <FloatingPoints
                     pointAmount={floatingPointsAmount}
                     onAnimationComplete={() => setShowFloatingPoints(false)}
+                />
+            )}
+
+            {showConfetti && (
+                <ConfettiCannon
+                    count={200}
+                    origin={{ x: Dimensions.get('window').width / 2, y: -10 }}
+                    autoStart={true}
+                    ref={confettiRef}
+                    fadeOut={true}
                 />
             )}
         </View>
@@ -308,5 +380,43 @@ const styles = StyleSheet.create({
     },
     optionText: {
         fontSize: 16,
+    },
+    navigationContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 24,
+        gap: 16,
+    },
+    navButton: {
+        flex: 1,
+        paddingVertical: 16,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    primaryButton: {
+        // Background color set in inline style
+    },
+    secondaryButton: {
+        borderWidth: 1,
+        backgroundColor: 'transparent',
+    },
+    navButtonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    noChallengesContainer: {
+        padding: 24,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        borderRadius: 12,
+        marginBottom: 16,
+    },
+    noChallengesText: {
+        fontSize: 16,
+        fontStyle: 'italic',
+        textAlign: 'center',
     },
 });

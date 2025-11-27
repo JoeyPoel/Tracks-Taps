@@ -63,6 +63,7 @@ model Stop {
   id          Int      @id @default(autoincrement())
   tourId      Int
   tour        Tour     @relation(fields: [tourId], references: [id])
+  number      Int
   name        String
   description String
   order       Int

@@ -88,6 +88,7 @@ async function main() {
             name: 'Dom Tower',
             description: 'The tallest church tower in the Netherlands. A landmark you cannot miss.',
             order: 1,
+            number: 1,
             lat: 52.0907,
             lng: 5.1214,
             challenges: [
@@ -112,6 +113,7 @@ async function main() {
             name: 'Neude Square',
             description: 'The bustling heart of Utrecht, surrounded by terraces and the old post office.',
             order: 2,
+            number: 2,
             lat: 52.0928,
             lng: 5.1190,
             challenges: [
@@ -128,7 +130,7 @@ async function main() {
                     points: 75,
                     content: 'Which famous hare statue is located on the Neude?',
                     options: ['Thinker on a Rock', 'The Hare', 'Miffy', 'The Rabbit'],
-                    answer: 'The Thinker on a Rock', // Trick question, it's "Thinker on a Rock" (The Hare) usually referred to as 'The Hare' but let's stick to a simple answer for seed
+                    answer: 'The Thinker on a Rock',
                 }
             ]
         },
@@ -136,6 +138,7 @@ async function main() {
             name: 'Oudegracht Canals',
             description: 'Walk along the unique wharves of the Oudegracht.',
             order: 3,
+            number: 3,
             lat: 52.0900,
             lng: 5.1180,
             challenges: [
@@ -151,6 +154,7 @@ async function main() {
             name: 'Belgian Beer Café Olivier',
             description: 'A pub located in an old hidden church.',
             order: 4,
+            number: 4,
             lat: 52.0915,
             lng: 5.1150,
             challenges: [
@@ -170,6 +174,15 @@ async function main() {
                     answer: 'A Church',
                 }
             ]
+        },
+        {
+            name: 'Relax at the Park',
+            description: 'A peaceful end to the tour. No challenges here, just enjoy.',
+            order: 5,
+            number: 5,
+            lat: 52.0950,
+            lng: 5.1250,
+            challenges: [] // No challenges
         }
     ];
 
@@ -180,6 +193,7 @@ async function main() {
                 name: stopData.name,
                 description: stopData.description,
                 order: stopData.order,
+                number: stopData.number,
                 latitude: stopData.lat,
                 longitude: stopData.lng,
             },
@@ -196,6 +210,7 @@ async function main() {
                     options: challengeData.options,
                     answer: challengeData.answer,
                     stopId: stop.id,
+                    tourId: utrechtTour.id, // Explicitly connect to tour
                 },
             });
         }
