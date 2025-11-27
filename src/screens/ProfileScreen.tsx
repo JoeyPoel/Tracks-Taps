@@ -1,10 +1,12 @@
 import { Entypo, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
+import BuyTokensModal from '../components/profileScreen/BuyTokensModal';
 import ProfileStats from '../components/profileScreen/ProfileStats';
 import RecentAchievements from '../components/profileScreen/RecentAchievements';
 import SettingsItem from '../components/profileScreen/SettingsItem';
+import TokenCard from '../components/profileScreen/TokenCard';
 import UserProfileCard from '../components/profileScreen/UserProfileCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -14,6 +16,7 @@ export default function ProfileScreen() {
   const { theme } = useTheme();
   const router = useRouter();
   const { t } = useLanguage();
+  const [showBuyTokens, setShowBuyTokens] = useState(false);
 
   const { user, loading } = useUser('Joey@example.com');
 
@@ -34,6 +37,12 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+      <TokenCard
+        tokens={user?.tokens || 0}
+        onBuyPress={() => setShowBuyTokens(true)}
+        onInvitePress={() => console.log('Invite Friends pressed')}
+      />
+
       <UserProfileCard
         name={user?.name || 'Guest'}
         level={user?.level || 1}
@@ -76,6 +85,11 @@ export default function ProfileScreen() {
         icon={<Ionicons name="help-circle-outline" size={24} color={theme.secondary} />}
         title={t('faq')}
         onPress={() => console.log('FAQ pressed')}
+      />
+
+      <BuyTokensModal
+        visible={showBuyTokens}
+        onClose={() => setShowBuyTokens(false)}
       />
     </ScrollView>
   );

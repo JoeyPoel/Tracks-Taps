@@ -6,6 +6,7 @@ export interface UserProfile {
     email: string;
     level: number;
     score: number;
+    tokens: number;
     participations: {
         tour: {
             title: string;
@@ -34,7 +35,8 @@ export function useUser(email: string) {
                     throw new Error('Failed to fetch user');
                 }
                 const data = await response.json();
-                setUser(data);
+                // Mock tokens for now
+                setUser({ ...data, tokens: 1500 });
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Unknown error');
             } finally {

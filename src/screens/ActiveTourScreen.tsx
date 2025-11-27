@@ -1,20 +1,24 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import ActiveTourHeader from '../components/activeTourScreen/ActiveTourHeader';
+import ActiveTourMap from '../components/activeTourScreen/ActiveTourMap';
 import ChallengeItem from '../components/activeTourScreen/ChallengeItem';
 import Confetti from '../components/activeTourScreen/Confetti';
 import FloatingPoints from '../components/activeTourScreen/FloatingPoints';
 import StopCard from '../components/activeTourScreen/StopCard';
 import TourNavigation from '../components/activeTourScreen/TourNavigation';
 import CustomTabBar from '../components/CustomTabBar';
-import AppHeader from '../components/Header';
 import { useTheme } from '../context/ThemeContext';
 import { useActiveTour } from '../hooks/useActiveTour';
+import { useUser } from '../hooks/useUser';
 
 export default function ActiveTourScreen({ activeTourId }: { activeTourId: number }) {
     const { theme } = useTheme();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState(0);
+
+    const { user } = useUser('Joey@example.com'); // Using same hardcoded email for now
 
     const {
         activeTour,
@@ -46,17 +50,31 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
 
     return (
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
-            <AppHeader
-                onBackPress={() => router.back()}
-            />
-
-            <CustomTabBar
-                tabs={[`Iterary`, 'Tour goals', 'Pub Golf']}
-                activeIndex={activeTab}
-                onTabPress={setActiveTab}
+            <ActiveTourHeader
+                level={user?.level || 1}
+                currentXP={user?.score || 0}
+                maxXP={2000} // Mock max XP
+                currentStop={currentStopIndex + 1}
+                totalStops={activeTour.tour.stops.length}
+                streak={1} // Mock streak
+                tokens={user?.tokens || 0}
+                onClose={() => router.back()}
             />
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
+                {currentStop && (
+                    <ActiveTourMap
+                        currentStop={currentStop}
+                        onNavigate={() => console.log('Navigate pressed')}
+                    />
+                )}
+
+                <CustomTabBar
+                    tabs={[`Challenges`, 'Tour goals', 'Bingo']}
+                    activeIndex={activeTab}
+                    onTabPress={setActiveTab}
+                />
+
                 {currentStop && <StopCard stop={currentStop} />}
 
                 {stopChallenges.length === 0 ? (
