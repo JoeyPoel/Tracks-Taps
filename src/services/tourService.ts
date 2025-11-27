@@ -124,4 +124,20 @@ export const tourService = {
             },
         });
     },
+
+    async deleteActiveTour(activeTourId: number) {
+        // First delete all active challenges associated with this tour
+        await prisma.activeChallenge.deleteMany({
+            where: {
+                activeTourId: activeTourId
+            }
+        });
+
+        // Then delete the active tour itself
+        return await prisma.activeTour.delete({
+            where: {
+                id: activeTourId
+            }
+        });
+    },
 };

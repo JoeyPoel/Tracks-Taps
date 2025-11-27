@@ -1,6 +1,6 @@
-import { useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import StartTourButton from '../components/TourButton';
 import TourAbout from '../components/tourdetailScreen/TourAbout';
 import TourGameModes from '../components/tourdetailScreen/TourGameModes';
@@ -10,13 +10,79 @@ import TourStats from '../components/tourdetailScreen/TourStats';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useTourDetails } from '../hooks/useTourDetails';
+import { useUser } from '../hooks/useUser';
 
 export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
   const { t } = useLanguage();
   const { tour, loading, error } = useTourDetails(tourId);
+  const { user } = useUser('Joey@example.com'); // TODO: Get actual user email/id from auth context
+  const router = useRouter();
 
   console.log(tourId);
+
+  const handleStartTour = async (force = false) => {
+    if (!user) return;
+
+    try {
+      const response = await fetch('/api/active-tours', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          tourId: tourId,
+          force: force,
+        }),
+      });
+
+      if (response.status === 409) {
+        const { activeTour } = await response.json();
+
+        if (Platform.OS === 'web') {
+          const shouldReplace = window.confirm(
+            `You have an active tour: "${activeTour.tour.title}". Starting a new one will cause you to lose progress. Do you want to proceed?`
+          );
+          if (shouldReplace) {
+            handleStartTour(true);
+          }
+        } else {
+          Alert.alert(
+            'Active Tour Exists',
+            `You have an active tour: "${activeTour.tour.title}". Starting a new one will cause you to lose progress. Do you want to proceed?`,
+            [
+              {
+                text: 'Cancel',
+                style: 'cancel',
+              },
+              {
+                text: 'Start New Tour',
+                style: 'destructive',
+                onPress: () => handleStartTour(true),
+              },
+            ]
+          );
+        }
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to start tour');
+      }
+
+      const newActiveTour = await response.json();
+      router.push(`/active-tour/${newActiveTour.id}`);
+
+    } catch (error) {
+      console.error('Error starting tour:', error);
+      if (Platform.OS === 'web') {
+        alert('Failed to start tour. Please try again.');
+      } else {
+        Alert.alert('Error', 'Failed to start tour. Please try again.');
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -52,9 +118,6 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
     images: review.photos,
   }));
 
-  const handleStartTour = () => {
-  };
-
   return (
     <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -75,7 +138,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           description={tour.description}
         />
 
-        <StartTourButton onPress={handleStartTour} buttonText={t('startTour')} />
+        <StartTourButton onPress={() => handleStartTour(false)} buttonText={t('startTour')} />
 
         <TourGameModes
           modes={tour.modes}
