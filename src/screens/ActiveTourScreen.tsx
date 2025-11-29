@@ -50,7 +50,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
     const stopChallenges = currentStop?.challenges || [];
     const isLastStop = currentStopIndex === activeTour.tour.stops.length - 1;
 
-    const openMaps = () => {
+    const openMaps = async () => {
         if (!currentStop) return;
 
         const scheme = Platform.select({ ios: 'maps:0,0?q=', android: 'geo:0,0?q=' });
@@ -64,7 +64,21 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         });
 
         if (url) {
-            Linking.openURL(url);
+            try {
+                const supported = await Linking.canOpenURL(url);
+                if (supported) {
+                    await Linking.openURL(url);
+                } else {
+                    // Fallback to Google Maps web URL
+                    const browserUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+                    await Linking.openURL(browserUrl);
+                }
+            } catch (error) {
+                console.error("An error occurred", error);
+                // Fallback to Google Maps web URL in case of error
+                const browserUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+                await Linking.openURL(browserUrl);
+            }
         }
     };
 
