@@ -38,6 +38,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         handlePrevStop,
         handleNextStop,
         handleFinishTour,
+        handleAbandonTour,
         streak,
         points,
     } = useActiveTour(activeTourId);
@@ -61,6 +62,10 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                 streak={streak}
                 tokens={points}
                 onClose={() => router.back()}
+                onAbandon={() => {
+                    handleAbandonTour();
+                    router.back();
+                }}
             />
 
             <ScrollView contentContainerStyle={styles.scrollContent}>

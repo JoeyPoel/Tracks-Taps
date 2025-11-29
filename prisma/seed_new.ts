@@ -253,6 +253,15 @@ async function main() {
                     description: 'Take a walk through the park.',
                     type: ChallengeType.LOCATION,
                     points: 30,
+                },
+                {
+                    title: 'Statue Hunt',
+                    description: 'Find the Picasso statue.',
+                    type: ChallengeType.TRIVIA,
+                    points: 80,
+                    content: 'Which famous artist has a sculpture in Vondelpark?',
+                    options: ['Picasso', 'Rodin', 'Dali', 'Moore'],
+                    answer: 'Picasso',
                 }
             ]
         },
@@ -269,6 +278,40 @@ async function main() {
                     description: 'Visit the Anne Frank House.',
                     type: ChallengeType.LOCATION,
                     points: 80,
+                },
+                {
+                    title: 'Diary Details',
+                    description: 'When was the diary published?',
+                    type: ChallengeType.TRIVIA,
+                    points: 60,
+                    content: 'In which year was The Diary of a Young Girl first published?',
+                    options: ['1947', '1950', '1945', '1955'],
+                    answer: '1947',
+                }
+            ]
+        },
+        {
+            name: 'Dam Square',
+            description: 'The historical center of the city.',
+            order: 4,
+            number: 4,
+            lat: 52.3731,
+            lng: 4.8926,
+            challenges: [
+                {
+                    title: 'Royal Palace',
+                    description: 'Take a selfie with the Royal Palace.',
+                    type: ChallengeType.LOCATION,
+                    points: 50,
+                },
+                {
+                    title: 'Monumental',
+                    description: 'What is the white pillar?',
+                    type: ChallengeType.TRIVIA,
+                    points: 40,
+                    content: 'What does the National Monument on Dam Square commemorate?',
+                    options: ['WWII Victims', 'The Monarchy', 'The Golden Age', 'Independence'],
+                    answer: 'WWII Victims',
                 }
             ]
         }
@@ -291,6 +334,15 @@ async function main() {
                     description: 'Run across the bridge.',
                     type: ChallengeType.LOCATION,
                     points: 100,
+                },
+                {
+                    title: 'Swan Song',
+                    description: 'Why is it called The Swan?',
+                    type: ChallengeType.TRIVIA,
+                    points: 50,
+                    content: 'What is the nickname of the Erasmus Bridge?',
+                    options: ['The Swan', 'The Goose', 'The Crane', 'The Harp'],
+                    answer: 'The Swan',
                 }
             ]
         },
@@ -332,6 +384,40 @@ async function main() {
                     description: 'Find a tasty snack.',
                     type: ChallengeType.LOCATION,
                     points: 50,
+                },
+                {
+                    title: 'Ceiling Art',
+                    description: 'Look up!',
+                    type: ChallengeType.TRIVIA,
+                    points: 60,
+                    content: 'What is depicted on the ceiling of the Markthal?',
+                    options: ['Fruits and Vegetables', 'Stars', 'Historical Figures', 'Ships'],
+                    answer: 'Fruits and Vegetables',
+                }
+            ]
+        },
+        {
+            name: 'Euromast',
+            description: 'Observation tower designed by Hugh Maaskant.',
+            order: 4,
+            number: 4,
+            lat: 51.9054,
+            lng: 4.4666,
+            challenges: [
+                {
+                    title: 'High Point',
+                    description: 'Reach the Euromast.',
+                    type: ChallengeType.LOCATION,
+                    points: 80,
+                },
+                {
+                    title: 'Height Check',
+                    description: 'How tall is it?',
+                    type: ChallengeType.TRIVIA,
+                    points: 70,
+                    content: 'How tall is the Euromast?',
+                    options: ['185m', '150m', '200m', '100m'],
+                    answer: '185m',
                 }
             ]
         }
@@ -339,7 +425,8 @@ async function main() {
 
     await createStopsAndChallenges(rotterdamTour.id, rotterdamStops);
 
-    // 6. Create Active Tour for Joey
+    // 6. Create Active Tours for Joey
+    // Active Tour 1: Utrecht (In Progress)
     const activeTour = await prisma.activeTour.create({
         data: {
             tourId: utrechtTour.id,
@@ -350,7 +437,29 @@ async function main() {
         },
     });
 
-    // 7. Create Active Challenges (Simulate progress)
+    // Active Tour 2: Amsterdam (Abandoned)
+    await prisma.activeTour.create({
+        data: {
+            tourId: amsterdamTour.id,
+            status: SessionStatus.ABANDONED,
+            participants: {
+                connect: { id: joey.id },
+            },
+        },
+    });
+
+    // Active Tour 3: Rotterdam (Completed)
+    await prisma.activeTour.create({
+        data: {
+            tourId: rotterdamTour.id,
+            status: SessionStatus.COMPLETED,
+            participants: {
+                connect: { id: joey.id },
+            },
+        },
+    });
+
+    // 7. Create Active Challenges (Simulate progress for Utrecht)
     // Let's say Joey has completed the first stop's challenges
     const firstStop = await prisma.stop.findFirst({
         where: { tourId: utrechtTour.id, order: 1 },

@@ -17,6 +17,7 @@ enum SessionStatus {
   WAITING
   IN_PROGRESS
   COMPLETED
+  ABANDONED
 }
 
 model User {

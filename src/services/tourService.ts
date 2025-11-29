@@ -144,4 +144,22 @@ export const tourService = {
             }
         });
     },
+
+    async finishTour(activeTourId: number) {
+        return await prisma.activeTour.update({
+            where: { id: activeTourId },
+            data: {
+                status: SessionStatus.COMPLETED,
+            },
+        });
+    },
+
+    async abandonTour(activeTourId: number) {
+        return await prisma.activeTour.update({
+            where: { id: activeTourId },
+            data: {
+                status: SessionStatus.ABANDONED,
+            },
+        });
+    },
 };

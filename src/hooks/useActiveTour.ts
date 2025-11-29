@@ -107,7 +107,7 @@ export const useActiveTour = (activeTourId: number) => {
         triggerFloatingPoints(challenge.points);
         setStreak(prev => prev + 1);
 
-        checkAutoAdvance(newCompleted, failedChallenges);
+        // checkAutoAdvance(newCompleted, failedChallenges); // Disabled auto-advance
 
         try {
             await fetch('/api/active-challenge/complete', {
@@ -133,7 +133,7 @@ export const useActiveTour = (activeTourId: number) => {
         setFailedChallenges(newFailed);
         setStreak(0);
 
-        checkAutoAdvance(completedChallenges, newFailed);
+        // checkAutoAdvance(completedChallenges, newFailed); // Disabled auto-advance
 
         try {
             await fetch('/api/active-challenge/fail', {
@@ -178,8 +178,34 @@ export const useActiveTour = (activeTourId: number) => {
         }
     };
 
-    const handleFinishTour = () => {
-        setShowConfetti(true);
+    const handleFinishTour = async () => {
+        try {
+            const response = await fetch('/api/active-tour/finish', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ activeTourId })
+            });
+
+            if (response.ok) {
+                setShowConfetti(true);
+                // Optionally redirect or update local state to reflect completion
+            }
+        } catch (error) {
+            console.error('Failed to finish tour:', error);
+        }
+    };
+
+    const handleAbandonTour = async () => {
+        try {
+            await fetch('/api/active-tour/abandon', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ activeTourId })
+            });
+            // Navigation should be handled by the component calling this
+        } catch (error) {
+            console.error('Failed to abandon tour:', error);
+        }
     };
 
     return {
@@ -200,6 +226,7 @@ export const useActiveTour = (activeTourId: number) => {
         handlePrevStop,
         handleNextStop,
         handleFinishTour,
+        handleAbandonTour,
         streak,
         points,
     };
