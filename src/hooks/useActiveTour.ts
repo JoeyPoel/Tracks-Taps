@@ -174,7 +174,7 @@ export const useActiveTour = (activeTourId: number) => {
         }
     };
 
-    const handleFinishTour = async () => {
+    const handleFinishTour = async (): Promise<boolean> => {
         try {
             const response = await fetch('/api/active-tour/finish', {
                 method: 'POST',
@@ -184,10 +184,12 @@ export const useActiveTour = (activeTourId: number) => {
 
             if (response.ok) {
                 setShowConfetti(true);
-                // Optionally redirect or update local state to reflect completion
+                return true;
             }
+            return false;
         } catch (error) {
             console.error('Failed to finish tour:', error);
+            return false;
         }
     };
 

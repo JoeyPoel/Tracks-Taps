@@ -60,8 +60,8 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
 
                             if (isDone) {
                                 if (isCorrect) {
-                                    borderColor = theme.primary; // Show correct answer
-                                    backgroundColor = theme.primary + '33'; // Light green bg
+                                    borderColor = theme.success; // Show correct answer
+                                    backgroundColor = theme.success + '33'; // Light green bg
                                 } else if (isSelected && isFailed) {
                                     borderColor = theme.danger; // Show selected wrong answer
                                     backgroundColor = theme.danger + '33'; // Light red bg
@@ -88,8 +88,8 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                                     <Text style={[
                                         styles.optionText,
                                         { color: theme.textPrimary },
-                                        isDone && isCorrect && { color: theme.primary, fontWeight: 'bold' },
-                                        isDone && isSelected && isFailed && { color: theme.danger }
+                                        isDone && isCorrect && { color: theme.success, fontWeight: 'bold' },
+                                        isDone && isSelected && isFailed && { color: theme.danger, fontWeight: 'bold' }
                                     ]}>{option}</Text>
                                 </TouchableOpacity>
                             )

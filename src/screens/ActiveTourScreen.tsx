@@ -143,7 +143,15 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                     isLastStop={isLastStop}
                     onPrevStop={handlePrevStop}
                     onNextStop={handleNextStop}
-                    onFinishTour={handleFinishTour}
+                    onFinishTour={async () => {
+                        const success = await handleFinishTour();
+                        if (success) {
+                            setTimeout(() => {
+                                router.dismissAll();
+                                router.replace('/(tabs)/explore');
+                            }, 3000);
+                        }
+                    }}
                 />
             </ScrollView>
 
