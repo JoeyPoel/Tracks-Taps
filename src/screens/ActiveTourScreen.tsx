@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import ActiveTourHeader from '../components/activeTourScreen/ActiveTourHeader';
 import ActiveTourMap from '../components/activeTourScreen/ActiveTourMap';
 import ChallengeItem from '../components/activeTourScreen/ChallengeItem';
@@ -50,6 +50,24 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
     const stopChallenges = currentStop?.challenges || [];
     const isLastStop = currentStopIndex === activeTour.tour.stops.length - 1;
 
+    const openMaps = () => {
+        if (!currentStop) return;
+
+        const scheme = Platform.select({ ios: 'maps:0,0?q=', android: 'geo:0,0?q=' });
+        const lat = currentStop.latitude;
+        const lng = currentStop.longitude;
+        const label = currentStop.name;
+
+        const url = Platform.select({
+            ios: `${scheme}${label}@${lat},${lng}`,
+            android: `${scheme}${lat},${lng}(${label})`
+        });
+
+        if (url) {
+            Linking.openURL(url);
+        }
+    };
+
     return (
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
             <ActiveTourHeader
@@ -67,12 +85,13 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                 {currentStop && (
                     <ActiveTourMap
                         currentStop={currentStop}
-                        onNavigate={() => console.log('Navigate pressed')}
+                        previousStop={activeTour.tour.stops[currentStopIndex - 1]}
+                        onNavigate={openMaps}
                     />
                 )}
 
                 <CustomTabBar
-                    tabs={[`Challenges`, 'Tour goals', 'Bingo']}
+                    tabs={[`Challenges`]}
                     activeIndex={activeTab}
                     onTabPress={setActiveTab}
                 />
