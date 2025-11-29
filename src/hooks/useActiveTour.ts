@@ -107,7 +107,6 @@ export const useActiveTour = (activeTourId: number) => {
         triggerFloatingPoints(challenge.points);
         setStreak(prev => prev + 1);
 
-        // checkAutoAdvance(newCompleted, failedChallenges); // Disabled auto-advance
 
         try {
             await fetch('/api/active-challenge/complete', {
@@ -118,7 +117,7 @@ export const useActiveTour = (activeTourId: number) => {
                     challengeId: challenge.id
                 })
             });
-            refetch();
+            // refetch(); // Removed to prevent full page reload (loading state)
         } catch (err) {
             console.error('Failed to complete challenge', err);
         }
@@ -144,15 +143,12 @@ export const useActiveTour = (activeTourId: number) => {
                     challengeId: challenge.id
                 })
             });
-            refetch();
+            // refetch(); // Removed to prevent full page reload (loading state)
         } catch (err) {
             console.error('Failed to fail challenge', err);
         }
     };
 
-    const handleClaimArrival = (challenge: any) => {
-        handleChallengeComplete(challenge);
-    };
 
     const handleSubmitTrivia = (challenge: any) => {
         const selectedIndex = triviaSelected[challenge.id];
@@ -221,8 +217,9 @@ export const useActiveTour = (activeTourId: number) => {
         floatingPointsAmount,
         setShowFloatingPoints,
         showConfetti,
-        handleClaimArrival,
         handleSubmitTrivia,
+        handleChallengeComplete,
+        handleChallengeFail,
         handlePrevStop,
         handleNextStop,
         handleFinishTour,
