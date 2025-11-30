@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import ActiveChallengeCard from './ActiveChallengeCard';
 
@@ -23,6 +24,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
     onSubmitTrivia,
 }) => {
     const { theme } = useTheme();
+    const { t } = useLanguage();
     const isDone = isCompleted || isFailed;
 
     return (
@@ -35,15 +37,15 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
             isFailed={isFailed}
             onPress={() => challenge.type === 'LOCATION' ? onClaimArrival(challenge) : onSubmitTrivia(challenge)}
             actionLabel={
-                isFailed ? "Wrong Answer" :
-                    isCompleted ? "Completed" :
-                        challenge.type === 'LOCATION' ? "Claim Points" : "Submit Answer"
+                isFailed ? t('wrongAnswer') :
+                    isCompleted ? t('completed') :
+                        challenge.type === 'LOCATION' ? t('claimPoints') : t('submitAnswer')
             }
             disabled={isDone}
         >
             {challenge.type === 'LOCATION' ? (
                 <Text style={[styles.successText, { color: theme.primary }]}>
-                    You're at the right location!
+                    {t('rightLocation')}
                 </Text>
             ) : (
                 <View>
@@ -83,7 +85,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                                         { borderColor },
                                         isSelected && !isDone && { backgroundColor: theme.primary }
                                     ]}>
-                                        {isSelected && !isDone && <View style={styles.radioButtonInner} />}
+                                        {isSelected && !isDone && <View style={[styles.radioButtonInner, { backgroundColor: theme.fixedWhite }]} />}
                                     </View>
                                     <Text style={[
                                         styles.optionText,
@@ -97,7 +99,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                     </View>
                     {isFailed && (
                         <Text style={{ color: theme.danger, marginTop: 8, fontWeight: 'bold' }}>
-                            Wrong answer! The correct answer was: {challenge.answer}
+                            {t('wrongAnswerCorrectWas')} {challenge.answer}
                         </Text>
                     )}
                 </View>
@@ -138,7 +140,6 @@ const styles = StyleSheet.create({
         width: 10,
         height: 10,
         borderRadius: 5,
-        backgroundColor: '#FFFFFF',
     },
     optionText: {
         fontSize: 16,

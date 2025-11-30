@@ -1,7 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+
+const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 interface ActiveTourHeaderProps {
     level: number;
@@ -25,6 +29,7 @@ export default function ActiveTourHeader({
     onClose,
 }: ActiveTourHeaderProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     const xpProgress = Math.min(Math.max(currentXP / maxXP, 0), 1) * 100;
     const stopProgress = Math.min(Math.max(currentStop / totalStops, 0), 1) * 100;
@@ -67,11 +72,11 @@ export default function ActiveTourHeader({
 
                 <View style={styles.statsContainer}>
                     <View style={styles.statBadge}>
-                        <Ionicons name="flame" size={16} color="#FF5722" />
+                        <Ionicons name="flame" size={16} color={theme.orange} />
                         <Text style={[styles.statText, { color: theme.textPrimary }]}>{streak}</Text>
                     </View>
                     <View style={styles.statBadge}>
-                        <Ionicons name="flash" size={16} color="#E91E63" />
+                        <Ionicons name="flash" size={16} color={theme.primary} />
                         <Text style={[styles.statText, { color: theme.textPrimary }]}>{tokens}</Text>
                     </View>
                 </View>
@@ -80,8 +85,8 @@ export default function ActiveTourHeader({
             {/* Row 2: Level + XP Text */}
             <View style={styles.levelRow}>
                 <View style={styles.levelBadge}>
-                    <Ionicons name="star" size={14} color="#FFC107" />
-                    <Text style={[styles.levelText, { color: theme.warning }]}>Level {level}</Text>
+                    <Ionicons name="star" size={14} color={theme.starColor} />
+                    <Text style={[styles.levelText, { color: theme.starColor }]}>{t('level')} {level}</Text>
                 </View>
                 <Text style={[styles.xpText, { color: theme.textSecondary }]}>{currentXP} / {maxXP} XP</Text>
             </View>
@@ -89,18 +94,29 @@ export default function ActiveTourHeader({
             {/* Row 3: XP Bar */}
             <View style={styles.xpBarContainer}>
                 <View style={styles.progressBarBg}>
-                    <Animated.View style={[styles.progressBarFill, { width: xpWidth, backgroundColor: '#FF5722' }]} />
+                    <AnimatedLinearGradient
+                        colors={[theme.fixedGradientFromLevel, theme.fixedGradientToLevel]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={[styles.progressBarFill, { width: xpWidth }]}
+                    />
                 </View>
             </View>
+
 
             {/* Row 4: Stop Info + Stop Bar */}
             <View style={styles.stopRow}>
                 <Text style={[styles.stopText, { color: theme.textSecondary }]}>
-                    Stop {currentStop} / {totalStops}
+                    {t('Stop')} {currentStop} / {totalStops}
                 </Text>
                 <View style={styles.stopBarContainer}>
                     <View style={styles.progressBarBg}>
-                        <Animated.View style={[styles.progressBarFill, { width: stopWidth, backgroundColor: '#E91E63' }]} />
+                        <AnimatedLinearGradient
+                            colors={[theme.primary, theme.secondary]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={[styles.progressBarFill, { width: stopWidth }]}
+                        />
                     </View>
                 </View>
             </View>

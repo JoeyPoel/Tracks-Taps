@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import StartTourButton from '../TourButton';
 
@@ -19,6 +20,7 @@ const TourNavigation: React.FC<TourNavigationProps> = ({
     onFinishTour,
 }) => {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     return (
         <View style={styles.navigationContainer}>
@@ -27,20 +29,20 @@ const TourNavigation: React.FC<TourNavigationProps> = ({
                     style={[styles.navButton, styles.secondaryButton, { borderColor: theme.textSecondary }]}
                     onPress={onPrevStop}
                 >
-                    <Text style={[styles.navButtonText, { color: theme.textSecondary }]}>Back</Text>
+                    <Text style={[styles.navButtonText, { color: theme.textSecondary }]}>{t('back')}</Text>
                 </TouchableOpacity>
             )}
 
             {isLastStop ? (
                 <View style={{ flex: 1 }}>
-                    <StartTourButton onPress={onFinishTour} buttonText="Finish Tour" />
+                    <StartTourButton onPress={onFinishTour} buttonText={t('finishTour')} />
                 </View>
             ) : (
                 <TouchableOpacity
                     style={[styles.navButton, styles.primaryButton, { backgroundColor: theme.primary }]}
                     onPress={onNextStop}
                 >
-                    <Text style={[styles.navButtonText, { color: '#FFFFFF' }]}>Next</Text>
+                    <Text style={[styles.navButtonText, { color: theme.fixedWhite }]}>{t('next')}</Text>
                 </TouchableOpacity>
             )}
         </View>

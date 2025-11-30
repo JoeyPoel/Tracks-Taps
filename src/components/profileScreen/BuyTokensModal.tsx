@@ -1,3 +1,4 @@
+import { useLanguage } from '@/src/context/LanguageContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Animated, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -17,6 +18,7 @@ const PACKAGES = [
 
 export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
     const slideAnim = React.useRef(new Animated.Value(Dimensions.get('window').height)).current;
 
     React.useEffect(() => {
@@ -49,7 +51,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
             transparent={true}
             onRequestClose={handleClose}
         >
-            <View style={styles.modalOverlay}>
+            <View style={[styles.modalOverlay, { backgroundColor: theme.overlay }]}>
                 <Animated.View
                     style={[
                         styles.modalContent,
@@ -61,8 +63,8 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                 >
                     <View style={styles.header}>
                         <View style={styles.titleRow}>
-                            <Ionicons name="disc" size={24} color="#FFC107" />
-                            <Text style={[styles.title, { color: theme.textPrimary }]}>Buy Tokens</Text>
+                            <Ionicons name="disc" size={24} color={theme.accent} />
+                            <Text style={[styles.title, { color: theme.textPrimary }]}>{t('buyTokens')}</Text>
                         </View>
                         <TouchableOpacity onPress={handleClose}>
                             <Ionicons name="close" size={24} color={theme.textSecondary} />
@@ -70,7 +72,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                     </View>
 
                     <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-                        Choose a token package to continue playing tours
+                        {t('chooseTokenPackage')}
                     </Text>
 
                     <ScrollView contentContainerStyle={styles.packagesContainer}>
@@ -89,24 +91,24 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                                 >
                                     {pkg.popular && (
                                         <View style={[styles.popularBadge, { backgroundColor: theme.danger }]}>
-                                            <Text style={styles.popularText}>Most Popular</Text>
+                                            <Text style={[styles.popularText, { color: theme.fixedWhite }]}>{t('mostPopular')}</Text>
                                         </View>
                                     )}
 
                                     <View style={styles.packageInfo}>
                                         <View style={styles.tokenRow}>
-                                            <Ionicons name="disc-outline" size={20} color="#FFC107" />
+                                            <Ionicons name="disc-outline" size={20} color={theme.accent} />
                                             <Text style={[styles.tokenAmount, { color: theme.textPrimary }]}>
-                                                {pkg.tokens} Tokens
+                                                {pkg.tokens} {t('tokens')}
                                             </Text>
                                             {pkg.bonus > 0 && (
                                                 <View style={[styles.bonusBadge, { backgroundColor: theme.success }]}>
-                                                    <Text style={styles.bonusText}>+{pkg.bonus} Bonus</Text>
+                                                    <Text style={[styles.bonusText, { color: theme.fixedWhite }]}>+{pkg.bonus} {t('bonus')}</Text>
                                                 </View>
                                             )}
                                         </View>
                                         <Text style={[styles.totalTokens, { color: theme.textSecondary }]}>
-                                            Total: {totalTokens} tokens
+                                            {t('total')}: {totalTokens} {t('tokensLower')}
                                         </Text>
                                     </View>
 
@@ -127,9 +129,9 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                         <View style={styles.footerContent}>
                             <Ionicons name="gift-outline" size={24} color={theme.primary} />
                             <View style={styles.footerTextContainer}>
-                                <Text style={[styles.footerTitle, { color: theme.textPrimary }]}>Earn Free Tokens!</Text>
+                                <Text style={[styles.footerTitle, { color: theme.textPrimary }]}>{t('earnFreeTokens')}</Text>
                                 <Text style={[styles.footerDescription, { color: theme.primary }]}>
-                                    Invite friends and earn 3 tokens for each friend who joins. Tap "Invite Friends" to get your referral link!
+                                    {t('inviteFriendsDescription')}
                                 </Text>
                             </View>
                         </View>
@@ -143,7 +145,6 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
 const styles = StyleSheet.create({
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
         height: '100%',
         justifyContent: 'flex-end',
     },
@@ -195,7 +196,6 @@ const styles = StyleSheet.create({
         borderRadius: 12,
     },
     popularText: {
-        color: '#FFFFFF',
         fontSize: 12,
         fontWeight: 'bold',
     },
@@ -218,7 +218,6 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
     bonusText: {
-        color: '#FFFFFF',
         fontSize: 12,
         fontWeight: 'bold',
     },

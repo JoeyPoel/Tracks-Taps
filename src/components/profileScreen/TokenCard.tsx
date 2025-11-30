@@ -1,3 +1,4 @@
+import { useLanguage } from '@/src/context/LanguageContext';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
@@ -12,36 +13,37 @@ interface TokenCardProps {
 
 export default function TokenCard({ tokens, onBuyPress, onInvitePress }: TokenCardProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     return (
         <View style={styles.container}>
             <LinearGradient
-                colors={['#FFC107', '#FF375D']} // Orange to Pink gradient
+                colors={[theme.accent, theme.primary]} // Orange to Pink gradient
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.gradient}
             >
                 <View style={styles.header}>
                     <View style={styles.iconContainer}>
-                        <Ionicons name="disc-outline" size={32} color="#FFFFFF" />
-                        <Ionicons name="disc" size={24} color="#FFFFFF" style={styles.iconOverlay} />
+                        <Ionicons name="disc-outline" size={32} color={theme.fixedWhite} />
+                        <Ionicons name="disc" size={24} color={theme.fixedWhite} style={styles.iconOverlay} />
                     </View>
                     <View style={styles.balanceContainer}>
-                        <Text style={styles.label}>Your Tokens</Text>
+                        <Text style={styles.label}>{t('yourTokens')}</Text>
                         <Text style={styles.balance}>{tokens}</Text>
                     </View>
-                    <Ionicons name="sparkles" size={32} color="rgba(255,255,255,0.5)" style={styles.sparkleIcon} />
+                    <Ionicons name="sparkles" size={32} color={theme.fixedWhite} style={styles.sparkleIcon} />
                 </View>
 
                 <View style={styles.actions}>
                     <TouchableOpacity style={styles.button} onPress={onBuyPress}>
-                        <Ionicons name="cart-outline" size={20} color="#FFFFFF" style={styles.buttonIcon} />
-                        <Text style={styles.buttonText}>Buy Tokens</Text>
+                        <Ionicons name="cart-outline" size={20} color={theme.fixedWhite} style={styles.buttonIcon} />
+                        <Text style={styles.buttonText}>{t('buyTokens')}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.button} onPress={onInvitePress}>
-                        <Ionicons name="person-add-outline" size={20} color="#FFFFFF" style={styles.buttonIcon} />
-                        <Text style={styles.buttonText}>Invite Friends</Text>
+                        <Ionicons name="person-add-outline" size={20} color={theme.fixedWhite} style={styles.buttonIcon} />
+                        <Text style={styles.buttonText}>{t('inviteFriends')}</Text>
                     </TouchableOpacity>
                 </View>
             </LinearGradient>
@@ -68,7 +70,7 @@ const styles = StyleSheet.create({
         width: 48,
         height: 48,
         borderRadius: 24,
-        backgroundColor: 'rgba(255,255,255,0.2)',
+        backgroundColor: 'rgba(255,255,255,0.2)', // Keep semi-transparent white for contrast on gradient
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 16,
@@ -82,17 +84,17 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     label: {
-        color: 'rgba(255,255,255,0.9)',
+        color: 'rgba(255,255,255,0.9)', // Keep semi-transparent white
         fontSize: 14,
         marginBottom: 4,
     },
     balance: {
-        color: '#FFFFFF',
+        color: '#FFFFFF', // Keep white
         fontSize: 24,
         fontWeight: 'bold',
     },
     sparkleIcon: {
-        opacity: 0.8,
+        opacity: 0.5,
     },
     actions: {
         flexDirection: 'row',
@@ -103,7 +105,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(255,255,255,0.2)',
+        backgroundColor: 'rgba(255,255,255,0.2)', // Keep semi-transparent white
         paddingVertical: 12,
         borderRadius: 12,
     },

@@ -53,9 +53,14 @@ export const lightTheme = {
   fixedTrophyGold: "#FFC107",
   fixedGradientFrom: "#2AC3FF",
   fixedGradientTo: "#FF375D",
-
+  fixedGradientFromLevel: "#FBBF24",
+  fixedGradientToLevel: "#F87171",
+  
   starColor: "#FFC107",
   pubgolfColor: "#FFC107",
+  gold: "#FFD700",
+  orange: "#FF5722",
+  pink: "#E91E63",
 };
 
 export const darkTheme = {
@@ -113,7 +118,12 @@ export const darkTheme = {
   fixedTrophyGold: "#FFC107",
   fixedGradientFrom: "#2AC3FF",
   fixedGradientTo: "#FF375D",
+  fixedGradientFromLevel: "#FBBF24",
+  fixedGradientToLevel: "#F87171",
 
   starColor: "#FFC107",
   pubgolfColor: "#FFC107",
+  gold: "#FFD700",
+  orange: "#FF5722",
+  pink: "#E91E63",
 };

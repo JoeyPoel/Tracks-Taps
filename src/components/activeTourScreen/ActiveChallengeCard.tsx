@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
 export type ChallengeType = 'location' | 'trivia' | 'camera';
@@ -30,6 +31,7 @@ export default function ActiveChallengeCard({
     disabled = false
 }: ActiveChallengeCardProps & { disabled?: boolean, isFailed?: boolean }) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     const getIconName = () => {
         switch (type) {
@@ -42,9 +44,9 @@ export default function ActiveChallengeCard({
 
     const getIconColor = () => {
         switch (type) {
-            case 'location': return '#FFC107'; // Yellow
-            case 'trivia': return '#2AC3FF'; // Blue
-            case 'camera': return '#FF375D'; // Pink
+            case 'location': return theme.accent; // Yellow
+            case 'trivia': return theme.secondary; // Blue
+            case 'camera': return theme.primary; // Pink
             default: return theme.primary;
         }
     };
@@ -75,8 +77,8 @@ export default function ActiveChallengeCard({
                     <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>{title}</Text>
                 </View>
                 <View style={styles.pointsBadge}>
-                    <Ionicons name="flash" size={16} color="#FFD700" />
-                    <Text style={styles.pointsText}>{points}</Text>
+                    <Ionicons name="flash" size={16} color={theme.gold} />
+                    <Text style={[styles.pointsText, { color: theme.gold }]}>{points}</Text>
                 </View>
             </View>
 
@@ -90,12 +92,12 @@ export default function ActiveChallengeCard({
             {isCompleted ? (
                 <View style={styles.completedContainer}>
                     <Ionicons name="checkmark-circle-outline" size={24} color={theme.success} />
-                    <Text style={[styles.completedText, { color: theme.success }]}>Challenge Completed!</Text>
+                    <Text style={[styles.completedText, { color: theme.success }]}>{t('challengeCompleted')}</Text>
                 </View>
             ) : isFailed ? (
                 <View style={styles.completedContainer}>
                     <Ionicons name="close-circle-outline" size={24} color={theme.danger} />
-                    <Text style={[styles.completedText, { color: theme.danger }]}>Challenge Failed</Text>
+                    <Text style={[styles.completedText, { color: theme.danger }]}>{t('challengeFailed')}</Text>
                 </View>
             ) : (
                 <TouchableOpacity
@@ -107,7 +109,7 @@ export default function ActiveChallengeCard({
                     onPress={onPress}
                     disabled={disabled}
                 >
-                    <Text style={styles.buttonText}>{actionLabel}</Text>
+                    <Text style={[styles.buttonText, { color: theme.fixedWhite }]}>{actionLabel}</Text>
                 </TouchableOpacity>
             )}
         </LinearGradient>
@@ -149,7 +151,6 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     pointsText: {
-        color: '#FFD700',
         fontWeight: 'bold',
         fontSize: 16,
     },
@@ -165,7 +166,6 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     buttonText: {
-        color: '#FFFFFF',
         fontWeight: 'bold',
         fontSize: 16,
     },

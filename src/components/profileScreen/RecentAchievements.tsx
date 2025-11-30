@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 interface Achievement {
     id: string;
@@ -17,10 +18,11 @@ interface RecentAchievementsProps {
 
 export default function RecentAchievements({ achievements }: RecentAchievementsProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     return (
         <View style={styles.container}>
-            <Text style={[styles.header, { color: theme.textPrimary }]}>Recent Achievements</Text>
+            <Text style={[styles.header, { color: theme.textPrimary }]}>{t('recentAchievements')}</Text>
 
             {achievements.map((achievement) => (
                 <View key={achievement.id} style={[styles.card, { backgroundColor: theme.bgSecondary }]}>

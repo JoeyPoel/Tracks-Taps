@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { LatLng, Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
 interface StopLocation {
@@ -18,6 +19,7 @@ interface ActiveTourMapProps {
 
 export default function ActiveTourMap({ currentStop, previousStop, onNavigate }: ActiveTourMapProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
     const [routeCoords, setRouteCoords] = useState<LatLng[]>([]);
     const mapRef = useRef<MapView>(null);
 
@@ -96,7 +98,7 @@ export default function ActiveTourMap({ currentStop, previousStop, onNavigate }:
 
             <TouchableOpacity style={[styles.navigateButton, { backgroundColor: theme.bgSecondary }]} onPress={onNavigate}>
                 <Ionicons name="navigate" size={20} color={theme.primary} />
-                <Text style={[styles.navigateText, { color: theme.primary }]}>Navigate</Text>
+                <Text style={[styles.navigateText, { color: theme.primary }]}>{t('navigate')}</Text>
             </TouchableOpacity>
         </View>
     );

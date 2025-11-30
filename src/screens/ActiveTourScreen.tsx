@@ -9,12 +9,14 @@ import FloatingPoints from '../components/activeTourScreen/FloatingPoints';
 import StopCard from '../components/activeTourScreen/StopCard';
 import TourNavigation from '../components/activeTourScreen/TourNavigation';
 import CustomTabBar from '../components/CustomTabBar';
+import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useActiveTour } from '../hooks/useActiveTour';
 import { useUser } from '../hooks/useUser';
 
 export default function ActiveTourScreen({ activeTourId }: { activeTourId: number }) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState(0);
 
@@ -42,9 +44,9 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         points,
     } = useActiveTour(activeTourId);
 
-    if (loading) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>Loading tour...</Text></View>;
+    if (loading) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>{t('loadingTour')}</Text></View>;
     if (error) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.danger }}>{error}</Text></View>;
-    if (!activeTour) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>Tour not found</Text></View>;
+    if (!activeTour) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>{t('tourNotFound')}</Text></View>;
 
     const currentStop = activeTour.tour.stops[currentStopIndex];
     const stopChallenges = currentStop?.challenges || [];
@@ -105,7 +107,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                 )}
 
                 <CustomTabBar
-                    tabs={[`Challenges`]}
+                    tabs={[`${t('challenges')}`]}
                     activeIndex={activeTab}
                     onTabPress={setActiveTab}
                 />
@@ -115,7 +117,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                 {stopChallenges.length === 0 ? (
                     <View style={styles.noChallengesContainer}>
                         <Text style={[styles.noChallengesText, { color: theme.textSecondary }]}>
-                            No challenges at this stop. Enjoy the view!
+                            {t('noChallengesAtStop')}
                         </Text>
                     </View>
                 ) : (

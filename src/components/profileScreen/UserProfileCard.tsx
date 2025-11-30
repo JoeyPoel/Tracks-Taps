@@ -37,15 +37,15 @@ export default function UserProfileCard({
                     <View style={styles.avatarSection}>
                         <View style={styles.avatarContainer}>
                             {avatarUrl ? (
-                                <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+                                <Image source={{ uri: avatarUrl }} style={[styles.avatar, { borderColor: theme.borderPrimary }]} />
                             ) : (
-                                <View style={[styles.avatarPlaceholder, { backgroundColor: theme.bgTertiary }]}>
+                                <View style={[styles.avatarPlaceholder, { backgroundColor: theme.bgTertiary, borderColor: theme.borderPrimary }]}>
                                     <Ionicons name="person" size={40} color={theme.iconMuted} />
                                 </View>
                             )}
                             {onEditPress && (
                                 <TouchableOpacity
-                                    style={[styles.editButton, { backgroundColor: theme.primary }]}
+                                    style={[styles.editButton, { backgroundColor: theme.primary, borderColor: theme.bgSecondary }]}
                                     onPress={onEditPress}
                                 >
                                     <Ionicons name="pencil" size={14} color={theme.fixedWhite} />
@@ -59,19 +59,19 @@ export default function UserProfileCard({
 
                         <View style={styles.levelRow}>
                             <View style={[styles.levelBadge, { backgroundColor: theme.warning }]}>
-                                <Text style={[styles.levelText, { color: theme.fixedBlack }]}>Level {level}</Text>
+                                <Text style={[styles.levelText, { color: theme.fixedBlack }]}>{t('level')} {level}</Text>
                             </View>
-                            <Text style={[styles.rankText, { color: theme.textSecondary }]}>Explorer</Text>
+                            <Text style={[styles.rankText, { color: theme.textSecondary }]}>{t('explorer')}</Text>
                         </View>
 
                         <View style={styles.progressSection}>
                             <View style={styles.progressLabels}>
-                                <Text style={[styles.progressLabel, { color: theme.textSecondary }]}>Next level</Text>
+                                <Text style={[styles.progressLabel, { color: theme.textSecondary }]}>{t('nextLevel')}</Text>
                                 <Text style={[styles.progressValue, { color: theme.textPrimary }]}>{currentXP} / {maxXP} XP</Text>
                             </View>
-                            <View style={[styles.progressBarBg, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
+                            <View style={[styles.progressBarBg, { backgroundColor: theme.bgTertiary }]}>
                                 <LinearGradient
-                                    colors={[theme.warning, theme.danger]}
+                                    colors={[theme.fixedGradientFromLevel, theme.fixedGradientToLevel]}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 0 }}
                                     style={[styles.progressBarFill, { width: `${(currentXP / maxXP) * 100}%` }]}
@@ -111,7 +111,6 @@ const styles = StyleSheet.create({
         height: 80,
         borderRadius: 40,
         borderWidth: 2,
-        borderColor: 'rgba(255,255,255,0.1)',
     },
     avatarPlaceholder: {
         width: 80,
@@ -120,7 +119,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: 'rgba(255,255,255,0.1)',
     },
     editButton: {
         position: 'absolute',
@@ -132,7 +130,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: '#1E1E2E', // Matches dark bg
     },
     infoSection: {
         flex: 1,
