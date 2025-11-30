@@ -42,7 +42,7 @@ export default function TourCard({
       <View style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
         <ImageBackground source={{ uri: imageUrl }} style={styles.imageBackground}>
           <LinearGradient
-            colors={['transparent', 'rgba(0,0,0,0.8)']}
+            colors={['transparent', theme.overlay]}
             style={styles.gradient}
           >
             {difficulty && (

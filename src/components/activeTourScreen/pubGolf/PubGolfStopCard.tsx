@@ -36,12 +36,14 @@ export default function PubGolfStopCard({
     const diffText = diff > 0 ? `(+${diff})` : diff === 0 ? '' : `(${diff})`;
 
     // Determine card background color
-    const cardBg = isCompleted && scoreDetails ? scoreDetails.color[2] : theme.bgSecondary;
+    const cardBg = isCompleted && scoreDetails
+        ? theme.pubGolf[scoreDetails.colorKey as keyof typeof theme.pubGolf][2]
+        : theme.bgSecondary;
 
     return (
         <View style={[
             styles.container,
-            { backgroundColor: cardBg },
+            { backgroundColor: cardBg, shadowColor: theme.shadowColor },
             isActive && { borderColor: theme.primary, borderWidth: 2 }
         ]}>
             <PubGolfStopHeader
@@ -84,7 +86,6 @@ const styles = StyleSheet.create({
         padding: 16,
         marginBottom: 12,
         // Subtle shadow
-        shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 5,

@@ -124,7 +124,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                         {currentStop && <StopCard stop={currentStop} />}
 
                         {stopChallenges.length === 0 ? (
-                            <View style={styles.noChallengesContainer}>
+                            <View style={[styles.noChallengesContainer, { backgroundColor: theme.bgTertiary }]}>
                                 <Text style={[styles.noChallengesText, { color: theme.textSecondary }]}>
                                     {t('noChallengesAtStop')}
                                 </Text>
@@ -179,7 +179,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                                             key={stop.id}
                                             stopNumber={stop.number}
                                             stopName={stop.name}
-                                            drinkName={stop.pubgolfDrink || 'Drink'}
+                                            drinkName={stop.pubgolfDrink || t('drink')}
                                             par={stop.pubgolfPar || 3}
                                             sips={pubGolfScores[stop.id]}
                                             isActive={stop.id === currentStop?.id}
@@ -233,7 +233,6 @@ const styles = StyleSheet.create({
         padding: 24,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(0,0,0,0.05)',
         borderRadius: 12,
         marginBottom: 16,
     },

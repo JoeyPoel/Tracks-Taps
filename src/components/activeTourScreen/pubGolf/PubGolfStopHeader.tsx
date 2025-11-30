@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
 import { ScoreDetails } from '../../../utils/pubGolfUtils';
 
@@ -27,24 +28,32 @@ export default function PubGolfStopHeader({
     isActive,
 }: PubGolfStopHeaderProps) {
     const { theme } = useTheme();
-    const textColor = isCompleted ? '#FFFFFF' : theme.textPrimary;
-    const subTextColor = isCompleted ? 'rgba(255,255,255,0.7)' : theme.textSecondary;
+    const { t } = useLanguage();
+
+    const textColor = isCompleted ? theme.fixedWhite : theme.textPrimary;
+    const subTextColor = isCompleted ? 'rgba(255,255,255,0.7)' : theme.textSecondary; // Keeping rgba for transparency on white/colored bg
+
+    const gradientColors = scoreDetails
+        ? theme.pubGolf[scoreDetails.colorKey as keyof typeof theme.pubGolf].slice(0, 2) as [string, string]
+        : isActive
+            ? [theme.danger, theme.warning] as [string, string]
+            : [theme.bgDisabled, theme.bgTertiary] as [string, string];
 
     return (
         <View style={styles.topSection}>
             {/* Left: Number Badge */}
             <LinearGradient
-                colors={scoreDetails ? (scoreDetails.color.slice(0, 2) as [string, string]) : (isActive ? [theme.danger, theme.warning] : ['#374151', '#1F2937'])}
-                style={styles.numberBadge}
+                colors={gradientColors}
+                style={[styles.numberBadge, { shadowColor: theme.shadowColor }]}
             >
-                <Text style={styles.numberText}>#{stopNumber}</Text>
+                <Text style={[styles.numberText, { color: theme.fixedWhite }]}>#{stopNumber}</Text>
             </LinearGradient>
 
             {/* Middle: Info */}
             <View style={styles.info}>
                 <Text style={[styles.stopName, { color: textColor }]}>{stopName}</Text>
-                <View style={styles.drinkBadge}>
-                    <Text style={[styles.drinkName, { color: '#CBD5E1' }]}>
+                <View style={[styles.drinkBadge, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
+                    <Text style={[styles.drinkName, { color: isCompleted ? theme.fixedWhite : theme.textSecondary }]}>
                         {drinkName}
                     </Text>
                 </View>
@@ -53,14 +62,14 @@ export default function PubGolfStopHeader({
             {/* Right: Score & Par */}
             <View style={styles.rightSection}>
                 <View style={styles.parTag}>
-                    <Text style={{ fontSize: 10, color: subTextColor, marginRight: 2 }}>Par</Text>
+                    <Text style={{ fontSize: 10, color: subTextColor, marginRight: 2 }}>{t('par')}</Text>
                     <Text style={{ fontSize: 12, fontWeight: 'bold', color: subTextColor }}>{par}</Text>
                 </View>
 
                 {isCompleted && scoreDetails && (
                     <View style={styles.scoreContainer}>
                         <Text style={[styles.scoreEmojiBg, { marginRight: 45 }, { marginBottom: 10 }]}>{scoreDetails.emoji}</Text>
-                        <Text style={[styles.scoreValue, { color: scoreDetails.color[0] }]}>
+                        <Text style={[styles.scoreValue, { color: theme.pubGolf[scoreDetails.colorKey as keyof typeof theme.pubGolf][0] }]}>
                             {sips}
                         </Text>
                     </View>
@@ -88,14 +97,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 14,
-        shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 2,
         elevation: 3,
     },
     numberText: {
-        color: '#FFF',
         fontWeight: '900',
         fontSize: 18,
     },
@@ -112,7 +119,6 @@ const styles = StyleSheet.create({
     drinkBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.1)',
         alignSelf: 'flex-start',
         paddingHorizontal: 8,
         paddingVertical: 4,

@@ -55,12 +55,23 @@ export const lightTheme = {
   fixedGradientTo: "#FF375D",
   fixedGradientFromLevel: "#FBBF24",
   fixedGradientToLevel: "#F87171",
-  
+
   starColor: "#FFC107",
   pubgolfColor: "#FFC107",
   gold: "#FFD700",
   orange: "#FF5722",
   pink: "#E91E63",
+
+  pubGolf: {
+    holeInOne: ['#FFD700', '#F59E0B', '#291c06'],
+    albatross: ['#A855F7', '#9333EA', '#1e1b4b'],
+    eagle: ['#E879F9', '#D946EF', '#1f0f21'],
+    birdie: ['#4ADE80', '#22C55E', '#062115'],
+    par: ['#60A5FA', '#3B82F6', '#0f172a'],
+    bogey: ['#FB923C', '#F97316', '#27150a'],
+    doubleBogey: ['#F87171', '#EF4444', '#2b0e0e'],
+    tripleBogey: ['#9CA3AF', '#6B7280', '#111827'],
+  },
 };
 
 export const darkTheme = {
@@ -126,4 +137,15 @@ export const darkTheme = {
   gold: "#FFD700",
   orange: "#FF5722",
   pink: "#E91E63",
+
+  pubGolf: {
+    holeInOne: ['#FFD700', '#F59E0B', '#291c06'],
+    albatross: ['#A855F7', '#9333EA', '#1e1b4b'],
+    eagle: ['#E879F9', '#D946EF', '#1f0f21'],
+    birdie: ['#4ADE80', '#22C55E', '#062115'],
+    par: ['#60A5FA', '#3B82F6', '#0f172a'],
+    bogey: ['#FB923C', '#F97316', '#27150a'],
+    doubleBogey: ['#F87171', '#EF4444', '#2b0e0e'],
+    tripleBogey: ['#9CA3AF', '#6B7280', '#111827'],
+  },
 };

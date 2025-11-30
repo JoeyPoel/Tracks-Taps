@@ -63,7 +63,7 @@ export default function ActiveTourHeader({
     });
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+        <View style={[styles.container, { backgroundColor: theme.bgPrimary, borderBottomColor: theme.borderPrimary }]}>
             {/* Row 1: Close + Stats */}
             <View style={styles.topRow}>
                 <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -71,11 +71,11 @@ export default function ActiveTourHeader({
                 </TouchableOpacity>
 
                 <View style={styles.statsContainer}>
-                    <View style={styles.statBadge}>
+                    <View style={[styles.statBadge, { backgroundColor: theme.bgTertiary }]}>
                         <Ionicons name="flame" size={16} color={theme.orange} />
                         <Text style={[styles.statText, { color: theme.textPrimary }]}>{streak}</Text>
                     </View>
-                    <View style={styles.statBadge}>
+                    <View style={[styles.statBadge, { backgroundColor: theme.bgTertiary }]}>
                         <Ionicons name="flash" size={16} color={theme.primary} />
                         <Text style={[styles.statText, { color: theme.textPrimary }]}>{tokens}</Text>
                     </View>
@@ -88,12 +88,12 @@ export default function ActiveTourHeader({
                     <Ionicons name="star" size={14} color={theme.starColor} />
                     <Text style={[styles.levelText, { color: theme.starColor }]}>{t('level')} {level}</Text>
                 </View>
-                <Text style={[styles.xpText, { color: theme.textSecondary }]}>{currentXP} / {maxXP} XP</Text>
+                <Text style={[styles.xpText, { color: theme.textSecondary }]}>{currentXP} / {maxXP} {t('xp')}</Text>
             </View>
 
             {/* Row 3: XP Bar */}
             <View style={styles.xpBarContainer}>
-                <View style={styles.progressBarBg}>
+                <View style={[styles.progressBarBg, { backgroundColor: theme.bgTertiary }]}>
                     <AnimatedLinearGradient
                         colors={[theme.fixedGradientFromLevel, theme.fixedGradientToLevel]}
                         start={{ x: 0, y: 0 }}
@@ -110,7 +110,7 @@ export default function ActiveTourHeader({
                     {t('Stop')} {currentStop} / {totalStops}
                 </Text>
                 <View style={styles.stopBarContainer}>
-                    <View style={styles.progressBarBg}>
+                    <View style={[styles.progressBarBg, { backgroundColor: theme.bgTertiary }]}>
                         <AnimatedLinearGradient
                             colors={[theme.primary, theme.secondary]}
                             start={{ x: 0, y: 0 }}
@@ -130,7 +130,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingBottom: 16,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.05)',
     },
     topRow: {
         flexDirection: 'row',
@@ -148,7 +147,6 @@ const styles = StyleSheet.create({
     statBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.1)',
         paddingHorizontal: 10,
         paddingVertical: 6,
         borderRadius: 16,
@@ -193,7 +191,6 @@ const styles = StyleSheet.create({
     },
     progressBarBg: {
         height: 8,
-        backgroundColor: 'rgba(255,255,255,0.1)',
         borderRadius: 4,
         overflow: 'hidden',
         width: '100%',

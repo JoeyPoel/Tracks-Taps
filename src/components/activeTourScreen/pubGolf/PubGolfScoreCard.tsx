@@ -19,51 +19,54 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
     const isOverPar = currentScore > 0;
     const isEven = currentScore === 0;
 
-    let statusText = "Even Par";
+    let statusText = t('evenPar');
     let statusIcon = "golf";
 
     if (isUnderPar) {
-        statusText = "Under Par!";
+        statusText = t('underPar');
         statusIcon = "flame";
     } else if (isOverPar) {
-        statusText = "Over Par";
+        statusText = t('overPar');
         statusIcon = "alert-circle";
     }
 
+    // Use holeInOne gradient for the card background as it's gold/orange
+    const gradientColors = theme.pubGolf.holeInOne.slice(0, 3) as [string, string, string];
+
     return (
         <LinearGradient
-            colors={['#FFC107', '#FF9800', '#FF5722']}
+            colors={gradientColors}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.container}
         >
             <View style={styles.header}>
-                <View style={styles.iconContainer}>
-                    <Ionicons name="trophy-outline" size={32} color="#FFF" />
+                <View style={[styles.iconContainer, { backgroundColor: 'rgba(255,255,255,0.3)' }]}>
+                    <Ionicons name="trophy-outline" size={32} color={theme.fixedWhite} />
                 </View>
                 <View>
-                    <Text style={styles.title}>Pub Golf</Text>
-                    <Text style={styles.subtitle}>Official Scorecard</Text>
+                    <Text style={[styles.title, { color: theme.fixedWhite }]}>{t('pubgolf')}</Text>
+                    <Text style={[styles.subtitle, { color: 'rgba(255,255,255,0.9)' }]}>{t('officialScorecard')}</Text>
                 </View>
             </View>
 
-            <View style={styles.scoreContainer}>
-                <Text style={styles.scoreLabel}>Total Score</Text>
-                <Text style={styles.scoreValue}>{totalSips} / {totalPar}</Text>
+            <View style={[styles.scoreContainer, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+                <Text style={[styles.scoreLabel, { color: 'rgba(255,255,255,0.9)' }]}>{t('totalScore')}</Text>
+                <Text style={[styles.scoreValue, { color: theme.fixedWhite }]}>{totalSips} / {totalPar}</Text>
                 <View style={styles.statusContainer}>
-                    <Ionicons name={statusIcon as any} size={16} color="#FFF" style={{ marginRight: 4 }} />
-                    <Text style={styles.statusText}>{statusText}</Text>
+                    <Ionicons name={statusIcon as any} size={16} color={theme.fixedWhite} style={{ marginRight: 4 }} />
+                    <Text style={[styles.statusText, { color: theme.fixedWhite }]}>{statusText}</Text>
                 </View>
             </View>
 
-            <View style={styles.infoContainer}>
+            <View style={[styles.infoContainer, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
                 <View style={styles.infoRow}>
-                    <Text style={styles.infoText}>
-                        Try to finish each drink in <Text style={styles.bold}>par or under</Text>! Lower score wins.
+                    <Text style={[styles.infoText, { color: theme.fixedWhite }]}>
+                        {t('pubGolfInstructions')}
                     </Text>
                 </View>
-                <Text style={styles.legend}>
-                    Eagle (-2) • Birdie (-1) • Par (0) • Bogey (+1)
+                <Text style={[styles.legend, { color: 'rgba(255,255,255,0.8)' }]}>
+                    {t('pubGolfLegend')}
                 </Text>
             </View>
         </LinearGradient>
@@ -88,7 +91,6 @@ const styles = StyleSheet.create({
         width: 48,
         height: 48,
         borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.3)',
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 12,
@@ -96,15 +98,12 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#FFF',
     },
     subtitle: {
         fontSize: 14,
-        color: 'rgba(255,255,255,0.9)',
     },
     scoreContainer: {
         width: '40%',
-        backgroundColor: 'rgba(255,255,255,0.2)',
         borderRadius: 16,
         padding: 12,
         alignItems: 'center',
@@ -112,13 +111,11 @@ const styles = StyleSheet.create({
     },
     scoreLabel: {
         fontSize: 12,
-        color: 'rgba(255,255,255,0.9)',
         marginBottom: 4,
     },
     scoreValue: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#FFF',
         marginBottom: 4,
     },
     statusContainer: {
@@ -128,12 +125,10 @@ const styles = StyleSheet.create({
     statusText: {
         fontSize: 12,
         fontWeight: 'bold',
-        color: '#FFF',
     },
     infoContainer: {
         width: '100%',
         marginTop: 16,
-        backgroundColor: 'rgba(255,255,255,0.2)',
         borderRadius: 12,
         padding: 12,
     },
@@ -144,15 +139,10 @@ const styles = StyleSheet.create({
     },
     infoText: {
         fontSize: 14,
-        color: '#FFF',
         lineHeight: 20,
-    },
-    bold: {
-        fontWeight: 'bold',
     },
     legend: {
         fontSize: 12,
-        color: 'rgba(255,255,255,0.8)',
         marginTop: 4,
     },
 });

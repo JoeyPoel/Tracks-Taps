@@ -96,7 +96,7 @@ export default function ActiveTourMap({ currentStop, previousStop, onNavigate }:
                 )}
             </MapView>
 
-            <TouchableOpacity style={[styles.navigateButton, { backgroundColor: theme.bgSecondary }]} onPress={onNavigate}>
+            <TouchableOpacity style={[styles.navigateButton, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]} onPress={onNavigate}>
                 <Ionicons name="navigate" size={20} color={theme.primary} />
                 <Text style={[styles.navigateText, { color: theme.primary }]}>{t('navigate')}</Text>
             </TouchableOpacity>
@@ -126,7 +126,6 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         borderRadius: 8,
         gap: 8,
-        shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,

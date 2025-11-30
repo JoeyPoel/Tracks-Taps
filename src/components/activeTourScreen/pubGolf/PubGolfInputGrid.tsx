@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
 
 interface PubGolfInputGridProps {
@@ -14,12 +15,13 @@ export default function PubGolfInputGrid({
     onSelectSips,
 }: PubGolfInputGridProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
     const subTextColor = theme.textSecondary;
 
     return (
-        <View style={styles.inputSection}>
+        <View style={[styles.inputSection, { borderTopColor: 'rgba(255,255,255,0.1)' }]}>
             <Text style={[styles.inputLabel, { color: subTextColor }]}>
-                Sips taken:
+                {t('sipsTaken')}
             </Text>
             <View style={styles.grid}>
                 {Array.from({ length: par + 3 }, (_, i) => i + 1).map((num) => (
@@ -40,7 +42,7 @@ export default function PubGolfInputGrid({
                         <Text style={[
                             styles.sipButtonText,
                             { color: theme.textPrimary },
-                            selectedSips === num && { color: '#FFF' }
+                            selectedSips === num && { color: theme.fixedWhite }
                         ]}>{num}</Text>
                     </TouchableOpacity>
                 ))}
@@ -53,7 +55,6 @@ const styles = StyleSheet.create({
     inputSection: {
         marginTop: 20,
         borderTopWidth: 1,
-        borderTopColor: 'rgba(255,255,255,0.1)',
         paddingTop: 16,
     },
     inputLabel: {
