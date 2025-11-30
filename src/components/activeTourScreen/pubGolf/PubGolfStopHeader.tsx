@@ -68,7 +68,7 @@ export default function PubGolfStopHeader({
 
                 {isCompleted && scoreDetails && (
                     <View style={styles.scoreContainer}>
-                        <Text style={[styles.scoreEmojiBg, { marginRight: 45 }, { marginBottom: 10 }]}>{scoreDetails.emoji}</Text>
+                        <Text style={styles.scoreEmojiBg}>{scoreDetails.emoji}</Text>
                         <Text style={[styles.scoreValue, { color: theme.pubGolf[scoreDetails.colorKey as keyof typeof theme.pubGolf][0] }]}>
                             {sips}
                         </Text>
@@ -149,9 +149,14 @@ const styles = StyleSheet.create({
     scoreEmojiBg: {
         position: 'absolute',
         fontSize: 46,
-        right: -5,
+        lineHeight: 50,
+        width: 60,
+        height: 60,
+        textAlign: 'center',
+        right: 35,
         bottom: -5,
-        transform: [{ rotate: '-10deg' }]
+        transform: [{ rotate: '-10deg' }],
+        zIndex: 1,
     },
     scoreValue: {
         fontSize: 28,

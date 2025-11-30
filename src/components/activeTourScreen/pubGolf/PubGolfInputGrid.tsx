@@ -19,39 +19,64 @@ export default function PubGolfInputGrid({
     const subTextColor = theme.textSecondary;
 
     return (
-        <View style={[styles.inputSection, { borderTopColor: 'rgba(255,255,255,0.1)' }]}>
-            <Text style={[styles.inputLabel, { color: subTextColor }]}>
-                {t('sipsTaken')}
-            </Text>
-            <View style={styles.grid}>
-                {Array.from({ length: par + 3 }, (_, i) => i + 1).map((num) => (
-                    <TouchableOpacity
-                        key={num}
-                        style={[
-                            styles.sipButton,
-                            {
-                                backgroundColor: num === par ? theme.gold :
-                                    num < par ? theme.success :
-                                        theme.bgPrimary,
-                                borderColor: 'rgba(255,255,255,0.1)'
-                            },
-                            selectedSips === num && { backgroundColor: theme.primary, borderColor: theme.primary },
-                        ]}
-                        onPress={() => onSelectSips(num)}
-                    >
-                        <Text style={[
-                            styles.sipButtonText,
-                            { color: theme.textPrimary },
-                            selectedSips === num && { color: theme.fixedWhite }
-                        ]}>{num}</Text>
-                    </TouchableOpacity>
-                ))}
+        <View style={styles.glowContainer}>
+            <View style={[styles.inputSection, { borderTopColor: 'rgba(255,255,255,0.1)' }]}>
+                <Text style={[styles.inputLabel, { color: subTextColor }]}>
+                    {t('sipsTaken')}
+                </Text>
+                <View style={styles.grid}>
+                    {Array.from({ length: par + 3 }, (_, i) => i + 1).map((num) => {
+                        // --- DEFINE THE BASE COLOR ONCE ---
+                        const baseColor = num === par
+                            ? theme.gold
+                            : num < par
+                                ? theme.success
+                                : theme.bgPrimary;
+
+                        // --- DEFINE THE SELECTED COLOR ONCE ---
+                        const selectedStyles = selectedSips === num
+                            ? {
+                                backgroundColor: theme.primary,
+                                borderColor: theme.primary,
+                                shadowColor: theme.primary,
+                            }
+                            : {};
+
+                        return (
+                            <TouchableOpacity
+                                key={num}
+                                style={[
+                                    styles.sipButton,
+                                    styles.sipGlow, // Apply general glow properties
+                                    {
+                                        // Use the defined baseColor for both properties
+                                        backgroundColor: baseColor,
+                                        shadowColor: baseColor,
+                                        borderColor: 'rgba(255,255,255,0.1)',
+                                    },
+                                    // Apply selected styles which will override base styles if selected
+                                    selectedStyles,
+                                ]}
+                                onPress={() => onSelectSips(num)}
+                            >
+                                <Text style={[
+                                    styles.sipButtonText,
+                                    { color: theme.textPrimary },
+                                    selectedSips === num && { color: theme.fixedWhite }
+                                ]}>{num}</Text>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </View>
             </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+    glowContainer: {
+        paddingBottom: 20, 
+    },
     inputSection: {
         marginTop: 20,
         borderTopWidth: 1,
@@ -75,6 +100,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
+    },
+    sipGlow: {
+        // General Shadow/Glow Properties
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.3,
+        shadowRadius: 15,
+        // Glow effect for Android
+        elevation: 10,
     },
     sipButtonText: {
         fontSize: 16,

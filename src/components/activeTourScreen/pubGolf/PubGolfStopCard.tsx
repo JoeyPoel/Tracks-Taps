@@ -40,10 +40,14 @@ export default function PubGolfStopCard({
         ? theme.pubGolf[scoreDetails.colorKey as keyof typeof theme.pubGolf][2]
         : theme.bgSecondary;
 
+    const cardBorder = isCompleted && scoreDetails
+        ? theme.pubGolf[scoreDetails.colorKey as keyof typeof theme.pubGolf][0]
+        : theme.bgSecondary;
+
     return (
         <View style={[
             styles.container,
-            { backgroundColor: cardBg, shadowColor: theme.shadowColor },
+            { backgroundColor: cardBg, shadowColor: theme.shadowColor, borderColor: cardBorder, borderWidth: 1 },
             isActive && { borderColor: theme.primary, borderWidth: 2 }
         ]}>
             <PubGolfStopHeader
