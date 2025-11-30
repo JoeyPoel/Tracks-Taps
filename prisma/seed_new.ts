@@ -95,6 +95,8 @@ async function main() {
                     number: stopData.number,
                     latitude: stopData.lat,
                     longitude: stopData.lng,
+                    pubgolfPar: stopData.pubgolfPar,
+                    pubgolfDrink: stopData.pubgolfDrink,
                 },
             });
 
@@ -424,6 +426,84 @@ async function main() {
     ];
 
     await createStopsAndChallenges(rotterdamTour.id, rotterdamStops);
+
+    // 6. Create Pub Golf Tour
+    const pubGolfTour = await prisma.tour.create({
+        data: {
+            title: 'Utrecht Pub Golf',
+            location: 'Utrecht',
+            description: 'A competitive twist on the classic pub crawl. 9 Holes, 9 Drinks. Can you make par?',
+            imageUrl: 'https://images.unsplash.com/photo-1574096079513-d82599602950?q=80&w=2574&auto=format&fit=crop',
+            distance: 4.0,
+            duration: 240,
+            points: 1000,
+            modes: ['PUBGOLF'],
+            difficulty: Difficulty.HARD,
+            authorId: alice.id,
+        },
+    });
+
+    const pubGolfStops = [
+        {
+            name: 'Hole 1: The Florin',
+            description: 'Start your round at this English pub.',
+            order: 1,
+            number: 1,
+            lat: 52.0935,
+            lng: 5.1205,
+            pubgolfPar: 3,
+            pubgolfDrink: 'Pint of Lager',
+            challenges: [
+                {
+                    title: 'Tee Off',
+                    description: 'Finish your first drink.',
+                    type: ChallengeType.LOCATION,
+                    points: 50,
+                }
+            ]
+        },
+        {
+            name: 'Hole 2: Mick O\'Connells',
+            description: 'An Irish challenge awaits.',
+            order: 2,
+            number: 2,
+            lat: 52.0910,
+            lng: 5.1160,
+            pubgolfPar: 4,
+            pubgolfDrink: 'Guinness',
+            challenges: [
+                {
+                    title: 'Irish Luck',
+                    description: 'Cheers with a stranger.',
+                    type: ChallengeType.LOCATION,
+                    points: 60,
+                }
+            ]
+        },
+        {
+            name: 'Hole 3: Kafé België',
+            description: 'Specialty beers on the menu.',
+            order: 3,
+            number: 3,
+            lat: 52.0895,
+            lng: 5.1195,
+            pubgolfPar: 5,
+            pubgolfDrink: 'Strong Blond Beer',
+            challenges: [
+                {
+                    title: 'Beer Connoisseur',
+                    description: 'Guess the alcohol percentage.',
+                    type: ChallengeType.TRIVIA,
+                    points: 80,
+                    content: 'What is the ABV of the house beer?',
+                    options: ['5%', '6.5%', '8%', '10%'],
+                    answer: '8%',
+                }
+            ]
+        }
+    ];
+
+    await createStopsAndChallenges(pubGolfTour.id, pubGolfStops);
 
     // 6. Create Active Tours for Joey
     // Active Tour 1: Utrecht (In Progress)

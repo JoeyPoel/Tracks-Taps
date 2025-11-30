@@ -62,20 +62,23 @@ model Tour {
 }
 
 model Stop {
-  id          Int      @id @default(autoincrement())
-  tourId      Int
-  tour        Tour     @relation(fields: [tourId], references: [id])
-  number      Int
-  name        String
-  description String
-  order       Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  longitude   Float
-  latitude    Float
+  id           Int      @id @default(autoincrement())
+  tourId       Int
+  tour         Tour     @relation(fields: [tourId], references: [id])
+  number       Int
+  name         String
+  description  String
+  order        Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  longitude    Float
+  latitude     Float
+  pubgolfPar   Int?
+  pubgolfDrink String?
 
   // Relations
   challenges Challenge[] // Stop-specific challenges
+  pubGolfStops  PubGolfStop[]
 }
 
 enum ChallengeType {
@@ -116,6 +119,7 @@ model ActiveTour {
   // Relations
   participants     User[]            @relation("TourParticipant")
   activeChallenges ActiveChallenge[]
+  pubGolfStops        PubGolfStop[]
 }
 
 model ActiveChallenge {
@@ -129,6 +133,18 @@ model ActiveChallenge {
   failed       Boolean    @default(false)
 
   @@unique([activeTourId, challengeId])
+}
+
+model PubGolfStop {
+  id           Int        @id @default(autoincrement())
+  activeTourId Int
+  activeTour   ActiveTour @relation(fields: [activeTourId], references: [id])
+  stopId       Int
+  stop         Stop       @relation(fields: [stopId], references: [id])
+  par          Int
+  drink        String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
 
 model Review {

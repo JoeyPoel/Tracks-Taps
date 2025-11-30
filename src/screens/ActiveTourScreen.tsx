@@ -107,7 +107,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                 )}
 
                 <CustomTabBar
-                    tabs={[`${t('challenges')}`]}
+                    tabs={[`${t('challenges')}`, `${t('pubgolf')}`]}
                     activeIndex={activeTab}
                     onTabPress={setActiveTab}
                 />

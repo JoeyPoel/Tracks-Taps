@@ -77,6 +77,7 @@ export const strings = {
     finishTour: 'Finish Tour',
     next: 'Next',
     tokens: 'Tokens',
+    pubgolf: 'Pub Golf',
   },
   es: {
     profile: 'Perfil',
@@ -155,6 +156,7 @@ export const strings = {
     finishTour: 'Terminar Tour',
     next: 'Siguiente',
     tokens: 'Fichas',
+    pubgolf: 'Pub Golf',
   },
   nl: {
     profile: 'Profiel',
@@ -233,5 +235,6 @@ export const strings = {
     finishTour: 'Tour Beëindigen',
     next: 'Volgende',
     tokens: 'Tokens',
+    pubgolf: 'Pub Golf',
   },
 };
