@@ -6,6 +6,8 @@ import ActiveTourMap from '../components/activeTourScreen/ActiveTourMap';
 import ChallengeItem from '../components/activeTourScreen/ChallengeItem';
 import Confetti from '../components/activeTourScreen/Confetti';
 import FloatingPoints from '../components/activeTourScreen/FloatingPoints';
+import PubGolfScoreCard from '../components/activeTourScreen/pubGolf/PubGolfScoreCard';
+import PubGolfStopCard from '../components/activeTourScreen/pubGolf/PubGolfStopCard';
 import StopCard from '../components/activeTourScreen/StopCard';
 import TourNavigation from '../components/activeTourScreen/TourNavigation';
 import CustomTabBar from '../components/CustomTabBar';
@@ -19,6 +21,11 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
     const { t } = useLanguage();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState(0);
+    const [pubGolfScores, setPubGolfScores] = useState<Record<number, number>>({});
+
+    const handleSaveSips = (stopId: number, sips: number) => {
+        setPubGolfScores(prev => ({ ...prev, [stopId]: sips }));
+    };
 
     const { user } = useUser('Joey@example.com'); // Using same hardcoded email for now
 
@@ -112,32 +119,77 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                     onTabPress={setActiveTab}
                 />
 
-                {currentStop && <StopCard stop={currentStop} />}
+                {activeTab === 0 ? (
+                    <>
+                        {currentStop && <StopCard stop={currentStop} />}
 
-                {stopChallenges.length === 0 ? (
-                    <View style={styles.noChallengesContainer}>
-                        <Text style={[styles.noChallengesText, { color: theme.textSecondary }]}>
-                            {t('noChallengesAtStop')}
-                        </Text>
-                    </View>
+                        {stopChallenges.length === 0 ? (
+                            <View style={styles.noChallengesContainer}>
+                                <Text style={[styles.noChallengesText, { color: theme.textSecondary }]}>
+                                    {t('noChallengesAtStop')}
+                                </Text>
+                            </View>
+                        ) : (
+                            stopChallenges.map((challenge: any) => {
+                                const isFailed = failedChallenges.has(challenge.id);
+                                const isCompleted = completedChallenges.has(challenge.id);
+
+                                return (
+                                    <ChallengeItem
+                                        key={challenge.id}
+                                        challenge={challenge}
+                                        isCompleted={isCompleted}
+                                        isFailed={isFailed}
+                                        triviaSelected={triviaSelected}
+                                        setTriviaSelected={setTriviaSelected}
+                                        onClaimArrival={handleChallengeComplete}
+                                        onSubmitTrivia={handleSubmitTrivia}
+                                    />
+                                )
+                            })
+                        )}
+                    </>
                 ) : (
-                    stopChallenges.map((challenge: any) => {
-                        const isFailed = failedChallenges.has(challenge.id);
-                        const isCompleted = completedChallenges.has(challenge.id);
+                    <View>
+                        {(() => {
+                            const pubGolfStops = activeTour.tour.stops.filter((s: any) => s.pubgolfPar);
+                            const totalPar = pubGolfStops.reduce((sum: number, s: any) => sum + (s.pubgolfPar || 0), 0);
 
-                        return (
-                            <ChallengeItem
-                                key={challenge.id}
-                                challenge={challenge}
-                                isCompleted={isCompleted}
-                                isFailed={isFailed}
-                                triviaSelected={triviaSelected}
-                                setTriviaSelected={setTriviaSelected}
-                                onClaimArrival={handleChallengeComplete}
-                                onSubmitTrivia={handleSubmitTrivia}
-                            />
-                        )
-                    })
+                            // Calculate totals based on completed stops
+                            let totalSips = 0;
+                            let currentScore = 0;
+
+                            Object.entries(pubGolfScores).forEach(([stopId, sips]) => {
+                                const stop = pubGolfStops.find((s: any) => s.id === parseInt(stopId));
+                                if (stop && stop.pubgolfPar) {
+                                    totalSips += sips;
+                                    currentScore += (sips - stop.pubgolfPar);
+                                }
+                            });
+
+                            return (
+                                <>
+                                    <PubGolfScoreCard
+                                        totalSips={totalSips}
+                                        totalPar={totalPar}
+                                        currentScore={currentScore}
+                                    />
+                                    {pubGolfStops.map((stop: any) => (
+                                        <PubGolfStopCard
+                                            key={stop.id}
+                                            stopNumber={stop.number}
+                                            stopName={stop.name}
+                                            drinkName={stop.pubgolfDrink || 'Drink'}
+                                            par={stop.pubgolfPar || 3}
+                                            sips={pubGolfScores[stop.id]}
+                                            isActive={stop.id === currentStop?.id}
+                                            onSave={(sips) => handleSaveSips(stop.id, sips)}
+                                        />
+                                    ))}
+                                </>
+                            );
+                        })()}
+                    </View>
                 )}
 
                 <TourNavigation
