@@ -49,3 +49,6 @@ prisma/seed.ts
 prisma/seed.ts
 
 .env
+
+# GitHub Actions Runner
+actions-runner/
