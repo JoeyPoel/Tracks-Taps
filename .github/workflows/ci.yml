@@ -51,16 +51,16 @@ jobs:
         run: npx expo export -p web
 
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v5
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v
+        uses: actions/deploy-pages@v4
       - name: Stop Database Container
         if: always()
         run: docker ps -aq --filter "name=ci-postgres" | ForEach-Object { docker rm -f $_ }
