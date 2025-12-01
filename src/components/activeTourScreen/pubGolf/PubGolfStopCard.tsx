@@ -48,7 +48,7 @@ export default function PubGolfStopCard({
         <View style={[
             styles.container,
             { backgroundColor: cardBg, shadowColor: theme.shadowColor, borderColor: cardBorder, borderWidth: 1 },
-            isActive && { borderColor: theme.primary, borderWidth: 2 }
+            isActive && { borderColor: theme.fixedWhite, borderWidth: 1 }
         ]}>
             <PubGolfStopHeader
                 stopNumber={stopNumber}
