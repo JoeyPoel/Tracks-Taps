@@ -29,6 +29,8 @@ export const strings = {
     tourStops: 'Tour Stops',
     userReviews: 'User Reviews',
     // New keys for tour components
+    clickToViewRoute: 'Click to view route',
+    backToAllTours: 'Back to all tours',
     createdBy: 'Created by',
     distance: 'Distance',
     duration: 'Duration',
@@ -134,6 +136,8 @@ export const strings = {
     tourStops: 'Paradas del Tour',
     userReviews: 'Reseñas de usuarios',
     // New keys for tour components
+    clickToViewRoute: 'Haga clic para ver la ruta',
+    backToAllTours: 'Volver a todos los tours',
     createdBy: 'Creado por',
     distance: 'Distancia',
     duration: 'Duración',
@@ -239,6 +243,8 @@ export const strings = {
     tourStops: 'Tourstops',
     userReviews: 'Gebruikersbeoordelingen',
     // New keys for tour components
+    clickToViewRoute: 'Klik om route te bekijken',
+    backToAllTours: 'Terug naar alle tours',
     createdBy: 'Gemaakt door',
     distance: 'Afstand',
     duration: 'Duur',
