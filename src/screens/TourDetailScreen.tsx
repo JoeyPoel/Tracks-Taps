@@ -19,8 +19,6 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { user } = useUser('Joey@example.com'); // TODO: Get actual user email/id from auth context
   const router = useRouter();
 
-  console.log(tourId);
-
   const handleStartTour = async (force = false) => {
     if (!user) return;
 

@@ -3,10 +3,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { LatLng, Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MapTourCard from '../components/mapScreen/MapTourCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useMapTours } from '../hooks/useMapTour';
 import { Stop, Tour } from '../types/models';
-import { tourService } from '../services/tourService';
+import { router } from 'expo-router';
 
 export default function MapScreen() {
   const { theme } = useTheme();
@@ -14,13 +16,8 @@ export default function MapScreen() {
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView>(null);
 
-  const [tours, setTours] = useState<Tour[]>([]);
+  const { tours, loading, refetch } = useMapTours();
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadTours();
-  }, []);
 
   useEffect(() => {
     if (selectedTour && mapRef.current) {
@@ -35,18 +32,16 @@ export default function MapScreen() {
         // Add a small delay to ensure map is ready
         setTimeout(() => {
           mapRef.current?.fitToCoordinates(coordinates, {
-            edgePadding: { top: 100, right: 50, bottom: 50, left: 50 },
+            edgePadding: { top: 100, right: 50, bottom: 250, left: 50 }, // Increased bottom padding for card
             animated: true,
           });
         }, 100);
       }
     } else if (!selectedTour && tours.length > 0 && mapRef.current) {
       // Reset view to show all tour start points
-      // We can collect all start points and fit to them
       const startPoints: LatLng[] = [];
       tours.forEach((tour: any) => {
         if (tour.stops && tour.stops.length > 0) {
-          // Assuming stops are ordered or we find the one with order 1
           const firstStop = tour.stops.find((s: Stop) => s.order === 1) || tour.stops[0];
           if (firstStop) {
             startPoints.push({
@@ -67,19 +62,6 @@ export default function MapScreen() {
       }
     }
   }, [selectedTour, tours]);
-
-  const loadTours = async () => {
-    try {
-      setLoading(true);
-      const allTours = await tourService.getAllTours();
-      // Cast to unknown then Tour[q] to avoid Prisma enum mismatch
-      setTours(allTours as unknown as Tour[]);
-    } catch (error) {
-      console.error("Failed to load tours:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleTourSelect = (tour: Tour) => {
     setSelectedTour(tour);
@@ -104,14 +86,13 @@ export default function MapScreen() {
         style={styles.map}
         provider={PROVIDER_GOOGLE}
         initialRegion={{
-          latitude: 51.5074, // Default to London if no tours
+          latitude: 51.5074,
           longitude: -0.1278,
           latitudeDelta: 0.1,
           longitudeDelta: 0.1,
         }}
       >
         {!selectedTour ? (
-          // Show start point of all tours
           tours.map((tour: any) => {
             const firstStop = tour.stops?.find((s: Stop) => s.order === 1) || tour.stops?.[0];
             if (!firstStop) return null;
@@ -131,7 +112,6 @@ export default function MapScreen() {
             );
           })
         ) : (
-          // Show all stops and route for selected tour
           <>
             {(selectedTour as any).stops?.map((stop: Stop) => (
               <Marker
@@ -181,11 +161,20 @@ export default function MapScreen() {
       )}
 
       {selectedTour && (
-        <View style={[styles.tourInfo, { bottom: insets.bottom + 20, backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
-          <Text style={[styles.tourTitle, { color: theme.textPrimary }]}>{selectedTour.title}</Text>
-          <Text style={[styles.tourDesc, { color: theme.textSecondary }]}>
-            {selectedTour.distance} km • {selectedTour.duration} min
-          </Text>
+        <View style={[styles.tourInfo, { bottom: insets.bottom + 20 }]}>
+          <MapTourCard
+            title={selectedTour.title}
+            author={(selectedTour as any).author?.name || 'Tracks & Taps'}
+            distance={`${(selectedTour as any).distance} km`}
+            duration={`${(selectedTour as any).duration} min`}
+            stops={(selectedTour as any).stops?.length || 0}
+            rating={(selectedTour as any).rating || 0}
+            reviewCount={(selectedTour as any).reviewCount || 0}
+            points={(selectedTour as any).points || 0}
+            onPress={() => {
+              router.push(`/tour/${selectedTour.id}`);
+            }}
+          />
         </View>
       )}
     </View>
@@ -222,20 +211,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 20,
     right: 20,
-    padding: 16,
-    borderRadius: 16,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
     alignItems: 'center'
   },
-  tourTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  tourDesc: {
-    fontSize: 14,
-  }
 });
