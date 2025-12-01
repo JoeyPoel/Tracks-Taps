@@ -35,7 +35,7 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
 
     return (
         <LinearGradient
-            colors={gradientColors}
+            colors={[theme.accent, theme.primary]} // Orange to Pink gradient
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.container}
