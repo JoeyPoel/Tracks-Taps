@@ -42,8 +42,7 @@
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true,
-      "baseUrl": "/Tracks-Taps"
+      "reactCompiler": true
     },
     "extra": {
       "router": {},
