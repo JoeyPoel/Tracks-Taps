@@ -62,6 +62,12 @@ export const lightTheme = {
   orange: "#FF5722",
   pink: "#E91E63",
 
+  challengeFailedBackground: '#2b0e0e',
+  challengeFailedBorder: '#F87171',
+  
+  challengeCorrectBackground: '#062115',
+  challengeCorrectBorder: '#4ADE80',
+
   pubGolf: {
     holeInOne: ['#FFD700', '#F59E0B', '#291c06'],
     albatross: ['#A855F7', '#9333EA', '#1e1b4b'],
@@ -137,6 +143,12 @@ export const darkTheme = {
   gold: "#FFD700",
   orange: "#FF5722",
   pink: "#E91E63",
+
+  challengeFailedBackground: '#2b0e0e',
+  challengeFailedBorder: '#F87171',
+  
+  challengeCorrectBackground: '#062115',
+  challengeCorrectBorder: '#4ADE80',
 
   pubGolf: {
     holeInOne: ['#FFD700', '#F59E0B', '#291c06'],

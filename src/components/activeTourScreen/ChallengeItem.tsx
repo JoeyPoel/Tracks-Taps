@@ -62,11 +62,11 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
 
                             if (isDone) {
                                 if (isCorrect) {
-                                    borderColor = theme.success; // Show correct answer
-                                    backgroundColor = theme.success + '33'; // Light green bg
+                                    borderColor = theme.challengeCorrectBorder;
+                                    backgroundColor = theme.challengeCorrectBackground
                                 } else if (isSelected && isFailed) {
-                                    borderColor = theme.danger; // Show selected wrong answer
-                                    backgroundColor = theme.danger + '33'; // Light red bg
+                                    borderColor = theme.challengeFailedBorder;
+                                    backgroundColor = theme.challengeFailedBackground
                                 }
                             } else if (isSelected) {
                                 borderColor = theme.primary;

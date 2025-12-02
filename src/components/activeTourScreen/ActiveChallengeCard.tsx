@@ -52,14 +52,14 @@ export default function ActiveChallengeCard({
     };
 
     const getBorderColor = () => {
-        if (isCompleted) return theme.success; // Green
-        if (isFailed) return theme.danger; // Red
+        if (isCompleted) return theme.challengeCorrectBorder; // Green
+        if (isFailed) return theme.challengeFailedBorder; // Red
         return theme.borderPrimary;
     };
 
     const getBackgroundColors = (): [string, string, ...string[]] => {
-        if (isCompleted) return [theme.success + '20', theme.success + '10']; // Light green gradient
-        if (isFailed) return [theme.danger + '20', theme.danger + '10']; // Light red gradient
+        if (isCompleted) return [theme.challengeCorrectBackground, theme.challengeCorrectBackground];
+        if (isFailed) return [theme.challengeFailedBackground, theme.challengeFailedBackground];
         return [theme.bgSecondary, theme.bgTertiary];
     };
 
