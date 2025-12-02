@@ -5,9 +5,9 @@ import ActiveTourCard from '../components/exploreScreen/ActiveTourCard';
 import TourCard from '../components/exploreScreen/TourCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
-import { useActiveTours } from '../hooks/useActiveTours';
 import { useTours } from '../hooks/useTours';
 import { useUser } from '../hooks/useUser';
+import { useActiveTours } from '../hooks/useActiveTours';
 
 export default function ExploreScreen() {
   const router = useRouter();

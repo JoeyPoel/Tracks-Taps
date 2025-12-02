@@ -1,4 +1,4 @@
-import { tourService } from "@/src/services/tourService";
+import { activeTourService } from "@/src/services/activeTourService";
 
 export async function GET(request: Request, { id }: { id: string }) {
     if (!id) {
@@ -11,7 +11,7 @@ export async function GET(request: Request, { id }: { id: string }) {
     }
 
     try {
-        const activeTour = await tourService.getActiveTourById(activeTourId);
+        const activeTour = await activeTourService.getActiveTourById(activeTourId);
         if (!activeTour) {
             return Response.json({ error: 'Active tour not found' }, { status: 404 });
         }

@@ -1,4 +1,4 @@
-import { tourService } from "@/src/services/tourService";
+import { activeTourService } from "@/src/services/activeTourService";
 
 export async function POST(request: Request) {
     try {
@@ -9,7 +9,7 @@ export async function POST(request: Request) {
             return Response.json({ error: 'Missing activeTourId' }, { status: 400 });
         }
 
-        const updatedTour = await tourService.abandonTour(activeTourId);
+        const updatedTour = await activeTourService.abandonTour(Number(activeTourId));
         return Response.json(updatedTour);
 
     } catch (error) {

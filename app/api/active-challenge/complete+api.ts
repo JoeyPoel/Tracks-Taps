@@ -1,4 +1,4 @@
-import { tourService } from "@/src/services/tourService";
+import { activeTourService } from "@/src/services/activeTourService";
 
 export async function POST(request: Request) {
     try {
@@ -9,7 +9,7 @@ export async function POST(request: Request) {
             return Response.json({ error: 'Missing activeTourId or challengeId' }, { status: 400 });
         }
 
-        const result = await tourService.completeChallenge(activeTourId, challengeId);
+        const result = await activeTourService.completeChallenge(Number(activeTourId), Number(challengeId));
         return Response.json(result);
     } catch (error) {
         console.error('Error completing challenge:', error);

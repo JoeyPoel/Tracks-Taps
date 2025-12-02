@@ -1,4 +1,4 @@
-import { tourService } from '../../src/services/tourService';
+import { activeTourService } from '../../src/services/activeTourService';
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     }
 
     try {
-        const activeTours = await tourService.getActiveToursForUser(parseInt(userId));
+        const activeTours = await activeTourService.getActiveToursForUser(parseInt(userId));
         return Response.json(activeTours);
     } catch (error) {
         console.error('Error fetching active tours:', error);
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
         }
 
         // Check for existing active tours
-        const activeTours = await tourService.getActiveToursForUser(userId);
+        const activeTours = await activeTourService.getActiveToursForUser(userId);
 
         if (activeTours.length > 0) {
             if (!force) {
@@ -39,12 +39,12 @@ export async function POST(request: Request) {
 
             // If force is true, delete existing active tours
             for (const tour of activeTours) {
-                await tourService.deleteActiveTour(tour.id);
+                await activeTourService.deleteActiveTour(tour.id);
             }
         }
 
         // Create new active tour
-        const newActiveTour = await tourService.startTour(tourId, userId);
+        const newActiveTour = await activeTourService.startTour(tourId, userId);
         return Response.json(newActiveTour);
 
     } catch (error) {
