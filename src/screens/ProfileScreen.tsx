@@ -10,7 +10,7 @@ import TokenCard from '../components/profileScreen/TokenCard';
 import UserProfileCard from '../components/profileScreen/UserProfileCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
-import { useUser } from '../hooks/useUser';
+import { useUserContext } from '../context/UserContext';
 
 export default function ProfileScreen() {
   const { theme } = useTheme();
@@ -18,7 +18,7 @@ export default function ProfileScreen() {
   const { t } = useLanguage();
   const [showBuyTokens, setShowBuyTokens] = useState(false);
 
-  const { user, loading } = useUser('Joey@example.com');
+  const { user, loading } = useUserContext();
 
   if (loading) {
     return (

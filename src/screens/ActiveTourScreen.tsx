@@ -13,8 +13,8 @@ import TourNavigation from '../components/activeTourScreen/TourNavigation';
 import CustomTabBar from '../components/CustomTabBar';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useUserContext } from '../context/UserContext';
 import { useActiveTour } from '../hooks/useActiveTour';
-import { useUser } from '../hooks/useUser';
 
 export default function ActiveTourScreen({ activeTourId }: { activeTourId: number }) {
     const { theme } = useTheme();
@@ -27,7 +27,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         setPubGolfScores(prev => ({ ...prev, [stopId]: sips }));
     };
 
-    const { user } = useUser('Joey@example.com'); // Using same hardcoded email for now
+    const { user, updateUserXp } = useUserContext();
 
     const {
         activeTour,
@@ -49,7 +49,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         handleFinishTour,
         streak,
         points,
-    } = useActiveTour(activeTourId);
+    } = useActiveTour(activeTourId, user?.id, updateUserXp);
 
     if (loading) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>{t('loadingTour')}</Text></View>;
     if (error) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.danger }}>{error}</Text></View>;

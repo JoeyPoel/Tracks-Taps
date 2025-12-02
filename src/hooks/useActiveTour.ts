@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useFetch } from './useFetch';
 
-export const useActiveTour = (activeTourId: number) => {
+export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?: (amount: number) => void) => {
     const [points, setPoints] = useState(0);
     const [streak, setStreak] = useState(0);
     const [showFloatingPoints, setShowFloatingPoints] = useState(false);
@@ -107,6 +107,10 @@ export const useActiveTour = (activeTourId: number) => {
         triggerFloatingPoints(challenge.points);
         setStreak(prev => prev + 1);
 
+        if (onXpEarned) {
+            onXpEarned(challenge.points);
+        }
+
 
         try {
             await fetch('/api/active-challenge/complete', {
@@ -114,7 +118,8 @@ export const useActiveTour = (activeTourId: number) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     activeTourId,
-                    challengeId: challenge.id
+                    challengeId: challenge.id,
+                    userId
                 })
             });
             // refetch(); // Removed to prevent full page reload (loading state)

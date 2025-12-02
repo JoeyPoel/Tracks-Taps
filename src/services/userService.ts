@@ -28,4 +28,15 @@ export const userService = {
             },
         });
     },
+
+    async addXp(userId: number, amount: number) {
+        return await prisma.user.update({
+            where: { id: userId },
+            data: {
+                xp: {
+                    increment: amount,
+                },
+            },
+        });
+    },
 };

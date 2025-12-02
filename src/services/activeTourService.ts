@@ -56,7 +56,23 @@ export const activeTourService = {
         });
     },
 
-    async completeChallenge(activeTourId: number, challengeId: number) {
+    async completeChallenge(activeTourId: number, challengeId: number, userId: number) {
+        // 1. Get the challenge to know how many points it's worth
+        const challenge = await prisma.challenge.findUnique({
+            where: { id: challengeId },
+        });
+
+        if (!challenge) {
+            throw new Error("Challenge not found");
+        }
+
+        // 2. Award XP to the specific user
+        await prisma.user.update({
+            where: { id: userId },
+            data: { xp: { increment: challenge.points } },
+        });
+
+        // 3. Mark challenge as completed
         return await prisma.activeChallenge.upsert({
             where: {
                 activeTourId_challengeId: {
