@@ -11,21 +11,34 @@ export const tourController = {
         }
     },
 
-    async getTourById(request: Request, params: { id: string }) {
-        const { id } = params;
+    async getTourById(request: Request, params?: { id: string }) {
+        let id = params?.id;
+
+        if (!id) {
+            // Fallback: try to extract from URL
+            const url = new URL(request.url);
+            const segments = url.pathname.split('/');
+            id = segments[segments.length - 1];
+        }
+
         if (!id) {
             return Response.json({ error: 'Missing tourId' }, { status: 400 });
         }
 
+        const tourId = Number(id);
+        if (isNaN(tourId)) {
+            return Response.json({ error: 'Invalid tourId' }, { status: 400 });
+        }
+
         try {
-            const tour = await tourService.getTourById(parseInt(id));
+            const tour = await tourService.getTourById(tourId);
             if (!tour) {
                 return Response.json({ error: 'Tour not found' }, { status: 404 });
             }
             return Response.json(tour);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching tour details:', error);
-            return Response.json({ error: 'Failed to fetch tour details' }, { status: 500 });
+            return Response.json({ error: 'Failed to fetch tour details', details: error.message }, { status: 500 });
         }
     }
 };

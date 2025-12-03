@@ -25,7 +25,7 @@ export const activeTourController = {
             return Response.json({ error: 'Failed to start tour' }, { status: 500 });
         }
     },
-    
+
     async getActiveTours(request: Request) {
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('userId');
@@ -43,8 +43,16 @@ export const activeTourController = {
         }
     },
 
-    async getActiveTourById(request: Request, params: { id: string }) {
-        const { id } = params;
+    async getActiveTourById(request: Request, params?: { id: string }) {
+        let id = params?.id;
+
+        if (!id) {
+            // Fallback: try to extract from URL
+            const url = new URL(request.url);
+            const segments = url.pathname.split('/');
+            id = segments[segments.length - 1];
+        }
+
         if (!id) {
             return Response.json({ error: 'Missing activeTourId' }, { status: 400 });
         }
@@ -60,9 +68,9 @@ export const activeTourController = {
                 return Response.json({ error: 'Active tour not found' }, { status: 404 });
             }
             return Response.json(activeTour);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching active tour details:', error);
-            return Response.json({ error: 'Failed to fetch active tour details' }, { status: 500 });
+            return Response.json({ error: 'Failed to fetch active tour details', details: error.message }, { status: 500 });
         }
     },
 
