@@ -1,18 +1,5 @@
-import { activeTourService } from "@/src/services/activeTourService";
+import { activeTourController } from '../../../backend-mock/controllers/activeTourController';
 
 export async function POST(request: Request) {
-    try {
-        const body = await request.json();
-        const { activeTourId, challengeId } = body;
-
-        if (!activeTourId || !challengeId) {
-            return Response.json({ error: 'Missing activeTourId or challengeId' }, { status: 400 });
-        }
-
-        const result = await activeTourService.failChallenge(Number(activeTourId), Number(challengeId));
-        return Response.json(result);
-    } catch (error) {
-        console.error('Error failing challenge:', error);
-        return Response.json({ error: 'Failed to update challenge status' }, { status: 500 });
-    }
+    return await activeTourController.failChallenge(request);
 }

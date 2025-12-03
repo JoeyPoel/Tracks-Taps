@@ -1,27 +1,5 @@
-import { userService } from '../../src/services/userService';
+import { userController } from '../../backend-mock/controllers/userController';
 
 export async function GET(request: Request) {
-    const { searchParams } = new URL(request.url);
-    const email = searchParams.get('email');
-    const userId = searchParams.get('userId');
-
-    try {
-        let user;
-        if (userId) {
-            user = await userService.getUserProfile(parseInt(userId));
-        } else if (email) {
-            user = await userService.getUserByEmail(email);
-        } else {
-            return Response.json({ error: 'Missing userId or email' }, { status: 400 });
-        }
-
-        if (!user) {
-            return Response.json({ error: 'User not found' }, { status: 404 });
-        }
-
-        return Response.json(user);
-    } catch (error) {
-        console.error('Error fetching user:', error);
-        return Response.json({ error: 'Failed to fetch user' }, { status: 500 });
-    }
+    return await userController.getUser(request);
 }

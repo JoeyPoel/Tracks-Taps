@@ -1,11 +1,5 @@
-import { mapTourService } from '../../src/services/mapTourService';
+import { mapTourController } from '../../backend-mock/controllers/mapTourController';
 
 export async function GET() {
-    try {
-        const tours = await mapTourService.getTours();
-        return Response.json(tours);
-    } catch (error) {
-        console.error('Error fetching map tours:', error);
-        return Response.json({ error: 'Failed to fetch map tours' }, { status: 500 });
-    }
+    return await mapTourController.getTours();
 }

@@ -1,11 +1,8 @@
-import { prisma } from '../lib/prisma';
+import client from '../api/client';
 
 export const mapTourService = {
     async getTours() {
-        return await prisma.tour.findMany({
-            include: {
-                stops: true,
-            },
-        });
-    },
-}
+        const response = await client.get('/map-tours');
+        return response.data;
+    }
+};

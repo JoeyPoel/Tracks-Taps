@@ -1,4 +1,4 @@
-import { tourService } from '../../../src/services/tourService';
+import { tourService } from '../../../backend-mock/services/tourService';
 
 export async function GET() {
     try {

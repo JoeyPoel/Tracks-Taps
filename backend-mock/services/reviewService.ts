@@ -1,4 +1,4 @@
-import client from '../api/client';
+import { reviewRepository } from '../repositories/reviewRepository';
 
 export const reviewService = {
     async createReview(data: {
@@ -8,12 +8,10 @@ export const reviewService = {
         rating: number;
         photos?: string[];
     }) {
-        const response = await client.post('/reviews', data);
-        return response.data;
+        return await reviewRepository.createReview(data);
     },
 
     async getReviewsForTour(tourId: number) {
-        const response = await client.get(`/reviews?tourId=${tourId}`);
-        return response.data;
-    }
+        return await reviewRepository.getReviewsForTour(tourId);
+    },
 };

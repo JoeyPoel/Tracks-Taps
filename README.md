@@ -1,50 +1,117 @@
-# Welcome to your Expo app 👋
+# Tracks & Taps
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Tracks & Taps is an interactive tour application built with Expo (React Native) and a serverless-style backend using Expo Router API routes and Prisma.
 
-## Get started
+## 🚀 Getting Started
 
-1. Install dependencies
+### Prerequisites
+-   Node.js (LTS recommended)
+-   npm or yarn
+-   Git
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+### 1. Installation
+Clone the repository and install dependencies:
 ```bash
-npm run reset-project
+git clone https://github.com/JoeyPoel/Tracks-Taps.git
+cd Tracks-Taps
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Database Setup
+This project uses Prisma with a local database (SQLite by default, or Postgres if configured).
 
-## Learn more
+1.  **Generate Prisma Client**:
+    ```bash
+    npx prisma generate
+    ```
+2.  **Push Schema to Database**:
+    ```bash
+    npx prisma db push
+    ```
+3.  **Seed Database** (Optional but recommended):
+    ```bash
+    npx prisma db seed
+    ```
+4.  **View Database**:
+    You can view and edit your data using Prisma Studio:
+    ```bash
+    npx prisma studio
+    ```
 
-To learn more about developing your project with Expo, look at the following resources:
+### 3. Running the App
+Since the backend logic is integrated via Expo Router API routes, starting the Expo app starts both the frontend and the backend.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npx expo start
+```
+-   Scan the QR code with your phone (Expo Go app) or press `a` for Android Emulator / `i` for iOS Simulator.
+-   The API is available at `http://localhost:8081/api/...` (or your device's IP).
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
+## 🏗️ Architecture
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+The project follows a strict **Separation of Concerns (SoC)** pattern, specifically **Controller-Service-Repository**, to ensure maintainability and scalability.
+
+### Flow Structure
+1.  **API Route** (`app/api/`):
+    -   Entry point for HTTP requests.
+    -   **Responsibility**: Thin adapter. Delegates request to the Controller.
+    -   **Rule**: NEVER call Services or Repositories directly.
+
+2.  **Controller** (`backend-mock/controllers/`):
+    -   **Responsibility**: Handles HTTP logic.
+        -   Parses request body/params.
+        -   Validates input.
+        -   Calls the Service.
+        -   Formats the HTTP response (status codes, JSON).
+    -   **Rule**: Contains NO business logic and NO database calls.
+
+3.  **Service** (`backend-mock/services/`):
+    -   **Responsibility**: Handles Business Logic.
+        -   Coordinates multiple Repositories.
+        -   Performs calculations, validations, and complex operations (e.g., conflict checks).
+    -   **Rule**: Contains NO HTTP logic (req/res) and NO direct database calls (Prisma).
+
+4.  **Repository** (`backend-mock/repositories/`):
+    -   **Responsibility**: Handles Data Access.
+        -   Encapsulates all direct Prisma Client calls (`findMany`, `create`, `update`, etc.).
+    -   **Rule**: Contains NO business logic and NO HTTP logic.
+
+### Frontend Layer
+-   **API Client** (`src/api/client.ts`): Centralized Axios instance.
+-   **Frontend Services** (`src/services/`): Functions to call the backend API.
+-   **Hooks** (`src/hooks/`): React hooks to manage state and call frontend services.
+
+---
+
+## 🗺️ Backend Migration Plan
+
+The current "backend" is hosted within the Expo app for ease of development. To move to a production-ready, standalone backend (e.g., NestJS, Express, Fastify), follow this plan:
+
+### Phase 1: Preparation (Completed)
+-   [x] Refactor logic into `backend-mock` folder.
+-   [x] Implement Controller-Service-Repository pattern.
+-   [x] Ensure strict separation of concerns.
+
+### Phase 2: Extraction
+1.  **Create New Repo**: Initialize a new Node.js project (e.g., `tracks-taps-backend`).
+2.  **Copy Code**:
+    -   Copy `backend-mock/repositories` -> `src/repositories`
+    -   Copy `backend-mock/services` -> `src/services`
+    -   Copy `backend-mock/controllers` -> `src/controllers`
+    -   Copy `prisma/` folder (schema and migrations).
+3.  **Setup Server**:
+    -   Install a web framework (e.g., Express).
+    -   Create routes that map to the Controllers.
+    -   *Note*: You may need to slightly adapt the Controllers to match the new framework's request/response objects (e.g., `req.body` vs `request.json()`).
+
+### Phase 3: Integration
+1.  **Deploy Backend**: Deploy the new backend to a server (e.g., Vercel, AWS, Heroku).
+2.  **Update Frontend**:
+    -   Update `src/api/client.ts` to point `baseURL` to the new production URL.
+    -   Remove `app/api/` routes and `backend-mock/` folder from the Expo project.
+
+### Phase 4: Database
+1.  **Provision DB**: Set up a managed PostgreSQL database (e.g., Supabase, Neon, AWS RDS).
+2.  **Migrate Data**: Use `prisma migrate deploy` to set up the schema on the production DB.

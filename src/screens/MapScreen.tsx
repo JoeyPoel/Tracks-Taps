@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Button, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import FloatingPoints from '../components/activeTourScreen/FloatingPoints'; // Adjust path as needed
 import Confetti from '../components/activeTourScreen/animations/Confetti'; // Adjust path as needed
+import FloatingPoints from '../components/activeTourScreen/animations/FloatingPoints'; // Adjust path as needed
 
 export default function GameScreen() {
     const [showPoints, setShowPoints] = useState(false);

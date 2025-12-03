@@ -1,4 +1,5 @@
-import { useFetch } from './useFetch';
+import { useCallback, useEffect, useState } from 'react';
+import { activeTourService } from '../services/activeTourService';
 import { Tour } from './useTours';
 
 export interface ActiveTour {
@@ -10,7 +11,27 @@ export interface ActiveTour {
 }
 
 export function useActiveTours(userId?: number) {
-    const url = userId ? `/api/active-tours?userId=${userId}` : null;
-    const { data, loading, error, refetch } = useFetch<ActiveTour[]>(url);
-    return { activeTours: data || [], loading, error, refetch };
+    const [data, setData] = useState<ActiveTour[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const fetchData = useCallback(async () => {
+        if (!userId) return;
+        setLoading(true);
+        setError(null);
+        try {
+            const result = await activeTourService.getActiveToursForUser(userId);
+            setData(result);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Unknown error');
+        } finally {
+            setLoading(false);
+        }
+    }, [userId]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    return { activeTours: data, loading, error, refetch: fetchData };
 }

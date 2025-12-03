@@ -1,4 +1,5 @@
-import { useFetch } from './useFetch';
+import { useCallback, useEffect, useState } from 'react';
+import { tourService } from '../services/tourService';
 
 export interface Tour {
     id: number;
@@ -20,6 +21,26 @@ export interface Tour {
 }
 
 export function useTours() {
-    const { data, loading, error } = useFetch<Tour[]>('/api/tours');
-    return { tours: data || [], loading, error };
+    const [data, setData] = useState<Tour[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const fetchData = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const result = await tourService.getAllTours();
+            setData(result);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Unknown error');
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    return { tours: data, loading, error };
 }

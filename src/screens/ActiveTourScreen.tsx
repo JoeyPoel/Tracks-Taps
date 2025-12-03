@@ -5,7 +5,6 @@ import ActiveTourHeader from '../components/activeTourScreen/ActiveTourHeader';
 import ActiveTourMap from '../components/activeTourScreen/ActiveTourMap';
 import Confetti from '../components/activeTourScreen/animations/Confetti';
 import ChallengeItem from '../components/activeTourScreen/ChallengeItem';
-import FloatingPoints from '../components/activeTourScreen/FloatingPoints';
 import PubGolfScoreCard from '../components/activeTourScreen/pubGolf/PubGolfScoreCard';
 import PubGolfStopCard from '../components/activeTourScreen/pubGolf/PubGolfStopCard';
 import StopCard from '../components/activeTourScreen/StopCard';
@@ -15,6 +14,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 import { useActiveTour } from '../hooks/useActiveTour';
+import FloatingPoints from '../components/activeTourScreen/animations/FloatingPoints';
 
 export default function ActiveTourScreen({ activeTourId }: { activeTourId: number }) {
     const { theme } = useTheme();

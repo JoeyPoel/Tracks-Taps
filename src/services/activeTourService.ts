@@ -1,148 +1,38 @@
-import { SessionStatus } from '@prisma/client';
-import { prisma } from '../lib/prisma';
+import client from '../api/client';
 
 export const activeTourService = {
     async getActiveToursForUser(userId: number) {
-        return await prisma.activeTour.findMany({
-            where: {
-                participants: {
-                    some: {
-                        id: userId,
-                    },
-                },
-                status: {
-                    in: [SessionStatus.IN_PROGRESS, SessionStatus.WAITING],
-                },
-            },
-            include: {
-                tour: true,
-            },
-        });
+        const response = await client.get(`/active-tours?userId=${userId}`);
+        return response.data;
     },
 
-    async startTour(tourId: number, userId: number) {
-        return await prisma.activeTour.create({
-            data: {
-                tourId,
-                status: SessionStatus.IN_PROGRESS,
-                participants: {
-                    connect: { id: userId },
-                },
-            },
-        });
+    async startTour(tourId: number, userId: number, force: boolean = false) {
+        const response = await client.post('/active-tours', { tourId, userId, force });
+        return response.data;
     },
 
     async getActiveTourById(id: number) {
-        return await prisma.activeTour.findUnique({
-            where: { id },
-            include: {
-                tour: {
-                    include: {
-                        stops: {
-                            orderBy: { order: 'asc' },
-                            include: {
-                                challenges: true
-                            }
-                        },
-                        challenges: true,
-                    }
-                },
-                activeChallenges: {
-                    include: {
-                        challenge: true
-                    }
-                },
-            }
-        });
+        const response = await client.get(`/active-tour/${id}`);
+        return response.data;
     },
 
     async completeChallenge(activeTourId: number, challengeId: number, userId: number) {
-        // 1. Get the challenge to know how many points it's worth
-        const challenge = await prisma.challenge.findUnique({
-            where: { id: challengeId },
-        });
-
-        if (!challenge) {
-            throw new Error("Challenge not found");
-        }
-
-        // 2. Award XP to the specific user
-        await prisma.user.update({
-            where: { id: userId },
-            data: { xp: { increment: challenge.points } },
-        });
-
-        // 3. Mark challenge as completed
-        return await prisma.activeChallenge.upsert({
-            where: {
-                activeTourId_challengeId: {
-                    activeTourId,
-                    challengeId,
-                },
-            },
-            update: {
-                completed: true,
-                completedAt: new Date(),
-            },
-            create: {
-                activeTourId,
-                challengeId,
-                completed: true,
-                completedAt: new Date(),
-            },
-        });
+        const response = await client.post('/active-challenge/complete', { activeTourId, challengeId, userId });
+        return response.data;
     },
 
     async failChallenge(activeTourId: number, challengeId: number) {
-        return await prisma.activeChallenge.upsert({
-            where: {
-                activeTourId_challengeId: {
-                    activeTourId,
-                    challengeId,
-                },
-            },
-            update: {
-                failed: true,
-            },
-            create: {
-                activeTourId,
-                challengeId,
-                failed: true,
-            },
-        });
-    },
-
-    async deleteActiveTour(activeTourId: number) {
-        // First delete all active challenges associated with this tour
-        await prisma.activeChallenge.deleteMany({
-            where: {
-                activeTourId: activeTourId
-            }
-        });
-
-        // Then delete the active tour itself
-        return await prisma.activeTour.delete({
-            where: {
-                id: activeTourId
-            }
-        });
+        const response = await client.post('/active-challenge/fail', { activeTourId, challengeId });
+        return response.data;
     },
 
     async finishTour(activeTourId: number) {
-        return await prisma.activeTour.update({
-            where: { id: activeTourId },
-            data: {
-                status: SessionStatus.COMPLETED,
-            },
-        });
+        const response = await client.post('/active-tour/finish', { activeTourId });
+        return response.data;
     },
 
     async abandonTour(activeTourId: number) {
-        return await prisma.activeTour.update({
-            where: { id: activeTourId },
-            data: {
-                status: SessionStatus.ABANDONED,
-            },
-        });
-    },
+        const response = await client.post('/active-tour/abandon', { activeTourId });
+        return response.data;
+    }
 };

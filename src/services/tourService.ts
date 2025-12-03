@@ -1,36 +1,13 @@
-import { prisma } from '../lib/prisma';
+import client from '../api/client';
 
 export const tourService = {
     async getAllTours() {
-        return await prisma.tour.findMany({
-            include: {
-                author: {
-                    select: { name: true },
-                },
-                _count: {
-                    select: { stops: true },
-                },
-            },
-        });
+        const response = await client.get('/tours');
+        return response.data;
     },
 
     async getTourById(id: number) {
-        return await prisma.tour.findUnique({
-            where: { id },
-            include: {
-                author: true,
-                stops: {
-                    include: {
-                        challenges: true,
-                    },
-                },
-                challenges: true, // Global challenges
-                reviews: {
-                    include: {
-                        author: true,
-                    },
-                },
-            },
-        });
-    },
+        const response = await client.get(`/tour/${id}`);
+        return response.data;
+    }
 };

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useFetch } from './useFetch';
+import { useCallback, useEffect, useState } from 'react';
+import { activeTourService } from '../services/activeTourService';
 
 export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?: (amount: number) => void) => {
     const [points, setPoints] = useState(0);
@@ -9,13 +9,32 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
     const [currentStopIndex, setCurrentStopIndex] = useState(0);
     const [showConfetti, setShowConfetti] = useState(false);
 
-    // Fetch active tour data
-    const { data: activeTour, loading, error, refetch } = useFetch<any>(`/api/active-tour/${activeTourId}`);
+    const [activeTour, setActiveTour] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     // Local state for immediate UI updates before refetch/sync
     const [completedChallenges, setCompletedChallenges] = useState<Set<number>>(new Set());
     const [failedChallenges, setFailedChallenges] = useState<Set<number>>(new Set());
     const [triviaSelected, setTriviaSelected] = useState<{ [key: number]: number }>({}); // challengeId -> selectedIndex
+
+    const fetchActiveTour = useCallback(async () => {
+        if (!activeTourId) return;
+        setLoading(true);
+        setError(null);
+        try {
+            const data = await activeTourService.getActiveTourById(activeTourId);
+            setActiveTour(data);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Unknown error');
+        } finally {
+            setLoading(false);
+        }
+    }, [activeTourId]);
+
+    useEffect(() => {
+        fetchActiveTour();
+    }, [fetchActiveTour]);
 
     // Sync completed and failed challenges from API and calculate current stop
     useEffect(() => {
@@ -71,9 +90,34 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
                 // If it's the last stop and all completed/failed, we can stay there or handle completion
                 if (i === stops.length - 1 && allChallengesDone) {
                     index = i;
+                    break; // Should break here too or set index to i? Original code logic:
+                    // if (i === stops.length - 1 && allChallengesDone) { index = i; }
+                    // Actually original code logic was:
+                    /*
+                    if (!allChallengesDone) {
+                        index = i;
+                        break;
+                    }
+                    if (i === stops.length - 1 && allChallengesDone) {
+                        index = i;
+                    }
+                    */
                 }
             }
-            setCurrentStopIndex(index);
+            // Re-implementing original logic exactly to avoid regression
+            let calculatedIndex = 0;
+            for (let i = 0; i < stops.length; i++) {
+                const stop = stops[i];
+                const allChallengesDone = stop.challenges.every((c: any) => completed.has(c.id) || failed.has(c.id));
+                if (!allChallengesDone) {
+                    calculatedIndex = i;
+                    break;
+                }
+                if (i === stops.length - 1 && allChallengesDone) {
+                    calculatedIndex = i;
+                }
+            }
+            setCurrentStopIndex(calculatedIndex);
         }
     }, [activeTour]);
 
@@ -99,15 +143,9 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
 
 
         try {
-            await fetch('/api/active-challenge/complete', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    activeTourId,
-                    challengeId: challenge.id,
-                    userId
-                })
-            });
+            if (userId) {
+                await activeTourService.completeChallenge(activeTourId, challenge.id, userId);
+            }
         } catch (err) {
             console.error('Failed to complete challenge', err);
         }
@@ -123,14 +161,7 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
         setStreak(0);
 
         try {
-            await fetch('/api/active-challenge/fail', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    activeTourId,
-                    challengeId: challenge.id
-                })
-            });
+            await activeTourService.failChallenge(activeTourId, challenge.id);
         } catch (err) {
             console.error('Failed to fail challenge', err);
         }
@@ -163,13 +194,12 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
 
     const handleFinishTour = async (): Promise<boolean> => {
         try {
-            const response = await fetch('/api/active-tour/finish', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ activeTourId })
-            });
-
-            if (response.ok) {
+            const response = await activeTourService.finishTour(activeTourId);
+            // Assuming response is the updated tour or success indicator.
+            // Original code checked if response.ok (fetch API).
+            // activeTourService.finishTour returns response.data.
+            // If it throws, it goes to catch.
+            if (response) {
                 setShowConfetti(true);
                 return true;
             }
@@ -182,11 +212,7 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
 
     const handleAbandonTour = async () => {
         try {
-            await fetch('/api/active-tour/abandon', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ activeTourId })
-            });
+            await activeTourService.abandonTour(activeTourId);
             // Navigation should be handled by the component calling this
         } catch (error) {
             console.error('Failed to abandon tour:', error);

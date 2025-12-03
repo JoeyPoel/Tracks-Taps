@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { userService } from '../services/userService';
 
 export interface UserProfile {
     id: number;
@@ -11,6 +12,7 @@ export interface UserProfile {
         tour: {
             title: string;
             imageUrl: string;
+            id: number;
         };
         status: string;
     }[];
@@ -25,27 +27,23 @@ export function useUser(email: string) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
+    const fetchData = useCallback(async () => {
         if (!email) return;
-
-        async function fetchUser() {
-            try {
-                const response = await fetch(`/api/user?email=${encodeURIComponent(email)}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch user');
-                }
-                const data = await response.json();
-                // Mock tokens for now
-                setUser({ ...data});
-            } catch (err) {
-                setError(err instanceof Error ? err.message : 'Unknown error');
-            } finally {
-                setLoading(false);
-            }
+        setLoading(true);
+        setError(null);
+        try {
+            const result = await userService.getUserByEmail(email);
+            setUser(result);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Unknown error');
+        } finally {
+            setLoading(false);
         }
-
-        fetchUser();
     }, [email]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     return { user, loading, error };
 }
