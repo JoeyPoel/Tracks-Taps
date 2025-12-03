@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FloatingPoints from '../components/activeTourScreen/FloatingPoints'; // Adjust path as needed
-import Confetti from '../components/activeTourScreen/Confetti'; // Adjust path as needed
+import Confetti from '../components/activeTourScreen/animations/Confetti'; // Adjust path as needed
 
 export default function GameScreen() {
     const [showPoints, setShowPoints] = useState(false);
@@ -18,7 +18,7 @@ export default function GameScreen() {
     const handleConfetti = () => {
         // 1. Reset to false immediately to force a re-render if it's already running
         setShowConfetti(false);
-        
+
         // 2. Set to true on next tick
         setTimeout(() => {
             setShowConfetti(true);
@@ -27,7 +27,7 @@ export default function GameScreen() {
             // (Max duration of confetti animation is ~8s: 2s delay + 6s fall)
             setTimeout(() => {
                 setShowConfetti(false);
-            }, 8000); 
+            }, 8000);
         }, 100);
     };
 
@@ -37,7 +37,7 @@ export default function GameScreen() {
             <View style={styles.centerContent}>
                 {/* Button 1: Points */}
                 <Button title="Score Points!" onPress={handleScore} />
-                
+
                 {/* Spacer */}
                 <View style={{ height: 20 }} />
 

@@ -83,20 +83,6 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
         setPoints(prev => prev + amount);
     };
 
-    const checkAutoAdvance = (completed: Set<number>, failed: Set<number>) => {
-        const currentStop = activeTour.tour.stops[currentStopIndex];
-        const stopChallenges = currentStop.challenges;
-        const allStopChallengesDone = stopChallenges.every((c: any) => completed.has(c.id) || failed.has(c.id));
-
-        if (allStopChallengesDone) {
-            setTimeout(() => {
-                if (currentStopIndex < activeTour.tour.stops.length - 1) {
-                    setCurrentStopIndex(prev => prev + 1);
-                }
-            }, 1500);
-        }
-    };
-
     const handleChallengeComplete = async (challenge: any) => {
         if (completedChallenges.has(challenge.id) || failedChallenges.has(challenge.id)) return;
 
@@ -122,7 +108,6 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
                     userId
                 })
             });
-            // refetch(); // Removed to prevent full page reload (loading state)
         } catch (err) {
             console.error('Failed to complete challenge', err);
         }
@@ -137,8 +122,6 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
         setFailedChallenges(newFailed);
         setStreak(0);
 
-        // checkAutoAdvance(completedChallenges, newFailed); // Disabled auto-advance
-
         try {
             await fetch('/api/active-challenge/fail', {
                 method: 'POST',
@@ -148,7 +131,6 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
                     challengeId: challenge.id
                 })
             });
-            // refetch(); // Removed to prevent full page reload (loading state)
         } catch (err) {
             console.error('Failed to fail challenge', err);
         }

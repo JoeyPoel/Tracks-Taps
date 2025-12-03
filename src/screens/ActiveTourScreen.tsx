@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { Linking, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import ActiveTourHeader from '../components/activeTourScreen/ActiveTourHeader';
 import ActiveTourMap from '../components/activeTourScreen/ActiveTourMap';
+import Confetti from '../components/activeTourScreen/animations/Confetti';
 import ChallengeItem from '../components/activeTourScreen/ChallengeItem';
-import Confetti from '../components/activeTourScreen/Confetti';
 import FloatingPoints from '../components/activeTourScreen/FloatingPoints';
 import PubGolfScoreCard from '../components/activeTourScreen/pubGolf/PubGolfScoreCard';
 import PubGolfStopCard from '../components/activeTourScreen/pubGolf/PubGolfStopCard';
@@ -27,7 +27,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         setPubGolfScores(prev => ({ ...prev, [stopId]: sips }));
     };
 
-    const { user, updateUserXp } = useUserContext();
+    const { user, updateUserXp, refreshUser } = useUserContext();
 
     const {
         activeTour,
@@ -200,6 +200,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                     onFinishTour={async () => {
                         const success = await handleFinishTour();
                         if (success) {
+                            await refreshUser(); // Refresh user data to update participations
                             setTimeout(() => {
                                 router.dismissAll();
                                 router.replace('/(tabs)/explore');
