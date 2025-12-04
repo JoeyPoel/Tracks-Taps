@@ -5,12 +5,16 @@ import { useStore } from '../store/store';
 export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?: (amount: number) => void) => {
     // Global State
     const activeTour = useStore((state) => state.activeTour);
-    const loading = useStore((state) => state.loadingActiveTours);
+    const storeLoading = useStore((state) => state.loadingActiveTours);
     const error = useStore((state) => state.errorActiveTours);
     const fetchActiveTourById = useStore((state) => state.fetchActiveTourById);
     const finishTour = useStore((state) => state.finishTour);
     const abandonTour = useStore((state) => state.abandonTour);
     const addXp = useStore((state) => state.addXp);
+
+    // Derived loading state: Only show loading if we don't have the correct active tour data
+    // This allows background refetches (where storeLoading is true but activeTour is present) without unmounting UI
+    const loading = storeLoading && activeTour?.id !== activeTourId;
 
     // Local UI State
     const [points, setPoints] = useState(0);
@@ -29,9 +33,9 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
         }
     }, [activeTourId, fetchActiveTourById]);
 
-    // Sync completed and failed challenges from API and calculate current stop
+    // Sync completed and failed challenges from API
     useEffect(() => {
-        if (activeTour?.activeChallenges && activeTour?.tour?.stops) {
+        if (activeTour?.activeChallenges) {
             const completed = new Set<number>();
             const failed = new Set<number>();
             let xp = 0;
@@ -52,7 +56,7 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
 
             // Calculate Streak
             const allChallenges: any[] = [];
-            activeTour.tour.stops.forEach((stop: any) => {
+            activeTour?.tour?.stops?.forEach((stop: any) => {
                 if (stop.challenges) {
                     allChallenges.push(...stop.challenges);
                 }
@@ -69,13 +73,17 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
                 }
             }
             setStreak(currentStreak);
+        }
+    }, [activeTour]);
 
-            // Calculate Current Stop Index
+    // Initialize Current Stop Index only once
+    useEffect(() => {
+        if (activeTour?.tour?.stops && currentStopIndex === 0 && completedChallenges.size > 0) {
             let calculatedIndex = 0;
             const stops = activeTour.tour.stops;
             for (let i = 0; i < stops.length; i++) {
                 const stop = stops[i];
-                const allChallengesDone = (stop.challenges || []).every((c: any) => completed.has(c.id) || failed.has(c.id));
+                const allChallengesDone = (stop.challenges || []).every((c: any) => completedChallenges.has(c.id) || failedChallenges.has(c.id));
                 if (!allChallengesDone) {
                     calculatedIndex = i;
                     break;
@@ -84,9 +92,10 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
                     calculatedIndex = i;
                 }
             }
+            // Only update if we are still at 0 (initial load) to avoid overriding user navigation
             setCurrentStopIndex(calculatedIndex);
         }
-    }, [activeTour]);
+    }, [activeTour?.tour?.stops, completedChallenges.size]); // Depend on size to trigger once loaded
 
     const triggerFloatingPoints = (amount: number) => {
         setFloatingPointsAmount(amount);
@@ -108,8 +117,7 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
             onXpEarned(challenge.points);
         }
 
-        // Update global user XP optimistically
-        addXp(challenge.points);
+        // Removed duplicate addXp(challenge.points) call here
 
         try {
             if (userId) {
@@ -161,6 +169,10 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
 
     const handleNextStop = () => {
         if (activeTour && activeTour.tour?.stops && currentStopIndex < activeTour.tour.stops.length - 1) {
+            // Prevent going to next stop if tour is completed (optional, based on user request)
+            // But usually you can review a completed tour. The user specifically asked for this fix though.
+            if (activeTour.status === 'COMPLETED') return;
+
             setCurrentStopIndex(prev => prev + 1);
         }
     };
