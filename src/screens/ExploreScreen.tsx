@@ -5,16 +5,16 @@ import ActiveTourCard from '../components/exploreScreen/ActiveTourCard';
 import TourCard from '../components/exploreScreen/TourCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useActiveTours } from '../hooks/useActiveTours';
 import { useTours } from '../hooks/useTours';
 import { useUser } from '../hooks/useUser';
-import { useActiveTours } from '../hooks/useActiveTours';
 
 export default function ExploreScreen() {
   const router = useRouter();
   const { theme } = useTheme();
   const { t } = useLanguage();
   // TODO: Replace hardcoded email with actual auth context
-  const { user } = useUser('Joey@example.com');
+  const { user } = useUser(1);
   const { tours, loading: toursLoading, error: toursError } = useTours();
   const { activeTours, loading: activeLoading, error: activeError, refetch: refetchActiveTours } = useActiveTours(user?.id);
 
@@ -51,7 +51,7 @@ export default function ExploreScreen() {
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.bgPrimary }]}>
       {activeTour && (
         <ActiveTourCard
-          title={activeTour.tour.title}
+          title={activeTour.tour?.title || ''}
           progress={0.5} // TODO: Calculate actual progress
           onResume={() => router.push({ pathname: '/active-tour/[id]' as any, params: { id: activeTour.id } })}
         />
@@ -61,7 +61,7 @@ export default function ExploreScreen() {
         <TourCard
           key={tour.id}
           title={tour.title}
-          author={tour.author.name}
+          author={tour.author?.name || 'Unknown'}
           imageUrl={tour.imageUrl}
           distance={`${tour.distance} km`}
           duration={`${tour.duration} min`}

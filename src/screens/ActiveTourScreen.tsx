@@ -4,6 +4,7 @@ import { Linking, Platform, ScrollView, StyleSheet, Text, View } from 'react-nat
 import ActiveTourHeader from '../components/activeTourScreen/ActiveTourHeader';
 import ActiveTourMap from '../components/activeTourScreen/ActiveTourMap';
 import Confetti from '../components/activeTourScreen/animations/Confetti';
+import FloatingPoints from '../components/activeTourScreen/animations/FloatingPoints';
 import ChallengeItem from '../components/activeTourScreen/ChallengeItem';
 import PubGolfScoreCard from '../components/activeTourScreen/pubGolf/PubGolfScoreCard';
 import PubGolfStopCard from '../components/activeTourScreen/pubGolf/PubGolfStopCard';
@@ -14,7 +15,6 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 import { useActiveTour } from '../hooks/useActiveTour';
-import FloatingPoints from '../components/activeTourScreen/animations/FloatingPoints';
 
 export default function ActiveTourScreen({ activeTourId }: { activeTourId: number }) {
     const { theme } = useTheme();
@@ -55,9 +55,9 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
     if (error) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.danger }}>{error}</Text></View>;
     if (!activeTour) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>{t('tourNotFound')}</Text></View>;
 
-    const currentStop = activeTour.tour.stops[currentStopIndex];
+    const currentStop = activeTour.tour?.stops?.[currentStopIndex];
     const stopChallenges = currentStop?.challenges || [];
-    const isLastStop = currentStopIndex === activeTour.tour.stops.length - 1;
+    const isLastStop = currentStopIndex === (activeTour.tour?.stops?.length || 0) - 1;
 
     const openMaps = async () => {
         if (!currentStop) return;
@@ -98,7 +98,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                 currentXP={user?.xp || 0}
                 maxXP={2000} // Mock max XP
                 currentStop={currentStopIndex + 1}
-                totalStops={activeTour.tour.stops.length}
+                totalStops={activeTour.tour?.stops?.length || 0}
                 streak={streak}
                 tokens={points}
                 onClose={() => router.back()}
@@ -108,7 +108,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                 {currentStop && (
                     <ActiveTourMap
                         currentStop={currentStop}
-                        previousStop={activeTour.tour.stops[currentStopIndex - 1]}
+                        previousStop={activeTour.tour?.stops?.[currentStopIndex - 1]}
                         onNavigate={openMaps}
                     />
                 )}
@@ -152,7 +152,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                 ) : (
                     <View>
                         {(() => {
-                            const pubGolfStops = activeTour.tour.stops.filter((s: any) => s.pubgolfPar);
+                            const pubGolfStops = activeTour.tour?.stops?.filter((s: any) => s.pubgolfPar) || [];
                             const totalPar = pubGolfStops.reduce((sum: number, s: any) => sum + (s.pubgolfPar || 0), 0);
 
                             // Calculate totals based on completed stops

@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { tourService } from '../services/tourService';
-import { Tour } from './useTours';
+import { useEffect } from 'react';
+import { useStore } from '../store/store';
 
 export interface Review {
     id: number;
@@ -13,34 +12,35 @@ export interface Review {
     };
 }
 
-export interface TourDetail extends Tour {
+export interface TourDetail {
+    id: number;
+    title: string;
+    description: string;
+    imageUrl: string;
+    distance: number;
+    duration: number;
+    points: number;
+    modes: string[];
+    difficulty: string;
+    author: {
+        name: string;
+    };
     reviews: Review[];
     challenges: any[];
     stops: any[];
 }
 
-export function useTourDetails(tourId: number) {
-    const [data, setData] = useState<TourDetail | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    const fetchData = useCallback(async () => {
-        if (!tourId) return;
-        setLoading(true);
-        setError(null);
-        try {
-            const result = await tourService.getTourById(tourId);
-            setData(result);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Unknown error');
-        } finally {
-            setLoading(false);
-        }
-    }, [tourId]);
+export const useTourDetails = (tourId: number) => {
+    const tour = useStore((state) => state.tourDetails[tourId]);
+    const loading = useStore((state) => state.loadingTours);
+    const error = useStore((state) => state.errorTours);
+    const fetchTourDetails = useStore((state) => state.fetchTourDetails);
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        if (tourId) {
+            fetchTourDetails(tourId);
+        }
+    }, [tourId, fetchTourDetails]);
 
-    return { tour: data, loading, error };
-}
+    return { tour, loading, error, refetch: () => fetchTourDetails(tourId) };
+};

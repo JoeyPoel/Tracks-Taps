@@ -16,7 +16,7 @@ export default function MapScreen() {
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView>(null);
 
-  const { tours, loading, refetch } = useMapTours();
+  const {tours, loading, refetch } = useMapTours();
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
 
   useEffect(() => {

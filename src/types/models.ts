@@ -32,6 +32,7 @@ export interface Stop {
     latitude: number;
     pubgolfPar: number | null;
     pubgolfDrink: string | null;
+    challenges?: Challenge[];
 }
 
 export interface Tour {
@@ -44,11 +45,18 @@ export interface Tour {
     duration: number;
     points: number;
     modes: string[];
-    difficulty: Difficulty;
+    difficulty: Difficulty | string;
     challengesCount: number;
     createdAt: Date;
     updatedAt: Date;
     authorId: number;
+    author?: {
+        name: string;
+    };
+    stops?: Stop[];
+    _count?: {
+        stops: number;
+    };
 }
 
 export interface User {
@@ -83,6 +91,8 @@ export interface ActiveTour {
     status: SessionStatus;
     createdAt: Date;
     updatedAt: Date;
+    tour?: Tour;
+    activeChallenges?: ActiveChallenge[];
 }
 
 export interface ActiveChallenge {

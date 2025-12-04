@@ -1,0 +1,180 @@
+import { create } from 'zustand';
+import { activeTourService } from '../services/activeTourService';
+import { mapTourService } from '../services/mapTourService';
+import { tourService } from '../services/tourService';
+import { userService } from '../services/userService';
+
+import { ActiveTour, SessionStatus, Tour, User } from '../types/models';
+
+
+
+
+interface StoreState {
+    // Tours Slice
+    tours: Tour[];
+    tourDetails: { [id: number]: Tour }; // Cache by ID
+    mapTours: Tour[];
+    loadingTours: boolean;
+    errorTours: string | null;
+    fetchTours: () => Promise<void>;
+    fetchTourDetails: (id: number) => Promise<void>;
+    fetchMapTours: () => Promise<void>;
+
+    // Active Tours Slice
+    activeTours: ActiveTour[];
+    activeTour: ActiveTour | null;
+    loadingActiveTours: boolean;
+    errorActiveTours: string | null;
+    fetchActiveTours: (userId: number) => Promise<void>;
+    fetchActiveTourById: (id: number) => Promise<void>;
+    startTour: (tourId: number, userId: number, force?: boolean) => Promise<void>;
+    finishTour: (activeTourId: number) => Promise<boolean>;
+    abandonTour: (activeTourId: number) => Promise<void>;
+
+    // User Slice
+    user: User | null;
+    loadingUser: boolean;
+    errorUser: string | null;
+    fetchUser: (userId: number) => Promise<void>;
+    addXp: (amount: number) => void; // Optimistic update
+}
+
+export const useStore = create<StoreState>((set, get) => ({
+    // --- Tours Slice ---
+    tours: [],
+    tourDetails: {},
+    mapTours: [],
+    loadingTours: false,
+    errorTours: null,
+
+    fetchTours: async () => {
+        set({ loadingTours: true, errorTours: null });
+        try {
+            const tours = await tourService.getAllTours();
+            set({ tours, loadingTours: false });
+        } catch (error: any) {
+            set({ errorTours: error.message || 'Failed to fetch tours', loadingTours: false });
+        }
+    },
+
+    fetchTourDetails: async (id: number) => {
+        // Check cache first? Optional. For now, always fetch to be safe or implement simple cache check
+        // if (get().tourDetails[id]) return; 
+
+        set({ loadingTours: true, errorTours: null });
+        try {
+            const tour = await tourService.getTourById(id);
+            set((state) => ({
+                tourDetails: { ...state.tourDetails, [id]: tour },
+                loadingTours: false
+            }));
+        } catch (error: any) {
+            set({ errorTours: error.message || 'Failed to fetch tour details', loadingTours: false });
+        }
+    },
+
+    fetchMapTours: async () => {
+        set({ loadingTours: true, errorTours: null });
+        try {
+            const tours = await mapTourService.getTours();
+            set({ mapTours: tours, loadingTours: false });
+        } catch (error: any) {
+            set({ errorTours: error.message || 'Failed to fetch map tours', loadingTours: false });
+        }
+    },
+
+    // --- Active Tours Slice ---
+    activeTours: [],
+    activeTour: null,
+    loadingActiveTours: false,
+    errorActiveTours: null,
+
+    fetchActiveTours: async (userId: number) => {
+        set({ loadingActiveTours: true, errorActiveTours: null });
+        try {
+            const activeTours = await activeTourService.getActiveToursForUser(userId);
+            set({ activeTours, loadingActiveTours: false });
+        } catch (error: any) {
+            set({ errorActiveTours: error.message || 'Failed to fetch active tours', loadingActiveTours: false });
+        }
+    },
+
+    fetchActiveTourById: async (id: number) => {
+        set({ loadingActiveTours: true, errorActiveTours: null });
+        try {
+            const activeTour = await activeTourService.getActiveTourById(id);
+            set({ activeTour, loadingActiveTours: false });
+        } catch (error: any) {
+            set({ errorActiveTours: error.message || 'Failed to fetch active tour', loadingActiveTours: false });
+        }
+    },
+
+    startTour: async (tourId: number, userId: number, force = false) => {
+        set({ loadingActiveTours: true, errorActiveTours: null });
+        try {
+            await activeTourService.startTour(tourId, userId, force);
+            // Refresh active tours
+            await get().fetchActiveTours(userId);
+            set({ loadingActiveTours: false });
+        } catch (error: any) {
+            set({ errorActiveTours: error.message || 'Failed to start tour', loadingActiveTours: false });
+            throw error; // Re-throw to let component handle specific UI logic (like showing conflict dialog)
+        }
+    },
+
+    finishTour: async (activeTourId: number) => {
+        try {
+            await activeTourService.finishTour(activeTourId);
+            // Update local state
+            set((state) => {
+                if (state.activeTour && state.activeTour.id === activeTourId) {
+                    return { activeTour: { ...state.activeTour, status: SessionStatus.COMPLETED } };
+                }
+                return {};
+            });
+            return true;
+        } catch (error) {
+            console.error('Failed to finish tour', error);
+            return false;
+        }
+    },
+
+    abandonTour: async (activeTourId: number) => {
+        try {
+            await activeTourService.abandonTour(activeTourId);
+            // Update local state
+            set((state) => {
+                if (state.activeTour && state.activeTour.id === activeTourId) {
+                    return { activeTour: { ...state.activeTour, status: SessionStatus.ABANDONED } };
+                }
+                return {};
+            });
+        } catch (error) {
+            console.error('Failed to abandon tour', error);
+        }
+    },
+
+    // --- User Slice ---
+    user: null,
+    loadingUser: false,
+    errorUser: null,
+
+    fetchUser: async (userId: number) => {
+        set({ loadingUser: true, errorUser: null });
+        try {
+            const user = await userService.getUserProfile(userId);
+            set({ user, loadingUser: false });
+        } catch (error: any) {
+            set({ errorUser: error.message || 'Failed to fetch user', loadingUser: false });
+        }
+    },
+
+    addXp: (amount: number) => {
+        set((state) => {
+            if (!state.user) return {};
+            return {
+                user: { ...state.user, xp: state.user.xp + amount }
+            };
+        });
+    }
+}));

@@ -165,7 +165,7 @@ async function main() {
                     type: ChallengeType.TRIVIA,
                     points: 75,
                     content: 'Which famous hare statue is located on the Neude?',
-                    options: ['Thinker on a Rock', 'The Hare', 'Miffy', 'The Rabbit'],
+                    options: ['The Thinker on a Rock', 'The Hare', 'Miffy', 'The Rabbit'],
                     answer: 'The Thinker on a Rock',
                 }
             ]

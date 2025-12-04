@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { mapTourService } from '../services/mapTourService';
+import { useEffect } from 'react';
+import { useStore } from '../store/store';
 
 export interface Tour {
     id: number;
@@ -15,27 +15,15 @@ export interface Stop {
     tourId: number;
 }
 
-export function useMapTours() {
-    const [data, setData] = useState<Tour[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    const fetchData = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const result = await mapTourService.getTours();
-            setData(result);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Unknown error');
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+export const useMapTours = () => {
+    const tours = useStore((state) => state.mapTours);
+    const loading = useStore((state) => state.loadingTours);
+    const error = useStore((state) => state.errorTours);
+    const fetchMapTours = useStore((state) => state.fetchMapTours);
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        fetchMapTours();
+    }, [fetchMapTours]);
 
-    return { tours: data, loading, error, refetch: fetchData };
-}
+    return { tours, loading, error, refetch: fetchMapTours };
+};

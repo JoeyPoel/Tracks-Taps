@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { userService } from '../services/userService';
+import { useEffect } from 'react';
+import { useStore } from '../store/store';
 
 export interface UserProfile {
     id: number;
@@ -22,28 +22,17 @@ export interface UserProfile {
     }[];
 }
 
-export function useUser(email: string) {
-    const [user, setUser] = useState<UserProfile | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    const fetchData = useCallback(async () => {
-        if (!email) return;
-        setLoading(true);
-        setError(null);
-        try {
-            const result = await userService.getUserByEmail(email);
-            setUser(result);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Unknown error');
-        } finally {
-            setLoading(false);
-        }
-    }, [email]);
+export const useUser = (userId: number) => {
+    const user = useStore((state) => state.user);
+    const loading = useStore((state) => state.loadingUser);
+    const error = useStore((state) => state.errorUser);
+    const fetchUser = useStore((state) => state.fetchUser);
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        if (userId) {
+            fetchUser(userId);
+        }
+    }, [userId, fetchUser]);
 
-    return { user, loading, error };
-}
+    return { user, loading, error, refetch: () => fetchUser(userId) };
+};
