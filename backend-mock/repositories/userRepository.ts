@@ -6,11 +6,10 @@ export const userRepository = {
             where: { id: userId },
             include: {
                 participations: {
-                    include: {
-                        tour: true,
+                    select: {
+                        status: true,
                     },
                 },
-                createdTours: true,
             },
         });
     },
@@ -20,11 +19,10 @@ export const userRepository = {
             where: { email },
             include: {
                 participations: {
-                    include: {
-                        tour: true,
+                    select: {
+                        status: true,
                     },
                 },
-                createdTours: true,
             },
         });
     },

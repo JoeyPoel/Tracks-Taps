@@ -68,6 +68,13 @@ export interface User {
     tokens: number;
     createdAt: Date;
     updatedAt: Date;
+    participations?: {
+        status: string;
+    }[];
+    createdTours?: {
+        id: number;
+        title: string;
+    }[];
 }
 
 export interface Challenge {

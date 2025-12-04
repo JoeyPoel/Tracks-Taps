@@ -5,16 +5,15 @@ import ActiveTourCard from '../components/exploreScreen/ActiveTourCard';
 import TourCard from '../components/exploreScreen/TourCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useUserContext } from '../context/UserContext';
 import { useActiveTours } from '../hooks/useActiveTours';
 import { useTours } from '../hooks/useTours';
-import { useUser } from '../hooks/useUser';
 
 export default function ExploreScreen() {
   const router = useRouter();
   const { theme } = useTheme();
   const { t } = useLanguage();
-  // TODO: Replace hardcoded email with actual auth context
-  const { user } = useUser(1);
+  const { user } = useUserContext();
   const { tours, loading: toursLoading, error: toursError } = useTours();
   const { activeTours, loading: activeLoading, error: activeError, refetch: refetchActiveTours } = useActiveTours(user?.id);
 

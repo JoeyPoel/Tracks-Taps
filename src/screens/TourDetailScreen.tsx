@@ -9,14 +9,14 @@ import TourReviews from '../components/tourdetailScreen/TourReviews';
 import TourStats from '../components/tourdetailScreen/TourStats';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useUserContext } from '../context/UserContext';
 import { useTourDetails } from '../hooks/useTourDetails';
-import { useUser } from '../hooks/useUser';
 
 export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
   const { t } = useLanguage();
   const { tour, loading, error } = useTourDetails(tourId);
-  const { user } = useUser('Joey@example.com'); // TODO: Get actual user email/id from auth context
+  const { user } = useUserContext();
   const router = useRouter();
 
   const handleStartTour = async (force = false) => {

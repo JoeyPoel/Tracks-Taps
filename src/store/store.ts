@@ -36,6 +36,7 @@ interface StoreState {
     loadingUser: boolean;
     errorUser: string | null;
     fetchUser: (userId: number) => Promise<void>;
+    fetchUserByEmail: (email: string) => Promise<void>;
     addXp: (amount: number) => void; // Optimistic update
 }
 
@@ -163,6 +164,16 @@ export const useStore = create<StoreState>((set, get) => ({
         set({ loadingUser: true, errorUser: null });
         try {
             const user = await userService.getUserProfile(userId);
+            set({ user, loadingUser: false });
+        } catch (error: any) {
+            set({ errorUser: error.message || 'Failed to fetch user', loadingUser: false });
+        }
+    },
+
+    fetchUserByEmail: async (email: string) => {
+        set({ loadingUser: true, errorUser: null });
+        try {
+            const user = await userService.getUserByEmail(email);
             set({ user, loadingUser: false });
         } catch (error: any) {
             set({ errorUser: error.message || 'Failed to fetch user', loadingUser: false });
