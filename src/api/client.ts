@@ -1,8 +1,23 @@
 import axios from 'axios';
+import Constants from 'expo-constants';
+import { Platform } from 'react-native';
+
+const getBaseUrl = () => {
+    if (Platform.OS === 'web') return '/api';
+
+    const hostUri = Constants.expoConfig?.hostUri;
+    if (!hostUri) {
+        // Fallback for production or if hostUri is missing
+        return 'http://localhost:8081/api';
+    }
+
+    const part = hostUri.split(':')[0];
+    return `http://${part}:8081/api`;
+};
 
 // Create an Axios instance with default configuration
 const client = axios.create({
-    baseURL: '/api', // Base URL for all requests, assumes API is served from the same origin or proxied
+    baseURL: getBaseUrl(),
     headers: {
         'Content-Type': 'application/json',
     },
