@@ -21,7 +21,18 @@ export const activeTourRepository = {
     },
 
     async createActiveTour(tourId: number, userId: number) {
-        return await prisma.activeTour.create({
+        // 1. Fetch the tour to get its stops
+        const tour = await prisma.tour.findUnique({
+            where: { id: tourId },
+            include: { stops: true }
+        });
+
+        if (!tour) {
+            throw new Error('Tour not found');
+        }
+
+        // 2. Create the ActiveTour
+        const activeTour = await prisma.activeTour.create({
             data: {
                 tourId,
                 status: SessionStatus.IN_PROGRESS,
@@ -30,6 +41,25 @@ export const activeTourRepository = {
                 },
             },
         });
+
+        // 3. Create PubGolfStops for stops that have pubgolf data
+        const pubGolfStopsData = tour.stops
+            .filter(stop => stop.pubgolfPar !== null && stop.pubgolfDrink !== null)
+            .map(stop => ({
+                activeTourId: activeTour.id,
+                stopId: stop.id,
+                par: stop.pubgolfPar!,
+                drink: stop.pubgolfDrink!,
+                sips: 0 // Default sips
+            }));
+
+        if (pubGolfStopsData.length > 0) {
+            await prisma.pubGolfStop.createMany({
+                data: pubGolfStopsData
+            });
+        }
+
+        return activeTour;
     },
 
     async findActiveTourById(id: number) {
@@ -41,7 +71,10 @@ export const activeTourRepository = {
                         stops: {
                             orderBy: { order: 'asc' },
                             include: {
-                                challenges: true
+                                challenges: true,
+                                pubGolfStops: {
+                                    where: { activeTourId: id } // Only include PubGolfStop for this active tour
+                                }
                             }
                         },
                         challenges: true,
@@ -52,6 +85,7 @@ export const activeTourRepository = {
                         challenge: true
                     }
                 },
+                pubGolfStops: true // Include all pub golf stops for this active tour
             }
         });
     },
@@ -95,6 +129,24 @@ export const activeTourRepository = {
             data: {
                 status,
             },
+        });
+    },
+    async updatePubGolfScore(activeTourId: number, stopId: number, sips: number) {
+        // Find the specific PubGolfStop entry
+        const pubGolfStop = await prisma.pubGolfStop.findFirst({
+            where: {
+                activeTourId,
+                stopId
+            }
+        });
+
+        if (!pubGolfStop) {
+            throw new Error('PubGolf stop not found for this active tour');
+        }
+
+        return await prisma.pubGolfStop.update({
+            where: { id: pubGolfStop.id },
+            data: { sips }
         });
     },
 };

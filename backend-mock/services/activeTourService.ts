@@ -72,4 +72,8 @@ export const activeTourService = {
     async abandonTour(activeTourId: number) {
         return await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.ABANDONED);
     },
+
+    async updatePubGolfScore(activeTourId: number, stopId: number, sips: number) {
+        return await activeTourRepository.updatePubGolfScore(activeTourId, stopId, sips);
+    },
 };

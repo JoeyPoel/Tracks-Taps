@@ -93,6 +93,18 @@ export interface ActiveTour {
     updatedAt: Date;
     tour?: Tour;
     activeChallenges?: ActiveChallenge[];
+    pubGolfStops?: PubGolfStop[];
+}
+
+export interface PubGolfStop {
+    id: number;
+    activeTourId: number;
+    stopId: number;
+    par: number;
+    drink: string;
+    sips: number;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface ActiveChallenge {

@@ -34,5 +34,10 @@ export const activeTourService = {
     async abandonTour(activeTourId: number) {
         const response = await client.post('/active-tour/abandon', { activeTourId });
         return response.data;
+    },
+
+    async updatePubGolfScore(activeTourId: number, stopId: number, sips: number) {
+        const response = await client.post('/active-tour/pub-golf', { activeTourId, stopId, sips });
+        return response.data;
     }
 };

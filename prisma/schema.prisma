@@ -77,8 +77,8 @@ model Stop {
   pubgolfDrink String?
 
   // Relations
-  challenges Challenge[] // Stop-specific challenges
-  pubGolfStops  PubGolfStop[]
+  challenges   Challenge[] // Stop-specific challenges
+  pubGolfStops PubGolfStop[]
 }
 
 enum ChallengeType {
@@ -119,7 +119,7 @@ model ActiveTour {
   // Relations
   participants     User[]            @relation("TourParticipant")
   activeChallenges ActiveChallenge[]
-  pubGolfStops        PubGolfStop[]
+  pubGolfStops     PubGolfStop[]
 }
 
 model ActiveChallenge {
@@ -143,6 +143,7 @@ model PubGolfStop {
   stop         Stop       @relation(fields: [stopId], references: [id])
   par          Int
   drink        String
+  sips         Int        @default(0)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }

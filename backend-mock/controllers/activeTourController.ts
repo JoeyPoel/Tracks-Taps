@@ -124,5 +124,22 @@ export const activeTourController = {
             console.error('Error finishing tour:', error);
             return Response.json({ error: 'Failed to finish tour' }, { status: 500 });
         }
+    },
+
+    async updatePubGolfScore(request: Request) {
+        try {
+            const body = await request.json();
+            const { activeTourId, stopId, sips } = body;
+
+            if (!activeTourId || !stopId || sips === undefined) {
+                return Response.json({ error: 'Missing required fields' }, { status: 400 });
+            }
+
+            const updatedStop = await activeTourService.updatePubGolfScore(Number(activeTourId), Number(stopId), Number(sips));
+            return Response.json(updatedStop);
+        } catch (error) {
+            console.error('Error updating pub golf score:', error);
+            return Response.json({ error: 'Failed to update pub golf score' }, { status: 500 });
+        }
     }
 };
