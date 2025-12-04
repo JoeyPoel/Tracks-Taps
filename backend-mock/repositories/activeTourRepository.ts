@@ -107,13 +107,7 @@ export const activeTourRepository = {
         });
     },
 
-    async deleteActiveChallengesByTourId(activeTourId: number) {
-        return await prisma.activeChallenge.deleteMany({
-            where: {
-                activeTourId: activeTourId
-            }
-        });
-    },
+
 
     async deleteActiveTourById(activeTourId: number) {
         return await prisma.activeTour.delete({

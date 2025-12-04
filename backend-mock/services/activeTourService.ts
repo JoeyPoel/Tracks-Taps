@@ -20,9 +20,7 @@ export const activeTourService = {
 
             // If force is true, delete existing active tours
             for (const tour of activeTours) {
-                // Delete challenges first
-                await activeTourRepository.deleteActiveChallengesByTourId(tour.id);
-                // Then delete the tour
+                // Delete the tour (cascade will handle challenges and pub golf stops)
                 await activeTourRepository.deleteActiveTourById(tour.id);
             }
         }
@@ -61,7 +59,6 @@ export const activeTourService = {
     },
 
     async deleteActiveTour(activeTourId: number) {
-        await activeTourRepository.deleteActiveChallengesByTourId(activeTourId);
         return await activeTourRepository.deleteActiveTourById(activeTourId);
     },
 

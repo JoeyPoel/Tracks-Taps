@@ -132,4 +132,17 @@ export interface Review {
     updatedAt: Date;
     tourId: number;
     authorId: number;
+    author: {
+        name: string;
+        avatar?: string;
+    };
+}
+
+export interface TourDetail extends Tour {
+    reviews: Review[];
+    stops: Stop[];
+    challenges: Challenge[];
+    author: {
+        name: string;
+    };
 }

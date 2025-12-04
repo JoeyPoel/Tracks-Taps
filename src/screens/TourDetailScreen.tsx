@@ -66,7 +66,9 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
       }
 
       if (!response.ok) {
-        throw new Error('Failed to start tour');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Server error:', errorData);
+        throw new Error(errorData.error || 'Failed to start tour');
       }
 
       const newActiveTour = await response.json();

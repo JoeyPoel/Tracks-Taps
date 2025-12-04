@@ -4,7 +4,7 @@ import { mapTourService } from '../services/mapTourService';
 import { tourService } from '../services/tourService';
 import { userService } from '../services/userService';
 
-import { ActiveTour, SessionStatus, Tour, User } from '../types/models';
+import { ActiveTour, SessionStatus, Tour, TourDetail, User } from '../types/models';
 
 
 
@@ -12,7 +12,7 @@ import { ActiveTour, SessionStatus, Tour, User } from '../types/models';
 interface StoreState {
     // Tours Slice
     tours: Tour[];
-    tourDetails: { [id: number]: Tour }; // Cache by ID
+    tourDetails: { [id: number]: TourDetail }; // Cache by ID
     mapTours: Tour[];
     loadingTours: boolean;
     errorTours: string | null;
