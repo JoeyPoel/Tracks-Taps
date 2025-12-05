@@ -27,6 +27,7 @@ interface StoreState {
     errorActiveTours: string | null;
     fetchActiveTours: (userId: number) => Promise<void>;
     fetchActiveTourById: (id: number) => Promise<void>;
+    updateActiveTourLocal: (updates: Partial<ActiveTour>) => void;
     startTour: (tourId: number, userId: number, force?: boolean) => Promise<void>;
     finishTour: (activeTourId: number) => Promise<boolean>;
     abandonTour: (activeTourId: number) => Promise<void>;
@@ -108,6 +109,15 @@ export const useStore = create<StoreState>((set, get) => ({
         } catch (error: any) {
             set({ errorActiveTours: error.message || 'Failed to fetch active tour', loadingActiveTours: false });
         }
+    },
+
+    updateActiveTourLocal: (updates: Partial<ActiveTour>) => {
+        set((state) => {
+            if (!state.activeTour) return {};
+            return {
+                activeTour: { ...state.activeTour, ...updates }
+            };
+        });
     },
 
     startTour: async (tourId: number, userId: number, force = false) => {

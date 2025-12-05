@@ -11,6 +11,7 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
     const finishTour = useStore((state) => state.finishTour);
     const abandonTour = useStore((state) => state.abandonTour);
     const addXp = useStore((state) => state.addXp);
+    const updateActiveTourLocal = useStore((state) => state.updateActiveTourLocal);
 
     // Derived loading state: Only show loading if we don't have the correct active tour data
     // This allows background refetches (where storeLoading is true but activeTour is present) without unmounting UI
@@ -73,14 +74,18 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
             onXpEarned(challenge.points);
         }
 
-        try {
-            if (userId) {
-                await activeTourService.completeChallenge(activeTourId, challenge.id, userId);
-                // Refresh to ensure sync (updates streak)
-                fetchActiveTourById(activeTourId);
-            }
-        } catch (err) {
-            console.error('Failed to complete challenge', err);
+        if (userId) {
+            // Background API call
+            activeTourService.completeChallenge(activeTourId, challenge.id, userId)
+                .then(() => fetchActiveTourById(activeTourId))
+                .catch(err => {
+                    console.error('Failed to complete challenge', err);
+                    // Revert optimistic update
+                    const reverted = new Set(completedChallenges);
+                    reverted.delete(challenge.id);
+                    setCompletedChallenges(reverted);
+                    // Note: Reverting points/XP is harder and might not be worth the complexity for rare errors
+                });
         }
     };
 
@@ -92,13 +97,16 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
         newFailed.add(challenge.id);
         setFailedChallenges(newFailed);
 
-        try {
-            await activeTourService.failChallenge(activeTourId, challenge.id);
-            // Refresh to ensure sync (updates streak)
-            fetchActiveTourById(activeTourId);
-        } catch (err) {
-            console.error('Failed to fail challenge', err);
-        }
+        // Background API call
+        activeTourService.failChallenge(activeTourId, challenge.id)
+            .then(() => fetchActiveTourById(activeTourId))
+            .catch(err => {
+                console.error('Failed to fail challenge', err);
+                // Revert optimistic update on error
+                const reverted = new Set(failedChallenges);
+                reverted.delete(challenge.id);
+                setFailedChallenges(reverted);
+            });
     };
 
     const handleSubmitTrivia = (challenge: any) => {
@@ -119,28 +127,42 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
 
         const currentStopIndex = (activeTour.currentStop || 1) - 1;
         if (currentStopIndex > 0) {
-            // Optimistic update (requires store update support or just wait for refetch)
-            // For now, we'll just call the API and refetch
-            try {
-                await activeTourService.updateCurrentStop(activeTourId, activeTour.currentStop - 1);
-                fetchActiveTourById(activeTourId);
-            } catch (error) {
-                console.error("Failed to update current stop", error);
-            }
+            const newStop = activeTour.currentStop - 1;
+
+            // Optimistic update
+            updateActiveTourLocal({ currentStop: newStop });
+
+            // Background API call
+            activeTourService.updateCurrentStop(activeTourId, newStop)
+                .then(() => fetchActiveTourById(activeTourId))
+                .catch(error => {
+                    console.error("Failed to update current stop", error);
+                    // Revert
+                    updateActiveTourLocal({ currentStop: activeTour.currentStop });
+                });
         }
     };
 
     const handleNextStop = async () => {
-        const currentStopIndex = (activeTour?.currentStop || 1) - 1;
-        if (activeTour && activeTour.tour?.stops && currentStopIndex < activeTour.tour.stops.length - 1) {
+        if (!activeTour) return;
+
+        const currentStopIndex = (activeTour.currentStop || 1) - 1;
+        if (activeTour.tour?.stops && currentStopIndex < activeTour.tour.stops.length - 1) {
             if (activeTour.status === 'COMPLETED') return;
 
-            try {
-                await activeTourService.updateCurrentStop(activeTourId, activeTour.currentStop + 1);
-                fetchActiveTourById(activeTourId);
-            } catch (error) {
-                console.error("Failed to update current stop", error);
-            }
+            const newStop = activeTour.currentStop + 1;
+
+            // Optimistic update
+            updateActiveTourLocal({ currentStop: newStop });
+
+            // Background API call
+            activeTourService.updateCurrentStop(activeTourId, newStop)
+                .then(() => fetchActiveTourById(activeTourId))
+                .catch(error => {
+                    console.error("Failed to update current stop", error);
+                    // Revert
+                    updateActiveTourLocal({ currentStop: activeTour.currentStop });
+                });
         }
     };
 
