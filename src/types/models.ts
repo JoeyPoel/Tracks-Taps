@@ -101,6 +101,8 @@ export interface ActiveTour {
     tour?: Tour;
     activeChallenges?: ActiveChallenge[];
     pubGolfStops?: PubGolfStop[];
+    currentStop: number;
+    streak: number;
 }
 
 export interface PubGolfStop {

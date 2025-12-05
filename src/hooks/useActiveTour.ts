@@ -115,7 +115,9 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
     };
 
     const handlePrevStop = async () => {
-        const currentStopIndex = (activeTour?.currentStop || 1) - 1;
+        if (!activeTour) return;
+
+        const currentStopIndex = (activeTour.currentStop || 1) - 1;
         if (currentStopIndex > 0) {
             // Optimistic update (requires store update support or just wait for refetch)
             // For now, we'll just call the API and refetch
