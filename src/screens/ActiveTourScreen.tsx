@@ -45,6 +45,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         handleFinishTour,
         streak,
         points,
+        updateActiveTourLocal,
     } = useActiveTour(activeTourId, user?.id, updateUserXp);
 
     // Initialize scores from activeTour data
@@ -61,16 +62,34 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
     }, [activeTour]);
 
     const handleSaveSips = async (stopId: number, sips: number) => {
-        try {
-            // Optimistic update
-            setPubGolfScores(prev => ({ ...prev, [stopId]: sips }));
+        const previousSips = pubGolfScores[stopId] || 0;
 
-            // Call backend
-            await activeTourService.updatePubGolfScore(activeTourId, stopId, sips);
-        } catch (error) {
-            console.error("Failed to save sips:", error);
-            // Revert on error (optional, but good practice)
+        // Optimistic update local state
+        setPubGolfScores(prev => ({ ...prev, [stopId]: sips }));
+
+        // Optimistic update global store
+        if (activeTour?.pubGolfStops) {
+            const updatedStops = activeTour.pubGolfStops.map((s: any) =>
+                s.stopId === stopId ? { ...s, sips } : s
+            );
+            // Handle case where stop might not be in the array yet (if that's possible in data model)
+            // Assuming it is for now based on usage
+            updateActiveTourLocal({ pubGolfStops: updatedStops });
         }
+
+        // Call backend in background
+        activeTourService.updatePubGolfScore(activeTourId, stopId, sips)
+            .catch(error => {
+                console.error("Failed to save sips:", error);
+                // Revert on error
+                setPubGolfScores(prev => ({ ...prev, [stopId]: previousSips }));
+                if (activeTour?.pubGolfStops) {
+                    const revertedStops = activeTour.pubGolfStops.map((s: any) =>
+                        s.stopId === stopId ? { ...s, sips: previousSips } : s
+                    );
+                    updateActiveTourLocal({ pubGolfStops: revertedStops });
+                }
+            });
     };
 
     if (loading) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>{t('loadingTour')}</Text></View>;

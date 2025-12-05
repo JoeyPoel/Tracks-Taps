@@ -201,5 +201,6 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
         handleAbandonTour,
         streak: activeTour?.streak || 0,
         points,
+        updateActiveTourLocal,
     };
 };

@@ -6,27 +6,29 @@ import TourCard from '../components/exploreScreen/TourCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
-import { useActiveTours } from '../hooks/useActiveTours';
-import { useTours } from '../hooks/useTours';
+import { useStore } from '../store/store';
 
 export default function ExploreScreen() {
   const router = useRouter();
   const { theme } = useTheme();
   const { t } = useLanguage();
   const { user } = useUserContext();
-  const { tours, loading: toursLoading, error: toursError } = useTours();
-  const { activeTours, loading: activeLoading, error: activeError, refetch: refetchActiveTours } = useActiveTours(user?.id);
+  const tours = useStore((state) => state.tours);
+  const activeTours = useStore((state) => state.activeTours);
+  const loading = useStore((state) => state.loadingTours || state.loadingActiveTours);
+  const error = useStore((state) => state.errorTours || state.errorActiveTours);
+  const fetchAllData = useStore((state) => state.fetchAllData);
+  const fetchTourDetails = useStore((state) => state.fetchTourDetails);
 
   useFocusEffect(
     useCallback(() => {
       if (user?.id) {
-        refetchActiveTours();
+        fetchAllData(user.id);
       }
-    }, [user?.id, refetchActiveTours])
+    }, [user?.id, fetchAllData])
   );
 
-  const loading = toursLoading || activeLoading;
-  const error = toursError || activeError;
+
 
   if (loading) {
     return (
@@ -70,7 +72,11 @@ export default function ExploreScreen() {
           points={tour.points}
           modes={tour.modes}
           difficulty={tour.difficulty}
-          onPress={() => router.push({ pathname: '/tour/[id]', params: { id: tour.id } })}
+          onPress={async () => {
+            // Pre-fetch details before navigating, using current tour as placeholder
+            fetchTourDetails(tour.id, tour);
+            router.push({ pathname: '/tour/[id]', params: { id: tour.id } });
+          }}
         />
       ))}
     </ScrollView>

@@ -10,12 +10,22 @@ import TourStats from '../components/tourdetailScreen/TourStats';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
-import { useTourDetails } from '../hooks/useTourDetails';
+import { useStore } from '../store/store';
 
 export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
   const { t } = useLanguage();
-  const { tour, loading, error } = useTourDetails(tourId);
+  const tour = useStore((state) => state.tourDetails[tourId]);
+  const loading = useStore((state) => state.loadingTours && !state.tourDetails[tourId]);
+  const error = useStore((state) => state.errorTours);
+  const fetchTourDetails = useStore((state) => state.fetchTourDetails);
+
+  React.useEffect(() => {
+    if (tourId && !tour) {
+      fetchTourDetails(tourId);
+    }
+  }, [tourId, tour, fetchTourDetails]);
+
   const { user } = useUserContext();
   const router = useRouter();
 
@@ -103,11 +113,11 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const reviewCount = tour.reviews.length;
   const averageRating =
     reviewCount > 0
-      ? tour.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+      ? tour.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviewCount
       : 0;
 
   // Convert reviews to component format
-  const reviewsData = tour.reviews.map(review => ({
+  const reviewsData = tour.reviews.map((review: any) => ({
     id: review.id.toString(),
     userId: 'unknown', // TODO: Add authorId to review in schema/service
     userName: review.author.name,

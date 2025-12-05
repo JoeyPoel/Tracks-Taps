@@ -17,7 +17,8 @@ interface StoreState {
     loadingTours: boolean;
     errorTours: string | null;
     fetchTours: () => Promise<void>;
-    fetchTourDetails: (id: number) => Promise<void>;
+    fetchAllData: (userId: number) => Promise<void>;
+    fetchTourDetails: (id: number, placeholder?: Tour) => Promise<void>;
     fetchMapTours: () => Promise<void>;
 
     // Active Tours Slice
@@ -59,11 +60,63 @@ export const useStore = create<StoreState>((set, get) => ({
         }
     },
 
-    fetchTourDetails: async (id: number) => {
-        // Check cache first? Optional. For now, always fetch to be safe or implement simple cache check
-        // if (get().tourDetails[id]) return; 
+    fetchAllData: async (userId: number) => {
+        const state = get();
+        const shouldFetchTours = state.tours.length === 0;
 
-        set({ loadingTours: true, errorTours: null });
+        set({
+            loadingTours: shouldFetchTours,
+            loadingActiveTours: true,
+            errorTours: null,
+            errorActiveTours: null
+        });
+
+        try {
+            const promises: Promise<any>[] = [
+                activeTourService.getActiveToursForUser(userId)
+            ];
+
+            if (shouldFetchTours) {
+                promises.push(tourService.getAllTours());
+            }
+
+            const results = await Promise.all(promises);
+            const activeTours = results[0];
+            const tours = shouldFetchTours ? results[1] : state.tours;
+
+            set({ tours, activeTours, loadingTours: false, loadingActiveTours: false });
+        } catch (error: any) {
+            console.error("Failed to fetch all data", error);
+            set({
+                errorTours: error.message || 'Failed to fetch data',
+                errorActiveTours: error.message || 'Failed to fetch data',
+                loadingTours: false,
+                loadingActiveTours: false
+            });
+        }
+    },
+
+    fetchTourDetails: async (id: number, placeholder?: Tour) => {
+        // Check cache first
+        if (get().tourDetails[id]) return;
+
+        // If placeholder provided, set it immediately to allow instant navigation
+        if (placeholder) {
+            const placeholderDetail: TourDetail = {
+                ...placeholder,
+                reviews: [],
+                stops: [],
+                challenges: [],
+                author: placeholder.author || { name: 'Unknown' }
+            };
+            set((state) => ({
+                tourDetails: { ...state.tourDetails, [id]: placeholderDetail }
+            }));
+        } else {
+            // Only set loading if no placeholder (e.g. deep link)
+            set({ loadingTours: true, errorTours: null });
+        }
+
         try {
             const tour = await tourService.getTourById(id);
             set((state) => ({
