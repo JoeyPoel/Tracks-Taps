@@ -17,22 +17,43 @@ cd Tracks-Taps
 npm install
 ```
 
-### 2. Database Setup
-This project uses Prisma with a local database (SQLite by default, or Postgres if configured).
+### 2. Database Setup (Supabase)
+This project uses **Supabase** (PostgreSQL) as the database provider.
 
-1.  **Generate Prisma Client**:
+1.  **Configure Environment Variables**:
+    Create a `.env` file in the root directory and add your Supabase credentials. You need two connection strings:
+    -   **Transaction Pooler (Port 6543)**: Used for the application (Prisma Client).
+    -   **Session Pooler (Port 5432)**: Used for migrations (Prisma Migrate).
+
+    ```env
+    # Transaction Pooler (Port 6543) - For App
+    DATABASE_URL="postgres://[user]:[password]@[host]:6543/postgres?pgbouncer=true"
+
+    # Session Pooler (Port 5432) - For Migrations
+    DIRECT_URL="postgres://[user]:[password]@[host]:5432/postgres"
+
+    # Supabase Client (For Auth/Storage)
+    EXPO_PUBLIC_SUPABASE_URL="https://[project-ref].supabase.co"
+    EXPO_PUBLIC_SUPABASE_ANON_KEY="[your-anon-key]"
+    ```
+
+2.  **Generate Prisma Client**:
     ```bash
     npx prisma generate
     ```
-2.  **Push Schema to Database**:
+
+3.  **Push Schema to Database**:
     ```bash
-    npx prisma db push
+    npx prisma migrate dev --name init
     ```
-3.  **Seed Database** (Optional but recommended):
+
+4.  **Seed Database**:
+    Populate the database with initial data (users, tours, etc.):
     ```bash
     npx prisma db seed
     ```
-4.  **View Database**:
+
+5.  **View Database**:
     You can view and edit your data using Prisma Studio:
     ```bash
     npx prisma studio

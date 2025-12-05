@@ -46,6 +46,12 @@ export const activeTourService = {
 
         await userRepository.addXp(userId, challenge.points);
 
+        // Get current active tour to increment streak
+        const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
+        if (activeTour) {
+            await activeTourRepository.updateStreak(activeTourId, (activeTour.streak || 0) + 1);
+        }
+
         return await activeTourRepository.upsertActiveChallenge(activeTourId, challengeId, {
             completed: true,
             completedAt: new Date(),
@@ -53,9 +59,16 @@ export const activeTourService = {
     },
 
     async failChallenge(activeTourId: number, challengeId: number) {
+        // Reset streak on failure
+        await activeTourRepository.updateStreak(activeTourId, 0);
+
         return await activeTourRepository.upsertActiveChallenge(activeTourId, challengeId, {
             failed: true,
         });
+    },
+
+    async updateCurrentStop(activeTourId: number, currentStop: number) {
+        return await activeTourRepository.updateCurrentStop(activeTourId, currentStop);
     },
 
     async deleteActiveTour(activeTourId: number) {

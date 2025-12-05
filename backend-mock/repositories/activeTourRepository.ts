@@ -143,4 +143,18 @@ export const activeTourRepository = {
             data: { sips }
         });
     },
+
+    async updateCurrentStop(activeTourId: number, currentStop: number) {
+        return await prisma.activeTour.update({
+            where: { id: activeTourId },
+            data: { currentStop }
+        });
+    },
+
+    async updateStreak(activeTourId: number, streak: number) {
+        return await prisma.activeTour.update({
+            where: { id: activeTourId },
+            data: { streak }
+        });
+    },
 };

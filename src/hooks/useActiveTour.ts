@@ -18,10 +18,8 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
 
     // Local UI State
     const [points, setPoints] = useState(0);
-    const [streak, setStreak] = useState(0);
     const [showFloatingPoints, setShowFloatingPoints] = useState(false);
     const [floatingPointsAmount, setFloatingPointsAmount] = useState(0);
-    const [currentStopIndex, setCurrentStopIndex] = useState(0);
     const [showConfetti, setShowConfetti] = useState(false);
     const [completedChallenges, setCompletedChallenges] = useState<Set<number>>(new Set());
     const [failedChallenges, setFailedChallenges] = useState<Set<number>>(new Set());
@@ -53,49 +51,8 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
             setCompletedChallenges(completed);
             setFailedChallenges(failed);
             setPoints(xp);
-
-            // Calculate Streak
-            const allChallenges: any[] = [];
-            activeTour?.tour?.stops?.forEach((stop: any) => {
-                if (stop.challenges) {
-                    allChallenges.push(...stop.challenges);
-                }
-            });
-
-            let currentStreak = 0;
-            for (const challenge of allChallenges) {
-                if (completed.has(challenge.id)) {
-                    currentStreak++;
-                } else if (failed.has(challenge.id)) {
-                    currentStreak = 0;
-                } else {
-                    break;
-                }
-            }
-            setStreak(currentStreak);
         }
     }, [activeTour]);
-
-    // Initialize Current Stop Index only once
-    useEffect(() => {
-        if (activeTour?.tour?.stops && currentStopIndex === 0 && completedChallenges.size > 0) {
-            let calculatedIndex = 0;
-            const stops = activeTour.tour.stops;
-            for (let i = 0; i < stops.length; i++) {
-                const stop = stops[i];
-                const allChallengesDone = (stop.challenges || []).every((c: any) => completedChallenges.has(c.id) || failedChallenges.has(c.id));
-                if (!allChallengesDone) {
-                    calculatedIndex = i;
-                    break;
-                }
-                if (i === stops.length - 1 && allChallengesDone) {
-                    calculatedIndex = i;
-                }
-            }
-            // Only update if we are still at 0 (initial load) to avoid overriding user navigation
-            setCurrentStopIndex(calculatedIndex);
-        }
-    }, [activeTour?.tour?.stops, completedChallenges.size]); // Depend on size to trigger once loaded
 
     const triggerFloatingPoints = (amount: number) => {
         setFloatingPointsAmount(amount);
@@ -111,18 +68,15 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
         newCompleted.add(challenge.id);
         setCompletedChallenges(newCompleted);
         triggerFloatingPoints(challenge.points);
-        setStreak(prev => prev + 1);
 
         if (onXpEarned) {
             onXpEarned(challenge.points);
         }
 
-        // Removed duplicate addXp(challenge.points) call here
-
         try {
             if (userId) {
                 await activeTourService.completeChallenge(activeTourId, challenge.id, userId);
-                // Refresh to ensure sync
+                // Refresh to ensure sync (updates streak)
                 fetchActiveTourById(activeTourId);
             }
         } catch (err) {
@@ -137,11 +91,10 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
         const newFailed = new Set(failedChallenges);
         newFailed.add(challenge.id);
         setFailedChallenges(newFailed);
-        setStreak(0);
 
         try {
             await activeTourService.failChallenge(activeTourId, challenge.id);
-            // Refresh to ensure sync
+            // Refresh to ensure sync (updates streak)
             fetchActiveTourById(activeTourId);
         } catch (err) {
             console.error('Failed to fail challenge', err);
@@ -161,19 +114,31 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
         }
     };
 
-    const handlePrevStop = () => {
+    const handlePrevStop = async () => {
+        const currentStopIndex = (activeTour?.currentStop || 1) - 1;
         if (currentStopIndex > 0) {
-            setCurrentStopIndex(prev => prev - 1);
+            // Optimistic update (requires store update support or just wait for refetch)
+            // For now, we'll just call the API and refetch
+            try {
+                await activeTourService.updateCurrentStop(activeTourId, activeTour.currentStop - 1);
+                fetchActiveTourById(activeTourId);
+            } catch (error) {
+                console.error("Failed to update current stop", error);
+            }
         }
     };
 
-    const handleNextStop = () => {
+    const handleNextStop = async () => {
+        const currentStopIndex = (activeTour?.currentStop || 1) - 1;
         if (activeTour && activeTour.tour?.stops && currentStopIndex < activeTour.tour.stops.length - 1) {
-            // Prevent going to next stop if tour is completed (optional, based on user request)
-            // But usually you can review a completed tour. The user specifically asked for this fix though.
             if (activeTour.status === 'COMPLETED') return;
 
-            setCurrentStopIndex(prev => prev + 1);
+            try {
+                await activeTourService.updateCurrentStop(activeTourId, activeTour.currentStop + 1);
+                fetchActiveTourById(activeTourId);
+            } catch (error) {
+                console.error("Failed to update current stop", error);
+            }
         }
     };
 
@@ -194,7 +159,7 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
         activeTour,
         loading,
         error,
-        currentStopIndex,
+        currentStopIndex: (activeTour?.currentStop || 1) - 1, // Convert 1-based DB to 0-based Index
         completedChallenges,
         failedChallenges,
         triviaSelected,
@@ -210,7 +175,7 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
         handleNextStop,
         handleFinishTour,
         handleAbandonTour,
-        streak,
+        streak: activeTour?.streak || 0,
         points,
     };
 };

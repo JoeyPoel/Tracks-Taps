@@ -39,5 +39,10 @@ export const activeTourService = {
     async updatePubGolfScore(activeTourId: number, stopId: number, sips: number) {
         const response = await client.post('/active-tour/pub-golf', { activeTourId, stopId, sips });
         return response.data;
+    },
+
+    async updateCurrentStop(activeTourId: number, currentStop: number) {
+        const response = await client.post(`/active-tour/${activeTourId}/current-stop`, { activeTourId, currentStop });
+        return response.data;
     }
 };
