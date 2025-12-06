@@ -19,7 +19,7 @@ interface StoreState {
     fetchTours: () => Promise<void>;
     fetchAllData: (userId: number) => Promise<void>;
     fetchTourDetails: (id: number, placeholder?: Tour) => Promise<void>;
-    fetchMapTours: () => Promise<void>;
+    fetchMapTours: (bounds?: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => Promise<void>;
 
     // Active Tours Slice
     activeTours: ActiveTour[];
@@ -128,10 +128,10 @@ export const useStore = create<StoreState>((set, get) => ({
         }
     },
 
-    fetchMapTours: async () => {
+    fetchMapTours: async (bounds?: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => {
         set({ loadingTours: true, errorTours: null });
         try {
-            const tours = await mapTourService.getTours();
+            const tours = await mapTourService.getTours(bounds);
             set({ mapTours: tours, loadingTours: false });
         } catch (error: any) {
             set({ errorTours: error.message || 'Failed to fetch map tours', loadingTours: false });

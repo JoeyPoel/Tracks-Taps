@@ -48,6 +48,8 @@ async function main() {
             modes: ['WALKING', 'DRINKING'],
             difficulty: Difficulty.MEDIUM,
             authorId: alice.id,
+            startLat: 52.0907,
+            startLng: 5.1214,
         },
     });
 
@@ -64,6 +66,8 @@ async function main() {
             modes: ['WALKING'],
             difficulty: Difficulty.EASY,
             authorId: bob.id,
+            startLat: 52.3600,
+            startLng: 4.8852,
         },
     });
 
@@ -80,6 +84,8 @@ async function main() {
             modes: ['RUNNING'],
             difficulty: Difficulty.HARD,
             authorId: alice.id,
+            startLat: 51.9089,
+            startLng: 4.4876,
         },
     });
 
@@ -440,6 +446,8 @@ async function main() {
             modes: ['PUBGOLF'],
             difficulty: Difficulty.HARD,
             authorId: alice.id,
+            startLat: 52.0935,
+            startLng: 5.1205,
         },
     });
 

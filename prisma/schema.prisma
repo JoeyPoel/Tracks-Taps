@@ -52,6 +52,8 @@ model Tour {
   challengesCount Int        @default(0) // Cache field
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
+  startLat        Float? // Optimization for map queries
+  startLng        Float? // Optimization for map queries
 
   // Relations
   authorId    Int

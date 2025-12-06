@@ -1,42 +1,29 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import React, { useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapTourCard from '../components/mapScreen/MapTourCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
-import { useMapFit } from '../hooks/useMapFit';
-import { useMapTours } from '../hooks/useMapTour';
-import { Stop, Tour } from '../types/models';
+import { useMapScreenLogic } from '../hooks/useMapScreenLogic';
+import { Stop } from '../types/models';
 
 export default function MapScreen() {
   const { theme } = useTheme();
   const { t } = useLanguage();
   const insets = useSafeAreaInsets();
-  const mapRef = useRef<MapView>(null);
 
-  const { tours, loading, refetch } = useMapTours();
-  const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
-
-  useMapFit(mapRef, tours, selectedTour);
-
-  const handleTourSelect = (tour: Tour) => {
-    setSelectedTour(tour);
-  };
-
-  const handleBack = () => {
-    setSelectedTour(null);
-  };
-
-  if (loading) {
-    return (
-      <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={theme.primary} />
-      </View>
-    );
-  }
+  const {
+    mapRef,
+    tours,
+    loading,
+    selectedTour,
+    handleTourSelect,
+    handleBack,
+    onRegionChangeComplete
+  } = useMapScreenLogic();
 
   return (
     <View style={styles.container}>
@@ -44,24 +31,29 @@ export default function MapScreen() {
         ref={mapRef}
         style={styles.map}
         provider={PROVIDER_GOOGLE}
+        showsUserLocation={true}
+        showsMyLocationButton={false}
         initialRegion={{
-          latitude: 51.5074,
-          longitude: -0.1278,
+          latitude: 52.3676,
+          longitude: 4.9041,
           latitudeDelta: 0.1,
           longitudeDelta: 0.1,
         }}
+        onRegionChangeComplete={onRegionChangeComplete}
       >
         {!selectedTour ? (
           tours.map((tour: any) => {
-            const firstStop = tour.stops?.find((s: Stop) => s.order === 1) || tour.stops?.[0];
-            if (!firstStop) return null;
+            const lat = tour.startLat ?? (tour.stops?.find((s: Stop) => s.order === 1) || tour.stops?.[0])?.latitude;
+            const lng = tour.startLng ?? (tour.stops?.find((s: Stop) => s.order === 1) || tour.stops?.[0])?.longitude;
+
+            if (!lat || !lng) return null;
 
             return (
               <Marker
                 key={tour.id}
                 coordinate={{
-                  latitude: firstStop.latitude,
-                  longitude: firstStop.longitude,
+                  latitude: lat,
+                  longitude: lng,
                 }}
                 title={tour.title}
                 description={t('clickToViewRoute')}
@@ -172,4 +164,13 @@ const styles = StyleSheet.create({
     right: 20,
     alignItems: 'center'
   },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
 });

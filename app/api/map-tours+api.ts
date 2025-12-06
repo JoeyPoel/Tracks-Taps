@@ -1,5 +1,5 @@
 import { mapTourController } from '../../backend-mock/controllers/mapTourController';
 
-export async function GET() {
-    return await mapTourController.getTours();
+export async function GET(request: Request) {
+    return await mapTourController.getTours(request);
 }
