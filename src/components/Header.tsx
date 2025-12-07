@@ -43,7 +43,7 @@ export default function AppHeader({
   return (
     <View style={[styles.container, { backgroundColor: theme.bgPrimary, borderBottomColor: theme.borderSecondary }]}>
       {/* Left side - Back button or empty space */}
-      <View style={[styles.leftContainer, !showBackButton && styles.noBackButton]}>
+      <View style={styles.leftContainer}>
         {showBackButton && (
           <Pressable onPress={handleBackPress} style={styles.iconButton}>
             <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />

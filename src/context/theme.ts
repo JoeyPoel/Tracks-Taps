@@ -62,26 +62,26 @@ export const lightTheme = {
   orange: "#FF5722",
   pink: "#E91E63",
 
-  challengeFailedBackground: '#2b0e0e',
-  challengeFailedBorder: '#F87171',
+  challengeFailedBackground: '#FEF2F2', // Red-50
+  challengeFailedBorder: '#FECACA', // Red-200
 
-  challengeCorrectBackground: '#062115',
-  challengeCorrectBorder: '#4ADE80',
+  challengeCorrectBackground: '#F0FDF4', // Green-50
+  challengeCorrectBorder: '#BBF7D0', // Green-200
 
   pubGolf: {
-    holeInOne: ['#FFD700', '#F59E0B', '#291c06'],
-    albatross: ['#A855F7', '#9333EA', '#1e1b4b'],
-    eagle: ['#E879F9', '#D946EF', '#1f0f21'],
-    birdie: ['#4ADE80', '#22C55E', '#062115'],
-    par: ['#60A5FA', '#3B82F6', '#0f172a'],
-    bogey: ['#FB923C', '#F97316', '#27150a'],
-    doubleBogey: ['#F87171', '#EF4444', '#2b0e0e'],
-    tripleBogey: ['#9CA3AF', '#6B7280', '#111827'],
+    holeInOne: ['#FFD700', '#F59E0B', '#FFFBEB'], // Amber-50
+    albatross: ['#A855F7', '#9333EA', '#F3E8FF'], // Purple-50
+    eagle: ['#E879F9', '#D946EF', '#FCE7F3'], // Pink-50
+    birdie: ['#4ADE80', '#22C55E', '#F0FDF4'], // Green-50
+    par: ['#60A5FA', '#3B82F6', '#EFF6FF'], // Blue-50
+    bogey: ['#FB923C', '#F97316', '#FFF7ED'], // Orange-50
+    doubleBogey: ['#F87171', '#EF4444', '#FEF2F2'], // Red-50
+    tripleBogey: ['#9CA3AF', '#6B7280', '#F3F4F6'], // Gray-100
   },
 
-  bgPrimaryColor: '#2e1b2bff',
-  bgSecondaryColor: '#1a2f42ff',
-  bgAccentColor: '#4D4426',
+  bgPrimaryColor: '#FFFFFF',
+  bgSecondaryColor: '#F9FAFB',
+  bgAccentColor: '#FEF3C7', // Amber-100
 };
 
 export const darkTheme = {

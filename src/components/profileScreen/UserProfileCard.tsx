@@ -59,7 +59,7 @@ export default function UserProfileCard({
 
                         <View style={styles.levelRow}>
                             <View style={[styles.levelBadge, { backgroundColor: theme.warning }]}>
-                                <Text style={[styles.levelText, { color: theme.fixedBlack }]}>{t('level')} {level}</Text>
+                                <Text style={[styles.levelText, { color: theme.fixedWhite }]}>{t('level')} {level}</Text>
                             </View>
                             <Text style={[styles.rankText, { color: theme.textSecondary }]}>{t('explorer')}</Text>
                         </View>
