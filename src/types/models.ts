@@ -70,6 +70,7 @@ export interface Tour {
         name: string;
     };
     stops?: Stop[];
+    reviews?: Review[];
     _count?: {
         stops: number;
     };

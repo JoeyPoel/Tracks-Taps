@@ -16,8 +16,6 @@ async function main() {
     await prisma.tour.deleteMany();
     await prisma.user.deleteMany();
 
-    // ... (Users and Tours creation remains same, no changes needed there)
-
     // 1. Create Users
     const joey = await prisma.user.create({
         data: {
@@ -36,61 +34,6 @@ async function main() {
 
     const bob = await prisma.user.create({
         data: { email: 'bob@example.com', passwordHash: 'pw', name: 'Bob', level: 8, xp: 3000, tokens: 500 },
-    });
-
-    // 2. Create Tours
-    // Tour 1: Utrecht Pub Crawl (The active one)
-    const utrechtTour = await prisma.tour.create({
-        data: {
-            title: 'Utrecht Pub Crawl',
-            location: 'Utrecht',
-            description: 'Experience the vibrant nightlife of Utrecht while exploring its historic canals and hidden gems. A perfect mix of history and hops!',
-            imageUrl: 'https://images.unsplash.com/photo-1605218427368-35b0f9930e7e?q=80&w=2669&auto=format&fit=crop',
-            distance: 3.5,
-            duration: 180, // 3 hours
-            points: 500,
-            modes: ['WALKING', 'DRINKING'],
-            difficulty: Difficulty.MEDIUM,
-            authorId: alice.id,
-            startLat: 52.0907,
-            startLng: 5.1214,
-        },
-    });
-
-    // Tour 2: Amsterdam Canal Walk
-    const amsterdamTour = await prisma.tour.create({
-        data: {
-            title: 'Amsterdam Canal Walk',
-            location: 'Amsterdam',
-            description: 'A scenic walk along the most beautiful canals of Amsterdam. Discover the Golden Age architecture.',
-            imageUrl: 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a2?q=80&w=2670&auto=format&fit=crop',
-            distance: 5.0,
-            duration: 120,
-            points: 300,
-            modes: ['WALKING'],
-            difficulty: Difficulty.EASY,
-            authorId: bob.id,
-            startLat: 52.3600,
-            startLng: 4.8852,
-        },
-    });
-
-    // Tour 3: Rotterdam Architecture Run
-    const rotterdamTour = await prisma.tour.create({
-        data: {
-            title: 'Rotterdam Architecture Run',
-            location: 'Rotterdam',
-            description: 'For the fit explorers! Run past the Cube Houses, Erasmus Bridge, and the Markthal.',
-            imageUrl: 'https://images.unsplash.com/photo-1496429831386-82283f23c960?q=80&w=2670&auto=format&fit=crop',
-            distance: 10.0,
-            duration: 60,
-            points: 800,
-            modes: ['RUNNING'],
-            difficulty: Difficulty.HARD,
-            authorId: alice.id,
-            startLat: 51.9089,
-            startLng: 4.4876,
-        },
     });
 
     // Helper to create stops and challenges
@@ -129,11 +72,170 @@ async function main() {
         }
     };
 
-    // 3. Create Stops & Challenges for Utrecht Tour
+    // --- TOUR 1: Tata Steel Industrial Safari ---
+    const tataTour = await prisma.tour.create({
+        data: {
+            title: 'Tata Steel Industrial Safari',
+            location: 'IJmuiden',
+            description: 'Explore the massive industrial landscape of Tata Steel. Discover the raw power of steel production, the history of the Hoogovens, and the complex relationship between industry and nature.',
+            imageUrl: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80', // Reliable Industrial Image
+            distance: 12.5,
+            duration: 90, // Driving/Biking
+            points: 1200,
+            modes: ['DRIVING', 'BIKING'],
+            difficulty: Difficulty.HARD,
+            authorId: alice.id,
+            startLat: 52.465,
+            startLng: 4.600,
+        },
+    });
+
+    const tataStops = [
+        {
+            name: 'Main Gate & Hoogovens Museum',
+            description: 'The historic entrance to the steelworks. Start here to learn about the origins of the Royal Blast Furnaces.',
+            order: 1,
+            number: 1,
+            lat: 52.4690,
+            lng: 4.6042,
+            type: StopType.Museum_Art,
+            challenges: [
+                {
+                    title: 'Blast from the Past',
+                    description: 'Look at the historic photos outside the museum.',
+                    type: ChallengeType.TRIVIA,
+                    points: 100,
+                    content: 'In what year was the "Koninklijke Hoogovens" founded?',
+                    options: ['1918', '1924', '1945', '1900'],
+                    answer: '1918',
+                },
+                {
+                    title: 'Gatekeeper',
+                    description: 'Check in at the main gate reception.',
+                    type: ChallengeType.LOCATION,
+                    points: 50,
+                }
+            ]
+        },
+        {
+            name: 'Blast Furnace 7',
+            description: 'The heart of the operation. This massive structure converts iron ore into liquid iron.',
+            order: 2,
+            number: 2,
+            lat: 52.4655,
+            lng: 4.5800,
+            type: StopType.Facilities,
+            challenges: [
+                {
+                    title: 'Hot Stuff',
+                    description: 'Observe the piping systems.',
+                    type: ChallengeType.TRIVIA,
+                    points: 150,
+                    content: 'What is the approximate temperature inside a blast furnace?',
+                    options: ['500°C', '1000°C', '1500°C', '2000°C'],
+                    answer: '2000°C',
+                }
+            ]
+        },
+        {
+            name: 'Coking Plant Viewpoint',
+            description: 'Watch the "quenching" towers release massive clouds of steam as coke is cooled.',
+            order: 3,
+            number: 3,
+            lat: 52.4720,
+            lng: 4.5750,
+            type: StopType.Viewpoint,
+            challenges: [
+                {
+                    title: 'Cloud Maker',
+                    description: 'Wait for a steam cloud release.',
+                    type: ChallengeType.LOCATION,
+                    points: 80,
+                },
+                {
+                    title: 'Chemical Process',
+                    description: 'What is "Coke" used for?',
+                    type: ChallengeType.TRIVIA,
+                    points: 120,
+                    content: 'Why is coal converted into coke for steelmaking?',
+                    options: ['To burn hotter', 'To remove impurities', 'To make it liquid', 'To add carbon'],
+                    answer: 'To burn hotter',
+                }
+            ]
+        },
+        {
+            name: 'North Sea Canal Harbor',
+            description: 'Where raw materials arrive from all over the world. Massive cranes unload iron ore and coal.',
+            order: 4,
+            number: 4,
+            lat: 52.4630,
+            lng: 4.5600,
+            type: StopType.Viewpoint,
+            challenges: [
+                {
+                    title: 'Heavy Lifting',
+                    description: 'Spot the unloading cranes.',
+                    type: ChallengeType.TRIVIA,
+                    points: 100,
+                    content: 'Which color are the giant unloading cranes usually painted?',
+                    options: ['Red', 'Blue', 'Yellow', 'Green'],
+                    answer: 'Blue',
+                }
+            ]
+        },
+        {
+            name: 'Dunes & Industry',
+            description: 'The edge where the factory meets the protected dune reserve.',
+            order: 5,
+            number: 5,
+            lat: 52.4850,
+            lng: 4.5900,
+            type: StopType.Nature_Park,
+            challenges: [
+                {
+                    title: 'Nature\'s Resilience',
+                    description: 'Find the walking path entrance.',
+                    type: ChallengeType.LOCATION,
+                    points: 60,
+                },
+                {
+                    title: 'Environmental Balance',
+                    description: 'Observation challenge.',
+                    type: ChallengeType.TRIVIA,
+                    points: 90,
+                    content: 'What type of specialized filter system is visible on the newer stacks?',
+                    options: ['De-NOx', 'Scrubbers', 'Cyclones', 'Electrostatic'],
+                    answer: 'De-NOx',
+                }
+            ]
+        }
+    ];
+
+    await createStopsAndChallenges(tataTour.id, tataStops);
+
+
+    // --- TOUR 2: Historic Utrecht Canals & Secrets ---
+    const utrechtTour = await prisma.tour.create({
+        data: {
+            title: 'Historic Utrecht Canals',
+            location: 'Utrecht',
+            description: 'Wander along the Oudegracht and discover hidden courtyards, ancient wharf cellars, and the secrets of the Dom City.',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/The_Oudegracht_in_Utrecht_with_the_Dom_Tower_in_the_background.jpg/1024px-The_Oudegracht_in_Utrecht_with_the_Dom_Tower_in_the_background.jpg',
+            distance: 4.5,
+            duration: 120,
+            points: 600,
+            modes: ['WALKING'],
+            difficulty: Difficulty.MEDIUM,
+            authorId: bob.id,
+            startLat: 52.0907,
+            startLng: 5.1214,
+        },
+    });
+
     const utrechtStops = [
         {
-            name: 'Dom Tower',
-            description: 'The tallest church tower in the Netherlands. A landmark you cannot miss.',
+            name: 'Dom Tower Underpass',
+            description: 'The portal to the city center. Walk through the archway of the tallest church tower.',
             order: 1,
             number: 1,
             lat: 52.0907,
@@ -141,88 +243,76 @@ async function main() {
             type: StopType.Monument_Landmark,
             challenges: [
                 {
-                    title: 'Dom Arrival',
-                    description: 'Stand directly under the Dom Tower.',
-                    type: ChallengeType.LOCATION,
-                    points: 50,
-                },
-                {
-                    title: 'Tower Trivia',
-                    description: 'How tall is the Dom Tower?',
+                    title: 'Height Check',
+                    description: 'Look up!',
                     type: ChallengeType.TRIVIA,
-                    points: 100,
-                    content: 'What is the exact height of the Dom Tower?',
-                    options: ['112 meters', '105 meters', '98 meters', '120 meters'],
-                    answer: '112 meters',
+                    points: 50,
+                    content: 'How many steps does it take to climb to the top?',
+                    options: ['465', '395', '512', '280'],
+                    answer: '465',
                 }
             ]
         },
         {
-            name: 'Neude Square',
-            description: 'The bustling heart of Utrecht, surrounded by terraces and the old post office.',
+            name: 'Pandhof of the Dom',
+            description: 'A hidden medieval monastery garden with beautiful flora and gothic architecture.',
             order: 2,
             number: 2,
-            lat: 52.0928,
-            lng: 5.1190,
-            type: StopType.Monument_Landmark,
+            lat: 52.0910,
+            lng: 5.1225,
+            type: StopType.Nature_Park,
             challenges: [
                 {
-                    title: 'Neude Check-in',
-                    description: 'Reach the center of Neude Square.',
+                    title: 'Secret Garden',
+                    description: 'Find the fountain in the center.',
                     type: ChallengeType.LOCATION,
-                    points: 50,
+                    points: 75,
                 },
                 {
-                    title: 'Statue Spotting',
-                    description: 'Identify the statue.',
+                    title: 'Gargoyle Spotting',
+                    description: 'Look at the roof gutters.',
                     type: ChallengeType.TRIVIA,
-                    points: 75,
-                    content: 'Which famous hare statue is located on the Neude?',
-                    options: ['The Thinker on a Rock', 'The Hare', 'Miffy', 'The Rabbit'],
-                    answer: 'The Thinker on a Rock',
+                    points: 80,
+                    content: 'What statue sits atop the fountain?',
+                    options: ['Hugo Wstinc', 'Saint Martin', 'Dom Canon', 'A Bishop'],
+                    answer: 'Hugo Wstinc',
                 }
             ]
         },
         {
-            name: 'Oudegracht Canals',
-            description: 'Walk along the unique wharves of the Oudegracht.',
+            name: 'Oudegracht Wharf Cellars',
+            description: 'Walk down to the water. These cellars were medieval warehouses.',
             order: 3,
             number: 3,
-            lat: 52.0900,
+            lat: 52.0930,
             lng: 5.1180,
             type: StopType.Viewpoint,
             challenges: [
                 {
-                    title: 'Wharf Walk',
-                    description: 'Go down to the water level at the wharves.',
+                    title: 'Water Level',
+                    description: 'Touch the water (carefully!).',
                     type: ChallengeType.LOCATION,
-                    points: 60,
+                    points: 40,
                 }
             ]
         },
         {
-            name: 'Belgian Beer Café Olivier',
-            description: 'A pub located in an old hidden church.',
+            name: 'Museum Speelklok',
+            description: 'The most musical museum in the world, dedicated to self-playing instruments.',
             order: 4,
             number: 4,
             lat: 52.0915,
-            lng: 5.1150,
-            type: StopType.Food_Dining,
+            lng: 5.1160,
+            type: StopType.Museum_Art,
             challenges: [
                 {
-                    title: 'Cheers!',
-                    description: 'Arrive at Olivier.',
-                    type: ChallengeType.LOCATION,
-                    points: 100,
-                },
-                {
-                    title: 'History Buff',
-                    description: 'What was this building before?',
+                    title: 'Street Organ Power',
+                    description: 'Listen for the music.',
                     type: ChallengeType.TRIVIA,
-                    points: 150,
-                    content: 'What was the original function of this building?',
-                    options: ['A Church', 'A School', 'A Hospital', 'A Barracks'],
-                    answer: 'A Church',
+                    points: 100,
+                    content: 'What is the "Perlee" famous for?',
+                    options: ['Street Organs', 'Carillons', 'Music Boxes', 'Pianos'],
+                    answer: 'Street Organs',
                 }
             ]
         }
@@ -230,121 +320,116 @@ async function main() {
 
     await createStopsAndChallenges(utrechtTour.id, utrechtStops);
 
-    // 4. Create Stops & Challenges for Amsterdam Tour
-    const amsterdamStops = [
+
+    // --- TOUR 3: Amsterdam Architectural Gems ---
+    const amsterdamTour = await prisma.tour.create({
+        data: {
+            title: 'Amsterdam Architectural Gems',
+            location: 'Amsterdam',
+            description: 'Go beyond the Red Light District and explore the diverse architecture of Amsterdam, from the Golden Age to the Amsterdam School.',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Amsterdam_%285226759755%29.jpg/1024px-Amsterdam_%285226759755%29.jpg',
+            distance: 6.0,
+            duration: 150,
+            points: 750,
+            modes: ['WALKING', 'BIKING'],
+            difficulty: Difficulty.EASY,
+            authorId: alice.id,
+            startLat: 52.3600,
+            startLng: 4.8852,
+        },
+    });
+
+    const amsStops = [
         {
-            name: 'Rijksmuseum',
-            description: 'The Dutch national museum dedicated to arts and history.',
+            name: 'Het Schip',
+            description: 'A masterpiece of the Amsterdam School of architecture. It looks like a ship!',
             order: 1,
             number: 1,
-            lat: 52.3600,
-            lng: 4.8852,
+            lat: 52.3890,
+            lng: 4.8690,
             type: StopType.Museum_Art,
             challenges: [
                 {
-                    title: 'Art Lover',
-                    description: 'Find the Night Watch.',
-                    type: ChallengeType.LOCATION,
-                    points: 50,
-                },
-                {
-                    title: 'Masterpiece Trivia',
-                    description: 'Who painted The Night Watch?',
+                    title: 'Brick Expressionism',
+                    description: 'Admire the brickwork.',
                     type: ChallengeType.TRIVIA,
                     points: 100,
-                    content: 'Who is the painter of the famous Night Watch?',
-                    options: ['Rembrandt', 'Van Gogh', 'Vermeer', 'Mondrian'],
-                    answer: 'Rembrandt',
+                    content: 'What was the original function of "Het Schip"?',
+                    options: ['Social Housing', 'A Shipyard', 'A Palace', 'A Hotel'],
+                    answer: 'Social Housing',
                 }
             ]
         },
         {
-            name: 'Vondelpark',
-            description: 'The most famous park in the Netherlands.',
+            name: 'NDSM Wharf',
+            description: 'A former shipyard turned into a cultural hotspot with graffiti art and cool cafes.',
             order: 2,
             number: 2,
-            lat: 52.3580,
-            lng: 4.8686,
-            type: StopType.Nature_Park,
+            lat: 52.3990,
+            lng: 4.8930,
+            type: StopType.Nightlife,
             challenges: [
                 {
-                    title: 'Park Stroll',
-                    description: 'Take a walk through the park.',
+                    title: 'Street Art Hunter',
+                    description: 'Find the giant Anne Frank mural.',
                     type: ChallengeType.LOCATION,
-                    points: 30,
-                },
-                {
-                    title: 'Statue Hunt',
-                    description: 'Find the Picasso statue.',
-                    type: ChallengeType.TRIVIA,
                     points: 80,
-                    content: 'Which famous artist has a sculpture in Vondelpark?',
-                    options: ['Picasso', 'Rodin', 'Dali', 'Moore'],
-                    answer: 'Picasso',
                 }
             ]
         },
         {
-            name: 'Anne Frank House',
-            description: 'The writer\'s house and biographical museum.',
+            name: 'EYE Film Museum',
+            description: 'A futuristic building on the IJ river dedicated to film history.',
             order: 3,
             number: 3,
-            lat: 52.3752,
-            lng: 4.8840,
+            lat: 52.3845,
+            lng: 4.9000,
             type: StopType.Museum_Art,
             challenges: [
                 {
-                    title: 'History Lesson',
-                    description: 'Visit the Anne Frank House.',
-                    type: ChallengeType.LOCATION,
-                    points: 80,
-                },
-                {
-                    title: 'Diary Details',
-                    description: 'When was the diary published?',
-                    type: ChallengeType.TRIVIA,
-                    points: 60,
-                    content: 'In which year was The Diary of a Young Girl first published?',
-                    options: ['1947', '1950', '1945', '1955'],
-                    answer: '1947',
-                }
-            ]
-        },
-        {
-            name: 'Dam Square',
-            description: 'The historical center of the city.',
-            order: 4,
-            number: 4,
-            lat: 52.3731,
-            lng: 4.8926,
-            type: StopType.Monument_Landmark,
-            challenges: [
-                {
-                    title: 'Royal Palace',
-                    description: 'Take a selfie with the Royal Palace.',
+                    title: 'Modern Lines',
+                    description: 'Stand under the cantilever.',
                     type: ChallengeType.LOCATION,
                     points: 50,
                 },
                 {
-                    title: 'Monumental',
-                    description: 'What is the white pillar?',
+                    title: 'Architect ID',
+                    description: 'Who designed this?',
                     type: ChallengeType.TRIVIA,
-                    points: 40,
-                    content: 'What does the National Monument on Dam Square commemorate?',
-                    options: ['WWII Victims', 'The Monarchy', 'The Golden Age', 'Independence'],
-                    answer: 'WWII Victims',
+                    points: 120,
+                    content: 'Which Austrian firm designed the EYE?',
+                    options: ['Delugan Meissl', 'Rem Koolhaas', 'Zaha Hadid', 'MVRDV'],
+                    answer: 'Delugan Meissl',
                 }
             ]
         }
     ];
 
-    await createStopsAndChallenges(amsterdamTour.id, amsterdamStops);
+    await createStopsAndChallenges(amsterdamTour.id, amsStops);
 
-    // 5. Create Stops & Challenges for Rotterdam Tour
-    const rotterdamStops = [
+
+    // --- TOUR 4: Rotterdam Skyline Run ---
+    const rotterdamTour = await prisma.tour.create({
+        data: {
+            title: 'Rotterdam Skyline Run',
+            location: 'Rotterdam',
+            description: 'A high-energy route crossing the iconic bridges of Rotterdam. Perfect for runners who want a view.',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Erasmusbrug_Rotterdam_September_2014.jpg/1024px-Erasmusbrug_Rotterdam_September_2014.jpg',
+            distance: 8.5,
+            duration: 50, // Running pace
+            points: 900,
+            modes: ['RUNNING'],
+            difficulty: Difficulty.HARD,
+            authorId: joey.id,
+            startLat: 51.9089,
+            startLng: 4.4876,
+        },
+    });
+
+    const rdamStops = [
         {
             name: 'Erasmus Bridge',
-            description: 'The Swan of Rotterdam.',
+            description: 'Start your run at "The Swan".',
             order: 1,
             number: 1,
             lat: 51.9089,
@@ -352,291 +437,429 @@ async function main() {
             type: StopType.Monument_Landmark,
             challenges: [
                 {
-                    title: 'Bridge Run',
-                    description: 'Run across the bridge.',
+                    title: 'Bridge Sprint',
+                    description: 'Run to the middle pylon.',
                     type: ChallengeType.LOCATION,
                     points: 100,
-                },
+                }
+            ]
+        },
+        {
+            name: 'Hotel New York',
+            description: 'The historic HQ of the Holland America Line.',
+            order: 2,
+            number: 2,
+            lat: 51.9030,
+            lng: 4.4830,
+            type: StopType.Food_Dining,
+            challenges: [
                 {
-                    title: 'Swan Song',
-                    description: 'Why is it called The Swan?',
+                    title: 'Immigrant Steps',
+                    description: 'Find the suitcase sculpture.',
                     type: ChallengeType.TRIVIA,
-                    points: 50,
-                    content: 'What is the nickname of the Erasmus Bridge?',
-                    options: ['The Swan', 'The Goose', 'The Crane', 'The Harp'],
-                    answer: 'The Swan',
+                    points: 75,
+                    content: 'Where did the ships from here primarily sail to?',
+                    options: ['New York', 'Jakarta', 'Cape Town', 'Sydney'],
+                    answer: 'New York',
                 }
             ]
         },
         {
             name: 'Cube Houses',
-            description: 'Innovative houses built on pylons.',
-            order: 2,
-            number: 2,
+            description: 'End your run at this mind-bending forest of houses.',
+            order: 3,
+            number: 3,
             lat: 51.9207,
             lng: 4.4906,
             type: StopType.Monument_Landmark,
             challenges: [
                 {
-                    title: 'Architectural Wonder',
-                    description: 'Take a photo of a Cube House.',
+                    title: 'Tilt Your Head',
+                    description: 'Stand under a cube.',
                     type: ChallengeType.LOCATION,
-                    points: 75,
-                },
-                {
-                    title: 'Cube Trivia',
-                    description: 'Who designed the Cube Houses?',
-                    type: ChallengeType.TRIVIA,
-                    points: 125,
-                    content: 'Who is the architect behind the Cube Houses?',
-                    options: ['Piet Blom', 'Rem Koolhaas', 'Winy Maas', 'Ben van Berkel'],
-                    answer: 'Piet Blom',
-                }
-            ]
-        },
-        {
-            name: 'Markthal',
-            description: 'A residential and office building with a market hall underneath.',
-            order: 3,
-            number: 3,
-            lat: 51.9193,
-            lng: 4.4867,
-            type: StopType.Food_Dining,
-            challenges: [
-                {
-                    title: 'Foodie Heaven',
-                    description: 'Find a tasty snack.',
-                    type: ChallengeType.LOCATION,
-                    points: 50,
-                },
-                {
-                    title: 'Ceiling Art',
-                    description: 'Look up!',
-                    type: ChallengeType.TRIVIA,
                     points: 60,
-                    content: 'What is depicted on the ceiling of the Markthal?',
-                    options: ['Fruits and Vegetables', 'Stars', 'Historical Figures', 'Ships'],
-                    answer: 'Fruits and Vegetables',
-                }
-            ]
-        },
-        {
-            name: 'Euromast',
-            description: 'Observation tower designed by Hugh Maaskant.',
-            order: 4,
-            number: 4,
-            lat: 51.9054,
-            lng: 4.4666,
-            type: StopType.Viewpoint,
-            challenges: [
-                {
-                    title: 'High Point',
-                    description: 'Reach the Euromast.',
-                    type: ChallengeType.LOCATION,
-                    points: 80,
-                },
-                {
-                    title: 'Height Check',
-                    description: 'How tall is it?',
-                    type: ChallengeType.TRIVIA,
-                    points: 70,
-                    content: 'How tall is the Euromast?',
-                    options: ['185m', '150m', '200m', '100m'],
-                    answer: '185m',
                 }
             ]
         }
     ];
 
-    await createStopsAndChallenges(rotterdamTour.id, rotterdamStops);
+    await createStopsAndChallenges(rotterdamTour.id, rdamStops);
 
-    // 6. Create Pub Golf Tour
-    const pubGolfTour = await prisma.tour.create({
+
+    // --- TOUR 5: Kennemer Dunes Nature Walk ---
+    const natureTour = await prisma.tour.create({
         data: {
-            title: 'Utrecht Pub Golf',
-            location: 'Utrecht',
-            description: 'A competitive twist on the classic pub crawl. 9 Holes, 9 Drinks. Can you make par?',
-            imageUrl: 'https://images.unsplash.com/photo-1574096079513-d82599602950?q=80&w=2574&auto=format&fit=crop',
-            distance: 4.0,
-            duration: 240,
-            points: 1000,
-            modes: ['PUBGOLF'],
-            difficulty: Difficulty.HARD,
-            authorId: alice.id,
-            startLat: 52.0935,
-            startLng: 5.1205,
+            title: 'Kennemer Dunes Wildlife',
+            location: 'Zandvoort',
+            description: 'Escape the city and spot Highland cattle, Konik horses, and maybe a wisent in this rugged coastal park.',
+            imageUrl: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80', // Reliable Nature/Forest Image
+            distance: 7.0,
+            duration: 180,
+            points: 850,
+            modes: ['WALKING', 'NATURE'],
+            difficulty: Difficulty.MEDIUM,
+            authorId: bob.id,
+            startLat: 52.4170,
+            startLng: 4.5680,
         },
     });
 
-    const pubGolfStops = [
+    const natureStops = [
         {
-            name: 'Hole 1: The Florin',
-            description: 'Start your round at this English pub.',
+            name: 'Visitor Center De Kennemerduinen',
+            description: 'Start your journey here and pick up a map.',
             order: 1,
             number: 1,
-            lat: 52.0935,
-            lng: 5.1205,
-            type: StopType.Nightlife,
-            pubgolfPar: 3,
-            pubgolfDrink: 'Pint of Lager',
+            lat: 52.4170,
+            lng: 4.5680,
+            type: StopType.Info_Point,
             challenges: [
                 {
-                    title: 'Tee Off',
-                    description: 'Finish your first drink.',
-                    type: ChallengeType.LOCATION,
+                    title: 'Eco-check',
+                    description: 'Find the bird watching board.',
+                    type: ChallengeType.TRIVIA,
                     points: 50,
+                    content: 'Which huge bovine animal was reintroduced here?',
+                    options: ['Wisent', 'Moose', 'Buffalo', 'Yak'],
+                    answer: 'Wisent',
                 }
             ]
         },
         {
-            name: 'Hole 2: Mick O\'Connells',
-            description: 'An Irish challenge awaits.',
+            name: '\'t Wed',
+            description: 'A beautiful dune lake where you can swim in summer.',
             order: 2,
             number: 2,
-            lat: 52.0910,
-            lng: 5.1160,
-            type: StopType.Nightlife,
-            pubgolfPar: 4,
-            pubgolfDrink: 'Guinness',
+            lat: 52.4190,
+            lng: 4.5580,
+            type: StopType.Nature_Park,
             challenges: [
                 {
-                    title: 'Irish Luck',
-                    description: 'Cheers with a stranger.',
+                    title: 'Lake Reflection',
+                    description: 'Reach the waters edge.',
                     type: ChallengeType.LOCATION,
                     points: 60,
                 }
             ]
         },
         {
-            name: 'Hole 3: Kafé België',
-            description: 'Specialty beers on the menu.',
+            name: 'Vogelmeer Viewpoint',
+            description: 'The best spot to see rare birds and wild horses drinking.',
             order: 3,
             number: 3,
-            lat: 52.0895,
-            lng: 5.1195,
-            type: StopType.Nightlife,
-            pubgolfPar: 5,
-            pubgolfDrink: 'Strong Blond Beer',
+            lat: 52.4250,
+            lng: 4.5450,
+            type: StopType.Viewpoint,
             challenges: [
                 {
-                    title: 'Beer Connoisseur',
-                    description: 'Guess the alcohol percentage.',
-                    type: ChallengeType.TRIVIA,
-                    points: 80,
-                    content: 'What is the ABV of the house beer?',
-                    options: ['5%', '6.5%', '8%', '10%'],
-                    answer: '8%',
+                    title: 'Quiet Observer',
+                    description: 'Spend 1 minute in silence.',
+                    type: ChallengeType.LOCATION,
+                    points: 100,
                 }
             ]
         }
     ];
 
-    await createStopsAndChallenges(pubGolfTour.id, pubGolfStops);
+    await createStopsAndChallenges(natureTour.id, natureStops);
 
-    // 6. Create Active Tours for Joey
-    // Active Tour 1: Utrecht (In Progress)
-    const activeTourId = 123456789;
+
+    // --- TOUR 6: Breda PubGolf Championship ---
+    const bredaTour = await prisma.tour.create({
+        data: {
+            title: 'Breda PubGolf Championship',
+            location: 'Breda',
+            description: 'The ultimate pub golf experience in the pearl of the south. 12 holes, 12 drinks, one champion.',
+            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Breda_Grote_Markt.JPG/1024px-Breda_Grote_Markt.JPG', // Reliable Breda Grote Markt
+            distance: 3.5,
+            duration: 240, // 4 hours
+            points: 1500,
+            modes: ['PUBGOLF', 'WALKING'],
+            difficulty: Difficulty.HARD,
+            authorId: joey.id,
+            startLat: 51.5887,
+            startLng: 4.7760,
+        },
+    });
+
+    const bredaStops = [
+        {
+            name: 'De Beyerd',
+            description: 'Hole 1: Start with a classic specialty beer.',
+            order: 1,
+            number: 1,
+            lat: 51.5895,
+            lng: 4.7780,
+            type: StopType.Food_Dining,
+            pubgolfPar: 3,
+            pubgolfDrink: 'Specialty Beer',
+            challenges: [
+                {
+                    title: 'Brew Master',
+                    description: 'What is the name of their home-brewed beer?',
+                    type: ChallengeType.TRIVIA,
+                    points: 50,
+                    content: 'Which beer is brewed right here in De Beyerd?',
+                    options: ['Drie Hoefijzers', 'Breda Royal', 'Beyerd Hefe', 'Jupiler'],
+                    answer: 'Drie Hoefijzers',
+                }
+            ]
+        },
+        {
+            name: 'Café de Bruine Pij',
+            description: 'Hole 2: An iconic brown cafe under the Church.',
+            order: 2,
+            number: 2,
+            lat: 51.5885,
+            lng: 4.7765,
+            type: StopType.Nightlife,
+            pubgolfPar: 4,
+            pubgolfDrink: 'Pilsner (Flute)',
+            challenges: [
+                {
+                    title: 'Under the Tower',
+                    description: 'Look at the church tower.',
+                    type: ChallengeType.LOCATION,
+                    points: 40,
+                }
+            ]
+        },
+        {
+            name: '\'t Hart van Breda',
+            description: 'Hole 3: Famous for nachos and gezelligheid.',
+            order: 3,
+            number: 3,
+            lat: 51.5888,
+            lng: 4.7758,
+            type: StopType.Food_Dining,
+            pubgolfPar: 3,
+            pubgolfDrink: 'White Wine / White Beer',
+            challenges: [
+                {
+                    title: 'Nacho Count',
+                    description: 'Guess the toppings.',
+                    type: ChallengeType.TRIVIA,
+                    points: 60,
+                    content: 'What is the "Famous" snack here?',
+                    options: ['Nachos', 'Bitterballen', 'Frikandel', 'Cheese Souffle'],
+                    answer: 'Nachos',
+                }
+            ]
+        },
+        {
+            name: 'De Bommel',
+            description: 'Hole 4: Time for a stronger pace.',
+            order: 4,
+            number: 4,
+            lat: 51.5890,
+            lng: 4.7750,
+            type: StopType.Nightlife,
+            pubgolfPar: 2,
+            pubgolfDrink: 'Shot of Salmari',
+            challenges: [
+                {
+                    title: 'Quick Shot',
+                    description: 'Cheers with the group!',
+                    type: ChallengeType.LOCATION,
+                    points: 100,
+                }
+            ]
+        },
+        {
+            name: 'Dok 19',
+            description: 'Hole 5: Craft beer by the harbor.',
+            order: 5,
+            number: 5,
+            lat: 51.5910,
+            lng: 4.7720,
+            type: StopType.Coffee_Drink,
+            pubgolfPar: 5,
+            pubgolfDrink: 'IPA',
+            challenges: [
+                {
+                    title: 'Harbor View',
+                    description: 'Spot a boat.',
+                    type: ChallengeType.LOCATION,
+                    points: 45,
+                }
+            ]
+        },
+        {
+            name: 'Proost',
+            description: 'Hole 6: Dance and drink.',
+            order: 6,
+            number: 6,
+            lat: 51.5880,
+            lng: 4.7770,
+            type: StopType.Nightlife,
+            pubgolfPar: 3,
+            pubgolfDrink: 'Gin Tonic',
+            challenges: [
+                {
+                    title: 'Dance Off',
+                    description: 'Show your best move.',
+                    type: ChallengeType.LOCATION,
+                    points: 80,
+                }
+            ]
+        },
+        {
+            name: 'Dependance',
+            description: 'Hole 7: Keep the momentum going.',
+            order: 7,
+            number: 7,
+            lat: 51.5878,
+            lng: 4.7775,
+            type: StopType.Nightlife,
+            pubgolfPar: 4,
+            pubgolfDrink: 'Pilsner (Pint)',
+            challenges: [
+                {
+                    title: 'Song Guess',
+                    description: 'What song is playing?',
+                    type: ChallengeType.TRIVIA,
+                    points: 50,
+                    content: 'Is this a Dutch sing-along?',
+                    options: ['Yes', 'No'],
+                    answer: 'Yes',
+                }
+            ]
+        },
+        {
+            name: 'Walkabout',
+            description: 'Hole 8: Australian vibes.',
+            order: 8,
+            number: 8,
+            lat: 51.5875,
+            lng: 4.7780,
+            type: StopType.Nightlife,
+            pubgolfPar: 3,
+            pubgolfDrink: 'Snakebite',
+            challenges: [
+                {
+                    title: 'Kangaroo Spotting',
+                    description: 'Find the Kangaroo logo.',
+                    type: ChallengeType.LOCATION,
+                    points: 50,
+                }
+            ]
+        },
+        {
+            name: 'Coyote',
+            description: 'Hole 9: It\'s getting wild.',
+            order: 9,
+            number: 9,
+            lat: 51.5872,
+            lng: 4.7785,
+            type: StopType.Nightlife,
+            pubgolfPar: 2,
+            pubgolfDrink: 'Tequila Shot',
+            challenges: [
+                {
+                    title: 'Bar Dance',
+                    description: 'Is anyone dancing on the bar?',
+                    type: ChallengeType.TRIVIA,
+                    points: 90,
+                    content: 'What happens at the Coyote Ugly bar?',
+                    options: ['Bar Dancing', 'Karaoke', 'Bingo', 'Quiz'],
+                    answer: 'Bar Dancing',
+                }
+            ]
+        },
+        {
+            name: 'Peddels',
+            description: 'Hole 10: The smallest pub.',
+            order: 10,
+            number: 10,
+            lat: 51.5870,
+            lng: 4.7788,
+            type: StopType.Nightlife,
+            pubgolfPar: 5,
+            pubgolfDrink: 'Beer Pitcher (Share)',
+            challenges: [
+                {
+                    title: 'Crowd Squeeze',
+                    description: 'Fit inside!',
+                    type: ChallengeType.LOCATION,
+                    points: 120,
+                }
+            ]
+        },
+        {
+            name: 'Studio',
+            description: 'Hole 11: Almost there.',
+            order: 11,
+            number: 11,
+            lat: 51.5882,
+            lng: 4.7762,
+            type: StopType.Nightlife,
+            pubgolfPar: 3,
+            pubgolfDrink: 'Vodka Redbull',
+            challenges: [
+                {
+                    title: 'Energy Boost',
+                    description: 'Feel the energy.',
+                    type: ChallengeType.LOCATION,
+                    points: 70,
+                }
+            ]
+        },
+        {
+            name: 'Holy Moly',
+            description: 'Hole 12: The Grand Finale.',
+            order: 12,
+            number: 12,
+            lat: 51.5892,
+            lng: 4.7755,
+            type: StopType.Food_Dining,
+            pubgolfPar: 4,
+            pubgolfDrink: 'Cocktail',
+            challenges: [
+                {
+                    title: 'Tree of Life',
+                    description: 'Find the big tree inside.',
+                    type: ChallengeType.LOCATION,
+                    points: 200,
+                },
+                {
+                    title: 'Champion\'s Trivia',
+                    description: 'Final question.',
+                    type: ChallengeType.TRIVIA,
+                    points: 150,
+                    content: 'What is the colloquial name for people from Breda during Carnival?',
+                    options: ['Kielegatters', 'Kruikenzeikers', 'Oeteldonkers', 'Tullepetaon'],
+                    answer: 'Kielegatters',
+                }
+            ]
+        }
+    ];
+
+    await createStopsAndChallenges(bredaTour.id, bredaStops);
+
+
+    // --- Mock Active Tour for Dev ---
+    // Start the Tata Steel tour for Joey
     const activeTour = await prisma.activeTour.create({
         data: {
-            id: activeTourId,
-            tourId: utrechtTour.id,
+            id: 112233445,
+            tourId: tataTour.id,
             status: SessionStatus.IN_PROGRESS,
         },
     });
 
-    // Create Team for Joey in that active tour
-    const joeyTeam = await prisma.team.create({
+    await prisma.team.create({
         data: {
             activeTour: { connect: { id: activeTour.id } },
             user: { connect: { id: joey.id } },
-            name: "Joey's Team",
-            color: '#FF375D',
-            emoji: '🚀',
+            name: "Steel Explorers",
+            color: '#FF6B6B',
+            emoji: '🏗️',
             currentStop: 1,
-            score: 50,
+            score: 0,
         }
     });
 
-    // Active Tour 2: Amsterdam (Abandoned)
-    const activeTour2 = await prisma.activeTour.create({
-        data: {
-            id: 987654321,
-            tourId: amsterdamTour.id,
-            status: SessionStatus.ABANDONED,
-        },
-    });
-
-    await prisma.team.create({
-        data: {
-            activeTour: { connect: { id: activeTour2.id } },
-            user: { connect: { id: joey.id } },
-            name: "Single Player",
-            currentStop: 1,
-        }
-    });
-
-    // Active Tour 3: Rotterdam (Completed)
-    const activeTour3 = await prisma.activeTour.create({
-        data: {
-            id: 112233445,
-            tourId: rotterdamTour.id,
-            status: SessionStatus.COMPLETED,
-        },
-    });
-
-    await prisma.team.create({
-        data: {
-            activeTour: { connect: { id: activeTour3.id } },
-            user: { connect: { id: joey.id } },
-            name: "Winning Team",
-            currentStop: 4,
-            finishedAt: new Date(),
-        }
-    });
-
-
-    // 7. Create Active Challenges (Simulate progress for Utrecht)
-    // Let's say Joey has completed the first stop's challenges
-    const firstStop = await prisma.stop.findFirst({
-        where: { tourId: utrechtTour.id, order: 1 },
-        include: { challenges: true },
-    });
-
-    if (firstStop) {
-        for (const challenge of firstStop.challenges) {
-            await prisma.activeChallenge.create({
-                data: {
-                    teamId: joeyTeam.id,
-                    challengeId: challenge.id,
-                    completed: true,
-                    completedAt: new Date(),
-                },
-            });
-        }
-    }
-
-    // 8. Create Reviews
-    await prisma.review.create({
-        data: {
-            content: 'Amazing tour! The pubs were great and the history was fascinating.',
-            rating: 5,
-            tourId: utrechtTour.id,
-            authorId: bob.id,
-        },
-    });
-
-    await prisma.review.create({
-        data: {
-            content: 'A bit too long for me, but beautiful sights.',
-            rating: 4,
-            tourId: amsterdamTour.id,
-            authorId: joey.id,
-        },
-    });
-
-    console.log('Seed data created successfully');
-    console.log(`Created user: ${joey.email}`);
-    console.log(`Created active tour ID: ${activeTour.id} for tour: ${utrechtTour.title}`);
+    console.log('Seed data created successfully with 5 high-quality tours.');
 }
 
 main()

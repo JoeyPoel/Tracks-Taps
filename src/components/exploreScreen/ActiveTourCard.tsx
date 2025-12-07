@@ -1,18 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../../context/ThemeContext';
+import { ImageBackground, StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
 import TourButton from '../TourButton';
 
 interface ActiveTourCardProps {
   title: string;
+  imageUrl: string;
   progress: number;
   onResume: () => void;
 }
 
-export default function ActiveTourCard({ title, progress, onResume }: ActiveTourCardProps) {
+export default function ActiveTourCard({ title, imageUrl, progress, onResume }: ActiveTourCardProps) {
   const { theme } = useTheme();
   const { t } = useLanguage();
 
@@ -55,10 +56,14 @@ export default function ActiveTourCard({ title, progress, onResume }: ActiveTour
         </View>
 
         <View style={[styles.imageContainer, { backgroundColor: theme.bgTertiary }]}>
-          <Ionicons name="image-outline" size={48} color={theme.iconMuted} />
+          {imageUrl ? (
+            <ImageBackground source={{ uri: imageUrl }} style={{ width: '100%', height: '100%' }} imageStyle={{ borderRadius: 8 }} />
+          ) : (
+            <Ionicons name="image-outline" size={48} color={theme.iconMuted} />
+          )}
         </View>
 
-        <TourButton 
+        <TourButton
           onPress={onResume}
           buttonText={t('resumeTour')}
         />

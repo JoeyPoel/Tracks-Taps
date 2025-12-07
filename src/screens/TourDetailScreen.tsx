@@ -173,7 +173,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             onPress={() => handleStartTour(false, true)}
           >
             <Ionicons name="people-outline" size={20} color={theme.primary} style={{ marginRight: 8 }} />
-            <Text style={{ color: theme.primary, fontSize: 16, fontWeight: 'bold' }}>Team Battle Mode</Text>
+            <Text style={{ color: theme.textPrimary, fontSize: 16, fontWeight: 'bold' }}>Play With Friends</Text>
           </TouchableOpacity>
         </View>
 

@@ -59,6 +59,7 @@ export default function ExploreScreen() {
         return (
           <ActiveTourCard
             title={activeTour.tour?.title || ''}
+            imageUrl={activeTour.tour?.imageUrl || ''}
             progress={progress}
             onResume={() => router.push({ pathname: '/active-tour/[id]' as any, params: { id: activeTour.id } })}
           />
@@ -74,8 +75,10 @@ export default function ExploreScreen() {
           distance={`${tour.distance} km`}
           duration={`${tour.duration} min`}
           stops={tour._count?.stops || 0}
-          rating={4.5} // TODO: Implement reviews
-          reviewCount={0}
+          rating={tour.reviews && tour.reviews.length > 0
+            ? tour.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / tour.reviews.length
+            : 0}
+          reviewCount={tour.reviews?.length || 0}
           points={tour.points}
           modes={tour.modes}
           difficulty={tour.difficulty}
