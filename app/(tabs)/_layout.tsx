@@ -41,6 +41,16 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
+                name="create"
+                options={{
+                    title: t('create'),
+                    tabBarLabel: t('create'),
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons name="add-circle-outline" size={size} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
                 name="map"
                 options={{
                     title: t('map'),
