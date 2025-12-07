@@ -31,6 +31,16 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
+                name="join"
+                options={{
+                    title: t('join'),
+                    tabBarLabel: t('join'),
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons name="enter-outline" size={size} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
                 name="map"
                 options={{
                     title: t('map'),

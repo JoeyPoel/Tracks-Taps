@@ -6,10 +6,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ColorSelector } from '../components/teamSetup/ColorSelector';
 import { EmojiSelector } from '../components/teamSetup/EmojiSelector';
 import { TeamNameInput } from '../components/teamSetup/TeamNameInput';
-import { TeamPreview } from '../components/teamSetup/TeamPreview';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useTeamSetup } from '../hooks/useTeamSetup';
+import { TeamCard } from '../components/teamSetup/TeamCard';
 
 export default function TeamSetupScreen() {
     const { theme } = useTheme();
@@ -52,27 +52,13 @@ export default function TeamSetupScreen() {
                     {t('customizeTeam')}
                 </Text>
 
-                <TouchableOpacity
-                    onPress={() => {
-                        if (router.canGoBack()) {
-                            router.back();
-                        } else {
-                            router.replace('/');
-                        }
-                    }}
-                    style={styles.backLink}
-                >
-                    <Ionicons name="arrow-back" size={16} color={theme.textSecondary} />
-                    <Text style={{ color: theme.textSecondary, marginLeft: 4 }}>{t('back')}</Text>
-                </TouchableOpacity>
-
                 <TeamNameInput value={teamName} onChange={setTeamName} />
 
                 <ColorSelector selectedColor={selectedColor} onSelect={setSelectedColor} />
 
                 <EmojiSelector selectedEmoji={selectedEmoji} onSelect={setSelectedEmoji} />
 
-                <TeamPreview name={teamName} color={selectedColor} emoji={selectedEmoji} />
+                <TeamCard name={teamName} color={selectedColor} emoji={selectedEmoji} />
 
             </ScrollView>
 
@@ -83,7 +69,7 @@ export default function TeamSetupScreen() {
                     disabled={loading}
                 >
                     <Text style={styles.createButtonText}>
-                        {loading ? t('creating') : t('createTeam')}
+                        {loading ? t('creating') : t('saveTeam')}
                     </Text>
                 </TouchableOpacity>
             </View>

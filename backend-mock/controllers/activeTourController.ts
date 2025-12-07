@@ -4,13 +4,13 @@ export const activeTourController = {
     async startTour(request: Request) {
         try {
             const body = await request.json();
-            const { userId, tourId, force } = body;
+            const { userId, tourId, force, teamName, teamColor, teamEmoji } = body;
 
             if (!userId || !tourId) {
                 return Response.json({ error: 'Missing userId or tourId' }, { status: 400 });
             }
 
-            const newActiveTour = await activeTourService.startTourWithConflictCheck(tourId, userId, force);
+            const newActiveTour = await activeTourService.startTourWithConflictCheck(tourId, userId, force, teamName, teamColor, teamEmoji);
             return Response.json(newActiveTour);
 
         } catch (error: any) {
@@ -23,6 +23,24 @@ export const activeTourController = {
 
             console.error('Error starting tour:', error);
             return Response.json({ error: 'Failed to start tour' }, { status: 500 });
+        }
+    },
+
+    async joinTour(request: Request) {
+        try {
+            const body = await request.json();
+            const { activeTourId, userId, teamName, teamColor, teamEmoji } = body;
+
+            if (!userId || !activeTourId) {
+                return Response.json({ error: 'Missing userId or activeTourId' }, { status: 400 });
+            }
+
+            const team = await activeTourService.joinTour(activeTourId, userId, teamName, teamColor, teamEmoji);
+            return Response.json(team);
+
+        } catch (error: any) {
+            console.error('Error joining tour:', error);
+            return Response.json({ error: error.message || 'Failed to join tour' }, { status: 500 });
         }
     },
 
@@ -196,6 +214,23 @@ export const activeTourController = {
         } catch (error) {
             console.error('Error updating current stop:', error);
             return Response.json({ error: 'Failed to update current stop' }, { status: 500 });
+        }
+    },
+
+    async updateTeam(request: Request) {
+        try {
+            const body = await request.json();
+            const { activeTourId, userId, name, color, emoji } = body;
+
+            if (!activeTourId || !userId) {
+                return Response.json({ error: 'Missing required fields' }, { status: 400 });
+            }
+
+            const updatedTeam = await activeTourService.updateTeamDetails(Number(activeTourId), Number(userId), name, color, emoji);
+            return Response.json(updatedTeam);
+        } catch (error) {
+            console.error('Error updating team:', error);
+            return Response.json({ error: 'Failed to update team' }, { status: 500 });
         }
     }
 };

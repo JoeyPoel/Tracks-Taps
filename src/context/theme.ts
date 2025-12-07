@@ -78,6 +78,10 @@ export const lightTheme = {
     doubleBogey: ['#F87171', '#EF4444', '#2b0e0e'],
     tripleBogey: ['#9CA3AF', '#6B7280', '#111827'],
   },
+
+  bgPrimaryColor: '#2e1b2bff',
+  bgSecondaryColor: '#1a2f42ff',
+  bgAccentColor: '#4D4426',
 };
 
 export const darkTheme = {
@@ -160,4 +164,8 @@ export const darkTheme = {
     doubleBogey: ['#F87171', '#EF4444', '#2b0e0e'],
     tripleBogey: ['#9CA3AF', '#6B7280', '#111827'],
   },
+
+  bgPrimaryColor: '#2e1b2bff',
+  bgSecondaryColor: '#1a2f42ff',
+  bgAccentColor: '#4D4426',
 };

@@ -11,6 +11,11 @@ export const activeTourService = {
         return response.data;
     },
 
+    async joinActiveTour(activeTourId: number, userId: number, teamName?: string, teamColor?: string, teamEmoji?: string) {
+        const response = await client.post('/active-tour/join', { activeTourId, userId, teamName, teamColor, teamEmoji });
+        return response.data;
+    },
+
     async getActiveTourById(id: number) {
         const response = await client.get(`/active-tour/${id}`);
         return response.data;
@@ -49,5 +54,10 @@ export const activeTourService = {
     async updateCurrentStop(activeTourId: number, currentStop: number, userId: number) {
         const response = await client.post(`/active-tour/${activeTourId}/current-stop`, { activeTourId, currentStop, userId });
         return response.data;
-    }
+    },
+    
+    async updateTeamDetails(activeTourId: number, userId: number, name: string, color: string, emoji: string) {
+        const response = await client.post('/active-tour/team', { activeTourId, userId, name, color, emoji });
+        return response.data;
+    },
 };

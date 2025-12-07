@@ -8,7 +8,7 @@ export const activeTourService = {
         return await activeTourRepository.findActiveToursByUserId(userId);
     },
 
-    async startTourWithConflictCheck(tourId: number, userId: number, force: boolean) {
+    async startTourWithConflictCheck(tourId: number, userId: number, force: boolean, teamName?: string, teamColor?: string, teamEmoji?: string) {
         const activeTours = await activeTourRepository.findActiveToursByUserId(userId);
 
         if (activeTours.length > 0) {
@@ -33,7 +33,7 @@ export const activeTourService = {
             }
         }
 
-        return await activeTourRepository.createActiveTour(tourId, userId);
+        return await activeTourRepository.createActiveTour(tourId, userId, teamName, teamColor, teamEmoji);
     },
 
     // Keeping original startTour for backward compatibility
@@ -167,5 +167,12 @@ export const activeTourService = {
         if (!team) throw new Error("Team not found");
 
         return await activeTourRepository.updatePubGolfScore(team.id, stopId, sips);
+    },
+
+    async updateTeamDetails(activeTourId: number, userId: number, name: string, color: string, emoji: string) {
+        const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
+        if (!team) throw new Error("Team not found");
+
+        return await activeTourRepository.updateTeamDetails(team.id, name, color, emoji);
     },
 };

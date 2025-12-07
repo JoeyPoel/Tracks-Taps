@@ -30,7 +30,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { user } = useUserContext();
   const router = useRouter();
 
-  const handleStartTour = async (force = false) => {
+  const handleStartTour = async (force = false, isLobbyMode = false) => {
     if (!user) return;
 
     try {
@@ -54,7 +54,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             `You have an active tour: "${activeTour.tour.title}". Starting a new one will cause you to lose progress. Do you want to proceed?`
           );
           if (shouldReplace) {
-            handleStartTour(true);
+            handleStartTour(true, isLobbyMode);
           }
         } else {
           Alert.alert(
@@ -68,7 +68,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
               {
                 text: 'Start New Tour',
                 style: 'destructive',
-                onPress: () => handleStartTour(true),
+                onPress: () => handleStartTour(true, isLobbyMode),
               },
             ]
           );
@@ -83,7 +83,15 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
       }
 
       const newActiveTour = await response.json();
-      router.push(`/active-tour/${newActiveTour.id}`);
+
+      if (isLobbyMode) {
+        router.push({
+          pathname: '/lobby',
+          params: { activeTourId: newActiveTour.id }
+        });
+      } else {
+        router.push(`/active-tour/${newActiveTour.id}`);
+      }
 
     } catch (error) {
       console.error('Error starting tour:', error);
@@ -149,7 +157,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           description={tour.description}
         />
 
-        <StartTourButton onPress={() => handleStartTour(false)} buttonText={t('startTour')} />
+        <StartTourButton onPress={() => handleStartTour(false, false)} buttonText={t('startTour')} />
         <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
           <TouchableOpacity
             style={{
@@ -162,7 +170,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
               justifyContent: 'center',
               alignItems: 'center'
             }}
-            onPress={() => router.push({ pathname: '/team-setup', params: { tourId } })}
+            onPress={() => handleStartTour(false, true)}
           >
             <Ionicons name="people-outline" size={20} color={theme.primary} style={{ marginRight: 8 }} />
             <Text style={{ color: theme.primary, fontSize: 16, fontWeight: 'bold' }}>Team Battle Mode</Text>

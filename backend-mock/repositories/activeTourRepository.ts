@@ -265,6 +265,17 @@ export const activeTourRepository = {
         });
     },
 
+    async updateTeamDetails(teamId: number, name: string, color: string, emoji: string) {
+        return await prisma.team.update({
+            where: { id: teamId },
+            data: {
+                name,
+                color,
+                emoji
+            }
+        });
+    },
+
     async deleteTeam(teamId: number) {
         return await prisma.team.delete({
             where: { id: teamId }
