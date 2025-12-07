@@ -6,8 +6,8 @@ export const activeTourService = {
         return response.data;
     },
 
-    async startTour(tourId: number, userId: number, force: boolean = false) {
-        const response = await client.post('/active-tours', { tourId, userId, force });
+    async startTour(tourId: number, userId: number, force: boolean = false, teamName?: string, teamColor?: string, teamEmoji?: string) {
+        const response = await client.post('/active-tours', { tourId, userId, force, teamName, teamColor, teamEmoji });
         return response.data;
     },
 

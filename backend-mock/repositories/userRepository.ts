@@ -5,11 +5,15 @@ export const userRepository = {
         return await prisma.user.findUnique({
             where: { id: userId },
             include: {
-                participations: {
-                    select: {
-                        status: true,
-                    },
-                },
+                teams: {
+                    include: {
+                        activeTour: {
+                            select: {
+                                status: true
+                            }
+                        }
+                    }
+                }
             },
         });
     },
@@ -18,11 +22,15 @@ export const userRepository = {
         return await prisma.user.findUnique({
             where: { email },
             include: {
-                participations: {
-                    select: {
-                        status: true,
-                    },
-                },
+                teams: {
+                    include: {
+                        activeTour: {
+                            select: {
+                                status: true
+                            }
+                        }
+                    }
+                }
             },
         });
     },

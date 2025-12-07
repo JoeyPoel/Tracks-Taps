@@ -28,7 +28,7 @@ export const activeTourRepository = {
         });
     },
 
-    async createActiveTour(tourId: number, userId: number) {
+    async createActiveTour(tourId: number, userId: number, teamName?: string, teamColor?: string, teamEmoji?: string) {
         // 1. Fetch the tour to get its stops
         const tour = await prisma.tour.findUnique({
             where: { id: tourId },
@@ -50,9 +50,9 @@ export const activeTourRepository = {
                 teams: {
                     create: {
                         userId,
-                        name: 'My Team', // Default name, can be changed later
-                        color: '#3b82f6', // Default blue
-                        emoji: '🚩',
+                        name: teamName || 'My Team', // Use provided name or default
+                        color: teamColor || '#3b82f6', // Use provided color or default blue
+                        emoji: teamEmoji || '🚩', // Use provided emoji or default
                         currentStop: 1,
                         streak: 0,
                     }

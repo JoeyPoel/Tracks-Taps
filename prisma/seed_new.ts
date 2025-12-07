@@ -6,13 +6,17 @@ async function main() {
     console.log('Start seeding ...');
 
     // Clean up existing data
+    await prisma.pubGolfStop.deleteMany();
     await prisma.activeChallenge.deleteMany();
+    await prisma.team.deleteMany();
     await prisma.activeTour.deleteMany();
     await prisma.review.deleteMany();
     await prisma.challenge.deleteMany();
     await prisma.stop.deleteMany();
     await prisma.tour.deleteMany();
     await prisma.user.deleteMany();
+
+    // ... (Users and Tours creation remains same, no changes needed there)
 
     // 1. Create Users
     const joey = await prisma.user.create({
@@ -515,37 +519,65 @@ async function main() {
 
     // 6. Create Active Tours for Joey
     // Active Tour 1: Utrecht (In Progress)
+    const activeTourId = 123456789;
     const activeTour = await prisma.activeTour.create({
         data: {
+            id: activeTourId,
             tourId: utrechtTour.id,
             status: SessionStatus.IN_PROGRESS,
-            participants: {
-                connect: { id: joey.id },
-            },
         },
+    });
+
+    // Create Team for Joey in that active tour
+    const joeyTeam = await prisma.team.create({
+        data: {
+            activeTourId: activeTour.id,
+            userId: joey.id,
+            name: "Joey's Team",
+            color: '#FF375D',
+            emoji: '🚀',
+            currentStop: 1,
+            score: 50,
+        }
     });
 
     // Active Tour 2: Amsterdam (Abandoned)
-    await prisma.activeTour.create({
+    const activeTour2 = await prisma.activeTour.create({
         data: {
+            id: 987654321,
             tourId: amsterdamTour.id,
             status: SessionStatus.ABANDONED,
-            participants: {
-                connect: { id: joey.id },
-            },
         },
     });
 
-    // Active Tour 3: Rotterdam (Completed)
-    await prisma.activeTour.create({
+    await prisma.team.create({
         data: {
+            activeTourId: activeTour2.id,
+            userId: joey.id,
+            name: "Single Player",
+            currentStop: 1,
+        }
+    });
+
+    // Active Tour 3: Rotterdam (Completed)
+    const activeTour3 = await prisma.activeTour.create({
+        data: {
+            id: 112233445,
             tourId: rotterdamTour.id,
             status: SessionStatus.COMPLETED,
-            participants: {
-                connect: { id: joey.id },
-            },
         },
     });
+
+    await prisma.team.create({
+        data: {
+            activeTourId: activeTour3.id,
+            userId: joey.id,
+            name: "Winning Team",
+            currentStop: 4,
+            finishedAt: new Date(),
+        }
+    });
+
 
     // 7. Create Active Challenges (Simulate progress for Utrecht)
     // Let's say Joey has completed the first stop's challenges
@@ -558,7 +590,7 @@ async function main() {
         for (const challenge of firstStop.challenges) {
             await prisma.activeChallenge.create({
                 data: {
-                    activeTourId: activeTour.id,
+                    teamId: joeyTeam.id,
                     challengeId: challenge.id,
                     completed: true,
                     completedAt: new Date(),

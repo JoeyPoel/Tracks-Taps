@@ -1,6 +1,7 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import StartTourButton from '../components/TourButton';
 import TourAbout from '../components/tourdetailScreen/TourAbout';
 import TourGameModes from '../components/tourdetailScreen/TourGameModes';
@@ -120,7 +121,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const reviewsData = tour.reviews.map((review: any) => ({
     id: review.id.toString(),
     userId: 'unknown', // TODO: Add authorId to review in schema/service
-    userName: review.author.name,
+    userName: review.author?.name || 'Unknown',
     userAvatar: 'https://i.pravatar.cc/150?img=1', // Placeholder
     rating: review.rating,
     date: new Date(review.createdAt).toLocaleDateString(),
@@ -133,7 +134,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
       <ScrollView showsVerticalScrollIndicator={false}>
         <TourHeader
           title={tour.title}
-          author={tour.author.name}
+          author={tour.author?.name || 'Unknown'}
           imageUrl={tour.imageUrl}
         />
 
@@ -149,6 +150,24 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
         />
 
         <StartTourButton onPress={() => handleStartTour(false)} buttonText={t('startTour')} />
+        <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+          <TouchableOpacity
+            style={{
+              backgroundColor: theme.bgSecondary,
+              borderWidth: 1,
+              borderColor: theme.borderPrimary,
+              borderRadius: 12,
+              paddingVertical: 16,
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+            onPress={() => router.push({ pathname: '/team-setup', params: { tourId } })}
+          >
+            <Ionicons name="people-outline" size={20} color={theme.primary} style={{ marginRight: 8 }} />
+            <Text style={{ color: theme.primary, fontSize: 16, fontWeight: 'bold' }}>Team Battle Mode</Text>
+          </TouchableOpacity>
+        </View>
 
         <TourGameModes
           modes={tour.modes}
