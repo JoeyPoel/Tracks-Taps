@@ -1,4 +1,4 @@
-import { ChallengeType, Difficulty, PrismaClient, SessionStatus } from '@prisma/client';
+import { ChallengeType, Difficulty, PrismaClient, SessionStatus, StopType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -107,6 +107,7 @@ async function main() {
                     longitude: stopData.lng,
                     pubgolfPar: stopData.pubgolfPar,
                     pubgolfDrink: stopData.pubgolfDrink,
+                    type: stopData.type || StopType.Viewpoint,
                 },
             });
 
@@ -137,6 +138,7 @@ async function main() {
             number: 1,
             lat: 52.0907,
             lng: 5.1214,
+            type: StopType.Monument_Landmark,
             challenges: [
                 {
                     title: 'Dom Arrival',
@@ -162,6 +164,7 @@ async function main() {
             number: 2,
             lat: 52.0928,
             lng: 5.1190,
+            type: StopType.Monument_Landmark,
             challenges: [
                 {
                     title: 'Neude Check-in',
@@ -187,6 +190,7 @@ async function main() {
             number: 3,
             lat: 52.0900,
             lng: 5.1180,
+            type: StopType.Viewpoint,
             challenges: [
                 {
                     title: 'Wharf Walk',
@@ -203,6 +207,7 @@ async function main() {
             number: 4,
             lat: 52.0915,
             lng: 5.1150,
+            type: StopType.Food_Dining,
             challenges: [
                 {
                     title: 'Cheers!',
@@ -234,6 +239,7 @@ async function main() {
             number: 1,
             lat: 52.3600,
             lng: 4.8852,
+            type: StopType.Museum_Art,
             challenges: [
                 {
                     title: 'Art Lover',
@@ -259,6 +265,7 @@ async function main() {
             number: 2,
             lat: 52.3580,
             lng: 4.8686,
+            type: StopType.Nature_Park,
             challenges: [
                 {
                     title: 'Park Stroll',
@@ -284,6 +291,7 @@ async function main() {
             number: 3,
             lat: 52.3752,
             lng: 4.8840,
+            type: StopType.Museum_Art,
             challenges: [
                 {
                     title: 'History Lesson',
@@ -309,6 +317,7 @@ async function main() {
             number: 4,
             lat: 52.3731,
             lng: 4.8926,
+            type: StopType.Monument_Landmark,
             challenges: [
                 {
                     title: 'Royal Palace',
@@ -340,6 +349,7 @@ async function main() {
             number: 1,
             lat: 51.9089,
             lng: 4.4876,
+            type: StopType.Monument_Landmark,
             challenges: [
                 {
                     title: 'Bridge Run',
@@ -365,6 +375,7 @@ async function main() {
             number: 2,
             lat: 51.9207,
             lng: 4.4906,
+            type: StopType.Monument_Landmark,
             challenges: [
                 {
                     title: 'Architectural Wonder',
@@ -390,6 +401,7 @@ async function main() {
             number: 3,
             lat: 51.9193,
             lng: 4.4867,
+            type: StopType.Food_Dining,
             challenges: [
                 {
                     title: 'Foodie Heaven',
@@ -415,6 +427,7 @@ async function main() {
             number: 4,
             lat: 51.9054,
             lng: 4.4666,
+            type: StopType.Viewpoint,
             challenges: [
                 {
                     title: 'High Point',
@@ -463,6 +476,7 @@ async function main() {
             number: 1,
             lat: 52.0935,
             lng: 5.1205,
+            type: StopType.Nightlife,
             pubgolfPar: 3,
             pubgolfDrink: 'Pint of Lager',
             challenges: [
@@ -481,6 +495,7 @@ async function main() {
             number: 2,
             lat: 52.0910,
             lng: 5.1160,
+            type: StopType.Nightlife,
             pubgolfPar: 4,
             pubgolfDrink: 'Guinness',
             challenges: [
@@ -499,6 +514,7 @@ async function main() {
             number: 3,
             lat: 52.0895,
             lng: 5.1195,
+            type: StopType.Nightlife,
             pubgolfPar: 5,
             pubgolfDrink: 'Strong Blond Beer',
             challenges: [
@@ -626,6 +642,8 @@ async function main() {
 main()
     .catch((e) => {
         console.error(e);
+        const fs = require('fs');
+        fs.writeFileSync('seed_error.txt', JSON.stringify(e, null, 2));
         process.exit(1);
     })
     .finally(async () => {

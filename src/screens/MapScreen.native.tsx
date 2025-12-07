@@ -9,6 +9,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useMapScreenLogic } from '../hooks/useMapScreenLogic';
 import { Stop } from '../types/models';
+import { getStopIcon } from '../utils/stopIcons';
 
 export default function MapScreen() {
   const { theme } = useTheme();
@@ -73,8 +74,11 @@ export default function MapScreen() {
                 }}
                 title={`${stop.number}. ${stop.name}`}
                 description={stop.description}
-                pinColor={stop.order === 1 ? theme.primary : theme.secondary}
-              />
+              >
+                <View style={[styles.markerContainer, { backgroundColor: stop.order === 1 ? theme.primary : theme.bgSecondary }]}>
+                  {getStopIcon(stop.type, 20, stop.order === 1 ? 'white' : theme.textPrimary)}
+                </View>
+              </Marker>
             ))}
 
             {(selectedTour as any).stops && (selectedTour as any).stops.length > 1 && (
@@ -172,5 +176,18 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-  }
+  },
+  markerContainer: {
+    padding: 6,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'white',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

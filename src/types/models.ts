@@ -19,6 +19,21 @@ export enum ChallengeType {
     CHECK_IN = 'CHECK_IN'
 }
 
+export enum StopType {
+    Food_Dining = 'Food_Dining',
+    Coffee_Drink = 'Coffee_Drink',
+    Nightlife = 'Nightlife',
+    Museum_Art = 'Museum_Art',
+    Monument_Landmark = 'Monument_Landmark',
+    Religious = 'Religious',
+    Nature_Park = 'Nature_Park',
+    Shopping = 'Shopping',
+    Transit_Stop = 'Transit_Stop',
+    Viewpoint = 'Viewpoint',
+    Info_Point = 'Info_Point',
+    Facilities = 'Facilities'
+}
+
 export interface Stop {
     id: number;
     tourId: number;
@@ -30,6 +45,7 @@ export interface Stop {
     updatedAt: Date;
     longitude: number;
     latitude: number;
+    type: StopType;
     pubgolfPar: number | null;
     pubgolfDrink: string | null;
     challenges?: Challenge[];

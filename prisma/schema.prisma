@@ -8,6 +8,21 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum StopType {
+  Food_Dining
+  Coffee_Drink
+  Nightlife
+  Museum_Art
+  Monument_Landmark
+  Religious
+  Nature_Park
+  Shopping
+  Transit_Stop
+  Viewpoint
+  Info_Point
+  Facilities
+}
+
 enum Difficulty {
   EASY
   MEDIUM
@@ -78,6 +93,7 @@ model Stop {
   updatedAt    DateTime @updatedAt
   longitude    Float
   latitude     Float
+  type         StopType @default(Viewpoint)
   pubgolfPar   Int?
   pubgolfDrink String?
 

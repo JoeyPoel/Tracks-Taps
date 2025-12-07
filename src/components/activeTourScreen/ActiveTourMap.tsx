@@ -4,11 +4,14 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { LatLng, Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { StopType } from '../../types/models';
+import { getStopIcon } from '../../utils/stopIcons';
 
 interface StopLocation {
     latitude: number;
     longitude: number;
     name: string;
+    type: StopType;
 }
 
 interface ActiveTourMapProps {
@@ -73,16 +76,23 @@ export default function ActiveTourMap({ currentStop, previousStop, onNavigate }:
                     coordinate={{ latitude: currentStop.latitude, longitude: currentStop.longitude }}
                     title={currentStop.name}
                     pinColor={theme.primary}
-                />
+                >
+                    <View style={[styles.markerContainer, { backgroundColor: theme.bgSecondary }]}>
+                        {getStopIcon(currentStop.type, 20, theme.textPrimary)}
+                    </View>
+                </Marker>
 
                 {/* The Previous Stop Marker (if present) */}
                 {previousStop && (
                     <Marker
                         coordinate={{ latitude: previousStop.latitude, longitude: previousStop.longitude }}
                         title={previousStop.name}
-                        pinColor={theme.secondary}
                         opacity={0.6}
-                    />
+                    >
+                        <View style={[styles.markerContainer, { backgroundColor: theme.bgSecondary, opacity: 0.8 }]}>
+                            {getStopIcon(previousStop.type || 'Viewpoint', 20, theme.textSecondary)}
+                        </View>
+                    </Marker>
                 )}
 
                 {/* The Route Line (Straight line) */}
@@ -133,5 +143,18 @@ const styles = StyleSheet.create({
     },
     navigateText: {
         fontWeight: 'bold',
+    },
+    markerContainer: {
+        padding: 6,
+        borderRadius: 20,
+        borderWidth: 2,
+        borderColor: 'white',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.22,
+        shadowRadius: 2.22,
+        elevation: 3,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });
