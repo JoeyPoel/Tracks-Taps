@@ -16,14 +16,14 @@ import { useActiveTour } from '../hooks/useActiveTour';
 import { activeTourService } from '../services/activeTourService';
 import { openMapApp } from '../utils/mapUtils';
 
-export default function ActiveTourScreen({ activeTourId }: { activeTourId: number }) {
+function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user: any }) {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState(0);
     const [pubGolfScores, setPubGolfScores] = useState<Record<number, number>>({});
 
-    const { user, updateUserXp, refreshUser } = useUserContext();
+    const { updateUserXp, refreshUser } = useUserContext();
 
     const {
         activeTour,
@@ -43,13 +43,13 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         handlePrevStop,
         handleNextStop,
         handleFinishTour,
+        handleAbandonTour,
         streak,
         points,
         updateActiveTourLocal,
         currentTeam,
-    } = useActiveTour(activeTourId, user?.id, updateUserXp);
+    } = useActiveTour(activeTourId, user.id, updateUserXp);
 
-    // Initialize scores from activeTour data
     // Initialize scores from activeTour data
     useEffect(() => {
         if (currentTeam?.pubGolfStops) {
@@ -69,18 +69,7 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         // Optimistic update local state
         setPubGolfScores(prev => ({ ...prev, [stopId]: sips }));
 
-        // Optimistic update global store (Disabled due to team structure change)
-        /*
-        if (currentTeam?.pubGolfStops) {
-            const updatedStops = currentTeam.pubGolfStops.map((s: any) =>
-                s.stopId === stopId ? { ...s, sips } : s
-            );
-            // updateActiveTourLocal does not support updating nested teams yet
-            // updateActiveTourLocal({ pubGolfStops: updatedStops });
-        }
-        */
-
-        if (user?.id) {
+        if (user.id) {
             // Call backend in background
             activeTourService.updatePubGolfScore(activeTourId, stopId, sips, user.id)
                 .catch(error => {
@@ -114,7 +103,10 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
                 totalStops={activeTour.tour?.stops?.length || 0}
                 streak={streak}
                 tokens={points}
-                onClose={() => router.back()}
+                onClose={() => {
+                    router.dismissAll();
+                    router.replace({ pathname: '/tour/[id]', params: { id: activeTour.tourId } });
+                }}
             />
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -180,6 +172,22 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
             {showConfetti && <Confetti />}
         </View>
     );
+}
+
+export default function ActiveTourScreen({ activeTourId }: { activeTourId: number }) {
+    const { theme } = useTheme();
+    const { t } = useLanguage();
+    const { user, loading } = useUserContext();
+
+    if (loading && !user) {
+        return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>{t('loading')}</Text></View>;
+    }
+
+    if (!user) {
+        return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>{t('loginRequired')}</Text></View>;
+    }
+
+    return <ActiveTourContent activeTourId={activeTourId} user={user} />;
 }
 
 const styles = StyleSheet.create({

@@ -68,8 +68,12 @@ export interface User {
     tokens: number;
     createdAt: Date;
     updatedAt: Date;
-    participations?: {
-        status: string;
+    teams?: {
+        id: number;
+        finishedAt: Date | null;
+        activeTour: {
+            status: string;
+        };
     }[];
     createdTours?: {
         id: number;
@@ -123,8 +127,6 @@ export interface PubGolfStop {
     id: number;
     teamId: number;
     stopId: number;
-    par: number;
-    drink: string;
     sips: number;
     createdAt: Date;
     updatedAt: Date;

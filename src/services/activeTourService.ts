@@ -16,6 +16,11 @@ export const activeTourService = {
         return response.data;
     },
 
+    async getActiveTourProgress(id: number, userId?: number) {
+        const response = await client.get(`/active-tour/${id}/progress${userId ? `?userId=${userId}` : ''}`);
+        return response.data;
+    },
+
     async completeChallenge(activeTourId: number, challengeId: number, userId: number) {
         const response = await client.post('/active-challenge/complete', { activeTourId, challengeId, userId });
         return response.data;
@@ -31,8 +36,8 @@ export const activeTourService = {
         return response.data;
     },
 
-    async abandonTour(activeTourId: number) {
-        const response = await client.post('/active-tour/abandon', { activeTourId });
+    async abandonTour(activeTourId: number, userId: number) {
+        const response = await client.post('/active-tour/abandon', { activeTourId, userId });
         return response.data;
     },
 

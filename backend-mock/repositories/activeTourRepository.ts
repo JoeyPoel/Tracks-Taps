@@ -50,9 +50,9 @@ export const activeTourRepository = {
                 teams: {
                     create: {
                         userId,
-                        name: teamName || 'My Team', // Use provided name or default
-                        color: teamColor || '#3b82f6', // Use provided color or default blue
-                        emoji: teamEmoji || '🚩', // Use provided emoji or default
+                        name: teamName,
+                        color: teamColor,
+                        emoji: teamEmoji,
                         currentStop: 1,
                         streak: 0,
                     }
@@ -71,8 +71,6 @@ export const activeTourRepository = {
             .map(stop => ({
                 teamId: team.id,
                 stopId: stop.id,
-                par: stop.pubgolfPar!,
-                drink: stop.pubgolfDrink!,
                 sips: 0 // Default sips
             }));
 
@@ -99,9 +97,9 @@ export const activeTourRepository = {
             data: {
                 activeTourId: activeTour.id,
                 userId,
-                name: teamName || 'New Team',
-                color: teamColor || '#10b981',
-                emoji: teamEmoji || '🏃',
+                name: teamName,
+                color: teamColor,
+                emoji: teamEmoji,
                 currentStop: 1,
                 streak: 0,
             }
@@ -113,8 +111,6 @@ export const activeTourRepository = {
             .map(stop => ({
                 teamId: team.id,
                 stopId: stop.id,
-                par: stop.pubgolfPar!,
-                drink: stop.pubgolfDrink!,
                 sips: 0
             }));
 
@@ -127,7 +123,7 @@ export const activeTourRepository = {
         return team;
     },
 
-    async findActiveTourById(id: number) {
+    async findActiveTourById(id: number, userId?: number) {
         return await prisma.activeTour.findUnique({
             where: { id },
             include: {
@@ -137,21 +133,32 @@ export const activeTourRepository = {
                             orderBy: { order: 'asc' },
                             include: {
                                 challenges: true,
-                                // We can't include filtered nested relations easily for all teams here without complex query
-                                // But usually we want the active tour for a specific user perspective.
-                                pubGolfStops: true
+                                // Optimized: Removed redundant pubGolfStops fetch from tour stops
                             }
                         },
                         challenges: true,
                     }
                 },
                 teams: {
+                    where: userId ? { userId } : undefined, // Scope to current user if provided
                     include: {
-                        activeChallenges: {
-                            include: {
-                                challenge: true
-                            }
-                        },
+                        activeChallenges: true, // Optimized: Removed nested challenge include (redundant with Tour)
+                        pubGolfStops: true
+                    }
+                }
+            }
+        });
+    },
+
+    async findActiveTourProgress(id: number, userId?: number) {
+        return await prisma.activeTour.findUnique({
+            where: { id },
+            include: {
+                // Tour is purposefully OMITTED here for performance
+                teams: {
+                    where: userId ? { userId } : undefined,
+                    include: {
+                        activeChallenges: true,
                         pubGolfStops: true
                     }
                 }
@@ -255,6 +262,12 @@ export const activeTourRepository = {
         return await prisma.team.update({
             where: { id: teamId },
             data: { score }
+        });
+    },
+
+    async deleteTeam(teamId: number) {
+        return await prisma.team.delete({
+            where: { id: teamId }
         });
     }
 };

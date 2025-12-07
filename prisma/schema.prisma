@@ -135,7 +135,7 @@ model Team {
   userId       Int
   user         User       @relation(fields: [userId], references: [id])
 
-  name  String? // Optional custom team name
+  name  String?
   color String?
   emoji String?
 
@@ -171,8 +171,6 @@ model PubGolfStop {
   team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   stopId    Int
   stop      Stop     @relation(fields: [stopId], references: [id])
-  par       Int
-  drink     String
   sips      Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -53,7 +53,7 @@ export default function ProfileScreen() {
       />
 
       <ProfileStats
-        toursDone={user?.participations?.filter((p: { status: string }) => p.status === 'COMPLETED').length || 0}
+        toursDone={user?.teams?.filter((t) => t.finishedAt).length || 0}
         totalPoints={user?.xp || 0}
         friends={3} // Mock friends count
       />

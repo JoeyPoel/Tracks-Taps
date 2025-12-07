@@ -74,6 +74,41 @@ export const activeTourController = {
         }
     },
 
+    async getActiveTourProgress(request: Request, params?: { id: string }) {
+        let id = params?.id;
+
+        if (!id) {
+            const url = new URL(request.url);
+            // URL pattern: /api/active-tour/[id]/progress
+            const segments = url.pathname.split('/');
+            // segments: ['', 'api', 'active-tour', '123', 'progress']
+            id = segments[segments.length - 2];
+        }
+
+        if (!id) {
+            return Response.json({ error: 'Missing activeTourId' }, { status: 400 });
+        }
+
+        const activeTourId = Number(id);
+        if (isNaN(activeTourId)) {
+            return Response.json({ error: 'Invalid activeTourId' }, { status: 400 });
+        }
+
+        const { searchParams } = new URL(request.url);
+        const userId = searchParams.get('userId');
+
+        try {
+            const activeTour = await activeTourService.getActiveTourProgress(activeTourId, userId ? Number(userId) : undefined);
+            if (!activeTour) {
+                return Response.json({ error: 'Active tour not found' }, { status: 404 });
+            }
+            return Response.json(activeTour);
+        } catch (error: any) {
+            console.error('Error fetching active tour progress:', error);
+            return Response.json({ error: 'Failed to fetch active tour progress', details: error.message }, { status: 500 });
+        }
+    },
+
     async completeChallenge(request: Request) {
         try {
             const body = await request.json();
@@ -90,9 +125,9 @@ export const activeTourController = {
     async failChallenge(request: Request) {
         try {
             const body = await request.json();
-            const { activeTourId, challengeId } = body;
+            const { activeTourId, challengeId, userId } = body;
 
-            const result = await activeTourService.failChallenge(Number(activeTourId), Number(challengeId));
+            const result = await activeTourService.failChallenge(Number(activeTourId), Number(challengeId), Number(userId));
             return Response.json(result);
         } catch (error) {
             console.error('Error failing challenge:', error);
@@ -103,9 +138,13 @@ export const activeTourController = {
     async abandonTour(request: Request) {
         try {
             const body = await request.json();
-            const { activeTourId } = body;
+            const { activeTourId, userId } = body;
 
-            const updatedTour = await activeTourService.abandonTour(activeTourId);
+            if (!activeTourId || !userId) {
+                return Response.json({ error: 'Missing activeTourId or userId' }, { status: 400 });
+            }
+
+            const updatedTour = await activeTourService.abandonTour(activeTourId, Number(userId));
             return Response.json(updatedTour);
         } catch (error) {
             console.error('Error abandoning tour:', error);
@@ -116,9 +155,9 @@ export const activeTourController = {
     async finishTour(request: Request) {
         try {
             const body = await request.json();
-            const { activeTourId } = body;
+            const { activeTourId, userId } = body;
 
-            const updatedTour = await activeTourService.finishTour(activeTourId);
+            const updatedTour = await activeTourService.finishTour(activeTourId, userId);
             return Response.json(updatedTour);
         } catch (error) {
             console.error('Error finishing tour:', error);
@@ -129,13 +168,13 @@ export const activeTourController = {
     async updatePubGolfScore(request: Request) {
         try {
             const body = await request.json();
-            const { activeTourId, stopId, sips } = body;
+            const { activeTourId, stopId, sips, userId } = body;
 
             if (!activeTourId || !stopId || sips === undefined) {
                 return Response.json({ error: 'Missing required fields' }, { status: 400 });
             }
 
-            const updatedStop = await activeTourService.updatePubGolfScore(Number(activeTourId), Number(stopId), Number(sips));
+            const updatedStop = await activeTourService.updatePubGolfScore(Number(activeTourId), Number(stopId), Number(sips), Number(userId));
             return Response.json(updatedStop);
         } catch (error) {
             console.error('Error updating pub golf score:', error);
@@ -146,13 +185,13 @@ export const activeTourController = {
     async updateCurrentStop(request: Request) {
         try {
             const body = await request.json();
-            const { activeTourId, currentStop } = body;
+            const { activeTourId, currentStop, userId } = body;
 
             if (!activeTourId || currentStop === undefined) {
                 return Response.json({ error: 'Missing required fields' }, { status: 400 });
             }
 
-            const updatedTour = await activeTourService.updateCurrentStop(Number(activeTourId), Number(currentStop));
+            const updatedTour = await activeTourService.updateCurrentStop(Number(activeTourId), Number(currentStop), Number(userId));
             return Response.json(updatedTour);
         } catch (error) {
             console.error('Error updating current stop:', error);

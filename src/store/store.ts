@@ -27,11 +27,12 @@ interface StoreState {
     loadingActiveTours: boolean;
     errorActiveTours: string | null;
     fetchActiveTours: (userId: number) => Promise<void>;
-    fetchActiveTourById: (id: number) => Promise<void>;
+    fetchActiveTourById: (id: number, userId?: number) => Promise<void>;
+    fetchActiveTourProgress: (id: number, userId?: number) => Promise<void>;
     updateActiveTourLocal: (updates: Partial<ActiveTour>) => void;
     startTour: (tourId: number, userId: number, force?: boolean) => Promise<void>;
-    finishTour: (activeTourId: number) => Promise<boolean>;
-    abandonTour: (activeTourId: number) => Promise<void>;
+    finishTour: (activeTourId: number, userId: number) => Promise<boolean>;
+    abandonTour: (activeTourId: number, userId: number) => Promise<void>;
 
     // User Slice
     user: User | null;
@@ -164,6 +165,27 @@ export const useStore = create<StoreState>((set, get) => ({
         }
     },
 
+    fetchActiveTourProgress: async (id: number, userId?: number) => {
+        // Do not set global loading for lightweight updates
+        try {
+            const updatedProgress = await activeTourService.getActiveTourProgress(id, userId);
+            set((state) => {
+                if (!state.activeTour || state.activeTour.id !== id) return {};
+
+                // Merge updated progress into existing activeTour (preserving the full 'tour' object)
+                return {
+                    activeTour: {
+                        ...state.activeTour,
+                        ...updatedProgress,
+                        tour: state.activeTour.tour // Keep the heavy static data
+                    }
+                };
+            });
+        } catch (error: any) {
+            console.error('Failed to update active tour progress', error);
+        }
+    },
+
     updateActiveTourLocal: (updates: Partial<ActiveTour>) => {
         set((state) => {
             if (!state.activeTour) return {};
@@ -186,9 +208,9 @@ export const useStore = create<StoreState>((set, get) => ({
         }
     },
 
-    finishTour: async (activeTourId: number) => {
+    finishTour: async (activeTourId: number, userId: number) => {
         try {
-            await activeTourService.finishTour(activeTourId);
+            await activeTourService.finishTour(activeTourId, userId);
             // Update local state
             set((state) => {
                 if (state.activeTour && state.activeTour.id === activeTourId) {
@@ -203,9 +225,9 @@ export const useStore = create<StoreState>((set, get) => ({
         }
     },
 
-    abandonTour: async (activeTourId: number) => {
+    abandonTour: async (activeTourId: number, userId: number) => {
         try {
-            await activeTourService.abandonTour(activeTourId);
+            await activeTourService.abandonTour(activeTourId, userId);
             // Update local state
             set((state) => {
                 if (state.activeTour && state.activeTour.id === activeTourId) {

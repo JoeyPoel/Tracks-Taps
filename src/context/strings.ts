@@ -123,6 +123,8 @@ export const strings = {
     activeTourExistsMessage: 'You have an active tour. Starting a new one will cause you to lose progress. Do you want to proceed?',
     startNew: 'Start New',
     failedToCreateTeam: 'Failed to create team. Please try again.',
+    loginRequired: 'Login Required',
+    loading: 'Loading...',
   },
   es: {
     profile: 'Perfil',
@@ -230,6 +232,8 @@ export const strings = {
     pubGolfInstructions: '¡Intenta terminar cada bebida en par o menos! La puntuación más baja gana.',
     pubGolfLegend: 'Águila (-2) • Pajarito (-1) • Par (0) • Bogey (+1)',
     drink: 'Bebida',
+    loginRequired: 'Inicio de sesión obligatorio',
+    loading: 'Cargando...',
   },
   nl: {
     profile: 'Profiel',
@@ -337,5 +341,7 @@ export const strings = {
     pubGolfInstructions: 'Probeer elk drankje in par of minder te eindigen! Lagere score wint.',
     pubGolfLegend: 'Eagle (-2) • Birdie (-1) • Par (0) • Bogey (+1)',
     drink: 'Drankje',
+    loginRequired: 'Inloggen vereist',
+    loading: 'Laden...',
   },
 };

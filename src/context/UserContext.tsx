@@ -1,20 +1,9 @@
 import React, { createContext, useContext, useEffect } from 'react';
 import { useStore } from '../store/store';
-
-export interface UserProfile {
-    id: number;
-    name: string;
-    email: string;
-    level: number;
-    xp: number;
-    tokens: number;
-    participations: {
-        status: string;
-    }[];
-}
+import { User } from '../types/models';
 
 interface UserContextType {
-    user: UserProfile | null;
+    user: User | null;
     loading: boolean;
     error: string | null;
     refreshUser: () => Promise<void>;
@@ -46,7 +35,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <UserContext.Provider value={{ user: user as UserProfile, loading, error, refreshUser, updateUserXp }}>
+        <UserContext.Provider value={{ user, loading, error, refreshUser, updateUserXp }}>
             {children}
         </UserContext.Provider>
     );

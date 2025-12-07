@@ -22,7 +22,16 @@ export default function TourHeader({ title, author, imageUrl }: TourHeaderProps)
     return (
         <ImageBackground source={{ uri: imageUrl }} style={styles.background}>
             <SafeAreaView style={styles.safeArea} edges={['top']}>
-                <Pressable onPress={() => router.back()} style={styles.backButton}>
+                <Pressable
+                    onPress={() => {
+                        if (router.canGoBack()) {
+                            router.back();
+                        } else {
+                            router.replace('/');
+                        }
+                    }}
+                    style={styles.backButton}
+                >
                     <Ionicons name="arrow-back" size={24} color={theme.fixedWhite} />
                 </Pressable>
             </SafeAreaView>

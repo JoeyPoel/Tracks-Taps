@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ColorSelector } from '../components/teamSetup/ColorSelector';
 import { EmojiSelector } from '../components/teamSetup/EmojiSelector';
 import { TeamNameInput } from '../components/teamSetup/TeamNameInput';
@@ -27,9 +28,19 @@ export default function TeamSetupScreen() {
     } = useTeamSetup();
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
             <View style={[styles.header, { borderBottomColor: theme.borderPrimary }]}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.closeButton}>
+                <TouchableOpacity
+                    onPress={() => {
+                        if (router.canGoBack()) {
+                            router.back();
+                        } else {
+                            router.replace('/');
+                        }
+                    }}
+                    style={styles.closeButton}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
                     <Ionicons name="close" size={24} color={theme.textPrimary} />
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('teamSetup')}</Text>
@@ -41,7 +52,16 @@ export default function TeamSetupScreen() {
                     {t('customizeTeam')}
                 </Text>
 
-                <TouchableOpacity onPress={() => router.back()} style={styles.backLink}>
+                <TouchableOpacity
+                    onPress={() => {
+                        if (router.canGoBack()) {
+                            router.back();
+                        } else {
+                            router.replace('/');
+                        }
+                    }}
+                    style={styles.backLink}
+                >
                     <Ionicons name="arrow-back" size={16} color={theme.textSecondary} />
                     <Text style={{ color: theme.textSecondary, marginLeft: 4 }}>{t('back')}</Text>
                 </TouchableOpacity>
@@ -67,7 +87,7 @@ export default function TeamSetupScreen() {
                     </Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 
