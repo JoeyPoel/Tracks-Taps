@@ -169,18 +169,7 @@ export const useStore = create<StoreState>((set, get) => ({
         // Do not set global loading for lightweight updates
         try {
             const updatedProgress = await activeTourService.getActiveTourProgress(id, userId);
-            set((state) => {
-                if (!state.activeTour || state.activeTour.id !== id) return {};
-
-                // Merge updated progress into existing activeTour (preserving the full 'tour' object)
-                return {
-                    activeTour: {
-                        ...state.activeTour,
-                        ...updatedProgress,
-                        tour: state.activeTour.tour // Keep the heavy static data
-                    }
-                };
-            });
+            get().updateActiveTourLocal(updatedProgress);
         } catch (error: any) {
             console.error('Failed to update active tour progress', error);
         }
@@ -189,8 +178,23 @@ export const useStore = create<StoreState>((set, get) => ({
     updateActiveTourLocal: (updates: Partial<ActiveTour>) => {
         set((state) => {
             if (!state.activeTour) return {};
+
+            let finalTeams = state.activeTour.teams || [];
+            if (updates.teams && updates.teams.length > 0) {
+                const updatesMap = new Map(updates.teams.map(t => [t.id, t]));
+                finalTeams = finalTeams.map(t => updatesMap.get(t.id) || t);
+            }
+
+            // Remove teams from updates to avoid overwriting the merged array
+            const { teams, ...otherUpdates } = updates;
+
             return {
-                activeTour: { ...state.activeTour, ...updates }
+                activeTour: {
+                    ...state.activeTour,
+                    ...otherUpdates,
+                    teams: finalTeams,
+                    tour: state.activeTour.tour // Ensure tour is kept
+                }
             };
         });
     },

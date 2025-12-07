@@ -72,6 +72,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         if (user.id) {
             // Call backend in background
             activeTourService.updatePubGolfScore(activeTourId, stopId, sips, user.id)
+                .then((progress) => updateActiveTourLocal(progress))
                 .catch(error => {
                     console.error("Failed to save sips:", error);
                     // Revert on error

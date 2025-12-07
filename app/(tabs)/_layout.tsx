@@ -36,7 +36,7 @@ export default function TabLayout() {
                     title: t('join'),
                     tabBarLabel: t('join'),
                     tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="enter-outline" size={size} color={color} />
+                        <Ionicons name="people-outline" size={size} color={color} />
                     ),
                 }}
             />

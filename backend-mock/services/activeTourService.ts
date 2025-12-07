@@ -71,10 +71,13 @@ export const activeTourService = {
         await activeTourRepository.updateStreak(team.id, (team.streak || 0) + 1);
         await activeTourRepository.updateTeamScore(team.id, (team.score || 0) + challenge.points);
 
-        return await activeTourRepository.upsertActiveChallenge(team.id, challengeId, {
+        const updateResult = await activeTourRepository.upsertActiveChallenge(team.id, challengeId, {
             completed: true,
             completedAt: new Date(),
         });
+
+        // Return updated progress
+        return await activeTourService.getActiveTourProgress(activeTourId, userId);
     },
 
     async failChallenge(activeTourId: number, challengeId: number, userId: number) {
@@ -84,16 +87,22 @@ export const activeTourService = {
         // Reset streak on failure
         await activeTourRepository.updateStreak(team.id, 0);
 
-        return await activeTourRepository.upsertActiveChallenge(team.id, challengeId, {
+        await activeTourRepository.upsertActiveChallenge(team.id, challengeId, {
             failed: true,
         });
+
+        // Return updated progress
+        return await activeTourService.getActiveTourProgress(activeTourId, userId);
     },
 
     async updateCurrentStop(activeTourId: number, currentStop: number, userId: number) {
         const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
         if (!team) throw new Error("Team not found");
 
-        return await activeTourRepository.updateCurrentStop(team.id, currentStop);
+        await activeTourRepository.updateCurrentStop(team.id, currentStop);
+
+        // Return updated progress
+        return await activeTourService.getActiveTourProgress(activeTourId, userId);
     },
 
     async deleteActiveTour(activeTourId: number) {
@@ -166,13 +175,19 @@ export const activeTourService = {
         const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
         if (!team) throw new Error("Team not found");
 
-        return await activeTourRepository.updatePubGolfScore(team.id, stopId, sips);
+        await activeTourRepository.updatePubGolfScore(team.id, stopId, sips);
+
+        // Return updated progress
+        return await activeTourService.getActiveTourProgress(activeTourId, userId);
     },
 
     async updateTeamDetails(activeTourId: number, userId: number, name: string, color: string, emoji: string) {
         const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
         if (!team) throw new Error("Team not found");
 
-        return await activeTourRepository.updateTeamDetails(team.id, name, color, emoji);
+        await activeTourRepository.updateTeamDetails(team.id, name, color, emoji);
+
+        // Return updated progress
+        return await activeTourService.getActiveTourProgress(activeTourId, userId);
     },
 };

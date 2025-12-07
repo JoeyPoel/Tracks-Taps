@@ -9,10 +9,9 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     const storeLoading = useStore((state) => state.loadingActiveTours);
     const error = useStore((state) => state.errorActiveTours);
     const fetchActiveTourById = useStore((state) => state.fetchActiveTourById);
-    const fetchActiveTourProgress = useStore((state) => state.fetchActiveTourProgress);
     const finishTour = useStore((state) => state.finishTour);
     const abandonTour = useStore((state) => state.abandonTour);
-    const addXp = useStore((state) => state.addXp);
+
     const updateActiveTourLocal = useStore((state) => state.updateActiveTourLocal);
 
     // Derived loading state
@@ -82,7 +81,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         if (userId) {
             // Background API call
             activeTourService.completeChallenge(activeTourId, challenge.id, userId)
-                .then(() => fetchActiveTourProgress(activeTourId, userId))
+                .then((updatedProgress) => updateActiveTourLocal(updatedProgress))
                 .catch(err => {
                     console.error('Failed to complete challenge', err);
                     // Revert optimistic update
@@ -104,7 +103,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         if (userId) {
             // Background API call
             activeTourService.failChallenge(activeTourId, challenge.id, userId)
-                .then(() => fetchActiveTourProgress(activeTourId, userId))
+                .then((updatedProgress) => updateActiveTourLocal(updatedProgress))
                 .catch(err => {
                     console.error('Failed to fail challenge', err);
                     // Revert
@@ -120,7 +119,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         if (selectedIndex === undefined || completedChallenges.has(challenge.id) || failedChallenges.has(challenge.id)) return;
 
         const selectedOption = challenge.options[selectedIndex];
-        console.log(`Trivia Check: Selected '${selectedOption}' vs Answer '${challenge.answer}'`);
+
         if (selectedOption === challenge.answer) {
             handleChallengeComplete(challenge);
         } else {
@@ -144,7 +143,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
                 updateActiveTourLocal({ teams: updatedTeams });
 
                 return activeTourService.updateCurrentStop(activeTourId, newStop, userId)
-                    .then(() => fetchActiveTourProgress(activeTourId, userId))
+                    .then((updatedProgress) => updateActiveTourLocal(updatedProgress))
                     .catch(error => {
                         console.error("Failed to update current stop", error);
                         // Revert
@@ -173,7 +172,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
                 updateActiveTourLocal({ teams: updatedTeams });
 
                 return activeTourService.updateCurrentStop(activeTourId, newStop, userId)
-                    .then(() => fetchActiveTourProgress(activeTourId, userId))
+                    .then((updatedProgress) => updateActiveTourLocal(updatedProgress))
                     .catch(error => {
                         console.error("Failed to update current stop", error);
                         // Revert
