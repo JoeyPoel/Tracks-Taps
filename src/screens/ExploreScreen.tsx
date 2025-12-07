@@ -50,13 +50,20 @@ export default function ExploreScreen() {
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.bgPrimary }]}>
-      {activeTour && (
-        <ActiveTourCard
-          title={activeTour.tour?.title || ''}
-          progress={0.5} // TODO: Calculate actual progress
-          onResume={() => router.push({ pathname: '/active-tour/[id]' as any, params: { id: activeTour.id } })}
-        />
-      )}
+      {activeTour && (() => {
+        const currentTeam = activeTour.teams?.find((t: any) => t.userId === user?.id) || activeTour.teams?.[0];
+        const totalStops = activeTour.tour?._count?.stops || activeTour.tour?.stops?.length || 1;
+        const currentStop = currentTeam?.currentStop || 1;
+        const progress = currentStop / totalStops;
+
+        return (
+          <ActiveTourCard
+            title={activeTour.tour?.title || ''}
+            progress={progress}
+            onResume={() => router.push({ pathname: '/active-tour/[id]' as any, params: { id: activeTour.id } })}
+          />
+        );
+      })()}
 
       {tours.map((tour) => (
         <TourCard

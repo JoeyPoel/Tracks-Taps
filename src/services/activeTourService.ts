@@ -21,13 +21,13 @@ export const activeTourService = {
         return response.data;
     },
 
-    async failChallenge(activeTourId: number, challengeId: number) {
-        const response = await client.post('/active-challenge/fail', { activeTourId, challengeId });
+    async failChallenge(activeTourId: number, challengeId: number, userId: number) {
+        const response = await client.post('/active-challenge/fail', { activeTourId, challengeId, userId });
         return response.data;
     },
 
-    async finishTour(activeTourId: number) {
-        const response = await client.post('/active-tour/finish', { activeTourId });
+    async finishTour(activeTourId: number, userId: number) {
+        const response = await client.post('/active-tour/finish', { activeTourId, userId });
         return response.data;
     },
 
@@ -36,13 +36,13 @@ export const activeTourService = {
         return response.data;
     },
 
-    async updatePubGolfScore(activeTourId: number, stopId: number, sips: number) {
-        const response = await client.post('/active-tour/pub-golf', { activeTourId, stopId, sips });
+    async updatePubGolfScore(activeTourId: number, stopId: number, sips: number, userId: number) {
+        const response = await client.post('/active-tour/pub-golf', { activeTourId, stopId, sips, userId });
         return response.data;
     },
 
-    async updateCurrentStop(activeTourId: number, currentStop: number) {
-        const response = await client.post(`/active-tour/${activeTourId}/current-stop`, { activeTourId, currentStop });
+    async updateCurrentStop(activeTourId: number, currentStop: number, userId: number) {
+        const response = await client.post(`/active-tour/${activeTourId}/current-stop`, { activeTourId, currentStop, userId });
         return response.data;
     }
 };

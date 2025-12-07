@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { activeTourService } from '../services/activeTourService';
 import { useStore } from '../store/store';
+import { ActiveChallenge, Team } from '../types/models';
 
 export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?: (amount: number) => void) => {
     // Global State
@@ -13,9 +14,15 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
     const addXp = useStore((state) => state.addXp);
     const updateActiveTourLocal = useStore((state) => state.updateActiveTourLocal);
 
-    // Derived loading state: Only show loading if we don't have the correct active tour data
-    // This allows background refetches (where storeLoading is true but activeTour is present) without unmounting UI
+    // Derived loading state
     const loading = storeLoading && activeTour?.id !== activeTourId;
+
+    // Resolve Team
+    const currentTeam = activeTour?.teams?.find((t: Team) => userId ? t.userId === userId : true)
+        || activeTour?.teams?.[0];
+
+    const currentStop = currentTeam?.currentStop || 1;
+    const streak = currentTeam?.streak || 0;
 
     // Local UI State
     const [points, setPoints] = useState(0);
@@ -32,28 +39,25 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
         }
     }, [activeTourId, fetchActiveTourById]);
 
-    // Sync completed and failed challenges from API
+    // Sync completed and failed challenges from API (Team based)
     useEffect(() => {
-        if (activeTour?.activeChallenges) {
+        if (currentTeam?.activeChallenges) {
             const completed = new Set<number>();
             const failed = new Set<number>();
             let xp = 0;
 
-            activeTour.activeChallenges.forEach((ac: any) => {
+            currentTeam.activeChallenges.forEach((ac: ActiveChallenge) => {
                 if (ac.completed) {
                     completed.add(ac.challengeId);
-                    if (ac.challenge?.points) {
-                        xp += ac.challenge.points;
-                    }
                 }
                 if (ac.failed) failed.add(ac.challengeId);
             });
 
             setCompletedChallenges(completed);
             setFailedChallenges(failed);
-            setPoints(xp);
+            setPoints(currentTeam.score || 0);
         }
-    }, [activeTour]);
+    }, [currentTeam]);
 
     const triggerFloatingPoints = (amount: number) => {
         setFloatingPointsAmount(amount);
@@ -84,7 +88,6 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
                     const reverted = new Set(completedChallenges);
                     reverted.delete(challenge.id);
                     setCompletedChallenges(reverted);
-                    // Note: Reverting points/XP is harder and might not be worth the complexity for rare errors
                 });
         }
     };
@@ -97,16 +100,18 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
         newFailed.add(challenge.id);
         setFailedChallenges(newFailed);
 
-        // Background API call
-        activeTourService.failChallenge(activeTourId, challenge.id)
-            .then(() => fetchActiveTourById(activeTourId))
-            .catch(err => {
-                console.error('Failed to fail challenge', err);
-                // Revert optimistic update on error
-                const reverted = new Set(failedChallenges);
-                reverted.delete(challenge.id);
-                setFailedChallenges(reverted);
-            });
+        if (userId) {
+            // Background API call
+            activeTourService.failChallenge(activeTourId, challenge.id, userId)
+                .then(() => fetchActiveTourById(activeTourId))
+                .catch(err => {
+                    console.error('Failed to fail challenge', err);
+                    // Revert
+                    const reverted = new Set(failedChallenges);
+                    reverted.delete(challenge.id);
+                    setFailedChallenges(reverted);
+                });
+        }
     };
 
     const handleSubmitTrivia = (challenge: any) => {
@@ -123,56 +128,52 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
     };
 
     const handlePrevStop = async () => {
-        if (!activeTour) return;
+        if (!currentTeam) return;
 
-        const currentStopIndex = (activeTour.currentStop || 1) - 1;
+        const currentStopIndex = (currentTeam.currentStop || 1) - 1;
         if (currentStopIndex > 0) {
-            const newStop = activeTour.currentStop - 1;
+            const newStop = currentTeam.currentStop - 1;
 
-            // Optimistic update
-            updateActiveTourLocal({ currentStop: newStop });
-
-            // Background API call
-            activeTourService.updateCurrentStop(activeTourId, newStop)
-                .then(() => fetchActiveTourById(activeTourId))
-                .catch(error => {
-                    console.error("Failed to update current stop", error);
-                    // Revert
-                    updateActiveTourLocal({ currentStop: activeTour.currentStop });
-                });
+            if (userId) {
+                activeTourService.updateCurrentStop(activeTourId, newStop, userId)
+                    .then(() => fetchActiveTourById(activeTourId))
+                    .catch(error => {
+                        console.error("Failed to update current stop", error);
+                    });
+            }
         }
     };
 
     const handleNextStop = async () => {
-        if (!activeTour) return;
+        if (!currentTeam) return;
 
-        const currentStopIndex = (activeTour.currentStop || 1) - 1;
-        if (activeTour.tour?.stops && currentStopIndex < activeTour.tour.stops.length - 1) {
-            if (activeTour.status === 'COMPLETED') return;
+        const currentStopIndex = (currentTeam.currentStop || 1) - 1;
+        if (activeTour?.tour?.stops && currentStopIndex < activeTour.tour.stops.length - 1) {
+            // Check tour status? Or team finish?
+            if (activeTour.status === 'COMPLETED' || currentTeam.finishedAt) return;
 
-            const newStop = activeTour.currentStop + 1;
+            const newStop = currentTeam.currentStop + 1;
 
-            // Optimistic update
-            updateActiveTourLocal({ currentStop: newStop });
-
-            // Background API call
-            activeTourService.updateCurrentStop(activeTourId, newStop)
-                .then(() => fetchActiveTourById(activeTourId))
-                .catch(error => {
-                    console.error("Failed to update current stop", error);
-                    // Revert
-                    updateActiveTourLocal({ currentStop: activeTour.currentStop });
-                });
+            if (userId) {
+                activeTourService.updateCurrentStop(activeTourId, newStop, userId)
+                    .then(() => fetchActiveTourById(activeTourId))
+                    .catch(error => {
+                        console.error("Failed to update current stop", error);
+                    });
+            }
         }
     };
 
     const handleFinishTour = async (): Promise<boolean> => {
-        const success = await finishTour(activeTourId);
-        if (success) {
+        if (!userId) return false;
+        try {
+            await activeTourService.finishTour(activeTourId, userId);
+            await fetchActiveTourById(activeTourId);
             setShowConfetti(true);
             return true;
+        } catch (e) {
+            return false;
         }
-        return false;
     };
 
     const handleAbandonTour = async () => {
@@ -183,7 +184,7 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
         activeTour,
         loading,
         error,
-        currentStopIndex: (activeTour?.currentStop || 1) - 1, // Convert 1-based DB to 0-based Index
+        currentStopIndex: (currentStop || 1) - 1,
         completedChallenges,
         failedChallenges,
         triviaSelected,
@@ -199,8 +200,9 @@ export const useActiveTour = (activeTourId: number, userId?: number, onXpEarned?
         handleNextStop,
         handleFinishTour,
         handleAbandonTour,
-        streak: activeTour?.streak || 0,
+        streak,
         points,
         updateActiveTourLocal,
+        currentTeam,
     };
 };

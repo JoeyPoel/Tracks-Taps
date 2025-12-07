@@ -99,15 +99,29 @@ export interface ActiveTour {
     createdAt: Date;
     updatedAt: Date;
     tour?: Tour;
-    activeChallenges?: ActiveChallenge[];
-    pubGolfStops?: PubGolfStop[];
+    teams?: Team[];
+    winnerTeamId?: number;
+}
+
+export interface Team {
+    id: number;
+    activeTourId: number;
+    userId: number;
+    name: string;
+    color: string;
+    emoji: string;
     currentStop: number;
     streak: number;
+    score: number;
+    finishedAt: Date | null;
+    activeChallenges?: ActiveChallenge[];
+    pubGolfStops?: PubGolfStop[];
+    user?: User;
 }
 
 export interface PubGolfStop {
     id: number;
-    activeTourId: number;
+    teamId: number;
     stopId: number;
     par: number;
     drink: string;
@@ -118,7 +132,7 @@ export interface PubGolfStop {
 
 export interface ActiveChallenge {
     id: number;
-    activeTourId: number;
+    teamId: number;
     challengeId: number;
     completed: boolean;
     completedAt: Date | null;

@@ -46,20 +46,22 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         streak,
         points,
         updateActiveTourLocal,
+        currentTeam,
     } = useActiveTour(activeTourId, user?.id, updateUserXp);
 
     // Initialize scores from activeTour data
+    // Initialize scores from activeTour data
     useEffect(() => {
-        if (activeTour?.pubGolfStops) {
+        if (currentTeam?.pubGolfStops) {
             const initialScores: Record<number, number> = {};
-            activeTour.pubGolfStops.forEach((pgStop: any) => {
+            currentTeam.pubGolfStops.forEach((pgStop: any) => {
                 if (pgStop.sips > 0) {
                     initialScores[pgStop.stopId] = pgStop.sips;
                 }
             });
             setPubGolfScores(initialScores);
         }
-    }, [activeTour]);
+    }, [currentTeam]);
 
     const handleSaveSips = async (stopId: number, sips: number) => {
         const previousSips = pubGolfScores[stopId] || 0;
@@ -67,29 +69,26 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
         // Optimistic update local state
         setPubGolfScores(prev => ({ ...prev, [stopId]: sips }));
 
-        // Optimistic update global store
-        if (activeTour?.pubGolfStops) {
-            const updatedStops = activeTour.pubGolfStops.map((s: any) =>
+        // Optimistic update global store (Disabled due to team structure change)
+        /*
+        if (currentTeam?.pubGolfStops) {
+            const updatedStops = currentTeam.pubGolfStops.map((s: any) =>
                 s.stopId === stopId ? { ...s, sips } : s
             );
-            // Handle case where stop might not be in the array yet (if that's possible in data model)
-            // Assuming it is for now based on usage
-            updateActiveTourLocal({ pubGolfStops: updatedStops });
+            // updateActiveTourLocal does not support updating nested teams yet
+            // updateActiveTourLocal({ pubGolfStops: updatedStops });
         }
+        */
 
-        // Call backend in background
-        activeTourService.updatePubGolfScore(activeTourId, stopId, sips)
-            .catch(error => {
-                console.error("Failed to save sips:", error);
-                // Revert on error
-                setPubGolfScores(prev => ({ ...prev, [stopId]: previousSips }));
-                if (activeTour?.pubGolfStops) {
-                    const revertedStops = activeTour.pubGolfStops.map((s: any) =>
-                        s.stopId === stopId ? { ...s, sips: previousSips } : s
-                    );
-                    updateActiveTourLocal({ pubGolfStops: revertedStops });
-                }
-            });
+        if (user?.id) {
+            // Call backend in background
+            activeTourService.updatePubGolfScore(activeTourId, stopId, sips, user.id)
+                .catch(error => {
+                    console.error("Failed to save sips:", error);
+                    // Revert on error
+                    setPubGolfScores(prev => ({ ...prev, [stopId]: previousSips }));
+                });
+        }
     };
 
     if (loading) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>{t('loadingTour')}</Text></View>;

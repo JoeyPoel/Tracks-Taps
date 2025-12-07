@@ -19,8 +19,16 @@ export const activeTourService = {
             }
 
             // If force is true, delete existing active tours
+            // Note: In real team logic, maybe we only remove the user from the team? 
+            // But for now, deleting the user's active tours (or teams) is consistent with previous behavior.
+            // If the user is the only one in the tour, maybe delete the tour?
+            // For simplicity, we'll iterate and if the user is 1-on-1 or we just want to clear "Active" status.
+            // Since the schema change, deleting activeTour cascades to teams. 
+            // If other teams exist, maybe we shouldn't delete the whole tour? 
+            // But valid "ActiveTour" implies the user is participating. 
+            // We'll delete the ActiveTour for now as per previous logic "activeTours[0].id".
+
             for (const tour of activeTours) {
-                // Delete the tour (cascade will handle challenges and pub golf stops)
                 await activeTourRepository.deleteActiveTourById(tour.id);
             }
         }
@@ -28,9 +36,15 @@ export const activeTourService = {
         return await activeTourRepository.createActiveTour(tourId, userId);
     },
 
-    // Keeping original startTour for backward compatibility if needed, but startTourWithConflictCheck is preferred
+    // Keeping original startTour for backward compatibility
     async startTour(tourId: number, userId: number) {
         return await activeTourRepository.createActiveTour(tourId, userId);
+    },
+
+    // New: Join specific tour
+    async joinTour(activeTourId: number, userId: number, teamName?: string, teamColor?: string, teamEmoji?: string) {
+        // Check if already in it needed?
+        return await activeTourRepository.joinActiveTour(activeTourId, userId, teamName, teamColor, teamEmoji);
     },
 
     async getActiveTourById(id: number) {
@@ -44,46 +58,87 @@ export const activeTourService = {
             throw new Error("Challenge not found");
         }
 
+        const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
+        if (!team) throw new Error("Team not found for this tour");
+
         await userRepository.addXp(userId, challenge.points);
 
-        // Get current active tour to increment streak
-        const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
-        if (activeTour) {
-            await activeTourRepository.updateStreak(activeTourId, (activeTour.streak || 0) + 1);
-        }
+        // Update Team streak and score
+        await activeTourRepository.updateStreak(team.id, (team.streak || 0) + 1);
+        await activeTourRepository.updateTeamScore(team.id, (team.score || 0) + challenge.points);
 
-        return await activeTourRepository.upsertActiveChallenge(activeTourId, challengeId, {
+        return await activeTourRepository.upsertActiveChallenge(team.id, challengeId, {
             completed: true,
             completedAt: new Date(),
         });
     },
 
-    async failChallenge(activeTourId: number, challengeId: number) {
-        // Reset streak on failure
-        await activeTourRepository.updateStreak(activeTourId, 0);
+    async failChallenge(activeTourId: number, challengeId: number, userId: number) {
+        const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
+        if (!team) throw new Error("Team not found for this tour");
 
-        return await activeTourRepository.upsertActiveChallenge(activeTourId, challengeId, {
+        // Reset streak on failure
+        await activeTourRepository.updateStreak(team.id, 0);
+
+        return await activeTourRepository.upsertActiveChallenge(team.id, challengeId, {
             failed: true,
         });
     },
 
-    async updateCurrentStop(activeTourId: number, currentStop: number) {
-        return await activeTourRepository.updateCurrentStop(activeTourId, currentStop);
+    async updateCurrentStop(activeTourId: number, currentStop: number, userId: number) {
+        const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
+        if (!team) throw new Error("Team not found");
+
+        return await activeTourRepository.updateCurrentStop(team.id, currentStop);
     },
 
     async deleteActiveTour(activeTourId: number) {
         return await activeTourRepository.deleteActiveTourById(activeTourId);
     },
 
-    async finishTour(activeTourId: number) {
-        return await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.COMPLETED);
+    async finishTour(activeTourId: number, userId: number) {
+        const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
+        if (!team) throw new Error("Team not found");
+
+        // Mark this team as finished
+        await activeTourRepository.updateTeamFinish(team.id, new Date(), team.score);
+
+        // Fetch full tour to check other teams
+        const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
+        if (!activeTour) throw new Error("Tour not found");
+
+        const allTeamsFinished = activeTour.teams.every(t => t.finishedAt !== null);
+
+        if (allTeamsFinished) {
+            // Determine winner
+            // Sort by score DESC, then finishedAt ASC
+            const sortedTeams = [...activeTour.teams].sort((a, b) => {
+                if (b.score !== a.score) {
+                    return b.score - a.score; // Higher score first
+                }
+                const timeA = new Date(a.finishedAt!).getTime();
+                const timeB = new Date(b.finishedAt!).getTime();
+                return timeA - timeB; // Earlier time first
+            });
+
+            const winner = sortedTeams[0];
+
+            return await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.COMPLETED, winner.id);
+        } else {
+            // Tour continues for others
+            // Maybe return something indicating waiting for others?
+            return activeTour;
+        }
     },
 
     async abandonTour(activeTourId: number) {
         return await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.ABANDONED);
     },
 
-    async updatePubGolfScore(activeTourId: number, stopId: number, sips: number) {
-        return await activeTourRepository.updatePubGolfScore(activeTourId, stopId, sips);
+    async updatePubGolfScore(activeTourId: number, stopId: number, sips: number, userId: number) {
+        const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
+        if (!team) throw new Error("Team not found");
+
+        return await activeTourRepository.updatePubGolfScore(team.id, stopId, sips);
     },
 };
