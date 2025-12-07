@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
@@ -15,11 +14,8 @@ export default function TourStats({ distance, duration, stops, points }: TourSta
     const { theme } = useTheme();
     const { t } = useLanguage();
 
-    const StatItem = ({ label, value, icon, iconColor }: { label: string; value: string | number; icon: keyof typeof Ionicons.glyphMap; iconColor: string }) => (
-        <View style={styles.statItem}>
-            <View style={[styles.iconContainer, { backgroundColor: `${iconColor}20` }]}>
-                <Ionicons name={icon} size={20} color={iconColor} />
-            </View>
+    const StatItem = ({ label, value }: { label: string; value: string | number }) => (
+        <View style={[styles.statItem, { backgroundColor: theme.bgSecondary }]}>
             <Text style={[styles.label, { color: theme.textSecondary }]}>{label}</Text>
             <Text style={[styles.value, { color: theme.textPrimary }]}>{value}</Text>
         </View>
@@ -30,26 +26,18 @@ export default function TourStats({ distance, duration, stops, points }: TourSta
             <StatItem
                 label={t('distance')}
                 value={distance}
-                icon="location-outline"
-                iconColor={theme.secondary}
             />
             <StatItem
                 label={t('duration')}
                 value={duration}
-                icon="time-outline"
-                iconColor={theme.success}
             />
             <StatItem
                 label={t('stops')}
                 value={stops}
-                icon="trending-up-outline"
-                iconColor={theme.danger}
             />
             <StatItem
                 label={t('points')}
                 value={points}
-                icon="flash-outline"
-                iconColor={theme.accent}
             />
         </View>
     );
@@ -58,25 +46,22 @@ export default function TourStats({ distance, duration, stops, points }: TourSta
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         paddingHorizontal: 16,
         marginTop: 16,
+        marginBottom: 8,
+        gap: 8, // Use gap for creating space between items
     },
     statItem: {
         flex: 1,
         alignItems: 'center',
-        marginHorizontal: 4,
-    },
-    iconContainer: {
-        padding: 10,
-        borderRadius: 12,
-        marginBottom: 8,
-        alignItems: 'center',
         justifyContent: 'center',
+        paddingVertical: 12,
+        borderRadius: 12, // Rounded corners
     },
     label: {
         fontSize: 12,
         marginBottom: 4,
+        opacity: 0.8,
     },
     value: {
         fontSize: 16,

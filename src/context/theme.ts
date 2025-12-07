@@ -64,7 +64,7 @@ export const lightTheme = {
 
   challengeFailedBackground: '#2b0e0e',
   challengeFailedBorder: '#F87171',
-  
+
   challengeCorrectBackground: '#062115',
   challengeCorrectBorder: '#4ADE80',
 
@@ -104,7 +104,7 @@ export const darkTheme = {
   infoText: "#DBEAFE",
 
   bgPrimary: "#0F172A",
-  bgSecondary: "#1e2632ff",
+  bgSecondary: "#1E293B",
   bgTertiary: "#334155",
   bgInput: "#1E293B",
   bgDisabled: "#475569",
@@ -150,7 +150,7 @@ export const darkTheme = {
 
   challengeFailedBackground: '#2b0e0e',
   challengeFailedBorder: '#F87171',
-  
+
   challengeCorrectBackground: '#062115',
   challengeCorrectBorder: '#4ADE80',
 
