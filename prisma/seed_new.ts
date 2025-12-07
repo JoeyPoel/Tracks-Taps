@@ -531,8 +531,8 @@ async function main() {
     // Create Team for Joey in that active tour
     const joeyTeam = await prisma.team.create({
         data: {
-            activeTourId: activeTour.id,
-            userId: joey.id,
+            activeTour: { connect: { id: activeTour.id } },
+            user: { connect: { id: joey.id } },
             name: "Joey's Team",
             color: '#FF375D',
             emoji: '🚀',
@@ -552,8 +552,8 @@ async function main() {
 
     await prisma.team.create({
         data: {
-            activeTourId: activeTour2.id,
-            userId: joey.id,
+            activeTour: { connect: { id: activeTour2.id } },
+            user: { connect: { id: joey.id } },
             name: "Single Player",
             currentStop: 1,
         }
@@ -570,8 +570,8 @@ async function main() {
 
     await prisma.team.create({
         data: {
-            activeTourId: activeTour3.id,
-            userId: joey.id,
+            activeTour: { connect: { id: activeTour3.id } },
+            user: { connect: { id: joey.id } },
             name: "Winning Team",
             currentStop: 4,
             finishedAt: new Date(),
