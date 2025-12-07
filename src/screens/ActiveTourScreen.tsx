@@ -119,7 +119,11 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                 )}
 
                 <CustomTabBar
-                    tabs={[`${t('challenges')}`, `${t('pubgolf')}`]}
+                    tabs={
+                        activeTour.tour?.modes?.includes('PUBGOLF')
+                            ? [`${t('challenges')}`, `${t('pubgolf')}`]
+                            : [`${t('challenges')}`]
+                    }
                     activeIndex={activeTab}
                     onTabPress={setActiveTab}
                 />
@@ -135,14 +139,14 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                         handleChallengeComplete={handleChallengeComplete}
                         handleSubmitTrivia={handleSubmitTrivia}
                     />
-                ) : (
+                ) : activeTour.tour?.modes?.includes('PUBGOLF') && activeTab === 1 ? (
                     <PubGolfSection
                         activeTour={activeTour}
                         pubGolfScores={pubGolfScores}
                         currentStopId={currentStop?.id}
                         handleSaveSips={handleSaveSips}
                     />
-                )}
+                ) : null}
 
                 <TourNavigation
                     currentStopIndex={currentStopIndex}
