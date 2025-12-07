@@ -1,16 +1,75 @@
-# Tracks & Taps
+# Tracks & Taps 🍻
 
-Tracks & Taps is an interactive tour application built with Expo (React Native) and a serverless-style backend using Expo Router API routes and Prisma.
+Tracks & Taps is an interactive, gamified tour application built with **Expo (React Native)** for the frontend and a **serverless-style backend** fully integrated via Expo Router API routes.
+
+We combine GPS-based navigation, trivia challenges, and social features to create unique city experiences—from historical walking tours to competitive "Pub Golf" crawls.
+
+## 🌟 Key Features
+
+### 🎮 Interactive Tours
+-   **GPS Check-ins**: Validates user location to unlock stops.
+-   **Challenges**: Trivia questions, location verification, and photo tasks.
+-   **Progress Tracking**: Persists current stop and score.
+
+### ⛳ Pub Golf Mode
+-   **Specialized Scoring**: Compete against a "Par" (number of sips/drinks).
+-   **Scorecard**: Track specific drink requirements and penalties.
+
+### 🤝 Team Play
+-   **Real-time Logic**: Supports teams joining an Active Tour.
+-   **Live Updates**: Scores and current stops are synced to the database.
+
+---
+
+## 🏗️ Architecture & How It Works
+
+This project implements a **Serverless Monolith** architecture. While it looks like a standard React Native app, it contains a full backend API within the `app/api` directory.
+
+### The Stack
+-   **Frontend**: React Native, Expo Router, NativeWind (Tailwind), React Query.
+-   **Backend**: Expo Router API Routes (`request` -> `response`).
+-   **Database**: Supabase (PostgreSQL), accessed via Prisma ORM.
+
+### 🔄 Data Flow (The "Backend Mock" Pattern)
+
+We follow a strict **Controller-Service-Repository** pattern to ensure the code is clean, testable, and ready to be extracted to a separate server if needed.
+
+> **Note**: The folder is named `backend-mock` for historical reasons, but it contains the **ACTUAL** production business logic used by the API routes.
+
+#### 1. API Route (`app/api/...`)
+*The Entry Point.*
+Receives the HTTP request from the frontend and passes it to the Controller.
+*Example*: `GET /api/tours` calls `tourController.getAllTours()`.
+
+#### 2. Controller (`backend-mock/controllers`)
+*The HTTP Handler.*
+-   Parses the request (body, params).
+-   Validates inputs.
+-   Calls the appropriate Service.
+-   Sends the HTTP response (JSON, Status Codes).
+-   **Rule**: No direct DB access.
+
+#### 3. Service (`backend-mock/services`)
+*The Brain.*
+-   Contains all business logic (e.g., "Is the user close enough to the stop?", "Calculate points based on challenge difficulty").
+-   Orchestrates one or more Repositories.
+-   **Rule**: No knowledge of HTTP (req/res).
+
+#### 4. Repository (`backend-mock/repositories`)
+*The Data Access Layer.*
+-   Executes raw Prisma queries (`prisma.tour.findMany()`).
+-   **Rule**: Pure data fetch/store. No complex logic.
+
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
--   Node.js (LTS recommended)
--   npm or yarn
+-   Node.js (LTS)
 -   Git
+-   Supabase Account
 
 ### 1. Installation
-Clone the repository and install dependencies:
 ```bash
 git clone https://github.com/JoeyPoel/Tracks-Taps.git
 cd Tracks-Taps
@@ -18,121 +77,49 @@ npm install
 ```
 
 ### 2. Database Setup (Supabase)
-This project uses **Supabase** (PostgreSQL) as the database provider.
-
-1.  **Configure Environment Variables**:
-    Create a `.env` file in the root directory and add your Supabase credentials. You need two connection strings:
-    -   **Transaction Pooler (Port 6543)**: Used for the application (Prisma Client).
-    -   **Session Pooler (Port 5432)**: Used for migrations (Prisma Migrate).
-
+1.  **Environment Variables**: Create a `.env` file with your Supabase credentials:
     ```env
-    # Transaction Pooler (Port 6543) - For App
+    # Transaction Pooler (Port 6543) - For App Usage
     DATABASE_URL="postgres://[user]:[password]@[host]:6543/postgres?pgbouncer=true"
 
-    # Session Pooler (Port 5432) - For Migrations
+    # Session Pooler (Port 5432) - For Migrations/Seed
     DIRECT_URL="postgres://[user]:[password]@[host]:5432/postgres"
 
-    # Supabase Client (For Auth/Storage)
+    # Supabase Client (Auth/Storage)
     EXPO_PUBLIC_SUPABASE_URL="https://[project-ref].supabase.co"
     EXPO_PUBLIC_SUPABASE_ANON_KEY="[your-anon-key]"
     ```
 
-2.  **Generate Prisma Client**:
+2.  **Initialize DB**:
     ```bash
+    # Generate Prisma Client
     npx prisma generate
-    ```
 
-3.  **Push Schema to Database**:
-    ```bash
-    npx prisma migrate dev --name init
-    ```
+    # Push Schema
+    npx prisma db push
 
-4.  **Seed Database**:
-    Populate the database with initial data (users, tours, etc.):
-    ```bash
+    # Seed Initial Data (Tours, Stops, Challenges)
     npx prisma db seed
     ```
 
-5.  **View Database**:
-    You can view and edit your data using Prisma Studio:
-    ```bash
-    npx prisma studio
-    ```
-
 ### 3. Running the App
-Since the backend logic is integrated via Expo Router API routes, starting the Expo app starts both the frontend and the backend.
+Start the development server. This runs **both** the React Native app and the API routes.
 
 ```bash
 npx expo start
 ```
--   Scan the QR code with your phone (Expo Go app) or press `a` for Android Emulator / `i` for iOS Simulator.
--   The API is available at `http://localhost:8081/api/...` (or your device's IP).
+-   **Mobile**: Scan the QR code with Expo Go.
+-   **Web**: Press `w` to open in browser (Good for testing API responses).
+-   **Simulator**: Press `i` (iOS) or `a` (Android).
 
 ---
 
-## 🏗️ Architecture
+## 🗺️ Migration Path (Future Proofing)
 
-The project follows a strict **Separation of Concerns (SoC)** pattern, specifically **Controller-Service-Repository**, to ensure maintainability and scalability.
+The rigid **Controller-Service-Repository** pattern is designed for scalability.
+If the API needs to be moved to a standalone server (Node.js/Express/NestJS) in the future:
 
-### Flow Structure
-1.  **API Route** (`app/api/`):
-    -   Entry point for HTTP requests.
-    -   **Responsibility**: Thin adapter. Delegates request to the Controller.
-    -   **Rule**: NEVER call Services or Repositories directly.
-
-2.  **Controller** (`backend-mock/controllers/`):
-    -   **Responsibility**: Handles HTTP logic.
-        -   Parses request body/params.
-        -   Validates input.
-        -   Calls the Service.
-        -   Formats the HTTP response (status codes, JSON).
-    -   **Rule**: Contains NO business logic and NO database calls.
-
-3.  **Service** (`backend-mock/services/`):
-    -   **Responsibility**: Handles Business Logic.
-        -   Coordinates multiple Repositories.
-        -   Performs calculations, validations, and complex operations (e.g., conflict checks).
-    -   **Rule**: Contains NO HTTP logic (req/res) and NO direct database calls (Prisma).
-
-4.  **Repository** (`backend-mock/repositories/`):
-    -   **Responsibility**: Handles Data Access.
-        -   Encapsulates all direct Prisma Client calls (`findMany`, `create`, `update`, etc.).
-    -   **Rule**: Contains NO business logic and NO HTTP logic.
-
-### Frontend Layer
--   **API Client** (`src/api/client.ts`): Centralized Axios instance.
--   **Frontend Services** (`src/services/`): Functions to call the backend API.
--   **Hooks** (`src/hooks/`): React hooks to manage state and call frontend services.
-
----
-
-## 🗺️ Backend Migration Plan
-
-The current "backend" is hosted within the Expo app for ease of development. To move to a production-ready, standalone backend (e.g., NestJS, Express, Fastify), follow this plan:
-
-### Phase 1: Preparation (Completed)
--   [x] Refactor logic into `backend-mock` folder.
--   [x] Implement Controller-Service-Repository pattern.
--   [x] Ensure strict separation of concerns.
-
-### Phase 2: Extraction
-1.  **Create New Repo**: Initialize a new Node.js project (e.g., `tracks-taps-backend`).
-2.  **Copy Code**:
-    -   Copy `backend-mock/repositories` -> `src/repositories`
-    -   Copy `backend-mock/services` -> `src/services`
-    -   Copy `backend-mock/controllers` -> `src/controllers`
-    -   Copy `prisma/` folder (schema and migrations).
-3.  **Setup Server**:
-    -   Install a web framework (e.g., Express).
-    -   Create routes that map to the Controllers.
-    -   *Note*: You may need to slightly adapt the Controllers to match the new framework's request/response objects (e.g., `req.body` vs `request.json()`).
-
-### Phase 3: Integration
-1.  **Deploy Backend**: Deploy the new backend to a server (e.g., Vercel, AWS, Heroku).
-2.  **Update Frontend**:
-    -   Update `src/api/client.ts` to point `baseURL` to the new production URL.
-    -   Remove `app/api/` routes and `backend-mock/` folder from the Expo project.
-
-### Phase 4: Database
-1.  **Provision DB**: Set up a managed PostgreSQL database (e.g., Supabase, Neon, AWS RDS).
-2.  **Migrate Data**: Use `prisma migrate deploy` to set up the schema on the production DB.
+1.  **Extract**: Move `backend-mock` folder to a new repo.
+2.  **Lift**: Copy `prisma` schema.
+3.  **Route**: Create standard Express/Nest routes that call the existing Controllers.
+4.  **Connect**: Update the Frontend `api/client.ts` to point to the new server URL.
