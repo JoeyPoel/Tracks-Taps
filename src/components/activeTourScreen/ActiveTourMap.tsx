@@ -13,6 +13,7 @@ interface StopLocation {
     longitude: number;
     name: string;
     type: StopType;
+    id: number;
 }
 
 interface ActiveTourMapProps {
@@ -69,7 +70,7 @@ export default function ActiveTourMap({ currentStop, previousStop, onNavigate }:
                 longitudeDelta: 0.02,
             }, 1000);
         }
-    }, [previousStop, currentStop]);
+    }, [previousStop?.id, currentStop.id]);
 
     return (
         <View style={styles.container}>

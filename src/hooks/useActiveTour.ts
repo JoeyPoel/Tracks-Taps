@@ -140,14 +140,38 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
                 const updatedTeams = activeTour.teams.map(t =>
                     t.id === currentTeam.id ? { ...t, currentStop: newStop } : t
                 );
+                // console.log('[ActiveTour] Optimistic Update: Prev Stop', newStop);
                 updateActiveTourLocal({ teams: updatedTeams });
 
                 return activeTourService.updateCurrentStop(activeTourId, newStop, userId)
-                    .then((updatedProgress) => updateActiveTourLocal(updatedProgress))
+                    .then((updatedProgress) => {
+                        // Stale Response Guard
+                        const currentGlobalState = useStore.getState().activeTour;
+                        const currentGlobalTeam = currentGlobalState?.teams?.find((t: Team) => t.id === currentTeam.id);
+
+                        if (currentGlobalTeam) {
+                            // If we moved "Prev", ignore if local state is DIFFERENT (e.g. user clicked Prev again to go further back)
+                            // or if user clicked Next and went forward again.
+                            // Actually, simpler logic: if local state !== response, we might want to respect local state if it's "newer".
+                            // For Prev, if local < response, we ignore response.
+                            const responseStop = updatedProgress?.teams?.find((t: Team) => t.id === currentTeam.id)?.currentStop || 0;
+
+                            if (currentGlobalTeam.currentStop < responseStop) {
+                                console.log('[ActiveTour] Ignoring stale API response (Local behind/further back)');
+                                return;
+                            }
+                        }
+                        
+                        updateActiveTourLocal(updatedProgress);
+                    })
                     .catch(error => {
                         console.error("Failed to update current stop", error);
-                        // Revert
-                        updateActiveTourLocal({ teams: previousTeams });
+                        // Only revert if we match the attempted state
+                        const currentGlobalState = useStore.getState().activeTour;
+                        const currentGlobalTeam = currentGlobalState?.teams?.find((t: Team) => t.id === currentTeam.id);
+                        if (currentGlobalTeam && currentGlobalTeam.currentStop === newStop) {
+                            updateActiveTourLocal({ teams: previousTeams });
+                        }
                     });
             }
         }
@@ -169,14 +193,35 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
                 const updatedTeams = activeTour.teams.map(t =>
                     t.id === currentTeam.id ? { ...t, currentStop: newStop } : t
                 );
+                // console.log('[ActiveTour] Optimistic Update: Next Stop', newStop);
                 updateActiveTourLocal({ teams: updatedTeams });
 
                 return activeTourService.updateCurrentStop(activeTourId, newStop, userId)
-                    .then((updatedProgress) => updateActiveTourLocal(updatedProgress))
+                    .then((updatedProgress) => {
+                        // Stale Response Guard
+                        const currentGlobalState = useStore.getState().activeTour;
+                        const currentGlobalTeam = currentGlobalState?.teams?.find((t: Team) => t.id === currentTeam.id);
+
+                        if (currentGlobalTeam) {
+                            // If we moved "Next", ignore if local state is already ahead of response
+                            if (currentGlobalTeam.currentStop > (updatedProgress?.teams?.find((t: Team) => t.id === currentTeam.id)?.currentStop || 0)) {
+                                console.log('[ActiveTour] Ignoring stale API response (Local ahead)');
+                                return;
+                            }
+                        }
+
+                        const updatedTeam = updatedProgress?.teams?.find((t: Team) => t.id === currentTeam.id);
+                        // console.log('[ActiveTour] API Response: Stop', updatedTeam?.currentStop);
+                        updateActiveTourLocal(updatedProgress);
+                    })
                     .catch(error => {
                         console.error("Failed to update current stop", error);
-                        // Revert
-                        updateActiveTourLocal({ teams: previousTeams });
+                        // Only revert if we haven't moved further
+                        const currentGlobalState = useStore.getState().activeTour;
+                        const currentGlobalTeam = currentGlobalState?.teams?.find((t: Team) => t.id === currentTeam.id);
+                        if (currentGlobalTeam && currentGlobalTeam.currentStop === newStop) {
+                            updateActiveTourLocal({ teams: previousTeams });
+                        }
                     });
             }
         }

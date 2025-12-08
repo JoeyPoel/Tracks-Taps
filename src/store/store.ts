@@ -157,6 +157,13 @@ export const useStore = create<StoreState>((set, get) => ({
     },
 
     fetchActiveTourById: async (id: number) => {
+        const state = get();
+        // Avoid re-fetching if we already have the correct active tour loaded
+        // This prevents overwriting optimistic updates with stale data from a slow initial fetch
+        if (state.activeTour?.id === id && !state.errorActiveTours) {
+            return;
+        }
+
         set({ loadingActiveTours: true, errorActiveTours: null });
         try {
             const activeTour = await activeTourService.getActiveTourById(id);
