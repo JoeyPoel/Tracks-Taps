@@ -9,7 +9,15 @@ export class LevelSystem {
      */
     static getXpForLevel(level: number): number {
         if (level <= 1) return 0;
-        return Math.floor(this.BASE_XP * Math.pow(this.MULTIPLIER, level - 1));
+
+        const rawXp = this.BASE_XP * Math.pow(this.MULTIPLIER, level - 1);
+
+        // If raw XP is large, round to nearest 1000, otherwise nearest 500
+        if (rawXp >= 10000) {
+            return Math.round(rawXp / 1000) * 1000;
+        }
+
+        return Math.max(500, Math.round(rawXp / 500) * 500);
     }
 
     /**
