@@ -220,7 +220,7 @@ async function main() {
             title: 'Historic Utrecht Canals',
             location: 'Utrecht',
             description: 'Wander along the Oudegracht and discover hidden courtyards, ancient wharf cellars, and the secrets of the Dom City.',
-            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/The_Oudegracht_in_Utrecht_with_the_Dom_Tower_in_the_background.jpg/1024px-The_Oudegracht_in_Utrecht_with_the_Dom_Tower_in_the_background.jpg',
+            imageUrl: 'https://images.unsplash.com/photo-1667053312990-c17655704190?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
             distance: 4.5,
             duration: 120,
             points: 600,
@@ -327,7 +327,7 @@ async function main() {
             title: 'Amsterdam Architectural Gems',
             location: 'Amsterdam',
             description: 'Go beyond the Red Light District and explore the diverse architecture of Amsterdam, from the Golden Age to the Amsterdam School.',
-            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Amsterdam_%285226759755%29.jpg/1024px-Amsterdam_%285226759755%29.jpg',
+            imageUrl: 'https://images.unsplash.com/photo-1536880756060-98a6a140f0a7?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
             distance: 6.0,
             duration: 150,
             points: 750,
@@ -414,7 +414,7 @@ async function main() {
             title: 'Rotterdam Skyline Run',
             location: 'Rotterdam',
             description: 'A high-energy route crossing the iconic bridges of Rotterdam. Perfect for runners who want a view.',
-            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Erasmusbrug_Rotterdam_September_2014.jpg/1024px-Erasmusbrug_Rotterdam_September_2014.jpg',
+            imageUrl: 'https://images.unsplash.com/photo-1614521272693-73052eaefc51?q=80&w=1194&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
             distance: 8.5,
             duration: 50, // Running pace
             points: 900,
@@ -570,7 +570,7 @@ async function main() {
             title: 'Breda PubGolf Championship',
             location: 'Breda',
             description: 'The ultimate pub golf experience in the pearl of the south. 12 holes, 12 drinks, one champion.',
-            imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Breda_Grote_Markt.JPG/1024px-Breda_Grote_Markt.JPG', // Reliable Breda Grote Markt
+            imageUrl: 'https://images.unsplash.com/photo-1569496453553-f35768ed0e36?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Reliable Breda Grote Markt
             distance: 3.5,
             duration: 240, // 4 hours
             points: 1500,
