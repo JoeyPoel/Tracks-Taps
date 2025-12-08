@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect } from 'react';
+import { userService } from '../services/userService';
 import { useStore } from '../store/store';
 import { User } from '../types/models';
 
@@ -30,8 +31,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         await fetchUserByEmail(email);
     };
 
-    const updateUserXp = (amount: number) => {
-        addXp(amount);
+    const updateUserXp = async (amount: number) => {
+        addXp(amount); // Optimistic update
+        if (user) {
+            try {
+                await userService.addXp(user.id, amount);
+            } catch (err) {
+                console.error('Failed to persist XP update', err);
+                // Optionally rollback here if needed, but for now just log
+            }
+        }
     };
 
     return (

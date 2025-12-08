@@ -5,6 +5,7 @@ import { tourService } from '../services/tourService';
 import { userService } from '../services/userService';
 
 import { ActiveTour, SessionStatus, Tour, TourDetail, User } from '../types/models';
+import { LevelSystem } from '../utils/levelUtils';
 
 
 
@@ -272,8 +273,14 @@ export const useStore = create<StoreState>((set, get) => ({
     addXp: (amount: number) => {
         set((state) => {
             if (!state.user) return {};
+            const newXp = state.user.xp + amount;
+            const newLevel = LevelSystem.getLevel(newXp);
             return {
-                user: { ...state.user, xp: state.user.xp + amount }
+                user: {
+                    ...state.user,
+                    xp: newXp,
+                    level: newLevel
+                }
             };
         });
     }

@@ -14,6 +14,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 import { useActiveTour } from '../hooks/useActiveTour';
 import { activeTourService } from '../services/activeTourService';
+import { LevelSystem } from '../utils/levelUtils';
 import { openMapApp } from '../utils/mapUtils';
 
 function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user: any }) {
@@ -94,12 +95,14 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         await openMapApp(currentStop.latitude, currentStop.longitude, currentStop.name);
     };
 
+    const progress = LevelSystem.getProgress(user?.xp || 0);
+
     return (
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
             <ActiveTourHeader
-                level={user?.level || 1}
-                currentXP={user?.xp || 0}
-                maxXP={2000} // Mock max XP
+                level={progress.level}
+                currentXP={progress.currentLevelXp}
+                maxXP={progress.nextLevelXpStart} // Dynamic max XP
                 currentStop={currentStopIndex + 1}
                 totalStops={activeTour.tour?.stops?.length || 0}
                 streak={streak}

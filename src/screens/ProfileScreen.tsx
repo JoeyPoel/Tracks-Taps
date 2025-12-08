@@ -12,6 +12,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 
+import { LevelSystem } from '../utils/levelUtils';
+
 export default function ProfileScreen() {
   const { theme } = useTheme();
   const router = useRouter();
@@ -27,6 +29,8 @@ export default function ProfileScreen() {
       </ScrollView>
     );
   }
+
+  const progress = LevelSystem.getProgress(user?.xp || 0);
 
   // Mock data for new UI elements
   const achievements = [
@@ -45,9 +49,9 @@ export default function ProfileScreen() {
 
       <UserProfileCard
         name={user?.name || 'Guest'}
-        level={user?.level || 1}
-        currentXP={user?.xp || 0}
-        maxXP={2000}
+        level={progress.level}
+        currentXP={progress.currentLevelXp}
+        maxXP={progress.nextLevelXpStart}
         avatarUrl="https://i.pravatar.cc/200?img=12"
         onEditPress={() => console.log('Edit profile pressed')}
       />

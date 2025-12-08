@@ -41,4 +41,5 @@ export const userRepository = {
             data: { xp: { increment: amount } },
         });
     },
+
 };
