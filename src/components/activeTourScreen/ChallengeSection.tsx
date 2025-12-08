@@ -13,6 +13,7 @@ interface ChallengeSectionProps {
     triviaSelected: Record<number, number>;
     setTriviaSelected: (value: React.SetStateAction<Record<number, number>>) => void;
     handleChallengeComplete: (challenge: any) => void;
+    handleChallengeFail: (challenge: any) => void;  // Add prop
     handleSubmitTrivia: (challenge: any) => void;
 }
 
@@ -24,6 +25,7 @@ const ChallengeSection: React.FC<ChallengeSectionProps> = ({
     triviaSelected,
     setTriviaSelected,
     handleChallengeComplete,
+    handleChallengeFail, // Destructure
     handleSubmitTrivia
 }) => {
     const { theme } = useTheme();
@@ -53,6 +55,7 @@ const ChallengeSection: React.FC<ChallengeSectionProps> = ({
                             triviaSelected={triviaSelected}
                             setTriviaSelected={setTriviaSelected}
                             onClaimArrival={handleChallengeComplete}
+                            onFail={handleChallengeFail} // Pass it down
                             onSubmitTrivia={handleSubmitTrivia}
                         />
                     )

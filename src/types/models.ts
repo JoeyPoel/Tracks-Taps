@@ -105,6 +105,7 @@ export interface Challenge {
     type: ChallengeType;
     points: number;
     content: string | null;
+    hint: string | null;
     answer: string | null;
     options: string[];
     createdAt: Date;

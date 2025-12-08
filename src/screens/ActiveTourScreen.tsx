@@ -41,6 +41,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         showConfetti,
         handleSubmitTrivia,
         handleChallengeComplete,
+        handleChallengeFail,
         handlePrevStop,
         handleNextStop,
         handleFinishTour,
@@ -141,6 +142,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                         triviaSelected={triviaSelected}
                         setTriviaSelected={setTriviaSelected}
                         handleChallengeComplete={handleChallengeComplete}
+                        handleChallengeFail={handleChallengeFail} // Pass handler
                         handleSubmitTrivia={handleSubmitTrivia}
                     />
                 ) : activeTour.tour?.modes?.includes('PUBGOLF') && activeTab === 1 ? (

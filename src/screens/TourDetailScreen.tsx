@@ -149,7 +149,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
         <TourStats
           distance={`${tour.distance} km`}
           duration={`${tour.duration} min`}
-          stops={tour._count?.stops || 0}
+          stops={tour.stops?.length || tour._count?.stops || 0}
           points={tour.points}
         />
 

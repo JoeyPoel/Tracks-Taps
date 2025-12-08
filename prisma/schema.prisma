@@ -105,6 +105,10 @@ model Stop {
 enum ChallengeType {
   LOCATION
   TRIVIA
+  PICTURE
+  TRUE_FALSE
+  DARE
+  RIDDLE
 }
 
 model Challenge {
@@ -114,6 +118,7 @@ model Challenge {
   type        ChallengeType
   points      Int
   content     String? // Question for trivia, or extra info
+  hint        String?
   answer      String? // For trivia
   options     String[] // For trivia
   createdAt   DateTime      @default(now())

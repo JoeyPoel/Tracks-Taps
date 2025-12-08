@@ -154,6 +154,15 @@ export const strings = {
     howItWorksStep4: '4. Start your adventure!',
     teamPlay: 'Team Play',
     teamPlayDesc: 'Join forces with friends or compete against other teams in epic challenges!',
+    // New Challenge Types
+    takePhoto: 'Take Photo',
+    true: 'True',
+    false: 'False',
+    dareCompleted: 'I did it!',
+    hideHint: 'Hide Hint',
+    showHint: 'Need a hint?',
+    enterAnswer: 'Enter your answer...',
+    correctAnswerWas: 'Answer:',
   },
   es: {
     profile: 'Perfil',
@@ -291,6 +300,15 @@ export const strings = {
     howItWorksStep4: '4. ¡Comienza tu aventura!',
     teamPlay: 'Juego en Equipo',
     teamPlayDesc: '¡Une fuerzas con amigos o compite contra otros equipos en desafíos épicos!',
+    // New Challenge Types
+    takePhoto: 'Tomar Foto',
+    true: 'Verdadero',
+    false: 'Falso',
+    dareCompleted: '¡Lo hice!',
+    hideHint: 'Ocultar Pista',
+    showHint: '¿Necesitas una pista?',
+    enterAnswer: 'Ingresa tu respuesta...',
+    correctAnswerWas: 'Respuesta:',
   },
   nl: {
     profile: 'Profiel',
@@ -428,5 +446,14 @@ export const strings = {
     howItWorksStep4: '4. Begin je avontuur!',
     teamPlay: 'Teamspel',
     teamPlayDesc: 'Bundel je krachten met vrienden of strijd tegen andere teams in epische uitdagingen!',
+    // New Challenge Types
+    takePhoto: 'Maak Foto',
+    true: 'Waar',
+    false: 'Niet Waar',
+    dareCompleted: 'Ik heb het gedaan!',
+    hideHint: 'Verberg Hint',
+    showHint: 'Hint nodig?',
+    enterAnswer: 'Voer je antwoord in...',
+    correctAnswerWas: 'Antwoord:',
   },
 };

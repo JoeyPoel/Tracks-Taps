@@ -357,6 +357,15 @@ async function main() {
                     content: 'What was the original function of "Het Schip"?',
                     options: ['Social Housing', 'A Shipyard', 'A Palace', 'A Hotel'],
                     answer: 'Social Housing',
+                },
+                {
+                    title: 'The Hidden Shape',
+                    description: 'Look at the building from the corner.',
+                    type: ChallengeType.RIDDLE,
+                    points: 150,
+                    content: 'I have a bow but no arrow, I have a deck but no cards. What am I?',
+                    hint: 'Think about what kind of vessel this building resembles.',
+                    answer: 'Ship',
                 }
             ]
         },
@@ -374,6 +383,13 @@ async function main() {
                     description: 'Find the giant Anne Frank mural.',
                     type: ChallengeType.LOCATION,
                     points: 80,
+                },
+                {
+                    title: 'Selfie with Art',
+                    description: 'Take a picture with your favorite graffiti.',
+                    type: ChallengeType.PICTURE,
+                    points: 100,
+                    content: 'Capture the colorful expressions of NDSM.',
                 }
             ]
         },
@@ -400,6 +416,21 @@ async function main() {
                     content: 'Which Austrian firm designed the EYE?',
                     options: ['Delugan Meissl', 'Rem Koolhaas', 'Zaha Hadid', 'MVRDV'],
                     answer: 'Delugan Meissl',
+                },
+                {
+                    title: 'Floating Foundation',
+                    description: 'Fact check about the building.',
+                    type: ChallengeType.TRUE_FALSE,
+                    points: 50,
+                    content: 'The EYE Film Museum is built entirely on floating pontoons.',
+                    answer: 'false', // It's on piles
+                },
+                {
+                    title: 'Movie Star Pose',
+                    description: 'Act like a star.',
+                    type: ChallengeType.DARE,
+                    points: 100,
+                    content: 'Strike a dramatic pose on the stairs and hold it for 10 seconds while someone films/judges you!',
                 }
             ]
         }
@@ -838,11 +869,11 @@ async function main() {
 
 
     // --- Mock Active Tour for Dev ---
-    // Start the Tata Steel tour for Joey
+    // Start the Amsterdam Architectural Gems tour for Joey (to show new challenges)
     const activeTour = await prisma.activeTour.create({
         data: {
             id: 112233445,
-            tourId: tataTour.id,
+            tourId: amsterdamTour.id,
             status: SessionStatus.IN_PROGRESS,
         },
     });
@@ -851,9 +882,9 @@ async function main() {
         data: {
             activeTour: { connect: { id: activeTour.id } },
             user: { connect: { id: joey.id } },
-            name: "Steel Explorers",
-            color: '#FF6B6B',
-            emoji: '🏗️',
+            name: "Orange Lions",
+            color: '#FFAA00',
+            emoji: '🦁',
             currentStop: 1,
             score: 0,
         }

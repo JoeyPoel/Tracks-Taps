@@ -5,7 +5,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
-export type ChallengeType = 'location' | 'trivia' | 'camera';
+export type ChallengeType = 'location' | 'trivia' | 'camera' | 'picture' | 'true_false' | 'dare' | 'riddle';
 
 interface ActiveChallengeCardProps {
     title: string;
@@ -38,6 +38,12 @@ export default function ActiveChallengeCard({
             case 'location': return 'location-outline';
             case 'trivia': return 'help-circle-outline';
             case 'camera': return 'camera-outline';
+            case 'trivia': return 'help-circle-outline';
+            case 'camera': return 'camera-outline';
+            case 'picture': return 'camera-outline';
+            case 'true_false': return 'checkbox-outline';
+            case 'dare': return 'flame-outline';
+            case 'riddle': return 'key-outline';
             default: return 'help-circle-outline';
         }
     };
@@ -47,6 +53,11 @@ export default function ActiveChallengeCard({
             case 'location': return theme.accent; // Yellow
             case 'trivia': return theme.secondary; // Blue
             case 'camera': return theme.primary; // Pink
+            case 'camera': return theme.primary; // Pink
+            case 'picture': return theme.primary;
+            case 'true_false': return theme.secondary;
+            case 'dare': return theme.danger; // Red/Attention
+            case 'riddle': return theme.accent; // Yellow/Mystery
             default: return theme.primary;
         }
     };
