@@ -21,6 +21,7 @@ export default function MapScreen() {
     tours,
     loading,
     selectedTour,
+    routeSegments,
     handleTourSelect,
     handleBack,
     onRegionChangeComplete
@@ -81,19 +82,15 @@ export default function MapScreen() {
               </Marker>
             ))}
 
-            {(selectedTour as any).stops && (selectedTour as any).stops.length > 1 && (
+            {routeSegments && routeSegments.map((segment: any, index: number) => (
               <Polyline
-                coordinates={(selectedTour as any).stops
-                  .sort((a: Stop, b: Stop) => a.order - b.order)
-                  .map((s: Stop) => ({
-                    latitude: s.latitude,
-                    longitude: s.longitude,
-                  }))}
+                key={index}
+                coordinates={segment.coords}
                 strokeColor={theme.primary}
                 strokeWidth={3}
-                lineDashPattern={[5, 5]}
+                lineDashPattern={segment.type === 'DIRECT' ? [5, 5] : undefined}
               />
-            )}
+            ))}
           </>
         )}
       </MapView>

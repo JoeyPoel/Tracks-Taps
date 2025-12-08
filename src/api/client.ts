@@ -18,6 +18,7 @@ const getBaseUrl = () => {
 // Create an Axios instance with default configuration
 const client = axios.create({
     baseURL: getBaseUrl(),
+    timeout: 15000,
     headers: {
         'Content-Type': 'application/json',
     },

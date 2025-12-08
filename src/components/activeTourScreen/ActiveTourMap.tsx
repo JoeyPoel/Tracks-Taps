@@ -4,6 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { LatLng, Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { routingService } from '../../services/routingService';
 import { StopType } from '../../types/models';
 import { getStopIcon } from '../../utils/stopIcons';
 
@@ -23,17 +24,29 @@ interface ActiveTourMapProps {
 export default function ActiveTourMap({ currentStop, previousStop, onNavigate }: ActiveTourMapProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
-    const [routeCoords, setRouteCoords] = useState<LatLng[]>([]);
+    const [route, setRoute] = useState<{ coords: LatLng[], type: 'WALKING' | 'DIRECT' } | null>(null);
     const mapRef = useRef<MapView>(null);
 
     useEffect(() => {
         if (previousStop) {
-            // Without API key we draw a direct line (as the crow flies)
-            // This connects point A directly to point B without considering roads
-            setRouteCoords([
-                { latitude: previousStop.latitude, longitude: previousStop.longitude },
-                { latitude: currentStop.latitude, longitude: currentStop.longitude }
-            ]);
+            // Initial straight line (immediate feedback)
+            setRoute({
+                coords: [
+                    { latitude: previousStop.latitude, longitude: previousStop.longitude },
+                    { latitude: currentStop.latitude, longitude: currentStop.longitude }
+                ],
+                type: 'DIRECT'
+            });
+
+            // Fetch walking route in background
+            const fetchRoute = async () => {
+                const start = { latitude: previousStop.latitude, longitude: previousStop.longitude };
+                const end = { latitude: currentStop.latitude, longitude: currentStop.longitude };
+
+                const result = await routingService.getWalkingRoute(start, end);
+                setRoute(result);
+            };
+            fetchRoute();
 
             // Zoom to fit both markers
             setTimeout(() => {
@@ -42,11 +55,11 @@ export default function ActiveTourMap({ currentStop, previousStop, onNavigate }:
                     { latitude: currentStop.latitude, longitude: currentStop.longitude }
                 ], {
                     edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-                    animated: true,
+                    animated: true
                 });
             }, 100);
         } else {
-            setRouteCoords([]);
+            setRoute(null);
 
             // Center on current stop if no previous stop
             mapRef.current?.animateToRegion({
@@ -97,13 +110,13 @@ export default function ActiveTourMap({ currentStop, previousStop, onNavigate }:
                     </Marker>
                 )}
 
-                {/* The Route Line (Straight line) */}
-                {routeCoords.length > 0 && (
+                {/* The Route Line */}
+                {route && route.coords.length > 0 && (
                     <Polyline
-                        coordinates={routeCoords}
+                        coordinates={route.coords}
                         strokeColor={theme.primary}
                         strokeWidth={3}
-                        lineDashPattern={[5, 5]}
+                        lineDashPattern={route.type === 'DIRECT' ? [5, 5] : undefined}
                     />
                 )}
             </MapView>
