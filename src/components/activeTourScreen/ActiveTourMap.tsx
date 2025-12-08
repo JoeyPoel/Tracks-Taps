@@ -64,6 +64,8 @@ export default function ActiveTourMap({ currentStop, previousStop, onNavigate }:
                 ref={mapRef}
                 style={styles.map}
                 provider={PROVIDER_GOOGLE}
+                showsUserLocation={true}
+                showsMyLocationButton={false}
                 initialRegion={{
                     latitude: currentStop.latitude,
                     longitude: currentStop.longitude,
