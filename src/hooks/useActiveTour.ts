@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { activeTourService } from '../services/activeTourService';
 import { useStore } from '../store/store';
 import { ActiveChallenge, Team } from '../types/models';
@@ -15,22 +15,42 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     const updateActiveTourLocal = useStore((state) => state.updateActiveTourLocal);
 
     // Derived loading state
-    const loading = storeLoading && activeTour?.id !== activeTourId;
+    // Robust Logic: 
+    // 1. If we have the CORRECT tour data loaded, we are NOT loading (even if background refreshing).
+    // 2. If we do NOT have the correct tour data, we ARE loading (unless there is an error).
+    const isDataLoaded = activeTour?.id === activeTourId;
+    const loading = !isDataLoaded && (storeLoading || !activeTour || !error);
+    // Note: !error check ensures we don't get stuck in loading if there is an error.
+    // However, if !isDataLoaded and !error, we default to loading (initial state).
 
     // Resolve Team
-    const currentTeam = activeTour?.teams?.find((t: Team) => userId ? t.userId === userId : true)
-        || activeTour?.teams?.[0];
+    const currentTeam = useMemo(() =>
+        activeTour?.teams?.find((t: Team) => userId ? t.userId === userId : true)
+        || activeTour?.teams?.[0],
+        [activeTour, userId]);
 
     const currentStop = currentTeam?.currentStop || 1;
     const streak = currentTeam?.streak || 0;
+    const points = currentTeam?.score || 0;
 
-    // Local UI State
-    const [points, setPoints] = useState(0);
+    // Derived Challenge State
+    const { completedChallenges, failedChallenges } = useMemo(() => {
+        const completed = new Set<number>();
+        const failed = new Set<number>();
+
+        if (currentTeam?.activeChallenges) {
+            currentTeam.activeChallenges.forEach((ac: ActiveChallenge) => {
+                if (ac.completed) completed.add(ac.challengeId);
+                if (ac.failed) failed.add(ac.challengeId);
+            });
+        }
+        return { completedChallenges: completed, failedChallenges: failed };
+    }, [currentTeam]);
+
+    // Local UI State (Visuals only)
     const [showFloatingPoints, setShowFloatingPoints] = useState(false);
     const [floatingPointsAmount, setFloatingPointsAmount] = useState(0);
     const [showConfetti, setShowConfetti] = useState(false);
-    const [completedChallenges, setCompletedChallenges] = useState<Set<number>>(new Set());
-    const [failedChallenges, setFailedChallenges] = useState<Set<number>>(new Set());
     const [triviaSelected, setTriviaSelected] = useState<{ [key: number]: number }>({});
 
     useEffect(() => {
@@ -39,78 +59,92 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         }
     }, [activeTourId, userId, fetchActiveTourById]);
 
-    // Sync completed and failed challenges from API (Team based)
-    useEffect(() => {
-        if (currentTeam?.activeChallenges) {
-            const completed = new Set<number>();
-            const failed = new Set<number>();
-            let xp = 0;
-
-            currentTeam.activeChallenges.forEach((ac: ActiveChallenge) => {
-                if (ac.completed) {
-                    completed.add(ac.challengeId);
-                }
-                if (ac.failed) failed.add(ac.challengeId);
-            });
-
-            setCompletedChallenges(completed);
-            setFailedChallenges(failed);
-            setPoints(currentTeam.score || 0);
-        }
-    }, [currentTeam]);
-
     const triggerFloatingPoints = (amount: number) => {
         setFloatingPointsAmount(amount);
         setShowFloatingPoints(true);
-        setPoints(prev => prev + amount);
     };
 
     const handleChallengeComplete = async (challenge: any) => {
-        if (completedChallenges.has(challenge.id) || failedChallenges.has(challenge.id)) return;
+        if (!currentTeam || completedChallenges.has(challenge.id) || failedChallenges.has(challenge.id)) return;
 
-        // Optimistic update
-        const newCompleted = new Set(completedChallenges);
-        newCompleted.add(challenge.id);
-        setCompletedChallenges(newCompleted);
+        // 1. Optimistic update
         triggerFloatingPoints(challenge.points);
-
         if (onXpEarned) {
             onXpEarned(challenge.points);
         }
 
-        if (userId) {
-            // Background API call
-            activeTourService.completeChallenge(activeTourId, challenge.id, userId)
-                .then((updatedProgress) => updateActiveTourLocal(updatedProgress))
-                .catch(err => {
-                    console.error('Failed to complete challenge', err);
-                    // Revert optimistic update
-                    const reverted = new Set(completedChallenges);
-                    reverted.delete(challenge.id);
-                    setCompletedChallenges(reverted);
-                });
+        const optimisticChallenge: ActiveChallenge = {
+            id: -1, // Temp ID
+            teamId: currentTeam.id,
+            challengeId: challenge.id,
+            completed: true,
+            failed: false,
+            completedAt: new Date(),
+        };
+
+        const updatedTeam: Team = {
+            ...currentTeam,
+            score: (currentTeam.score || 0) + challenge.points,
+            streak: (currentTeam.streak || 0) + 1,
+            activeChallenges: [...(currentTeam.activeChallenges || []), optimisticChallenge]
+        };
+
+        const previousTeams = activeTour?.teams || [];
+        updateActiveTourLocal({ teams: [updatedTeam] });
+
+        try {
+            const updatedProgress = await activeTourService.completeChallenge(activeTourId, challenge.id, userId);
+
+            // 2. Diff Check: Only apply server update if it differs/adds info
+            const serverTeam = updatedProgress?.teams?.find((t: Team) => t.id === currentTeam.id);
+            const serverChallenge = serverTeam?.activeChallenges?.find((ac: ActiveChallenge) => ac.challengeId === challenge.id);
+
+            if (!serverChallenge || !serverChallenge.completed) {
+                // Unexpected, force update to fix sync
+                updateActiveTourLocal(updatedProgress);
+            } else {
+                // Server confirmed. Update local to get the real ID, but only if necessary.
+                // To avoid flicker, we assume the optimistic rendered state is good and just update seamlessly.
+                // React reconciler should handle this well since keys (challenge ID) are stable, 
+                // assuming we list by challengeId, not activeID.
+                updateActiveTourLocal(updatedProgress);
+            }
+
+        } catch (err) {
+            console.error('Failed to complete challenge', err);
+            // Revert
+            updateActiveTourLocal({ teams: previousTeams });
         }
     };
 
     const handleChallengeFail = async (challenge: any) => {
-        if (completedChallenges.has(challenge.id) || failedChallenges.has(challenge.id)) return;
+        if (!currentTeam || completedChallenges.has(challenge.id) || failedChallenges.has(challenge.id)) return;
 
-        // Optimistic update
-        const newFailed = new Set(failedChallenges);
-        newFailed.add(challenge.id);
-        setFailedChallenges(newFailed);
+        const optimisticChallenge: ActiveChallenge = {
+            id: -1,
+            teamId: currentTeam.id,
+            challengeId: challenge.id,
+            completed: false,
+            failed: true,
+            completedAt: null,
+        };
 
-        if (userId) {
-            // Background API call
-            activeTourService.failChallenge(activeTourId, challenge.id, userId)
-                .then((updatedProgress) => updateActiveTourLocal(updatedProgress))
-                .catch(err => {
-                    console.error('Failed to fail challenge', err);
-                    // Revert
-                    const reverted = new Set(failedChallenges);
-                    reverted.delete(challenge.id);
-                    setFailedChallenges(reverted);
-                });
+        const updatedTeam: Team = {
+            ...currentTeam,
+            streak: 0, // Reset streak
+            activeChallenges: [...(currentTeam.activeChallenges || []), optimisticChallenge]
+        };
+
+        const previousTeams = activeTour?.teams || [];
+        updateActiveTourLocal({ teams: [updatedTeam] });
+
+        try {
+            const updatedProgress = await activeTourService.failChallenge(activeTourId, challenge.id, userId);
+            updateActiveTourLocal(updatedProgress);
+        } catch (err) {
+            console.error('Failed to fail challenge', err);
+            // Revert
+            updateActiveTourLocal({ teams: previousTeams });
         }
     };
 
@@ -129,103 +163,55 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
 
     const handlePrevStop = async () => {
         if (!currentTeam) return;
+        const newStop = currentTeam.currentStop - 1;
+        if (newStop < 1) return;
 
-        const currentStopIndex = (currentTeam.currentStop || 1) - 1;
-        if (currentStopIndex > 0) {
-            const newStop = currentTeam.currentStop - 1;
-
-            if (userId && activeTour && activeTour.teams) {
-                // Optimistic Update
-                const previousTeams = activeTour.teams;
-                const updatedTeams = activeTour.teams.map(t =>
-                    t.id === currentTeam.id ? { ...t, currentStop: newStop } : t
-                );
-                // console.log('[ActiveTour] Optimistic Update: Prev Stop', newStop);
-                updateActiveTourLocal({ teams: updatedTeams });
-
-                return activeTourService.updateCurrentStop(activeTourId, newStop, userId)
-                    .then((updatedProgress) => {
-                        // Stale Response Guard
-                        const currentGlobalState = useStore.getState().activeTour;
-                        const currentGlobalTeam = currentGlobalState?.teams?.find((t: Team) => t.id === currentTeam.id);
-
-                        if (currentGlobalTeam) {
-                            // If we moved "Prev", ignore if local state is DIFFERENT (e.g. user clicked Prev again to go further back)
-                            // or if user clicked Next and went forward again.
-                            // Actually, simpler logic: if local state !== response, we might want to respect local state if it's "newer".
-                            // For Prev, if local < response, we ignore response.
-                            const responseStop = updatedProgress?.teams?.find((t: Team) => t.id === currentTeam.id)?.currentStop || 0;
-
-                            if (currentGlobalTeam.currentStop < responseStop) {
-                                console.log('[ActiveTour] Ignoring stale API response (Local behind/further back)');
-                                return;
-                            }
-                        }
-                        
-                        updateActiveTourLocal(updatedProgress);
-                    })
-                    .catch(error => {
-                        console.error("Failed to update current stop", error);
-                        // Only revert if we match the attempted state
-                        const currentGlobalState = useStore.getState().activeTour;
-                        const currentGlobalTeam = currentGlobalState?.teams?.find((t: Team) => t.id === currentTeam.id);
-                        if (currentGlobalTeam && currentGlobalTeam.currentStop === newStop) {
-                            updateActiveTourLocal({ teams: previousTeams });
-                        }
-                    });
-            }
-        }
+        performStopUpdate(newStop);
     };
 
     const handleNextStop = async () => {
+        if (!currentTeam || !activeTour?.tour?.stops) return;
+
+        // Check bounds
+        if (currentTeam.currentStop >= activeTour.tour.stops.length) return;
+        if (activeTour.status === 'COMPLETED' || currentTeam.finishedAt) return;
+
+        const newStop = currentTeam.currentStop + 1;
+        performStopUpdate(newStop);
+    };
+
+    const performStopUpdate = async (newStop: number) => {
         if (!currentTeam) return;
 
-        const currentStopIndex = (currentTeam.currentStop || 1) - 1;
-        if (activeTour?.tour?.stops && currentStopIndex < activeTour.tour.stops.length - 1) {
-            // Check tour status? Or team finish?
-            if (activeTour.status === 'COMPLETED' || currentTeam.finishedAt) return;
+        // 1. Optimistic Update
+        const optimisticTeam: Team = {
+            ...currentTeam,
+            currentStop: newStop
+        };
+        const previousTeams = activeTour?.teams || [];
+        updateActiveTourLocal({ teams: [optimisticTeam] });
 
-            const newStop = currentTeam.currentStop + 1;
+        try {
+            const updatedProgress = await activeTourService.updateCurrentStop(activeTourId, newStop, userId);
 
-            if (userId && activeTour && activeTour.teams) {
-                // Optimistic Update
-                const previousTeams = activeTour.teams;
-                const updatedTeams = activeTour.teams.map(t =>
-                    t.id === currentTeam.id ? { ...t, currentStop: newStop } : t
-                );
-                // console.log('[ActiveTour] Optimistic Update: Next Stop', newStop);
-                updateActiveTourLocal({ teams: updatedTeams });
-
-                return activeTourService.updateCurrentStop(activeTourId, newStop, userId)
-                    .then((updatedProgress) => {
-                        // Stale Response Guard
-                        const currentGlobalState = useStore.getState().activeTour;
-                        const currentGlobalTeam = currentGlobalState?.teams?.find((t: Team) => t.id === currentTeam.id);
-
-                        if (currentGlobalTeam) {
-                            // If we moved "Next", ignore if local state is already ahead of response
-                            if (currentGlobalTeam.currentStop > (updatedProgress?.teams?.find((t: Team) => t.id === currentTeam.id)?.currentStop || 0)) {
-                                console.log('[ActiveTour] Ignoring stale API response (Local ahead)');
-                                return;
-                            }
-                        }
-
-                        const updatedTeam = updatedProgress?.teams?.find((t: Team) => t.id === currentTeam.id);
-                        // console.log('[ActiveTour] API Response: Stop', updatedTeam?.currentStop);
-                        updateActiveTourLocal(updatedProgress);
-                    })
-                    .catch(error => {
-                        console.error("Failed to update current stop", error);
-                        // Only revert if we haven't moved further
-                        const currentGlobalState = useStore.getState().activeTour;
-                        const currentGlobalTeam = currentGlobalState?.teams?.find((t: Team) => t.id === currentTeam.id);
-                        if (currentGlobalTeam && currentGlobalTeam.currentStop === newStop) {
-                            updateActiveTourLocal({ teams: previousTeams });
-                        }
-                    });
+            // 2. Diff Check for Stops
+            const serverTeam = updatedProgress?.teams?.find((t: Team) => t.id === currentTeam.id);
+            if (serverTeam && serverTeam.currentStop === newStop) {
+                // Server confirms our optimized state.
+                // We SKIP the update to prevent potential flickering
+                return;
             }
+
+            // If server disagrees (e.g. currentStop != newStop), we MUST process it.
+            if (serverTeam) {
+                updateActiveTourLocal(updatedProgress);
+            }
+        } catch (error) {
+            console.error("Failed to update current stop", error);
+            // Revert
+            updateActiveTourLocal({ teams: previousTeams });
         }
-    };
+    }
 
     const handleFinishTour = async (): Promise<boolean> => {
         if (!userId) return false;
@@ -266,5 +252,6 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         points,
         updateActiveTourLocal,
         currentTeam,
+        // isUpdating - removed from public API 
     };
 };

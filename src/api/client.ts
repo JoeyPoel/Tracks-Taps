@@ -11,8 +11,9 @@ const getBaseUrl = () => {
         return 'http://localhost:8081/api';
     }
 
-    const part = hostUri.split(':')[0];
-    return `http://${part}:8081/api`;
+    // hostUri is "IP:PORT"
+    const [host, port] = hostUri.split(':');
+    return `http://${host}:${port}/api`;
 };
 
 // Create an Axios instance with default configuration

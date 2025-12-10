@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import ActiveTourHeader from '../components/activeTourScreen/ActiveTourHeader';
 import ActiveTourMap from '../components/activeTourScreen/ActiveTourMap';
@@ -22,7 +22,6 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const { t } = useLanguage();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState(0);
-    const [pubGolfScores, setPubGolfScores] = useState<Record<number, number>>({});
 
     const { updateUserXp, refreshUser } = useUserContext();
 
@@ -52,36 +51,47 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         currentTeam,
     } = useActiveTour(activeTourId, user.id, updateUserXp);
 
-    // Initialize scores from activeTour data
-    useEffect(() => {
-        if (currentTeam?.pubGolfStops) {
-            const initialScores: Record<number, number> = {};
-            currentTeam.pubGolfStops.forEach((pgStop: any) => {
-                if (pgStop.sips > 0) {
-                    initialScores[pgStop.stopId] = pgStop.sips;
-                }
-            });
-            setPubGolfScores(initialScores);
-        }
-    }, [currentTeam]);
+
 
     const handleSaveSips = async (stopId: number, sips: number) => {
-        const previousSips = pubGolfScores[stopId] || 0;
+        if (!currentTeam) return;
 
-        // Optimistic update local state
-        setPubGolfScores(prev => ({ ...prev, [stopId]: sips }));
+        // Optimistic update via Store
+        const updatedPubGolfStops = currentTeam.pubGolfStops?.map((pg: any) =>
+            pg.stopId === stopId ? { ...pg, sips } : pg
+        ) || [];
+
+        // If not found, add it? (Logic implies it exists from seed, but strictly might need to create)
+        if (!updatedPubGolfStops.find((pg: any) => pg.stopId === stopId)) {
+            updatedPubGolfStops.push({ stopId, sips, teamId: currentTeam.id });
+        }
+
+        const updatedTeam = { ...currentTeam, pubGolfStops: updatedPubGolfStops };
+        const previousTeams = activeTour?.teams || [];
+
+        updateActiveTourLocal({ teams: [updatedTeam] });
 
         if (user.id) {
-            // Call backend in background
-            activeTourService.updatePubGolfScore(activeTourId, stopId, sips, user.id)
-                .then((progress) => updateActiveTourLocal(progress))
-                .catch(error => {
-                    console.error("Failed to save sips:", error);
-                    // Revert on error
-                    setPubGolfScores(prev => ({ ...prev, [stopId]: previousSips }));
-                });
+            try {
+                const progress = await activeTourService.updatePubGolfScore(activeTourId, stopId, sips, user.id);
+                updateActiveTourLocal(progress);
+            } catch (error) {
+                console.error("Failed to save sips:", error);
+                // Revert
+                updateActiveTourLocal({ teams: previousTeams });
+            }
         }
     };
+
+    // Derived PubGolf Scores
+    const pubGolfScores: Record<number, number> = {};
+    if (currentTeam?.pubGolfStops) {
+        currentTeam.pubGolfStops.forEach((pgStop: any) => {
+            if (pgStop.sips > 0) {
+                pubGolfScores[pgStop.stopId] = pgStop.sips;
+            }
+        });
+    }
 
     if (loading) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>{t('loadingTour')}</Text></View>;
     if (error) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.danger }}>{error}</Text></View>;

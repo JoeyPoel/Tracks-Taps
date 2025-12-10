@@ -52,10 +52,15 @@ To optimize performance, the application uses a **push-update** strategy for gam
 The "Push" model is implemented across the stack to ensure data consistency without redundant fetching.
 
 1.  **Frontend Hook (`useActiveTour.ts`)**:
-    - The user triggers an action (e.g., `handleChallengeComplete`).
-    - The hook calls `activeTourService.completeChallenge(...)`.
-    - Critically, it **waits** for the response of this call, which now contains the *updated progress*.
-    - It immediately calls `updateActiveTourLocal(response)` to merge this new data into the global store.
+    - Acts as a **View Model**: It derives all state (score, completed challenges, etc.) *directly* from the global Zustland store (`activeTour.teams[...]`).
+    - **No Local State**: It does not buffer state locally.
+    - **Hybrid Optimistic Updates (Speed + Stability)**: 
+        - **Phase 1 (Speed)**: When a user acts, the hook acts optimistically, immediately updating the local store via `updateActiveTourLocal` to give instant feedback.
+        - **Phase 2 (Stability)**: It then calls the backend.
+        - **Phase 3 (Diff-Check)**: Upon receiving the server response, it compares the server's state (e.g., `serverTeam.currentStop`) with the current *optimistic* state.
+            - **Match**: If they match, the hook **SKIPS** the store update. This prevents the "Flicker" of a second re-render.
+            - **Mismatch**: If they differ (or if it was a complex update like XP gain), it updates the store with the server's truth.
+        - **Revert**: If API fails, it reverts to the previous snapshot.
 
 2.  **Frontend Service (`src/services/activeTourService.ts`)**:
     - Sends the POST request to the backend.

@@ -156,10 +156,9 @@ export const useStore = create<StoreState>((set, get) => ({
         }
     },
 
-    fetchActiveTourById: async (id: number) => {
+    fetchActiveTourById: async (id: number, userId?: number) => {
         const state = get();
         // Avoid re-fetching if we already have the correct active tour loaded
-        // This prevents overwriting optimistic updates with stale data from a slow initial fetch
         if (state.activeTour?.id === id && !state.errorActiveTours) {
             return;
         }
@@ -167,7 +166,11 @@ export const useStore = create<StoreState>((set, get) => ({
         set({ loadingActiveTours: true, errorActiveTours: null });
         try {
             const activeTour = await activeTourService.getActiveTourById(id);
-            set({ activeTour, loadingActiveTours: false });
+            if (!activeTour) {
+                set({ errorActiveTours: 'Tour not found', loadingActiveTours: false, activeTour: null });
+            } else {
+                set({ activeTour, loadingActiveTours: false });
+            }
         } catch (error: any) {
             set({ errorActiveTours: error.message || 'Failed to fetch active tour', loadingActiveTours: false });
         }

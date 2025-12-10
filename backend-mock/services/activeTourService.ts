@@ -18,19 +18,8 @@ export const activeTourService = {
                 throw error;
             }
 
-            // If force is true, delete existing active tours
-            // Note: In real team logic, maybe we only remove the user from the team? 
-            // But for now, deleting the user's active tours (or teams) is consistent with previous behavior.
-            // If the user is the only one in the tour, maybe delete the tour?
-            // For simplicity, we'll iterate and if the user is 1-on-1 or we just want to clear "Active" status.
-            // Since the schema change, deleting activeTour cascades to teams. 
-            // If other teams exist, maybe we shouldn't delete the whole tour? 
-            // But valid "ActiveTour" implies the user is participating. 
-            // We'll delete the ActiveTour for now as per previous logic "activeTours[0].id".
-
-            for (const tour of activeTours) {
-                await activeTourRepository.deleteActiveTourById(tour.id);
-            }
+            // Force start: cleanup existing active tours for this user
+            await Promise.all(activeTours.map(tour => activeTourRepository.deleteActiveTourById(tour.id)));
         }
 
         return await activeTourRepository.createActiveTour(tourId, userId, teamName, teamColor, teamEmoji);
