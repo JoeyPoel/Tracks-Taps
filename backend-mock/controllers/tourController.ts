@@ -1,9 +1,27 @@
 import { tourService } from '../services/tourService';
 
 export const tourController = {
-    async getAllTours() {
+    async getAllTours(request: Request) {
         try {
-            const tours = await tourService.getAllTours();
+            const url = new URL(request.url);
+            const searchParams = url.searchParams;
+
+            const filters: any = {
+                searchQuery: searchParams.get('searchQuery') || undefined,
+                location: searchParams.get('location') || undefined,
+                minDistance: searchParams.get('minDistance') ? Number(searchParams.get('minDistance')) : undefined,
+                maxDistance: searchParams.get('maxDistance') ? Number(searchParams.get('maxDistance')) : undefined,
+                minDuration: searchParams.get('minDuration') ? Number(searchParams.get('minDuration')) : undefined,
+                maxDuration: searchParams.get('maxDuration') ? Number(searchParams.get('maxDuration')) : undefined,
+                difficulty: searchParams.get('difficulty') || undefined,
+                sortBy: searchParams.get('sortBy') || undefined,
+                sortOrder: searchParams.get('sortOrder') || undefined,
+            };
+
+            const modes = searchParams.getAll('modes[]');
+            if (modes.length > 0) filters.modes = modes;
+
+            const tours = await tourService.getAllTours(filters);
             return Response.json(tours);
         } catch (error) {
             console.error('Error fetching tours:', error);

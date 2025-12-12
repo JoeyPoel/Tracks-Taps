@@ -1,8 +1,10 @@
 import { tourRepository } from '../repositories/tourRepository';
 
+import { TourFilters } from '../../src/types/filters';
+
 export const tourService = {
-    async getAllTours() {
-        return await tourRepository.getAllTours();
+    async getAllTours(filters?: TourFilters) {
+        return await tourRepository.getAllTours(filters);
     },
 
     async getTourById(id: number) {

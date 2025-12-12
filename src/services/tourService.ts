@@ -1,8 +1,10 @@
 import client from '../api/client';
 
+import { TourFilters } from '../types/filters';
+
 export const tourService = {
-    async getAllTours() {
-        const response = await client.get('/tours');
+    async getAllTours(filters?: TourFilters) {
+        const response = await client.get('/tours', { params: filters });
         return response.data;
     },
 

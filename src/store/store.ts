@@ -4,6 +4,7 @@ import { mapTourService } from '../services/mapTourService';
 import { tourService } from '../services/tourService';
 import { userService } from '../services/userService';
 
+import { TourFilters } from '../types/filters';
 import { ActiveTour, SessionStatus, Tour, TourDetail, User } from '../types/models';
 import { LevelSystem } from '../utils/levelUtils';
 
@@ -13,6 +14,8 @@ import { LevelSystem } from '../utils/levelUtils';
 interface StoreState {
     // Tours Slice
     tours: Tour[];
+    tourFilters: TourFilters;
+    setTourFilters: (filters: TourFilters) => void;
     tourDetails: { [id: number]: TourDetail }; // Cache by ID
     mapTours: Tour[];
     loadingTours: boolean;
@@ -47,6 +50,7 @@ interface StoreState {
 export const useStore = create<StoreState>((set, get) => ({
     // --- Tours Slice ---
     tours: [],
+    tourFilters: {},
     tourDetails: {},
     mapTours: [],
     loadingTours: false,
@@ -55,11 +59,16 @@ export const useStore = create<StoreState>((set, get) => ({
     fetchTours: async () => {
         set({ loadingTours: true, errorTours: null });
         try {
-            const tours = await tourService.getAllTours();
+            const tours = await tourService.getAllTours(get().tourFilters);
             set({ tours, loadingTours: false });
         } catch (error: any) {
             set({ errorTours: error.message || 'Failed to fetch tours', loadingTours: false });
         }
+    },
+
+    setTourFilters: (filters: TourFilters) => {
+        set({ tourFilters: filters });
+        get().fetchTours();
     },
 
     fetchAllData: async (userId: number) => {
@@ -79,7 +88,7 @@ export const useStore = create<StoreState>((set, get) => ({
             ];
 
             if (shouldFetchTours) {
-                promises.push(tourService.getAllTours());
+                promises.push(tourService.getAllTours(get().tourFilters));
             }
 
             const results = await Promise.all(promises);
