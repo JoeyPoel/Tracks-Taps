@@ -12,6 +12,8 @@ export async function POST(request: Request) {
             return await userController.addTokens(request, body);
         } else if (body.action === 'add-xp') {
             return await userController.addXp(request, body);
+        } else if (body.action === 'create-user') {
+            return await userController.createUser(request, body);
         }
 
         return Response.json({ error: 'Invalid action' }, { status: 400 });

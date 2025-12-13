@@ -1,0 +1,233 @@
+import { useLanguage } from '@/src/context/LanguageContext';
+import { useTheme } from '@/src/context/ThemeContext';
+import { supabase } from '@/utils/supabase';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Link, useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+export default function RegisterScreen() {
+    const router = useRouter();
+    const { theme } = useTheme();
+    const { t } = useLanguage();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    const handleRegister = async () => {
+        if (!email || !password || !confirmPassword) {
+            Alert.alert('Error', t('enterEmail') + ', ' + t('enterPassword'));
+            return;
+        }
+        if (password !== confirmPassword) {
+            Alert.alert('Error', t('passwordsDoNotMatch'));
+            return;
+        }
+
+        setLoading(true);
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+        });
+        setLoading(false);
+
+        if (error) {
+            Alert.alert(t('failedToRegister'), error.message);
+        } else if (!data.session) {
+            // Session is null -> Email verification is enabled and required
+            Alert.alert('Success', 'Please check your email to verify your account.');
+            router.replace('/auth/login');
+        } else {
+            // User is created in Supabase and logged in. Now create in our DB explicitly.
+            try {
+                // Determine base URL based on environment (handled relative in Expo usually, but full URL safer for fetch)
+                // For simplified development in Expo, we often rely on relative paths if configured, 
+                // but direct fetch assumes localhost or configured API URL.
+                // Since this is a "backend-mock" integrated via Next.js/Expo API routes, let's try a direct fetch to the API route.
+                // Note: The environment variable EXPO_PUBLIC_API_URL should be defined, or we construct it.
+                // Assuming standard Expo API route behavior:
+
+                await fetch(process.env.EXPO_PUBLIC_API_URL + '/user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'create-user', email: email }),
+                });
+            } catch (err) {
+                console.error("Failed to create user in DB:", err);
+                // We don't block the user flow here because the checkout/login will likely retry or "lazy create"
+            }
+        }
+        // If data.session exists, the user is logged in automatically. 
+        // The AuthContext listener will detect the session change and redirect to the main app.
+    };
+
+    return (
+        <LinearGradient
+            colors={[theme.fixedGradientFrom, theme.fixedGradientTo]}
+            style={styles.container}
+        >
+            <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+                <View style={[styles.card, { backgroundColor: theme.bgPrimary }]}>
+                    <Text style={[styles.title, { color: theme.textPrimary }]}>{t('createAccount')}</Text>
+
+                    <View style={styles.inputContainer}>
+                        <Text style={[styles.label, { color: theme.textSecondary }]}>{t('email')}</Text>
+                        <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderInput }]}>
+                            <Ionicons name="mail-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
+                            <TextInput
+                                style={[styles.input, { color: theme.textPrimary }]}
+                                placeholder={t('enterEmail')}
+                                placeholderTextColor={theme.textTertiary}
+                                value={email}
+                                onChangeText={setEmail}
+                                autoCapitalize="none"
+                                keyboardType="email-address"
+                            />
+                        </View>
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <Text style={[styles.label, { color: theme.textSecondary }]}>{t('password')}</Text>
+                        <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderInput }]}>
+                            <Ionicons name="lock-closed-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
+                            <TextInput
+                                style={[styles.input, { color: theme.textPrimary }]}
+                                placeholder={t('enterPassword')}
+                                placeholderTextColor={theme.textTertiary}
+                                value={password}
+                                onChangeText={setPassword}
+                                secureTextEntry={!showPassword}
+                            />
+                            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                                <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={theme.textTertiary} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <Text style={[styles.label, { color: theme.textSecondary }]}>{t('confirmPassword')}</Text>
+                        <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderInput }]}>
+                            <Ionicons name="lock-closed-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
+                            <TextInput
+                                style={[styles.input, { color: theme.textPrimary }]}
+                                placeholder={t('confirmPassword')}
+                                placeholderTextColor={theme.textTertiary}
+                                value={confirmPassword}
+                                onChangeText={setConfirmPassword}
+                                secureTextEntry={!showConfirmPassword}
+                            />
+                            <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                                <Ionicons name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} size={20} color={theme.textTertiary} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    <TouchableOpacity
+                        style={[styles.button, { backgroundColor: theme.primary }]}
+                        onPress={handleRegister}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color={theme.textOnPrimary} />
+                        ) : (
+                            <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>{t('signUp')}</Text>
+                        )}
+                    </TouchableOpacity>
+
+                    <View style={styles.footer}>
+                        <Text style={[styles.footerText, { color: theme.textSecondary }]}>{t('haveAccount')} </Text>
+                        <Link href="/auth/login" asChild>
+                            <TouchableOpacity>
+                                <Text style={[styles.link, { color: theme.primary }]}>{t('signIn')}</Text>
+                            </TouchableOpacity>
+                        </Link>
+                    </View>
+                </View>
+            </ScrollView>
+        </LinearGradient>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    scrollContainer: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    card: {
+        width: '100%',
+        maxWidth: 400,
+        padding: 24,
+        borderRadius: 24,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.30,
+        shadowRadius: 4.65,
+        elevation: 8,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        marginBottom: 24,
+        textAlign: 'center',
+    },
+    inputContainer: {
+        marginBottom: 16,
+    },
+    label: {
+        fontSize: 14,
+        marginBottom: 8,
+        fontWeight: '600',
+    },
+    inputWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 50,
+        borderWidth: 1,
+        borderRadius: 12,
+        paddingHorizontal: 16,
+    },
+    inputIcon: {
+        marginRight: 10,
+    },
+    input: {
+        flex: 1,
+        height: '100%',
+        fontSize: 16,
+    },
+    button: {
+        height: 50,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 8,
+        marginBottom: 24,
+    },
+    buttonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    footer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    footerText: {
+        fontSize: 14,
+    },
+    link: {
+        fontSize: 14,
+        fontWeight: 'bold',
+    },
+});

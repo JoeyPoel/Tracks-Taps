@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect } from 'react';
 import { useStore } from '../store/store';
 import { User } from '../types/models';
+import { useAuth } from './AuthContext';
 
 interface UserContextType {
     user: User | null;
@@ -19,22 +20,23 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const fetchUserByEmail = useStore((state) => state.fetchUserByEmail);
     const addXp = useStore((state) => state.addXp);
 
-    // Hardcoded for now as per previous implementation
-    const email = 'Joey@example.com';
+    const { session } = useAuth();
+    const email = session?.user?.email;
 
     useEffect(() => {
-        fetchUserByEmail(email);
-    }, []);
+        if (email) {
+            fetchUserByEmail(email);
+        }
+    }, [email]);
 
     const refreshUser = async () => {
-        await fetchUserByEmail(email);
+        if (email) {
+            await fetchUserByEmail(email);
+        }
     };
 
     const updateUserXp = async (amount: number) => {
-        addXp(amount); // Optimistic update
-        // Note: We do NOT call userService.addXp here because the challenge completion 
-        // in activeTourService already adds the XP on the backend. 
-        //Calling it here would result in double XP.
+        addXp(amount); 
     };
 
     return (

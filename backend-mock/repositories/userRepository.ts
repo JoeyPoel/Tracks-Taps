@@ -35,6 +35,18 @@ export const userRepository = {
         });
     },
 
+    async createUser(data: { email: string; name: string }) {
+        return await prisma.user.create({
+            data: {
+                ...data,
+                passwordHash: 'placeholder', // Since auth is handled by Supabase
+                xp: 0,
+                tokens: 0,
+                level: 1,
+            },
+        });
+    },
+
     async addXp(userId: number, amount: number) {
         return await prisma.user.update({
             where: { id: userId },

@@ -12,6 +12,13 @@ export const userController = {
                 user = await userService.getUserProfile(parseInt(userId));
             } else if (email) {
                 user = await userService.getUserByEmail(email);
+
+                // If user doesn't exist in our DB but is authenticated (we assume this based on the flow),
+                // create or return a default user structure so the app doesn't crash.
+                // In a real app, you would sync this with Supabase webhooks or explicit creation.
+                if (!user) {
+                    user = await userService.createUserByEmail(email);
+                }
             } else {
                 return Response.json({ error: 'Missing userId or email' }, { status: 400 });
             }
@@ -58,6 +65,29 @@ export const userController = {
         } catch (error) {
             console.error('Error adding tokens:', error);
             return Response.json({ error: 'Failed to add tokens' }, { status: 500 });
+        }
+    },
+
+    async createUser(request: Request, parsedBody?: any) {
+        try {
+            const body = parsedBody || await request.json();
+            const { email } = body;
+
+            if (!email) {
+                return Response.json({ error: 'Missing email' }, { status: 400 });
+            }
+
+            // Check if exists first to avoid duplicate errors
+            const existing = await userService.getUserByEmail(email);
+            if (existing) {
+                return Response.json(existing);
+            }
+
+            const newUser = await userService.createUserByEmail(email);
+            return Response.json(newUser);
+        } catch (error) {
+            console.error('Error creating user:', error);
+            return Response.json({ error: 'Failed to create user' }, { status: 500 });
         }
     }
 };
