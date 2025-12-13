@@ -4,6 +4,7 @@ import React from 'react';
 import { Animated, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserContext } from '../../context/UserContext';
+import client from '../../api/client';
 
 interface BuyTokensModalProps {
     visible: boolean;
@@ -54,21 +55,11 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
         try {
             const totalTokens = pkg.tokens + pkg.bonus;
 
-            const response = await fetch('/api/user', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: 'buy-tokens',
-                    userId: user.id,
-                    amount: totalTokens
-                }),
+            await client.post('/user', {
+                action: 'buy-tokens',
+                userId: user.id,
+                amount: totalTokens
             });
-
-            if (!response.ok) {
-                throw new Error('Failed to buy tokens');
-            }
 
             await refreshUser();
             handleClose();

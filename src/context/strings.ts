@@ -171,7 +171,6 @@ export const strings = {
     correctAnswerWas: 'Answer:',
     // Auth Keys
     login: 'Login',
-    signIn: 'Sign In',
     signUp: 'Sign Up',
     register: 'Register',
     email: 'Email',
@@ -200,6 +199,9 @@ export const strings = {
     resendConfirmation: 'Resend Confirmation Email',
     emailNotConfirmed: 'Email not confirmed',
     confirmationSent: 'Confirmation email sent!',
+    authenticationRequired: 'Authentication Required',
+    loginToStartTour: 'You need to be logged in to start a tour.',
+    signIn: 'Sign In',
   },
   es: {
     profile: 'Perfil',

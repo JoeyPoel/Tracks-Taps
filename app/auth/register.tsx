@@ -44,16 +44,13 @@ export default function RegisterScreen() {
         } else {
             // User is created in Supabase and logged in. Now create in our DB explicitly.
             try {
-                // Determine base URL based on environment (handled relative in Expo usually, but full URL safer for fetch)
-                // For simplified development in Expo, we often rely on relative paths if configured, 
-                // but direct fetch assumes localhost or configured API URL.
-                // Since this is a "backend-mock" integrated via Next.js/Expo API routes, let's try a direct fetch to the API route.
-                // Note: The environment variable EXPO_PUBLIC_API_URL should be defined, or we construct it.
-                // Assuming standard Expo API route behavior:
-
+                const session = data.session;
                 await fetch(process.env.EXPO_PUBLIC_API_URL + '/user', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session?.access_token}`
+                    },
                     body: JSON.stringify({ action: 'create-user', email: email }),
                 });
             } catch (err) {

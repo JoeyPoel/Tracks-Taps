@@ -18,9 +18,9 @@ export const reviewController = {
         }
     },
 
-    async createReview(request: Request) {
+    async createReview(request: Request, parsedBody?: any) {
         try {
-            const body = await request.json();
+            const body = parsedBody || await request.json();
             const { tourId, userId, content, rating, photos } = body;
 
             if (!tourId || !userId || !content || !rating) {
