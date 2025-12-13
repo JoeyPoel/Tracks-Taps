@@ -72,6 +72,51 @@ async function main() {
         }
     };
 
+    const createReviews = async (tourId: number) => {
+        const reviews = [
+            {
+                content: "Absolutely loved this tour! The views were breathtaking.",
+                rating: 5,
+                photos: ["https://images.unsplash.com/photo-1549880338-65ddcdfd017b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"],
+                authorId: joey.id
+            },
+            {
+                content: "It was okay, but a bit too long for my taste.",
+                rating: 3,
+                photos: [],
+                authorId: alice.id
+            },
+            {
+                content: "Hidden gems everywhere! Highly recommend.",
+                rating: 5,
+                photos: ["https://images.unsplash.com/photo-1574169208507-84376144848b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80"],
+                authorId: bob.id
+            },
+            {
+                content: "Good exercise but the stops were crowded.",
+                rating: 4,
+                photos: [],
+                authorId: joey.id
+            }
+        ];
+
+        // Shuffle and pick random 1-4 reviews
+        const numReviews = Math.floor(Math.random() * 4) + 1;
+        const selectedReviews = reviews.sort(() => 0.5 - Math.random()).slice(0, numReviews);
+
+        for (const review of selectedReviews) {
+            await prisma.review.create({
+                data: {
+                    content: review.content,
+                    rating: review.rating,
+                    photos: review.photos,
+                    tourId: tourId,
+                    authorId: review.authorId,
+                }
+            });
+        }
+    };
+
     // --- TOUR 1: Tata Steel Industrial Safari ---
     const tataTour = await prisma.tour.create({
         data: {
@@ -212,6 +257,7 @@ async function main() {
     ];
 
     await createStopsAndChallenges(tataTour.id, tataStops);
+    await createReviews(tataTour.id);
 
 
     // --- TOUR 2: Historic Utrecht Canals & Secrets ---
@@ -319,6 +365,7 @@ async function main() {
     ];
 
     await createStopsAndChallenges(utrechtTour.id, utrechtStops);
+    await createReviews(utrechtTour.id);
 
 
     // --- TOUR 3: Amsterdam Architectural Gems ---
@@ -437,6 +484,7 @@ async function main() {
     ];
 
     await createStopsAndChallenges(amsterdamTour.id, amsStops);
+    await createReviews(amsterdamTour.id);
 
 
     // --- TOUR 4: Rotterdam Skyline Run ---
@@ -515,6 +563,7 @@ async function main() {
     ];
 
     await createStopsAndChallenges(rotterdamTour.id, rdamStops);
+    await createReviews(rotterdamTour.id);
 
 
     // --- TOUR 5: Kennemer Dunes Nature Walk ---
@@ -593,6 +642,7 @@ async function main() {
     ];
 
     await createStopsAndChallenges(natureTour.id, natureStops);
+    await createReviews(natureTour.id);
 
 
     // --- TOUR 6: Breda PubGolf Championship ---
@@ -866,6 +916,7 @@ async function main() {
     ];
 
     await createStopsAndChallenges(bredaTour.id, bredaStops);
+    await createReviews(bredaTour.id);
 
 
     // --- Mock Active Tour for Dev ---
