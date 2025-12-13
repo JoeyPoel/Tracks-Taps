@@ -46,10 +46,16 @@ export default function LobbyScreen() {
         <SafeAreaView style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
             <View style={[styles.header, { borderBottomColor: theme.borderPrimary }]}>
                 <TouchableOpacity
-                    onPress={() => router.replace('/')} // Or specific back behavior
+                    onPress={() => {
+                        if (router.canGoBack()) {
+                            router.back();
+                        } else {
+                            router.replace('/');
+                        }
+                    }}
                     style={styles.closeButton}
                 >
-                    <Ionicons name="close" size={24} color={theme.textPrimary} />
+                    <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>Lobby</Text>
                 <View style={{ width: 24 }} />

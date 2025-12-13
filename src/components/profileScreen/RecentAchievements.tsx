@@ -1,8 +1,8 @@
+import { useLanguage } from '@/src/context/LanguageContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
-import { useLanguage } from '@/src/context/LanguageContext';
 
 interface Achievement {
     id: string;
@@ -41,7 +41,6 @@ export default function RecentAchievements({ achievements }: RecentAchievementsP
 
 const styles = StyleSheet.create({
     container: {
-        marginHorizontal: 16,
         marginBottom: 24,
     },
     header: {

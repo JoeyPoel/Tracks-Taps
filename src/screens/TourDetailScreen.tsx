@@ -67,7 +67,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           buttonText={isStarting ? "Starting..." : t('startTour')}
         />
 
-        <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+        <View style={{ paddingHorizontal: 24, marginBottom: 16 }}>
           <TouchableOpacity
             style={{
               backgroundColor: theme.bgSecondary,

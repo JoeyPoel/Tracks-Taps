@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         justifyContent: 'flex-end',
-        padding: 16,
+        padding: 24,
     },
     content: {
         marginBottom: 8,
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     backButton: {
-        marginLeft: 16,
+        marginLeft: 24,
         marginTop: 8,
         width: 40,
         height: 40,

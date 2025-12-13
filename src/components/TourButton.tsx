@@ -33,7 +33,7 @@ export default function StartTourButton({ onPress, buttonText }: StartTourButton
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: 16,
+        paddingHorizontal: 24,
         paddingVertical: 16,
     },
     button: {

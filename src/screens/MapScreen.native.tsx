@@ -143,10 +143,10 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    left: 16,
+    left: 24,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
     paddingVertical: 10,
     borderRadius: 25,
     gap: 8,
@@ -161,8 +161,8 @@ const styles = StyleSheet.create({
   },
   tourInfo: {
     position: 'absolute',
-    left: 20,
-    right: 20,
+    left: 24,
+    right: 24,
     alignItems: 'center'
   },
   loadingOverlay: {

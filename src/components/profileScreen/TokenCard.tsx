@@ -53,7 +53,6 @@ export default function TokenCard({ tokens, onBuyPress, onInvitePress }: TokenCa
 
 const styles = StyleSheet.create({
     container: {
-        marginHorizontal: 16,
         marginTop: 16,
         borderRadius: 20,
         overflow: 'hidden',

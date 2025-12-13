@@ -87,7 +87,6 @@ export default function UserProfileCard({
 
 const styles = StyleSheet.create({
     cardContainer: {
-        marginHorizontal: 16,
         marginTop: 16,
         marginBottom: 24,
         borderRadius: 20,

@@ -5,11 +5,11 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ColorSelector } from '../components/teamSetup/ColorSelector';
 import { EmojiSelector } from '../components/teamSetup/EmojiSelector';
+import { TeamCard } from '../components/teamSetup/TeamCard';
 import { TeamNameInput } from '../components/teamSetup/TeamNameInput';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useTeamSetup } from '../hooks/useTeamSetup';
-import { TeamCard } from '../components/teamSetup/TeamCard';
 
 export default function TeamSetupScreen() {
     const { theme } = useTheme();
@@ -41,7 +41,7 @@ export default function TeamSetupScreen() {
                     style={styles.closeButton}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                    <Ionicons name="close" size={24} color={theme.textPrimary} />
+                    <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('teamSetup')}</Text>
                 <View style={{ width: 24 }} />
@@ -88,10 +88,10 @@ const styles = StyleSheet.create({
     },
     headerTitle: { fontSize: 18, fontWeight: '700' },
     closeButton: {},
-    content: { padding: 20 },
+    content: { padding: 24 },
     subText: { textAlign: 'center', marginBottom: 20 },
     backLink: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },
-    footer: { padding: 16, borderTopWidth: 1 },
+    footer: { padding: 24, borderTopWidth: 1 },
     createButton: {
         height: 50,
         borderRadius: 8,

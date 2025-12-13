@@ -46,7 +46,7 @@ export default function TourStats({ distance, duration, stops, points }: TourSta
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        paddingHorizontal: 16,
+        paddingHorizontal: 24,
         marginTop: 16,
         marginBottom: 8,
         gap: 8, // Use gap for creating space between items

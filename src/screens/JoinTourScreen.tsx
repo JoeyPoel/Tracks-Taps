@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
 import React from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,23 +20,7 @@ export default function JoinTourScreen() {
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
-            <View style={[styles.header, { borderBottomColor: theme.borderPrimary }]}>
-                <TouchableOpacity
-                    onPress={() => {
-                        if (router.canGoBack()) {
-                            router.back();
-                        } else {
-                            router.replace('/');
-                        }
-                    }}
-                    style={styles.closeButton}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                    <Ionicons name="close" size={24} color={theme.textPrimary} />
-                </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('joinTour')}</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            {/* Header removed for Tab consistency */}
 
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -128,7 +111,7 @@ const styles = StyleSheet.create({
     },
     headerTitle: { fontSize: 18, fontWeight: '700' },
     closeButton: {},
-    content: { padding: 24, paddingBottom: 48 },
+    content: { padding: 24, paddingBottom: 24 },
     iconContainer: { alignItems: 'center', marginBottom: 32 },
     iconCircle: { width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
     title: { fontSize: 24, fontWeight: 'bold', marginBottom: 8 },

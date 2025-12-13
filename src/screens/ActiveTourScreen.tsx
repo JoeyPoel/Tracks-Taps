@@ -216,6 +216,6 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingBottom: 40,
-        paddingHorizontal: 16,
+        paddingHorizontal: 24,
     },
 });

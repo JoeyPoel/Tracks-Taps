@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Switch, Button } from 'react-native';
+import { Button, StyleSheet, Switch, Text, View } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { darkTheme } from '../context/theme';
@@ -33,7 +33,7 @@ export default function AppPreferencesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
+  container: { flex: 1, padding: 24 },
   header: { fontSize: 22, fontWeight: '700', marginBottom: 16 },
   preferenceItem: {
     flexDirection: 'row',

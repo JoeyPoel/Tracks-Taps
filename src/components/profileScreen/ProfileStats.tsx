@@ -1,8 +1,8 @@
+import { useLanguage } from '@/src/context/LanguageContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
-import { useLanguage } from '@/src/context/LanguageContext';
 
 interface ProfileStatsProps {
     toursDone: number;
@@ -41,7 +41,6 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginHorizontal: 16,
         marginBottom: 24,
         gap: 12,
     },

@@ -23,7 +23,7 @@ export default function TourAbout({ description }: TourAboutProps) {
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: 16,
+        paddingHorizontal: 24,
         marginTop: 24,
     },
     title: {

@@ -88,7 +88,7 @@ export default function TourReviews({ reviews, averageRating, totalReviews }: To
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: 16,
+        paddingHorizontal: 24,
         marginTop: 24,
     },
     header: {
