@@ -42,4 +42,27 @@ export const userRepository = {
         });
     },
 
+    async deductTokens(userId: number, amount: number) {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { tokens: true }
+        });
+
+        if (!user || user.tokens < amount) {
+            throw new Error('Insufficient tokens');
+        }
+
+        return await prisma.user.update({
+            where: { id: userId },
+            data: { tokens: { decrement: amount } },
+        });
+    },
+
+    async addTokens(userId: number, amount: number) {
+        return await prisma.user.update({
+            where: { id: userId },
+            data: { tokens: { increment: amount } },
+        });
+    },
+
 };

@@ -28,4 +28,8 @@ export const userService = {
             level: LevelSystem.getLevel(updatedUser.xp)
         };
     },
+
+    async addTokens(userId: number, amount: number) {
+        return await userRepository.addTokens(userId, amount);
+    },
 };

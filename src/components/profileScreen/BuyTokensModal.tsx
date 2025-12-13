@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Animated, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
+import { useUserContext } from '../../context/UserContext';
 
 interface BuyTokensModalProps {
     visible: boolean;
@@ -19,7 +20,9 @@ const PACKAGES = [
 export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const { user, refreshUser } = useUserContext();
     const slideAnim = React.useRef(new Animated.Value(Dimensions.get('window').height)).current;
+    const [isLoading, setIsLoading] = React.useState(false);
 
     React.useEffect(() => {
         if (visible) {
@@ -42,6 +45,40 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
         }).start(() => {
             onClose();
         });
+    };
+
+    const handleBuy = async (pkg: typeof PACKAGES[0]) => {
+        if (!user || isLoading) return;
+
+        setIsLoading(true);
+        try {
+            const totalTokens = pkg.tokens + pkg.bonus;
+
+            const response = await fetch('/api/user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'buy-tokens',
+                    userId: user.id,
+                    amount: totalTokens
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to buy tokens');
+            }
+
+            await refreshUser();
+            handleClose();
+        } catch (error) {
+            console.error('Error buying tokens:', error);
+            // simple alert for now
+            alert('Failed to purchase. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -86,8 +123,11 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                                     style={[
                                         styles.packageCard,
                                         { borderColor: pkg.popular ? theme.danger : theme.borderPrimary },
-                                        pkg.popular && { borderWidth: 2 }
+                                        pkg.popular && { borderWidth: 2 },
+                                        isLoading && { opacity: 0.5 }
                                     ]}
+                                    onPress={() => handleBuy(pkg)}
+                                    disabled={isLoading}
                                 >
                                     {pkg.popular && (
                                         <View style={[styles.popularBadge, { backgroundColor: theme.danger }]}>

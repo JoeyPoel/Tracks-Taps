@@ -22,7 +22,7 @@ export default function ProfileScreen() {
 
   const { user, loading } = useUserContext();
 
-  if (loading) {
+  if (loading && !user) {
     return (
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center', flex: 1 }]}>
         <Text style={{ color: theme.textPrimary }}>Loading profile...</Text>

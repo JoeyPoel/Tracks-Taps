@@ -22,6 +22,9 @@ export const activeTourService = {
             await Promise.all(activeTours.map(tour => activeTourRepository.deleteActiveTourById(tour.id)));
         }
 
+        // Deduct 1 token for playing a tour
+        await userRepository.deductTokens(userId, 1);
+
         return await activeTourRepository.createActiveTour(tourId, userId, teamName, teamColor, teamEmoji);
     },
 

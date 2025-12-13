@@ -27,9 +27,9 @@ export const userController = {
         }
     },
 
-    async addXp(request: Request) {
+    async addXp(request: Request, parsedBody?: any) {
         try {
-            const body = await request.json();
+            const body = parsedBody || await request.json();
             const { userId, amount } = body;
 
             if (!userId || !amount) {
@@ -41,6 +41,23 @@ export const userController = {
         } catch (error) {
             console.error('Error adding XP:', error);
             return Response.json({ error: 'Failed to add XP' }, { status: 500 });
+        }
+    },
+
+    async addTokens(request: Request, parsedBody?: any) {
+        try {
+            const body = parsedBody || await request.json();
+            const { userId, amount } = body;
+
+            if (!userId || !amount) {
+                return Response.json({ error: 'Missing userId or amount' }, { status: 400 });
+            }
+
+            const updatedUser = await userService.addTokens(Number(userId), Number(amount));
+            return Response.json(updatedUser);
+        } catch (error) {
+            console.error('Error adding tokens:', error);
+            return Response.json({ error: 'Failed to add tokens' }, { status: 500 });
         }
     }
 };

@@ -1,16 +1,17 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Platform } from 'react-native';
+import { useLanguage } from '../context/LanguageContext';
 import { useUserContext } from '../context/UserContext';
 
 export const useStartTour = (tourId: number) => {
-    const { user } = useUserContext();
+    const { user, refreshUser } = useUserContext();
     const router = useRouter();
     const [isStarting, setIsStarting] = useState(false);
 
-    const startTour = async (force = false, isLobbyMode = false) => {
-        if (!user) return;
+    const { t } = useLanguage();
 
+    const executeStartTour = async (force: boolean, isLobbyMode: boolean) => {
         setIsStarting(true);
         try {
             // Note: We are communicating directly with the API here as per the original component code.
@@ -21,7 +22,7 @@ export const useStartTour = (tourId: number) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    userId: user.id,
+                    userId: user?.id,
                     tourId: tourId,
                     force: force,
                 }),
@@ -32,25 +33,25 @@ export const useStartTour = (tourId: number) => {
 
                 if (Platform.OS === 'web') {
                     const shouldReplace = window.confirm(
-                        `You have an active tour: "${activeTour.tour.title}". Starting a new one will cause you to lose progress. Do you want to proceed?`
+                        t('activeTourExistsMessage')
                     );
                     if (shouldReplace) {
-                        await startTour(true, isLobbyMode);
+                        await executeStartTour(true, isLobbyMode);
                     }
                 } else {
                     Alert.alert(
-                        'Active Tour Exists',
-                        `You have an active tour: "${activeTour.tour.title}". Starting a new one will cause you to lose progress. Do you want to proceed?`,
+                        t('activeTourExists'),
+                        t('activeTourExistsMessage'),
                         [
                             {
-                                text: 'Cancel',
+                                text: t('cancel'),
                                 style: 'cancel',
                                 onPress: () => setIsStarting(false)
                             },
                             {
-                                text: 'Start New Tour',
+                                text: t('startNew'),
                                 style: 'destructive',
-                                onPress: () => startTour(true, isLobbyMode),
+                                onPress: () => executeStartTour(true, isLobbyMode),
                             },
                         ]
                     );
@@ -66,6 +67,9 @@ export const useStartTour = (tourId: number) => {
             }
 
             const newActiveTour = await response.json();
+
+            // Refresh user tokens to update balance in UI
+            refreshUser();
 
             if (isLobbyMode) {
                 router.push({
@@ -85,6 +89,43 @@ export const useStartTour = (tourId: number) => {
             }
         } finally {
             setIsStarting(false);
+        }
+    };
+
+    const startTour = async (force = false, isLobbyMode = false) => {
+        if (!user) return;
+
+        if (user.tokens < 1) {
+            if (Platform.OS === 'web') {
+                alert(t('insufficientTokensMessage'));
+            } else {
+                Alert.alert(t('insufficientTokensTitle'), t('insufficientTokensMessage'));
+            }
+            return;
+        }
+
+        // If explicitly forcing (recursive call), just run it.
+        // Actually, the 409 recursive call calls executeStartTour directly, 
+        // effectively bypassing this cost check (checked initially) and cost prompt.
+        // But if someone called startTour(true) directly manually? Unlikely.
+
+        if (!force) {
+            if (Platform.OS === 'web') {
+                if (window.confirm(t('startTourCostMessage').replace('{0}', user.tokens.toString()))) {
+                    await executeStartTour(force, isLobbyMode);
+                }
+            } else {
+                Alert.alert(
+                    t('startTourCostTitle'),
+                    t('startTourCostMessage').replace('{0}', user.tokens.toString()),
+                    [
+                        { text: t('cancel'), style: 'cancel' },
+                        { text: t('proceed'), onPress: () => executeStartTour(force, isLobbyMode) }
+                    ]
+                );
+            }
+        } else {
+            await executeStartTour(force, isLobbyMode);
         }
     };
 
