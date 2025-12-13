@@ -2,9 +2,9 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Animated, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import client from '../../api/client';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserContext } from '../../context/UserContext';
-import client from '../../api/client';
 
 interface BuyTokensModalProps {
     visible: boolean;
@@ -17,6 +17,8 @@ const PACKAGES = [
     { tokens: 25, price: 34.99, bonus: 7, popular: false },
     { tokens: 50, price: 59.99, bonus: 20, popular: false },
 ];
+
+import { authEvents } from '../../utils/authEvents';
 
 export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps) {
     const { theme } = useTheme();
@@ -49,7 +51,11 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
     };
 
     const handleBuy = async (pkg: typeof PACKAGES[0]) => {
-        if (!user || isLoading) return;
+        if (!user) {
+            authEvents.emit();
+            return;
+        }
+        if (isLoading) return;
 
         setIsLoading(true);
         try {

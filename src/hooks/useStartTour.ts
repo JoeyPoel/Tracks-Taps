@@ -4,7 +4,7 @@ import { Alert, Platform } from 'react-native';
 import client from '../api/client'; // Use configured client
 import { useLanguage } from '../context/LanguageContext';
 import { useUserContext } from '../context/UserContext';
-
+import { authEvents } from '../utils/authEvents';
 export const useStartTour = (tourId: number) => {
     const { user, refreshUser } = useUserContext();
     const router = useRouter();
@@ -42,14 +42,12 @@ export const useStartTour = (tourId: number) => {
         } catch (error: any) {
             if (error.response) {
                 if (error.response.status === 401) {
-                    Alert.alert(
-                        t('authenticationRequired') || 'Authentication Required',
-                        t('loginToStartTour') || 'You need to be logged in to start a tour.',
-                        [
-                            { text: t('cancel'), style: 'cancel' },
-                            { text: t('signIn'), onPress: () => router.push('/auth/login') }
-                        ]
-                    );
+                    // Handled by client interceptor global modal
+                    // However, if we want to be safe or if the interceptor logic is specific:
+                    // authEvents.emit(); 
+                    // But usually we just let it fall through or suppress the alert if global handles it.
+                    // For now, let's just log it to avoid double alerts if the global one fires.
+                    console.log('401 handled by interceptor');
                 } else if (error.response.status === 409) {
                     // Conflict (Active tour exists)
                     if (Platform.OS === 'web') {
@@ -90,7 +88,10 @@ export const useStartTour = (tourId: number) => {
     };
 
     const startTour = async (force = false, isLobbyMode = false) => {
-        if (!user) return;
+        if (!user) {
+            authEvents.emit();
+            return;
+        }
 
         if (user.tokens < 1) {
             if (Platform.OS === 'web') {

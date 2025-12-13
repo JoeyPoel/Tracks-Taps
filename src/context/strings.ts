@@ -202,6 +202,7 @@ export const strings = {
     authenticationRequired: 'Authentication Required',
     loginToStartTour: 'You need to be logged in to start a tour.',
     signIn: 'Sign In',
+    pleaseLoginToManageYourPersonalDetails: 'Please login to manage your personal details.',
   },
   es: {
     profile: 'Perfil',
@@ -385,6 +386,7 @@ export const strings = {
     resendConfirmation: 'Reenviar correo de confirmación',
     emailNotConfirmed: 'Correo no confirmado',
     confirmationSent: '¡Correo de confirmación enviado!',
+    pleaseLoginToManageYourPersonalDetails: 'Por favor, inicia sesión para gestionar tus datos personales.',
   },
   nl: {
     profile: 'Profiel',
@@ -568,5 +570,6 @@ export const strings = {
     resendConfirmation: 'Bevestigingsmail opnieuw verzenden',
     emailNotConfirmed: 'E-mail niet bevestigd',
     confirmationSent: 'Bevestigingsmail verzonden!',
+    pleaseLoginToManageYourPersonalDetails: 'Je moet ingelogd zijn om je persoonlijke gegevens te beheren.',
   },
 };

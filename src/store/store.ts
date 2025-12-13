@@ -45,6 +45,7 @@ interface StoreState {
     fetchUser: (userId: number) => Promise<void>;
     fetchUserByEmail: (email: string) => Promise<void>;
     addXp: (amount: number) => void; // Optimistic update
+    clearUser: () => void;
 }
 
 export const useStore = create<StoreState>((set, get) => ({
@@ -302,5 +303,9 @@ export const useStore = create<StoreState>((set, get) => ({
                 }
             };
         });
+    },
+
+    clearUser: () => {
+        set({ user: null, activeTours: [], activeTour: null });
     }
 }));

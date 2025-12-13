@@ -1,3 +1,4 @@
+import AuthRequiredModal from '@/src/components/AuthRequiredModal';
 import { AuthProvider, useAuth } from '@/src/context/AuthContext';
 import { LanguageProvider } from '@/src/context/LanguageContext';
 import { ThemeProvider } from '@/src/context/ThemeContext';
@@ -16,11 +17,13 @@ function AuthenticatedLayout() {
 
         const inAuthGroup = segment[0] === 'auth';
 
-        if (!session && !inAuthGroup) {
-            router.replace('/auth/login');
-        } else if (session && inAuthGroup) {
+        // If user is validated and tries to access auth pages, redirect to home
+        if (session && inAuthGroup) {
             router.replace('/');
         }
+
+        // We no longer redirect unauthenticated users to login automatically.
+        // They can browse effectively as a "guest" until they perform a restricted action.
     }, [session, loading, segment]);
 
     if (loading) {
@@ -39,6 +42,7 @@ function AuthenticatedLayout() {
                         <Stack.Screen name="auth" options={{ headerShown: false }} />
                         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                     </Stack>
+                    <AuthRequiredModal />
                 </UserProvider>
             </ThemeProvider>
         </LanguageProvider>

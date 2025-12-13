@@ -50,6 +50,10 @@ client.interceptors.response.use(
         // Handle global errors here (e.g., logging, redirecting on 401)
         if (error.response?.status === 401) {
             console.log("Unauthorized request:", error.config.url);
+            // Verify if we are not already on an auth screen to avoid loops or unnecessary modals
+            // But usually the modal handles its own visibility state
+            const { authEvents } = require('@/src/utils/authEvents');
+            authEvents.emit();
         }
         console.error('API Error:', error.response?.data || error.message);
         return Promise.reject(error);

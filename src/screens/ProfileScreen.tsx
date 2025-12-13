@@ -69,7 +69,7 @@ export default function ProfileScreen() {
       <SettingsItem
         icon={<Ionicons name="person-outline" size={24} color={theme.secondary} />}
         title={t('personalInfo')}
-        onPress={() => console.log('Personal Information pressed')}
+        onPress={() => router.push('/profile/personal-info')}
       />
       <SettingsItem
         icon={<Ionicons name="settings" size={24} color={theme.secondary} />}

@@ -19,6 +19,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const error = useStore((state) => state.errorUser);
     const fetchUserByEmail = useStore((state) => state.fetchUserByEmail);
     const addXp = useStore((state) => state.addXp);
+    const clearUser = useStore((state) => state.clearUser);
 
     const { session } = useAuth();
     const email = session?.user?.email;
@@ -26,6 +27,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (email) {
             fetchUserByEmail(email);
+        } else {
+            clearUser();
         }
     }, [email]);
 
@@ -36,7 +39,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     };
 
     const updateUserXp = async (amount: number) => {
-        addXp(amount); 
+        addXp(amount);
     };
 
     return (
