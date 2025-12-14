@@ -7,19 +7,20 @@ import { useTheme } from '../context/ThemeContext';
 interface StartTourButtonProps {
     onPress: () => void;
     buttonText: string;
+    disabled?: boolean;
 }
 
-export default function StartTourButton({ onPress, buttonText }: StartTourButtonProps) {
+export default function StartTourButton({ onPress, buttonText, disabled }: StartTourButtonProps) {
     const { theme } = useTheme();
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+            <TouchableOpacity onPress={onPress} activeOpacity={0.8} disabled={disabled}>
                 <LinearGradient
                     colors={[theme.fixedGradientFrom, theme.fixedGradientTo]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
-                    style={styles.button}
+                    style={[styles.button, { opacity: disabled ? 0.7 : 1 }]}
                 >
                     <Ionicons name="play" size={20} color={theme.fixedWhite} />
                     <Text style={[styles.buttonText, { color: theme.fixedWhite }]}>

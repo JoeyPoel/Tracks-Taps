@@ -5,15 +5,18 @@ import client from '../api/client'; // Use configured client
 import { useLanguage } from '../context/LanguageContext';
 import { useUserContext } from '../context/UserContext';
 import { authEvents } from '../utils/authEvents';
+
+export type StartTourMode = 'solo' | 'lobby' | null;
+
 export const useStartTour = (tourId: number) => {
     const { user, refreshUser } = useUserContext();
     const router = useRouter();
-    const [isStarting, setIsStarting] = useState(false);
+    const [loadingMode, setLoadingMode] = useState<StartTourMode>(null);
 
     const { t } = useLanguage();
 
     const executeStartTour = async (force: boolean, isLobbyMode: boolean) => {
-        setIsStarting(true);
+        setLoadingMode(isLobbyMode ? 'lobby' : 'solo');
         try {
             // Using axios client which automatically adds Auth header via interceptor
             const response = await client.post('/active-tours', {
@@ -43,10 +46,6 @@ export const useStartTour = (tourId: number) => {
             if (error.response) {
                 if (error.response.status === 401) {
                     // Handled by client interceptor global modal
-                    // However, if we want to be safe or if the interceptor logic is specific:
-                    // authEvents.emit(); 
-                    // But usually we just let it fall through or suppress the alert if global handles it.
-                    // For now, let's just log it to avoid double alerts if the global one fires.
                     console.log('401 handled by interceptor');
                 } else if (error.response.status === 409) {
                     // Conflict (Active tour exists)
@@ -60,15 +59,11 @@ export const useStartTour = (tourId: number) => {
                             t('activeTourExists'),
                             t('activeTourExistsMessage'),
                             [
-                                { text: t('cancel'), style: 'cancel', onPress: () => setIsStarting(false) },
+                                { text: t('cancel'), style: 'cancel', onPress: () => setLoadingMode(null) },
                                 { text: t('startNew'), style: 'destructive', onPress: () => executeStartTour(true, isLobbyMode) },
                             ]
                         );
                     }
-                    // Return early so we don't hit the generic error block or finally block immediately if recursing (though await usually handles it)
-                    // The finally block will run after this function finishes. 
-                    // If we recurse, the inner call sets isStarting=true then false.
-                    // The outer call will set isStarting=false in finally.
                     return;
                 } else {
                     const errorMsg = error.response.data?.error || 'Failed to start tour';
@@ -80,10 +75,7 @@ export const useStartTour = (tourId: number) => {
                 Alert.alert('Error', 'Failed to start tour. Please try again.');
             }
         } finally {
-            // Only stop loading if we are not recursing (which handles its own state)
-            // But with async/await, the recursive call finishes before we get here.
-            // So setting false here is correct for the top-level call.
-            setIsStarting(false);
+            setLoadingMode(null);
         }
     };
 
@@ -101,11 +93,6 @@ export const useStartTour = (tourId: number) => {
             }
             return;
         }
-
-        // If explicitly forcing (recursive call), just run it.
-        // Actually, the 409 recursive call calls executeStartTour directly, 
-        // effectively bypassing this cost check (checked initially) and cost prompt.
-        // But if someone called startTour(true) directly manually? Unlikely.
 
         if (!force) {
             if (Platform.OS === 'web') {
@@ -127,5 +114,5 @@ export const useStartTour = (tourId: number) => {
         }
     };
 
-    return { startTour, isStarting };
+    return { startTour, loadingMode };
 };

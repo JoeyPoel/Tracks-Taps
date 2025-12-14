@@ -24,7 +24,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
     formattedReviews
   } = useTourDetails(tourId);
 
-  const { startTour, isStarting } = useStartTour(tourId);
+  const { startTour, loadingMode } = useStartTour(tourId);
 
   if (loading) {
     return (
@@ -64,7 +64,8 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
         <StartTourButton
           onPress={() => startTour(false, false)}
-          buttonText={isStarting ? "Starting..." : t('startTour')}
+          buttonText={loadingMode === 'solo' ? "Starting..." : t('startTour')}
+          disabled={loadingMode !== null}
         />
 
         <View style={{ paddingHorizontal: 24, marginBottom: 16 }}>
@@ -77,14 +78,15 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
               paddingVertical: 16,
               flexDirection: 'row',
               justifyContent: 'center',
-              alignItems: 'center'
+              alignItems: 'center',
+              opacity: loadingMode !== null ? 0.7 : 1
             }}
             onPress={() => startTour(false, true)}
-            disabled={isStarting}
+            disabled={loadingMode !== null}
           >
             <UserGroupIcon size={20} color={theme.primary} style={{ marginRight: 8 }} />
             <Text style={{ color: theme.textPrimary, fontSize: 16, fontWeight: 'bold' }}>
-              {isStarting ? "Starting..." : "Play With Friends"}
+              {loadingMode === 'lobby' ? "Starting..." : "Play With Friends"}
             </Text>
           </TouchableOpacity>
         </View>
