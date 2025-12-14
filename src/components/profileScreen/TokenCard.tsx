@@ -1,8 +1,7 @@
 import { useLanguage } from '@/src/context/LanguageContext';
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { CircleStackIcon, ShoppingCartIcon, SparklesIcon, UserPlusIcon } from 'react-native-heroicons/outline';
 import { useTheme } from '../../context/ThemeContext';
 
 interface TokenCardProps {
@@ -25,24 +24,23 @@ export default function TokenCard({ tokens, onBuyPress, onInvitePress }: TokenCa
             >
                 <View style={styles.header}>
                     <View style={styles.iconContainer}>
-                        <Ionicons name="disc-outline" size={32} color={theme.fixedWhite} />
-                        <Ionicons name="disc" size={24} color={theme.fixedWhite} style={styles.iconOverlay} />
+                        <CircleStackIcon size={32} color={theme.fixedWhite} />
                     </View>
                     <View style={styles.balanceContainer}>
                         <Text style={styles.label}>{t('yourTokens')}</Text>
                         <Text style={styles.balance}>{tokens}</Text>
                     </View>
-                    <Ionicons name="sparkles" size={32} color={theme.fixedWhite} style={styles.sparkleIcon} />
+                    <SparklesIcon size={32} color={theme.fixedWhite} style={styles.sparkleIcon} />
                 </View>
 
                 <View style={styles.actions}>
                     <TouchableOpacity style={styles.button} onPress={onBuyPress}>
-                        <Ionicons name="cart-outline" size={20} color={theme.fixedWhite} style={styles.buttonIcon} />
+                        <ShoppingCartIcon size={20} color={theme.fixedWhite} style={styles.buttonIcon} />
                         <Text style={styles.buttonText}>{t('buyTokens')}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.button} onPress={onInvitePress}>
-                        <Ionicons name="person-add-outline" size={20} color={theme.fixedWhite} style={styles.buttonIcon} />
+                        <UserPlusIcon size={20} color={theme.fixedWhite} style={styles.buttonIcon} />
                         <Text style={styles.buttonText}>{t('inviteFriends')}</Text>
                     </TouchableOpacity>
                 </View>

@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { PuzzlePieceIcon, TrophyIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -27,7 +27,7 @@ export default function TourGameModes({ modes, challengesCount, stopsCount }: To
         >
 
             <View style={styles.headerRow}>
-                <Ionicons name="game-controller-outline" size={20} color={theme.primary} />
+                <PuzzlePieceIcon size={20} color={theme.primary} />
                 <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('gameModes')}</Text>
             </View>
 
@@ -40,7 +40,7 @@ export default function TourGameModes({ modes, challengesCount, stopsCount }: To
             </View>
 
             <View style={[styles.headerRow, { marginTop: 16 }]}>
-                <Ionicons name="radio-button-on-outline" size={20} color={theme.primary} />
+                <TrophyIcon size={20} color={theme.primary} />
                 <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('challengesIncluded')}</Text>
             </View>
 

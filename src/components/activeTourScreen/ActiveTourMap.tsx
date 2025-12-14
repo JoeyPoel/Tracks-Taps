@@ -1,6 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { PaperAirplaneIcon } from 'react-native-heroicons/outline';
 import MapView, { LatLng, Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -123,7 +123,7 @@ export default function ActiveTourMap({ currentStop, previousStop, onNavigate }:
             </MapView>
 
             <TouchableOpacity style={[styles.navigateButton, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]} onPress={onNavigate}>
-                <Ionicons name="navigate" size={20} color={theme.primary} />
+                <PaperAirplaneIcon size={20} color={theme.primary} />
                 <Text style={[styles.navigateText, { color: theme.primary }]}>{t('navigate')}</Text>
             </TouchableOpacity>
         </View>

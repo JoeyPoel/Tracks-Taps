@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { UserGroupIcon } from 'react-native-heroicons/outline';
 import StartTourButton from '../components/TourButton';
 import TourAbout from '../components/tourdetailScreen/TourAbout';
 import TourGameModes from '../components/tourdetailScreen/TourGameModes';
@@ -82,7 +82,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             onPress={() => startTour(false, true)}
             disabled={isStarting}
           >
-            <Ionicons name="people-outline" size={20} color={theme.primary} style={{ marginRight: 8 }} />
+            <UserGroupIcon size={20} color={theme.primary} style={{ marginRight: 8 }} />
             <Text style={{ color: theme.textPrimary, fontSize: 16, fontWeight: 'bold' }}>
               {isStarting ? "Starting..." : "Play With Friends"}
             </Text>

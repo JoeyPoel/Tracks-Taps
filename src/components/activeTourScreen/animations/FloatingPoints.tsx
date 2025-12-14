@@ -1,9 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Text, StyleSheet, Easing, Dimensions } from 'react-native';
+import { Animated, Dimensions, Easing, StyleSheet, Text } from 'react-native';
+import { useTheme } from '../../../context/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
 const FloatingPoints = ({ pointAmount, onAnimationComplete }: { pointAmount: number, onAnimationComplete: () => void }) => {
+  const { theme } = useTheme();
+
   // 1. Initial Values for Animation
   const opacity = useRef(new Animated.Value(1)).current;
   const translateY = useRef(new Animated.Value(0)).current;
@@ -12,8 +15,8 @@ const FloatingPoints = ({ pointAmount, onAnimationComplete }: { pointAmount: num
   const randomPosition = useRef({
     // X-Axis: Renders randomly between 20% and 80% of the screen width
     // Formula: Math.random() * (span) + (start_offset)
-    left: Math.random() * (width * 0.6) + (width * 0.2), 
-    
+    left: Math.random() * (width * 0.6) + (width * 0.2),
+
     // Y-Axis: Renders randomly between 30% and 50% from the bottom (Middle-Lower)
     bottom: Math.random() * (height * 0.2) + (height * 0.3),
   }).current;
@@ -53,13 +56,13 @@ const FloatingPoints = ({ pointAmount, onAnimationComplete }: { pointAmount: num
           transform: [
             { translateY: translateY },
             // This centers the text on the random point so it doesn't overflow if close to the edge
-            { translateX: -50 } 
+            { translateX: -50 }
           ],
         },
       ]}
       pointerEvents="none"
     >
-      <Text style={styles.text}>+{pointAmount}</Text>
+      <Text style={[styles.text, { textShadowColor: theme.shadowColor }]}>+{pointAmount}</Text>
     </Animated.View>
   );
 };
@@ -73,7 +76,6 @@ const styles = StyleSheet.create({
     color: '#FFD700',
     fontSize: 40,
     fontWeight: 'bold',
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
     textAlign: 'center',

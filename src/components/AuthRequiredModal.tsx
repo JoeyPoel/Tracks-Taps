@@ -1,8 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useSegments } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { LockClosedIcon, XMarkIcon } from 'react-native-heroicons/outline';
 import { useTheme } from '../context/ThemeContext';
 import { authEvents } from '../utils/authEvents';
 
@@ -47,11 +47,11 @@ export default function AuthRequiredModal() {
                 <View style={[styles.backdrop, { backgroundColor: 'rgba(0,0,0,0.5)' }]} />
                 <View style={[styles.modalView, { backgroundColor: theme.bgPrimary }]}>
                     <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
-                        <Ionicons name="close" size={24} color={theme.textSecondary} />
+                        <XMarkIcon size={24} color={theme.textSecondary} />
                     </TouchableOpacity>
 
                     <View style={styles.iconContainer}>
-                        <Ionicons name="lock-closed" size={48} color={theme.primary} />
+                        <LockClosedIcon size={48} color={theme.primary} />
                     </View>
 
                     <Text style={[styles.title, { color: theme.textPrimary }]}>

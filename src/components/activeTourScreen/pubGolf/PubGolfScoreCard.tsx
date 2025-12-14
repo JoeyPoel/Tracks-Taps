@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { ExclamationCircleIcon, FireIcon, FlagIcon, TrophyIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
 
@@ -20,14 +20,14 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
     const isEven = currentScore === 0;
 
     let statusText = t('evenPar');
-    let statusIcon = "golf";
+    let StatusIcon = FlagIcon;
 
     if (isUnderPar) {
         statusText = t('underPar');
-        statusIcon = "flame";
+        StatusIcon = FireIcon;
     } else if (isOverPar) {
         statusText = t('overPar');
-        statusIcon = "alert-circle";
+        StatusIcon = ExclamationCircleIcon;
     }
 
     // Use holeInOne gradient for the card background as it's gold/orange
@@ -42,7 +42,7 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
         >
             <View style={styles.header}>
                 <View style={[styles.iconContainer, { backgroundColor: 'rgba(255,255,255,0.3)' }]}>
-                    <Ionicons name="trophy-outline" size={32} color={theme.fixedWhite} />
+                    <TrophyIcon size={32} color={theme.fixedWhite} />
                 </View>
                 <View>
                     <Text style={[styles.title, { color: theme.fixedWhite }]}>{t('pubgolf')}</Text>
@@ -54,7 +54,7 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
                 <Text style={[styles.scoreLabel, { color: 'rgba(255,255,255,0.9)' }]}>{t('totalScore')}</Text>
                 <Text style={[styles.scoreValue, { color: theme.fixedWhite }]}>{totalSips} / {totalPar}</Text>
                 <View style={styles.statusContainer}>
-                    <Ionicons name={statusIcon as any} size={16} color={theme.fixedWhite} style={{ marginRight: 4 }} />
+                    <StatusIcon size={16} color={theme.fixedWhite} style={{ marginRight: 4 }} />
                     <Text style={[styles.statusText, { color: theme.fixedWhite }]}>{statusText}</Text>
                 </View>
             </View>

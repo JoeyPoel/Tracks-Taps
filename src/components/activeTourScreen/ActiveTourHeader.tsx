@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BoltIcon, FireIcon, StarIcon, XMarkIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -67,16 +67,16 @@ export default function ActiveTourHeader({
             {/* Row 1: Close + Stats */}
             <View style={styles.topRow}>
                 <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                    <Ionicons name="close" size={24} color={theme.textPrimary} />
+                    <XMarkIcon size={24} color={theme.textPrimary} />
                 </TouchableOpacity>
 
                 <View style={styles.statsContainer}>
                     <View style={[styles.statBadge, { backgroundColor: theme.bgTertiary }]}>
-                        <Ionicons name="flame" size={16} color={theme.orange} />
+                        <FireIcon size={16} color={theme.orange} />
                         <Text style={[styles.statText, { color: theme.textPrimary }]}>{streak}</Text>
                     </View>
                     <View style={[styles.statBadge, { backgroundColor: theme.bgTertiary }]}>
-                        <Ionicons name="flash" size={16} color={theme.primary} />
+                        <BoltIcon size={16} color={theme.primary} />
                         <Text style={[styles.statText, { color: theme.textPrimary }]}>{tokens}</Text>
                     </View>
                 </View>
@@ -85,7 +85,7 @@ export default function ActiveTourHeader({
             {/* Row 2: Level + XP Text */}
             <View style={styles.levelRow}>
                 <View style={styles.levelBadge}>
-                    <Ionicons name="star" size={14} color={theme.starColor} />
+                    <StarIcon size={14} color={theme.starColor} />
                     <Text style={[styles.levelText, { color: theme.starColor }]}>{t('level')} {level}</Text>
                 </View>
                 <Text style={[styles.xpText, { color: theme.textSecondary }]}>{currentXP} / {maxXP} {t('xp')}</Text>

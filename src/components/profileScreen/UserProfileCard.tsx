@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { PencilIcon, UserIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -40,7 +40,7 @@ export default function UserProfileCard({
                                 <Image source={{ uri: avatarUrl }} style={[styles.avatar, { borderColor: theme.borderPrimary }]} />
                             ) : (
                                 <View style={[styles.avatarPlaceholder, { backgroundColor: theme.bgTertiary, borderColor: theme.borderPrimary }]}>
-                                    <Ionicons name="person" size={40} color={theme.iconMuted} />
+                                    <UserIcon size={40} color={theme.iconMuted} />
                                 </View>
                             )}
                             {onEditPress && (
@@ -48,7 +48,7 @@ export default function UserProfileCard({
                                     style={[styles.editButton, { backgroundColor: theme.primary, borderColor: theme.bgSecondary }]}
                                     onPress={onEditPress}
                                 >
-                                    <Ionicons name="pencil" size={14} color={theme.fixedWhite} />
+                                    <PencilIcon size={14} color={theme.fixedWhite} />
                                 </TouchableOpacity>
                             )}
                         </View>
@@ -69,7 +69,7 @@ export default function UserProfileCard({
                                 <Text style={[styles.progressLabel, { color: theme.textSecondary }]}>{t('nextLevel')}</Text>
                                 <Text style={[styles.progressValue, { color: theme.textPrimary }]}>{currentXP} / {maxXP} XP</Text>
                             </View>
-                            <View style={[styles.progressBarBg, { backgroundColor: theme.bgTertiary }]}>
+                            <View style={[styles.progressBarBg, { backgroundColor: theme.borderPrimary }]}>
                                 <LinearGradient
                                     colors={[theme.fixedGradientFromLevel, theme.fixedGradientToLevel]}
                                     start={{ x: 0, y: 0 }}

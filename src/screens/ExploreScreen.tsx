@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { AdjustmentsHorizontalIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
 import ActiveTourCard from '../components/exploreScreen/ActiveTourCard';
 import ExploreFilterSidebar from '../components/exploreScreen/ExploreFilterSidebar';
 import TourCard from '../components/exploreScreen/TourCard';
@@ -72,7 +72,7 @@ export default function ExploreScreen() {
     <View style={{ flex: 1, backgroundColor: theme.bgPrimary }}>
       <View style={[styles.header, { backgroundColor: theme.bgPrimary }]}>
         <View style={[styles.searchContainer, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
-          <Ionicons name="search" size={20} color={theme.textSecondary} style={{ marginRight: 8 }} />
+          <MagnifyingGlassIcon size={20} color={theme.textSecondary} style={{ marginRight: 8 }} />
           <TextInput
             style={[styles.searchInput, { color: theme.textPrimary }]}
             placeholder="Search tours..."
@@ -82,7 +82,7 @@ export default function ExploreScreen() {
           />
         </View>
         <TouchableOpacity onPress={() => setFilterVisible(true)} style={[styles.filterButton, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
-          <Ionicons name="options-outline" size={24} color={theme.textPrimary} />
+          <AdjustmentsHorizontalIcon size={24} color={theme.textPrimary} />
         </TouchableOpacity>
       </View>
 

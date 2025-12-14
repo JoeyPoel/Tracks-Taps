@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { FlagIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
 import { ScoreDetails } from '../../../utils/pubGolfUtils';
@@ -30,14 +30,14 @@ export default function PubGolfStopHeader({
     const { theme } = useTheme();
     const { t } = useLanguage();
 
-    const textColor = isCompleted ? theme.fixedWhite : theme.textPrimary;
-    const subTextColor = isCompleted ? 'rgba(255,255,255,0.7)' : theme.textSecondary; // Keeping rgba for transparency on white/colored bg
+    const textColor = theme.textPrimary;
+    const subTextColor = theme.textSecondary;
 
     const gradientColors = scoreDetails
         ? theme.pubGolf[scoreDetails.colorKey as keyof typeof theme.pubGolf].slice(0, 2) as [string, string]
         : isActive
             ? [theme.danger, theme.warning] as [string, string]
-            : [theme.bgDisabled, theme.bgTertiary] as [string, string];
+            : [theme.textSecondary, theme.textTertiary] as [string, string];
 
     return (
         <View style={styles.topSection}>
@@ -53,7 +53,7 @@ export default function PubGolfStopHeader({
             <View style={styles.info}>
                 <Text style={[styles.stopName, { color: textColor }]}>{stopName}</Text>
                 <View style={[styles.drinkBadge, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
-                    <Text style={[styles.drinkName, { color: isCompleted ? theme.fixedWhite : theme.textSecondary }]}>
+                    <Text style={[styles.drinkName, { color: theme.textSecondary }]}>
                         {drinkName}
                     </Text>
                 </View>
@@ -77,7 +77,7 @@ export default function PubGolfStopHeader({
                 {/* Show just Par if not completed */}
                 {!isCompleted && (
                     <View style={styles.scoreContainer}>
-                        <Ionicons name="flag-outline" size={24} color={subTextColor} style={{ opacity: 0.2 }} />
+                        <FlagIcon size={24} color={subTextColor} style={{ opacity: 0.2 }} />
                     </View>
                 )}
             </View>

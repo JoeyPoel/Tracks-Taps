@@ -28,10 +28,10 @@ export default function PubGolfInputGrid({
                     {Array.from({ length: par + 3 }, (_, i) => i + 1).map((num) => {
                         // --- DEFINE THE BASE COLOR ONCE ---
                         const baseColor = num === par
-                            ? theme.gold
+                            ? theme.pubGolf.par[1] // Use PubGolf Blue (Par Color)
                             : num < par
-                                ? theme.success
-                                : theme.bgPrimary;
+                                ? theme.pubGolf.birdie[1] // Use PubGolf Green (Birdie Color)
+                                : theme.pubGolfInput;
 
                         // --- DEFINE THE SELECTED COLOR ONCE ---
                         const selectedStyles = selectedSips === num
@@ -61,8 +61,7 @@ export default function PubGolfInputGrid({
                             >
                                 <Text style={[
                                     styles.sipButtonText,
-                                    { color: theme.textPrimary },
-                                    selectedSips === num && { color: theme.fixedWhite }
+                                    { color: theme.fixedWhite },
                                 ]}>{num}</Text>
                             </TouchableOpacity>
                         );
@@ -75,7 +74,7 @@ export default function PubGolfInputGrid({
 
 const styles = StyleSheet.create({
     glowContainer: {
-        paddingBottom: 20, 
+        paddingBottom: 20,
     },
     inputSection: {
         marginTop: 20,

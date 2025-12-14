@@ -1,8 +1,21 @@
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
-import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
+import {
+    MagnifyingGlassIcon as MagnifyingGlassOutline,
+    MapIcon as MapOutline,
+    PlusCircleIcon as PlusCircleOutline,
+    UserGroupIcon as UserGroupOutline,
+    UserIcon as UserOutline,
+} from 'react-native-heroicons/outline';
+import {
+    MagnifyingGlassIcon as MagnifyingGlassSolid,
+    MapIcon as MapSolid,
+    PlusCircleIcon as PlusCircleSolid,
+    UserGroupIcon as UserGroupSolid,
+    UserIcon as UserSolid,
+} from 'react-native-heroicons/solid';
 
 export default function TabLayout() {
     const { theme } = useTheme();
@@ -25,8 +38,10 @@ export default function TabLayout() {
                 options={{
                     title: t('explore'),
                     tabBarLabel: t('explore'),
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="search-outline" size={size} color={color} />
+                    tabBarIcon: ({ color, size, focused }) => (
+                        focused
+                            ? <MagnifyingGlassSolid size={size} color={color} />
+                            : <MagnifyingGlassOutline size={size} color={color} />
                     ),
                 }}
             />
@@ -35,8 +50,10 @@ export default function TabLayout() {
                 options={{
                     title: t('join'),
                     tabBarLabel: t('join'),
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="people-outline" size={size} color={color} />
+                    tabBarIcon: ({ color, size, focused }) => (
+                        focused
+                            ? <UserGroupSolid size={size} color={color} />
+                            : <UserGroupOutline size={size} color={color} />
                     ),
                 }}
             />
@@ -45,8 +62,10 @@ export default function TabLayout() {
                 options={{
                     title: t('create'),
                     tabBarLabel: t('create'),
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="add-circle-outline" size={size} color={color} />
+                    tabBarIcon: ({ color, size, focused }) => (
+                        focused
+                            ? <PlusCircleSolid size={size} color={color} />
+                            : <PlusCircleOutline size={size} color={color} />
                     ),
                 }}
             />
@@ -55,8 +74,10 @@ export default function TabLayout() {
                 options={{
                     title: t('map'),
                     tabBarLabel: t('map'),
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="map-outline" size={size} color={color} />
+                    tabBarIcon: ({ color, size, focused }) => (
+                        focused
+                            ? <MapSolid size={size} color={color} />
+                            : <MapOutline size={size} color={color} />
                     ),
                 }}
             />
@@ -65,8 +86,10 @@ export default function TabLayout() {
                 options={{
                     title: t('profile'),
                     tabBarLabel: t('profile'),
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="person-outline" size={size} color={color} />
+                    tabBarIcon: ({ color, size, focused }) => (
+                        focused
+                            ? <UserSolid size={size} color={color} />
+                            : <UserOutline size={size} color={color} />
                     ),
                 }}
             />

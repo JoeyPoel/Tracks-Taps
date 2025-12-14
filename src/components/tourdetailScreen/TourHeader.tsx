@@ -1,8 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ArrowLeftIcon } from 'react-native-heroicons/outline';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -32,7 +32,7 @@ export default function TourHeader({ title, author, imageUrl }: TourHeaderProps)
                     }}
                     style={styles.backButton}
                 >
-                    <Ionicons name="arrow-back" size={24} color={theme.fixedWhite} />
+                    <ArrowLeftIcon size={24} color={theme.fixedWhite} />
                 </Pressable>
             </SafeAreaView>
             <LinearGradient

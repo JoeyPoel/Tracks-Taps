@@ -20,7 +20,7 @@ export default function PubGolfResultFooter({
         <View style={[styles.resultFooter, { borderTopColor: 'rgba(255,255,255,0.05)' }]}>
             <Text style={[styles.resultEmoji, { marginRight: 8 }]}>{scoreDetails.emoji}</Text>
             <Text style={[styles.resultText, { color: theme.pubGolf[scoreDetails.colorKey as keyof typeof theme.pubGolf][0] }]}>
-                {t(scoreDetails.nameKey as any)} <Text style={{ color: theme.fixedWhite, fontWeight: 'normal' }}>{t(scoreDetails.subKey as any)}</Text> {diffText}
+                {t(scoreDetails.nameKey as any)} <Text style={{ color: theme.textSecondary, fontWeight: 'normal' }}>{t(scoreDetails.subKey as any)}</Text> {diffText}
             </Text>
         </View>
     );

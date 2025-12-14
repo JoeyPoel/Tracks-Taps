@@ -1,7 +1,13 @@
-import { Entypo, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
+import {
+  Cog6ToothIcon,
+  DocumentTextIcon,
+  EnvelopeIcon,
+  QuestionMarkCircleIcon,
+  UserIcon
+} from 'react-native-heroicons/outline';
 import BuyTokensModal from '../components/profileScreen/BuyTokensModal';
 import ProfileStats from '../components/profileScreen/ProfileStats';
 import RecentAchievements from '../components/profileScreen/RecentAchievements';
@@ -34,9 +40,9 @@ export default function ProfileScreen() {
 
   // Mock data for new UI elements
   const achievements = [
-    { id: '1', title: 'Tour Master', description: 'Completed 5 tours', icon: 'ribbon' as const, color: '#FFC107' },
-    { id: '2', title: 'Rising Star', description: 'Earned 4000+ points', icon: 'trending-up' as const, color: '#2AC3FF' },
-    { id: '3', title: 'Social Butterfly', description: 'Invited 3 friends', icon: 'people' as const, color: '#FF375D' },
+    { id: '1', title: 'Tour Master', description: 'Completed 5 tours', icon: 'trophy', color: '#FFC107' },
+    { id: '2', title: 'Rising Star', description: 'Earned 4000+ points', icon: 'flash', color: '#2AC3FF' },
+    { id: '3', title: 'Social Butterfly', description: 'Invited 3 friends', icon: 'people', color: '#FF375D' },
   ];
 
   return (
@@ -67,27 +73,27 @@ export default function ProfileScreen() {
       <Text style={[styles.header, { color: theme.textPrimary }]}>{t('manageAccount')}</Text>
 
       <SettingsItem
-        icon={<Ionicons name="person-outline" size={24} color={theme.secondary} />}
+        icon={<UserIcon size={24} color={theme.secondary} />}
         title={t('personalInfo')}
         onPress={() => router.push('/profile/personal-info')}
       />
       <SettingsItem
-        icon={<Ionicons name="settings" size={24} color={theme.secondary} />}
+        icon={<Cog6ToothIcon size={24} color={theme.secondary} />}
         title={t('appPreferences')}
         onPress={() => router.push('/profile/preferences')}
       />
       <SettingsItem
-        icon={<MaterialIcons name="email" size={24} color={theme.secondary} />}
+        icon={<EnvelopeIcon size={24} color={theme.secondary} />}
         title={t('contact')}
         onPress={() => console.log('Contact pressed')}
       />
       <SettingsItem
-        icon={<Entypo name="text-document" size={24} color={theme.secondary} />}
+        icon={<DocumentTextIcon size={24} color={theme.secondary} />}
         title={t('terms')}
         onPress={() => console.log('Terms & Conditions pressed')}
       />
       <SettingsItem
-        icon={<Ionicons name="help-circle-outline" size={24} color={theme.secondary} />}
+        icon={<QuestionMarkCircleIcon size={24} color={theme.secondary} />}
         title={t('faq')}
         onPress={() => console.log('FAQ pressed')}
       />

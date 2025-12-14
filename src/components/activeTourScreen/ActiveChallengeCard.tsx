@@ -1,7 +1,16 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+    BoltIcon,
+    CameraIcon,
+    CheckCircleIcon,
+    FireIcon,
+    KeyIcon,
+    MapPinIcon,
+    QuestionMarkCircleIcon,
+    XCircleIcon
+} from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -13,6 +22,7 @@ interface ActiveChallengeCardProps {
     description: string;
     type: ChallengeType;
     isCompleted: boolean;
+    isFailed: boolean;
     onPress: () => void;
     actionLabel: string;
     children?: React.ReactNode;
@@ -33,26 +43,26 @@ export default function ActiveChallengeCard({
     const { theme } = useTheme();
     const { t } = useLanguage();
 
-    const getIconName = () => {
+    const getIconComponent = () => {
+        // Safe mapping with strict types
         switch (type) {
-            case 'location': return 'location-outline';
-            case 'trivia': return 'help-circle-outline';
-            case 'camera': return 'camera-outline';
-            case 'trivia': return 'help-circle-outline';
-            case 'camera': return 'camera-outline';
-            case 'picture': return 'camera-outline';
-            case 'true_false': return 'checkbox-outline';
-            case 'dare': return 'flame-outline';
-            case 'riddle': return 'key-outline';
-            default: return 'help-circle-outline';
+            case 'location': return MapPinIcon;
+            case 'trivia': return QuestionMarkCircleIcon;
+            case 'camera': return CameraIcon;
+            case 'picture': return CameraIcon;
+            case 'true_false': return CheckCircleIcon;
+            case 'dare': return FireIcon;
+            case 'riddle': return KeyIcon;
+            default: return QuestionMarkCircleIcon;
         }
     };
+
+    const StatusIcon = getIconComponent() || QuestionMarkCircleIcon;
 
     const getIconColor = () => {
         switch (type) {
             case 'location': return theme.accent; // Yellow
             case 'trivia': return theme.secondary; // Blue
-            case 'camera': return theme.primary; // Pink
             case 'camera': return theme.primary; // Pink
             case 'picture': return theme.primary;
             case 'true_false': return theme.secondary;
@@ -84,11 +94,11 @@ export default function ActiveChallengeCard({
         >
             <View style={styles.cardHeader}>
                 <View style={styles.cardTitleRow}>
-                    <Ionicons name={getIconName()} size={24} color={getIconColor()} />
+                    <StatusIcon size={24} color={getIconColor()} />
                     <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>{title}</Text>
                 </View>
                 <View style={styles.pointsBadge}>
-                    <Ionicons name="flash" size={16} color={theme.gold} />
+                    <BoltIcon size={16} color={theme.gold} />
                     <Text style={[styles.pointsText, { color: theme.gold }]}>{points}</Text>
                 </View>
             </View>
@@ -102,12 +112,12 @@ export default function ActiveChallengeCard({
 
             {isCompleted ? (
                 <View style={styles.completedContainer}>
-                    <Ionicons name="checkmark-circle-outline" size={24} color={theme.success} />
+                    <CheckCircleIcon size={24} color={theme.success} />
                     <Text style={[styles.completedText, { color: theme.success }]}>{t('challengeCompleted')}</Text>
                 </View>
             ) : isFailed ? (
                 <View style={styles.completedContainer}>
-                    <Ionicons name="close-circle-outline" size={24} color={theme.danger} />
+                    <XCircleIcon size={24} color={theme.danger} />
                     <Text style={[styles.completedText, { color: theme.danger }]}>{t('challengeFailed')}</Text>
                 </View>
             ) : (

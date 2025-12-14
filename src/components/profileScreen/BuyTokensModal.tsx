@@ -1,7 +1,7 @@
 import { useLanguage } from '@/src/context/LanguageContext';
-import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Animated, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { CircleStackIcon, GiftIcon, XMarkIcon } from 'react-native-heroicons/outline';
 import client from '../../api/client';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserContext } from '../../context/UserContext';
@@ -97,11 +97,11 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                 >
                     <View style={styles.header}>
                         <View style={styles.titleRow}>
-                            <Ionicons name="disc" size={24} color={theme.accent} />
+                            <CircleStackIcon size={24} color={theme.accent} />
                             <Text style={[styles.title, { color: theme.textPrimary }]}>{t('buyTokens')}</Text>
                         </View>
                         <TouchableOpacity onPress={handleClose}>
-                            <Ionicons name="close" size={24} color={theme.textSecondary} />
+                            <XMarkIcon size={24} color={theme.textSecondary} />
                         </TouchableOpacity>
                     </View>
 
@@ -134,7 +134,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
 
                                     <View style={styles.packageInfo}>
                                         <View style={styles.tokenRow}>
-                                            <Ionicons name="disc-outline" size={20} color={theme.accent} />
+                                            <CircleStackIcon size={20} color={theme.accent} />
                                             <Text style={[styles.tokenAmount, { color: theme.textPrimary }]}>
                                                 {pkg.tokens} {t('tokens')}
                                             </Text>
@@ -164,7 +164,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
 
                     <View style={[styles.footer, { backgroundColor: theme.bgSecondary, borderColor: theme.primary }]}>
                         <View style={styles.footerContent}>
-                            <Ionicons name="gift-outline" size={24} color={theme.primary} />
+                            <GiftIcon size={24} color={theme.primary} />
                             <View style={styles.footerTextContainer}>
                                 <Text style={[styles.footerTitle, { color: theme.textPrimary }]}>{t('earnFreeTokens')}</Text>
                                 <Text style={[styles.footerDescription, { color: theme.primary }]}>

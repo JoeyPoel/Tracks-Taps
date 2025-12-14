@@ -1,9 +1,9 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import { useExploreFilterSidebar } from '@/src/hooks/useExploreFilterSidebar';
 import { Difficulty } from '@/src/types/models';
-import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Animated, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon, StopIcon, XMarkIcon } from 'react-native-heroicons/outline';
 
 interface FilterSidebarProps {
     visible: boolean;
@@ -30,7 +30,10 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({ title, expanded, on
                             {selectedValue !== 'All' ? selectedValue : 'All'}
                         </Text>
                     )}
-                    <Ionicons name={expanded ? "chevron-up" : "chevron-down"} size={20} color={theme.textPrimary} />
+                    {expanded ?
+                        <ChevronUpIcon size={20} color={theme.textPrimary} /> :
+                        <ChevronDownIcon size={20} color={theme.textPrimary} />
+                    }
                 </View>
             </TouchableOpacity>
             {expanded && <View style={styles.accordionContent}>{children}</View>}
@@ -56,14 +59,14 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
     const ModeOption = ({ label, selected, onPress }: { label: string, selected: boolean, onPress: () => void }) => (
         <TouchableOpacity style={styles.optionRow} onPress={onPress}>
             <Text style={[styles.optionText, { color: theme.textPrimary, fontWeight: selected ? 'bold' : 'normal' }]}>{label}</Text>
-            {selected ? <Ionicons name="checkbox" size={20} color={theme.primary} /> : <Ionicons name="square-outline" size={20} color={theme.textPrimary} />}
+            {selected ? <CheckIcon size={20} color={theme.primary} /> : <StopIcon size={20} color={theme.textPrimary} />}
         </TouchableOpacity>
     );
 
     const RadioOption = ({ label, selected, onPress }: { label: string, selected: boolean, onPress: () => void }) => (
         <TouchableOpacity style={styles.optionRow} onPress={onPress}>
             <Text style={[styles.optionText, { color: theme.textPrimary, fontWeight: selected ? 'bold' : 'normal' }]}>{label}</Text>
-            {selected && <Ionicons name="checkmark" size={20} color={theme.primary} />}
+            {selected && <CheckIcon size={20} color={theme.primary} />}
         </TouchableOpacity>
     );
 
@@ -76,14 +79,14 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                     styles.sidebar,
                     {
                         width: SIDEBAR_WIDTH,
-                        backgroundColor: theme.bgPrimary,
+                        backgroundColor: theme.bgSecondary,
                         transform: [{ translateX: slideAnim }]
                     }
                 ]}>
                     <View style={styles.header}>
                         <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>Filters</Text>
                         <TouchableOpacity onPress={handleClose}>
-                            <Ionicons name="close" size={24} color={theme.textPrimary} />
+                            <XMarkIcon size={24} color={theme.textPrimary} />
                         </TouchableOpacity>
                     </View>
 

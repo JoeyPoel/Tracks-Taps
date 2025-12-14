@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BoltIcon, ClockIcon, MapIcon, MapPinIcon, StarIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -73,24 +73,24 @@ export default function TourCard({
 
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
-              <Ionicons name="navigate-outline" size={16} color={theme.textSecondary} />
+              <MapIcon size={16} color={theme.textSecondary} />
               <Text style={[styles.statText, { color: theme.textSecondary }]}>{distance}</Text>
             </View>
 
             <View style={styles.statItem}>
-              <Ionicons name="time-outline" size={16} color={theme.textSecondary} />
+              <ClockIcon size={16} color={theme.textSecondary} />
               <Text style={[styles.statText, { color: theme.textSecondary }]}>{duration}</Text>
             </View>
 
             <View style={styles.statItem}>
-              <Ionicons name="location-outline" size={16} color={theme.textSecondary} />
+              <MapPinIcon size={16} color={theme.textSecondary} />
               <Text style={[styles.statText, { color: theme.textSecondary }]}>{stops} {t('stops')}</Text>
             </View>
           </View>
 
           <View style={styles.footer}>
             <View style={styles.ratingContainer}>
-              <Ionicons name="star" size={18} color={theme.starColor} />
+              <StarIcon size={18} color={theme.starColor} />
               <Text style={[styles.ratingText, { color: theme.textPrimary }]}>
                 {rating.toFixed(1)}
               </Text>
@@ -100,7 +100,7 @@ export default function TourCard({
             </View>
 
             <View style={styles.pointsContainer}>
-              <Ionicons name="flash" size={18} color={theme.primary} />
+              <BoltIcon size={18} color={theme.primary} />
               <Text style={[styles.pointsText, { color: theme.primary }]}>{points} {t('pts')}</Text>
             </View>
           </View>

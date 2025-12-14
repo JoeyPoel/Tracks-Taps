@@ -1,13 +1,13 @@
-import { Ionicons } from '@expo/vector-icons';
 import { usePathname, useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ArrowLeftIcon } from 'react-native-heroicons/outline';
 import { useTheme } from '../context/ThemeContext';
 
 interface AppHeaderProps {
   onBackPress?: () => void;
   onRightIconPress?: () => void;
-  rightIcon?: string;
+  rightIcon?: React.ReactNode;
   showBackButton?: boolean;
 }
 
@@ -46,7 +46,7 @@ export default function AppHeader({
       <View style={styles.leftContainer}>
         {showBackButton && (
           <Pressable onPress={handleBackPress} style={styles.iconButton}>
-            <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
+            <ArrowLeftIcon size={24} color={theme.textPrimary} />
           </Pressable>
         )}
       </View>
@@ -67,7 +67,7 @@ export default function AppHeader({
       <View style={styles.rightContainer}>
         {rightIcon && onRightIconPress && (
           <Pressable onPress={onRightIconPress} style={styles.iconButton}>
-            <Ionicons name={rightIcon as any} size={24} color={theme.textPrimary} />
+            {rightIcon}
           </Pressable>
         )}
       </View>

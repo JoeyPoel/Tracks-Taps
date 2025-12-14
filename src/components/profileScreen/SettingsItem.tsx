@@ -1,7 +1,7 @@
 import { useTheme } from '@/src/context/ThemeContext';
-import { Ionicons } from '@expo/vector-icons';
 import React, { ReactNode } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ChevronRightIcon } from 'react-native-heroicons/outline';
 
 interface SettingsItemProps {
   icon: ReactNode;
@@ -25,7 +25,7 @@ export default function SettingsItem({ icon, title, subtitle, onPress }: Setting
         <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
         {subtitle && <Text style={[styles.subtitle, { color: theme.textSecondary }]}>{subtitle}</Text>}
       </View>
-      <Ionicons name="chevron-forward" size={20} color={theme.iconMuted} />
+      <ChevronRightIcon size={20} color={theme.iconMuted} />
     </TouchableOpacity>
   );
 }

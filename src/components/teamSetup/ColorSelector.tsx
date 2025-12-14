@@ -1,6 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { CheckIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { TEAM_COLORS } from '../../utils/teamUtils';
@@ -29,7 +29,7 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({ selectedColor, onS
                         onPress={() => onSelect(color)}
                     >
                         {selectedColor === color && (
-                            <Ionicons name="checkmark" size={24} color="#FFF" />
+                            <CheckIcon size={24} color="#FFF" />
                         )}
                     </TouchableOpacity>
                 ))}
