@@ -93,26 +93,11 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         updateActiveTourLocal({ teams: [updatedTeam] });
 
         try {
-            const updatedProgress = await activeTourService.completeChallenge(activeTourId, challenge.id, userId);
-
-            // 2. Diff Check: Only apply server update if it differs/adds info
-            const serverTeam = updatedProgress?.teams?.find((t: Team) => t.id === currentTeam.id);
-            const serverChallenge = serverTeam?.activeChallenges?.find((ac: ActiveChallenge) => ac.challengeId === challenge.id);
-
-            if (!serverChallenge || !serverChallenge.completed) {
-                // Unexpected, force update to fix sync
-                updateActiveTourLocal(updatedProgress);
-            } else {
-                // Server confirmed. Update local to get the real ID, but only if necessary.
-                // To avoid flicker, we assume the optimistic rendered state is good and just update seamlessly.
-                // React reconciler should handle this well since keys (challenge ID) are stable, 
-                // assuming we list by challengeId, not activeID.
-                updateActiveTourLocal(updatedProgress);
-            }
-
+            // FIRE AND FORGET - We trust our local state
+            await activeTourService.completeChallenge(activeTourId, challenge.id, userId);
         } catch (err) {
             console.error('Failed to complete challenge', err);
-            // Revert
+            // Revert on error
             updateActiveTourLocal({ teams: previousTeams });
         }
     };
@@ -139,8 +124,8 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         updateActiveTourLocal({ teams: [updatedTeam] });
 
         try {
-            const updatedProgress = await activeTourService.failChallenge(activeTourId, challenge.id, userId);
-            updateActiveTourLocal(updatedProgress);
+            // FIRE AND FORGET
+            await activeTourService.failChallenge(activeTourId, challenge.id, userId);
         } catch (err) {
             console.error('Failed to fail challenge', err);
             // Revert
@@ -192,20 +177,8 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         updateActiveTourLocal({ teams: [optimisticTeam] });
 
         try {
-            const updatedProgress = await activeTourService.updateCurrentStop(activeTourId, newStop, userId);
-
-            // 2. Diff Check for Stops
-            const serverTeam = updatedProgress?.teams?.find((t: Team) => t.id === currentTeam.id);
-            if (serverTeam && serverTeam.currentStop === newStop) {
-                // Server confirms our optimized state.
-                // We SKIP the update to prevent potential flickering
-                return;
-            }
-
-            // If server disagrees (e.g. currentStop != newStop), we MUST process it.
-            if (serverTeam) {
-                updateActiveTourLocal(updatedProgress);
-            }
+            // FIRE AND FORGET
+            await activeTourService.updateCurrentStop(activeTourId, newStop, userId);
         } catch (error) {
             console.error("Failed to update current stop", error);
             // Revert

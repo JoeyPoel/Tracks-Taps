@@ -73,8 +73,8 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
 
         if (user.id) {
             try {
-                const progress = await activeTourService.updatePubGolfScore(activeTourId, stopId, sips, user.id);
-                updateActiveTourLocal(progress);
+                // FIRE AND FORGET
+                await activeTourService.updatePubGolfScore(activeTourId, stopId, sips, user.id);
             } catch (error) {
                 console.error("Failed to save sips:", error);
                 // Revert
