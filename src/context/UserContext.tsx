@@ -9,6 +9,7 @@ interface UserContextType {
     error: string | null;
     refreshUser: () => Promise<void>;
     updateUserXp: (amount: number) => void;
+    updateUser: (userId: number, data: { name?: string; avatarUrl?: string }) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -20,6 +21,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const fetchUserByEmail = useStore((state) => state.fetchUserByEmail);
     const addXp = useStore((state) => state.addXp);
     const clearUser = useStore((state) => state.clearUser);
+    const updateUser = useStore((state) => state.updateUser);
 
     const { session } = useAuth();
     const email = session?.user?.email;
@@ -43,7 +45,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <UserContext.Provider value={{ user, loading, error, refreshUser, updateUserXp }}>
+        <UserContext.Provider value={{ user, loading, error, refreshUser, updateUserXp, updateUser }}>
             {children}
         </UserContext.Provider>
     );

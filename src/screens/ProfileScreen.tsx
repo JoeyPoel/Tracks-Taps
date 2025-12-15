@@ -58,8 +58,8 @@ export default function ProfileScreen() {
         level={progress.level}
         currentXP={progress.currentLevelXp}
         maxXP={progress.nextLevelXpStart}
-        // avatarUrl={user?.avatarUrl}
-        onEditPress={() => console.log('Edit profile pressed')}
+        avatarUrl={user?.avatarUrl}
+        onEditPress={() => router.push('/personal-info')}
       />
 
       <ProfileStats
@@ -75,7 +75,7 @@ export default function ProfileScreen() {
       <SettingsItem
         icon={<UserIcon size={24} color={theme.secondary} />}
         title={t('personalInfo')}
-        onPress={() => router.push('/profile/personal-info')}
+        onPress={() => router.push('/personal-info')}
       />
       <SettingsItem
         icon={<Cog6ToothIcon size={24} color={theme.secondary} />}

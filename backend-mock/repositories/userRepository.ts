@@ -77,4 +77,11 @@ export const userRepository = {
         });
     },
 
+    async updateUser(userId: number, data: { name?: string; avatarUrl?: string }) {
+        return await prisma.user.update({
+            where: { id: userId },
+            data,
+        });
+    },
+
 };

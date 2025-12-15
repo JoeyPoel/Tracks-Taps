@@ -40,4 +40,9 @@ export const userService = {
     async addTokens(userId: number, amount: number) {
         return await userRepository.addTokens(userId, amount);
     },
+
+    async updateUser(userId: number, data: { name?: string; avatarUrl?: string }) {
+        const user = await userRepository.updateUser(userId, data);
+        return { ...user, level: LevelSystem.getLevel(user.xp) };
+    },
 };

@@ -33,6 +33,13 @@ export async function POST(request: Request) {
             } else {
                 return await userController.addXp(request, body);
             }
+        } else if (body.action === 'update-user') {
+            // Check ownership
+            const dbUser = await userService.getUserByEmail(user.email);
+            if (!dbUser || dbUser.id !== Number(body.userId)) {
+                return Response.json({ error: 'Forbidden' }, { status: 403 });
+            }
+            return await userController.updateUser(request, body);
         } else if (body.action === 'create-user') {
             // Ensure the authenticated user matches the email being created
             if (user.email !== body.email) {

@@ -14,5 +14,10 @@ export const userService = {
     async addXp(userId: number, amount: number) {
         const response = await client.post('/user/xp', { userId, amount });
         return response.data;
+    },
+
+    async updateUser(userId: number, data: { name?: string; avatarUrl?: string }) {
+        const response = await client.post('/user', { action: 'update-user', userId, ...data });
+        return response.data;
     }
 };

@@ -41,6 +41,7 @@ model User {
   email        String   @unique
   passwordHash String
   name         String
+  avatarUrl    String?
   level        Int      @default(1)
   xp           Int      @default(0)
   tokens       Int      @default(0)

@@ -89,5 +89,22 @@ export const userController = {
             console.error('Error creating user:', error);
             return Response.json({ error: 'Failed to create user' }, { status: 500 });
         }
+    },
+
+    async updateUser(request: Request, parsedBody?: any) {
+        try {
+            const body = parsedBody || await request.json();
+            const { userId, name, avatarUrl } = body;
+
+            if (!userId) {
+                return Response.json({ error: 'Missing userId' }, { status: 400 });
+            }
+
+            const updatedUser = await userService.updateUser(Number(userId), { name, avatarUrl });
+            return Response.json(updatedUser);
+        } catch (error) {
+            console.error('Error updating user:', error);
+            return Response.json({ error: 'Failed to update user' }, { status: 500 });
+        }
     }
 };

@@ -80,6 +80,7 @@ export interface User {
     id: number;
     email: string;
     name: string;
+    avatarUrl?: string;
     level: number;
     xp: number;
     tokens: number;
