@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TeamCard } from '../components/teamSetup/TeamCard';
@@ -22,11 +22,13 @@ export default function LobbyScreen() {
     const [activeTour, setActiveTour] = React.useState<any>(null);
     const [userTeam, setUserTeam] = React.useState<any>(null);
 
-    React.useEffect(() => {
-        if (activeTourId && user) {
-            loadLobbyDetails();
-        }
-    }, [activeTourId, user]);
+    useFocusEffect(
+        useCallback(() => {
+            if (activeTourId && user) {
+                loadLobbyDetails();
+            }
+        }, [activeTourId, user])
+    );
 
     const loadLobbyDetails = async () => {
         try {
