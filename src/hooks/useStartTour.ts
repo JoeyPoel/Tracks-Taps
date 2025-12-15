@@ -16,6 +16,7 @@ export const useStartTour = (tourId: number) => {
     const { t } = useLanguage();
 
     const executeStartTour = async (force: boolean, isLobbyMode: boolean) => {
+        // Explicitly set 'lobby' or 'solo' based on the button clicked
         setLoadingMode(isLobbyMode ? 'lobby' : 'solo');
         try {
             // Using axios client which automatically adds Auth header via interceptor
