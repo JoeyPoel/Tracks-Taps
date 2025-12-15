@@ -62,7 +62,11 @@ export const useStore = create<StoreState>((set, get) => ({
         set({ loadingTours: true, errorTours: null });
         try {
             const tours = await tourService.getAllTours(get().tourFilters);
-            set({ tours, loadingTours: false });
+            if (Array.isArray(tours)) {
+                set({ tours, loadingTours: false });
+            } else {
+                throw new Error('Invalid response format');
+            }
         } catch (error: any) {
             set({ errorTours: error.message || 'Failed to fetch tours', loadingTours: false });
         }

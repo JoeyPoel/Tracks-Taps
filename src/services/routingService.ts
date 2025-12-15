@@ -1,4 +1,4 @@
-import { LatLng } from 'react-native-maps';
+import type { LatLng } from 'react-native-maps';
 
 const OSRM_BASE_URL = 'http://router.project-osrm.org/route/v1/foot';
 

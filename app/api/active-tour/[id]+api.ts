@@ -1,4 +1,4 @@
-import { activeTourController } from '../../../backend-mock/controllers/activeTourController';
+import { activeTourController } from '@/backend/controllers/activeTourController';
 import { verifyAuth } from '../_utils';
 
 export async function GET(request: Request, params: { id: string }) {

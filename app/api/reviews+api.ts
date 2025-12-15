@@ -1,5 +1,5 @@
-import { reviewController } from '../../backend-mock/controllers/reviewController';
-import { userService } from '../../backend-mock/services/userService';
+import { reviewController } from '@/backend/controllers/reviewController';
+import { userService } from '../../backend/services/userService';
 import { verifyAuth } from './_utils';
 
 export async function GET(request: Request) {

@@ -1,4 +1,4 @@
-import { userController } from '../../../backend-mock/controllers/userController';
+import { userController } from '@/backend/controllers/userController';
 import { verifyAuth } from '../_utils';
 
 export async function POST(request: Request) {

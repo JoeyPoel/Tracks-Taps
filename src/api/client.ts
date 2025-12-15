@@ -6,6 +6,11 @@ import { Platform } from 'react-native';
 const getBaseUrl = () => {
     if (Platform.OS === 'web') return '/api';
 
+    // Prioritize environment variable for production/beta
+    if (process.env.EXPO_PUBLIC_API_URL) {
+        return process.env.EXPO_PUBLIC_API_URL;
+    }
+
     const hostUri = Constants.expoConfig?.hostUri;
     if (!hostUri) {
         // Fallback for production or if hostUri is missing

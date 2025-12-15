@@ -1,5 +1,5 @@
-import { userRepository } from '../../../../backend-mock/repositories/userRepository';
-import { reviewService } from '../../../../backend-mock/services/reviewService';
+import { reviewService } from '@/backend/services/reviewService';
+import { userRepository } from '../../../../backend/repositories/userRepository';
 import { verifyAuth } from '../../_utils';
 
 export async function POST(request: Request, context: any) {

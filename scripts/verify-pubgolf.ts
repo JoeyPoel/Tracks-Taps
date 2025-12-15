@@ -1,4 +1,4 @@
-import { activeTourService } from '../backend-mock/services/activeTourService';
+import { activeTourService } from '../backend/services/activeTourService';
 import { prisma } from '../src/lib/prisma';
 
 async function testPubGolf() {

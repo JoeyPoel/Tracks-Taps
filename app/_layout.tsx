@@ -20,10 +20,10 @@ function AuthenticatedLayout() {
         // If user is validated and tries to access auth pages, redirect to home
         if (session && inAuthGroup) {
             router.replace('/');
+        } else if (!session && !inAuthGroup) {
+            // Redirect unauthenticated users to login
+            router.replace('/auth/login');
         }
-
-        // We no longer redirect unauthenticated users to login automatically.
-        // They can browse effectively as a "guest" until they perform a restricted action.
     }, [session, loading, segment]);
 
     if (loading) {
