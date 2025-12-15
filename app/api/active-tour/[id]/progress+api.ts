@@ -1,5 +1,5 @@
 import { activeTourController } from '../../../../backend-mock/controllers/activeTourController';
-import { verifyAuth } from '../../utils';
+import { verifyAuth } from '../../_utils';
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
     const user = await verifyAuth(request);

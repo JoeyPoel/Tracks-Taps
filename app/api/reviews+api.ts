@@ -1,6 +1,6 @@
 import { reviewController } from '../../backend-mock/controllers/reviewController';
 import { userService } from '../../backend-mock/services/userService';
-import { verifyAuth } from './utils';
+import { verifyAuth } from './_utils';
 
 export async function GET(request: Request) {
     return await reviewController.getReviews(request);

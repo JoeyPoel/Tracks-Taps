@@ -30,8 +30,13 @@ export const useStartTour = (tourId: number) => {
 
             const newActiveTour = response.data;
 
+            if (!newActiveTour?.id) {
+                throw new Error('Invalid server response: Missing active tour ID');
+            }
+
             // Refresh user tokens to update balance in UI
-            refreshUser();
+            // Safely await to ensure user state is consistent, but don't block on error
+            await refreshUser().catch(err => console.error('Failed to refresh user:', err));
 
             if (isLobbyMode) {
                 router.push({

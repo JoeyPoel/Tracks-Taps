@@ -1,6 +1,6 @@
 import { userController } from '../../backend-mock/controllers/userController';
 import { userService } from '../../backend-mock/services/userService';
-import { verifyAuth } from './utils';
+import { verifyAuth } from './_utils';
 
 export async function GET(request: Request) {
     const user = await verifyAuth(request);

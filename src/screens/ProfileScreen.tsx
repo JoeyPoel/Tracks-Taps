@@ -58,7 +58,7 @@ export default function ProfileScreen() {
         level={progress.level}
         currentXP={progress.currentLevelXp}
         maxXP={progress.nextLevelXpStart}
-        avatarUrl="https://i.pravatar.cc/200?img=12"
+        avatarUrl="assets/images/Mascott.png"
         onEditPress={() => console.log('Edit profile pressed')}
       />
 

@@ -22,7 +22,7 @@ interface StoreState {
     errorTours: string | null;
     fetchTours: () => Promise<void>;
     fetchAllData: (userId: number) => Promise<void>;
-    fetchTourDetails: (id: number, placeholder?: Tour) => Promise<void>;
+    fetchTourDetails: (id: number, placeholder?: Tour, force?: boolean) => Promise<void>;
     fetchMapTours: (bounds?: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => Promise<void>;
 
     // Active Tours Slice
@@ -108,9 +108,9 @@ export const useStore = create<StoreState>((set, get) => ({
         }
     },
 
-    fetchTourDetails: async (id: number, placeholder?: Tour) => {
-        // Check cache first
-        if (get().tourDetails[id]) return;
+    fetchTourDetails: async (id: number, placeholder?: Tour, force?: boolean) => {
+        // Check cache first if not forced
+        if (!force && get().tourDetails[id]) return;
 
         // If placeholder provided, set it immediately to allow instant navigation
         if (placeholder) {

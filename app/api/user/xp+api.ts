@@ -1,5 +1,5 @@
 import { userController } from '../../../backend-mock/controllers/userController';
-import { verifyAuth } from '../utils';
+import { verifyAuth } from '../_utils';
 
 export async function POST(request: Request) {
     const user = await verifyAuth(request);

@@ -175,7 +175,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                             await refreshUser(); // Refresh user data to update participations
                             setTimeout(() => {
                                 router.dismissAll();
-                                router.replace('/(tabs)/explore');
+                                router.replace({ pathname: '/tour-waiting-lobby/[id]', params: { id: activeTourId } });
                             }, 3000);
                         }
                     }}
