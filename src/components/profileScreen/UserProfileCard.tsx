@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { PencilIcon, UserIcon } from 'react-native-heroicons/outline';
+import { PencilIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -36,13 +36,10 @@ export default function UserProfileCard({
                 <View style={styles.contentContainer}>
                     <View style={styles.avatarSection}>
                         <View style={styles.avatarContainer}>
-                            {avatarUrl ? (
-                                <Image source={{ uri: avatarUrl }} style={[styles.avatar, { borderColor: theme.borderPrimary }]} />
-                            ) : (
-                                <View style={[styles.avatarPlaceholder, { backgroundColor: theme.bgTertiary, borderColor: theme.borderPrimary }]}>
-                                    <UserIcon size={40} color={theme.iconMuted} />
-                                </View>
-                            )}
+                            <Image
+                                source={avatarUrl ? { uri: avatarUrl } : require('../../../assets/images/Mascott.png')}
+                                style={[styles.avatar, { borderColor: theme.borderPrimary }]}
+                            />
                             {onEditPress && (
                                 <TouchableOpacity
                                     style={[styles.editButton, { backgroundColor: theme.primary, borderColor: theme.bgSecondary }]}
