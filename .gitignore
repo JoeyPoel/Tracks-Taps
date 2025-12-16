@@ -53,3 +53,7 @@ prisma/seed.ts
 # GitHub Actions Runner
 actions-runner/
 .vercel
+
+# Vercel / Build Artifacts
+api/
+vercel.json

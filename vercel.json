@@ -2,7 +2,16 @@
   "version": 2,
   "cleanUrls": true,
   "outputDirectory": "dist",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "api/**/*.node"
+    }
+  },
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
