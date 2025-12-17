@@ -51,6 +51,12 @@ Vercel has a limit of 12 serverless functions per deployment on hobby plans. To 
 3.  **Configures Vercel**: Generates a `vercel.json` that routes all API traffic to this single function.
 
 ### **How to Deploy**
+You can deploy manually or via Git integration (recommended).
+
+#### **Option 1: Git Integration**
+Simply push to your `main` branch. Vercel will automatically detect the commit, run `npm run build`, and deploy the result.
+
+#### **Option 2: Manual CLI**
 1.  **Install Vercel CLI**: `npm install -g vercel`
 2.  **Run Deploy Command**:
     ```bash
@@ -67,30 +73,28 @@ Ensure these are set in your Vercel Project Settings:
 
 ## 🍎 Launching on iOS App Store
 
-To launch the native iOS application, follow these steps:
+To launch the native iOS application, we use **EAS Build** and **EAS Submit**.
 
 ### **1. Prerequisites**
 - **Apple Developer Account**: Required to publish to the App Store ($99/year).
 - **EAS CLI**: Install via `npm install -g eas-cli`.
 - **Expo Account**: Log in via `eas login`.
 
-### **2. Configure EAS Build**
-1.  Initialize EAS in your project:
-    ```bash
-    eas build:configure
-    ```
-2.  This generates an `eas.json` file. Ensure it has a production profile:
-    ```json
-    {
-      "build": {
-        "production": {
-          "ios": {
-            "resourceClass": "large" // Recommended for Prisma builds
-          }
-        }
-      }
-    }
-    ```
+### **2. Configuration**
+The project is configured via `eas.json`. Ensure your `production` profile is set up:
+
+```json
+{
+  "build": {
+    "production": {}
+  },
+  "submit": {
+    "production": {}
+  }
+}
+```
+
+*Note: App versioning is managed remotely via EAS (see `appVersionSource: "remote"` in `eas.json`).*
 
 ### **3. App Icons and Splash Screens**
 Ensure all assets in `assets/` are correctly sized and linked in `app.json`:
@@ -102,14 +106,14 @@ Run the build command for iOS:
 ```bash
 eas build --platform ios --profile production
 ```
-*This will generate an `.ipa` file that is automatically uploaded to TestFlight if you have configured your credentials.*
+This will queue a build on Expo's servers. Once complete, you will have an `.ipa` file ready for submission.
 
-### **5. Submission**
-1.  Go to **App Store Connect**.
-2.  Create a new App entry.
-3.  Select the build uploaded via EAS.
-4.  Fill out the required metadata (Screenshots, Description, Privacy Policy).
-5.  Submit for Review!
+### **5. Submit to TestFlight / App Store**
+You can automatically submit the built binary to App Store Connect:
+```bash
+eas build --platform ios --profile production --auto-submit
+```
+Follow the interactive prompts to select the build you just created.
 
 ---
 
@@ -133,5 +137,5 @@ npx prisma migrate dev
 npx prisma studio
 
 # Seed Database
-npx ts-node prisma/seed.ts
+npx tsx prisma/seed_new.ts
 ```
