@@ -1,3 +1,4 @@
+import { authEvents } from '@/src/utils/authEvents';
 import { supabase } from '@/utils/supabase';
 import { Session, User } from '@supabase/supabase-js';
 import React, { createContext, useContext, useEffect, useState } from 'react';
@@ -28,7 +29,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setLoading(false);
         });
 
-        return () => subscription.unsubscribe();
+        // Listen for 401 events from API
+        const unsubscribeAuth = authEvents.subscribe(() => {
+            signOut();
+        });
+
+        return () => {
+            subscription.unsubscribe();
+            unsubscribeAuth();
+        };
     }, []);
 
     const signOut = async () => {

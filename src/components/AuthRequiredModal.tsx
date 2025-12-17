@@ -13,6 +13,12 @@ export default function AuthRequiredModal() {
     const { theme } = useTheme();
 
     useEffect(() => {
+        if (segments[0] === 'auth') {
+            setVisible(false);
+        }
+    }, [segments]);
+
+    useEffect(() => {
         const unsubscribe = authEvents.subscribe(() => {
             // Don't show if already on an auth screen
             if (segments[0] !== 'auth') {
