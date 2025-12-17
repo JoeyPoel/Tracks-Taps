@@ -1,2 +1,2 @@
-import LobbyScreen from '@/src/screens/LobbyScreen';
-export default LobbyScreen;
+import PreTourLobbyScreen from '@/src/screens/PreTourLobbyScreen';
+export default PreTourLobbyScreen;

@@ -166,6 +166,15 @@ export const activeTourRepository = {
         });
     },
 
+    async findActiveTourLobby(id: number) {
+        return await prisma.activeTour.findUnique({
+            where: { id },
+            include: {
+                teams: true // Fetch all teams, but NO nested heavy data
+            }
+        });
+    },
+
     // Helper to find specific team
     async findTeamByUserIdAndTourId(userId: number, activeTourId: number) {
         return await prisma.team.findFirst({

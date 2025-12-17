@@ -26,6 +26,11 @@ export const activeTourService = {
         return response.data;
     },
 
+    async getActiveTourLobby(id: number) {
+        const response = await client.get(`/active-tour/${id}/lobby`);
+        return response.data;
+    },
+
     async completeChallenge(activeTourId: number, challengeId: number, userId: number) {
         const response = await client.post('/active-challenge/complete', { activeTourId, challengeId, userId });
         return response.data;

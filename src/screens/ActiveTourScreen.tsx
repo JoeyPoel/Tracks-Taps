@@ -51,6 +51,12 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         currentTeam,
     } = useActiveTour(activeTourId, user.id, updateUserXp);
 
+    React.useEffect(() => {
+        if (!loading && currentTeam?.finishedAt) {
+            router.replace({ pathname: '/tour-waiting-lobby/[id]', params: { id: activeTourId } });
+        }
+    }, [activeTourId, currentTeam, loading]);
+
 
 
     const handleSaveSips = async (stopId: number, sips: number) => {

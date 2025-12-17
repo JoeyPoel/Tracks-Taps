@@ -1,9 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
 import React from 'react';
-import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
-import { ArrowLeftIcon } from 'react-native-heroicons/outline';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ImageBackground, StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -17,24 +14,8 @@ export default function TourHeader({ title, author, imageUrl }: TourHeaderProps)
     const { theme } = useTheme();
     const { t } = useLanguage();
 
-    const router = useRouter();
-
     return (
         <ImageBackground source={{ uri: imageUrl }} style={styles.background}>
-            <SafeAreaView style={styles.safeArea} edges={['top']}>
-                <Pressable
-                    onPress={() => {
-                        if (router.canGoBack()) {
-                            router.back();
-                        } else {
-                            router.replace('/');
-                        }
-                    }}
-                    style={styles.backButton}
-                >
-                    <ArrowLeftIcon size={24} color={theme.fixedWhite} />
-                </Pressable>
-            </SafeAreaView>
             <LinearGradient
                 colors={['transparent', 'rgba(0,0,0,0.8)']}
                 style={styles.gradient}

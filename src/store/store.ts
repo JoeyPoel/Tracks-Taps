@@ -33,6 +33,7 @@ interface StoreState {
     fetchActiveTours: (userId: number) => Promise<void>;
     fetchActiveTourById: (id: number, userId?: number) => Promise<void>;
     fetchActiveTourProgress: (id: number, userId?: number) => Promise<void>;
+    fetchActiveTourLobby: (id: number) => Promise<void>;
     updateActiveTourLocal: (updates: Partial<ActiveTour>) => void;
     startTour: (tourId: number, userId: number, force?: boolean) => Promise<void>;
     finishTour: (activeTourId: number, userId: number) => Promise<boolean>;
@@ -201,6 +202,15 @@ export const useStore = create<StoreState>((set, get) => ({
         }
     },
 
+    fetchActiveTourLobby: async (id: number) => {
+        try {
+            const updatedLobby = await activeTourService.getActiveTourLobby(id);
+            get().updateActiveTourLocal(updatedLobby);
+        } catch (error: any) {
+            console.error('Failed to update active tour lobby', error);
+        }
+    },
+
     updateActiveTourLocal: (updates: Partial<ActiveTour>) => {
         set((state) => {
             if (!state.activeTour) return {};
@@ -208,7 +218,12 @@ export const useStore = create<StoreState>((set, get) => ({
             let finalTeams = state.activeTour.teams || [];
             if (updates.teams && updates.teams.length > 0) {
                 const updatesMap = new Map(updates.teams.map(t => [t.id, t]));
+                // Update existing
                 finalTeams = finalTeams.map(t => updatesMap.get(t.id) || t);
+                // Add new
+                const existingIds = new Set(finalTeams.map(t => t.id));
+                const newTeams = updates.teams.filter(t => !existingIds.has(t.id));
+                finalTeams = [...finalTeams, ...newTeams];
             }
 
             // Remove teams from updates to avoid overwriting the merged array

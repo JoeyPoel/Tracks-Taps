@@ -1,5 +1,7 @@
+import { useRouter } from 'expo-router';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { UserGroupIcon } from 'react-native-heroicons/outline';
+import { ShareIcon, UserGroupIcon } from 'react-native-heroicons/outline';
+import AppHeader from '../components/Header';
 import StartTourButton from '../components/TourButton';
 import TourAbout from '../components/tourdetailScreen/TourAbout';
 import TourGameModes from '../components/tourdetailScreen/TourGameModes';
@@ -14,6 +16,7 @@ import { useTourDetails } from '../hooks/useTourDetails';
 export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
   const { t } = useLanguage();
+  const router = useRouter();
 
   const {
     tour,
@@ -44,6 +47,21 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+      <AppHeader
+        showBackButton
+        onBackPress={() => {
+          if (router.canGoBack()) {
+            router.back();
+          } else {
+            router.replace('/');
+          }
+        }}
+        rightIcon={<ShareIcon size={24} color={theme.textPrimary} />}
+        onRightIconPress={() => {
+          // Implement share functionality later
+          console.log('Share button pressed');
+        }}
+      />
       <ScrollView showsVerticalScrollIndicator={false}>
         <TourHeader
           title={tour.title}

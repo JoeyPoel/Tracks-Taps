@@ -127,6 +127,37 @@ export const activeTourController = {
         }
     },
 
+    async getActiveTourLobby(request: Request, params?: { id: string }) {
+        let id = params?.id;
+
+        if (!id) {
+            const url = new URL(request.url);
+            // URL pattern: /api/active-tour/[id]/lobby
+            const segments = url.pathname.split('/');
+            id = segments[segments.length - 2];
+        }
+
+        if (!id) {
+            return Response.json({ error: 'Missing activeTourId' }, { status: 400 });
+        }
+
+        const activeTourId = Number(id);
+        if (isNaN(activeTourId)) {
+            return Response.json({ error: 'Invalid activeTourId' }, { status: 400 });
+        }
+
+        try {
+            const activeTour = await activeTourService.getActiveTourLobby(activeTourId);
+            if (!activeTour) {
+                return Response.json({ error: 'Active tour not found' }, { status: 404 });
+            }
+            return Response.json(activeTour);
+        } catch (error: any) {
+            console.error('Error fetching active tour lobby:', error);
+            return Response.json({ error: 'Failed to fetch active tour lobby' }, { status: 500 });
+        }
+    },
+
     async completeChallenge(request: Request) {
         try {
             const body = await request.json();

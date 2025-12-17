@@ -41,6 +41,13 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({ title, expanded, on
     );
 };
 
+const SORT_LABELS: Record<string, string> = {
+    'createdAt': 'Newest',
+    'name': 'Name (A-Z)',
+    'distance': 'Distance (Low-High)',
+    'duration': 'Duration (Shortest)',
+};
+
 export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebarProps) {
     const { theme } = useTheme();
     const {
@@ -209,7 +216,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                             title="Sort By"
                             expanded={expandedSections.sort}
                             onToggle={() => toggleSection('sort')}
-                            selectedValue={localFilters.sortBy || 'Default'}
+                            selectedValue={localFilters.sortBy ? (SORT_LABELS[localFilters.sortBy] || localFilters.sortBy) : 'Default'}
                         >
                             <RadioOption label="Newest" selected={localFilters.sortBy === 'createdAt'} onPress={() => { updateFilter('sortBy', 'createdAt'); updateFilter('sortOrder', 'desc'); }} />
                             <RadioOption label="Name (A-Z)" selected={localFilters.sortBy === 'name' && localFilters.sortOrder === 'asc'} onPress={() => { updateFilter('sortBy', 'name'); updateFilter('sortOrder', 'asc'); }} />
@@ -241,7 +248,7 @@ const styles = StyleSheet.create({
     overlay: { flex: 1, flexDirection: 'row' },
     backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
     sidebar: { height: '100%', position: 'absolute', right: 0, top: 0, bottom: 0, shadowColor: "#000", shadowOffset: { width: -2, height: 0 }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 50 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 80 },
     headerTitle: { fontSize: 18, fontWeight: 'bold' },
     content: { flex: 1 },
     accordionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 15, paddingHorizontal: 20 },

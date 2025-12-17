@@ -2,12 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import AppHeader from '../components/Header';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useWaitingLobby } from '../hooks/useWaitingLobby';
 
-export default function WaitingLobbyScreen({ activeTourId }: { activeTourId: number }) {
+export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: number }) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 

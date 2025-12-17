@@ -17,6 +17,14 @@ export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) =
     useEffect(() => {
         if (visible) {
             setLocalFilters(currentGlobalFilters);
+            setExpandedSections({
+                location: false,
+                sort: false,
+                modes: false,
+                difficulty: false,
+                distance: false,
+                duration: false,
+            });
             Animated.timing(slideAnim, {
                 toValue: 0, // Slide to natural position (right: 0)
                 duration: 300,
@@ -57,8 +65,8 @@ export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) =
     };
 
     const [expandedSections, setExpandedSections] = useState({
-        location: true,
-        sort: true,
+        location: false,
+        sort: false,
         modes: false,
         difficulty: false,
         distance: false,

@@ -47,6 +47,10 @@ export const activeTourService = {
         return await activeTourRepository.findActiveTourProgress(id, userId);
     },
 
+    async getActiveTourLobby(id: number) {
+        return await activeTourRepository.findActiveTourLobby(id);
+    },
+
     async completeChallenge(activeTourId: number, challengeId: number, userId: number) {
         const challenge = await challengeRepository.findChallengeById(challengeId);
 

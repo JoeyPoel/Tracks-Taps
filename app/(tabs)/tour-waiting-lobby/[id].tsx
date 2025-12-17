@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
-import WaitingLobbyScreen from '../../../src/screens/WaitingLobbyScreen';
+import PostTourLobbyScreen from '../../../src/screens/PostTourLobbyScreen';
 
 export default function Page() {
     const { id } = useLocalSearchParams();
-    return <WaitingLobbyScreen activeTourId={Number(id)} />;
+    return <PostTourLobbyScreen activeTourId={Number(id)} />;
 }
