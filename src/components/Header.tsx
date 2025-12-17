@@ -5,6 +5,7 @@ import { ArrowLeftIcon } from 'react-native-heroicons/outline';
 import { useTheme } from '../context/ThemeContext';
 
 interface AppHeaderProps {
+  title?: string; // Optional title override
   onBackPress?: () => void;
   onRightIconPress?: () => void;
   rightIcon?: React.ReactNode;
@@ -12,6 +13,7 @@ interface AppHeaderProps {
 }
 
 export default function AppHeader({
+  title: titleProp,
   onBackPress,
   onRightIconPress,
   rightIcon,
@@ -22,12 +24,15 @@ export default function AppHeader({
   const { theme } = useTheme();
 
   // Determine title based on pathname
-  let title = 'Tracks&Taps';
-  if (pathname.includes('/map')) title = 'Map';
-  else if (pathname.includes('/profile')) title = 'Profile';
-  else if (pathname.includes('/preferences')) title = 'App Preferences';
-  else if (pathname.includes('/join')) title = 'Join Tour';
-  else if (pathname === '/' || pathname.includes('/explore')) title = 'Explore';
+  let title = titleProp || 'Tracks&Taps';
+
+  if (!titleProp) {
+    if (pathname.includes('/map')) title = 'Map';
+    else if (pathname.includes('/profile')) title = 'Profile';
+    else if (pathname.includes('/preferences')) title = 'App Preferences';
+    else if (pathname.includes('/join')) title = 'Join Tour';
+    else if (pathname === '/' || pathname.includes('/explore')) title = 'Explore';
+  }
 
   const isExplore = title === 'Explore';
 

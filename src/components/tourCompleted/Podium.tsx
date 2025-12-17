@@ -55,7 +55,7 @@ export default function Podium({ teams }: PodiumProps) {
         return (
             <View style={styles.stepContainer}>
 
-                <View style={styles.teamInfo}>
+                <View style={[styles.teamInfo, place === 1 && { marginBottom: 36 }]}>
                     <Text style={[styles.teamName, { color: theme.textPrimary }]} numberOfLines={1}>
                         {displayName}
                     </Text>
@@ -65,22 +65,20 @@ export default function Podium({ teams }: PodiumProps) {
                 </View>
 
                 <View style={[styles.bar, { height: barHeight, backgroundColor: barBackgroundColor }]}>
-                    {/* Crown for 1st place inside the bar/above number - Now Team Emoji */}
+                    {/* Crown for 1st place */}
                     {place === 1 && (
                         <View style={styles.crownContainer}>
-                            <Text style={styles.crownEmoji}>{team.emoji || '👑'}</Text>
+                            <Text style={styles.crownEmoji}>{'👑'}</Text>
                         </View>
                     )}
 
                     {/* Rank Number */}
                     <Text style={[styles.rankNumber, { color: '#FFFFFF' }]}>{place}</Text>
 
-                    {/* Team Emoji Inside the Pillar - Only for non-winners since winner has it as crown */}
-                    {place !== 1 && (
-                        <View style={styles.emojiContainer}>
-                            <Text style={styles.emoji}>{team.emoji || '👤'}</Text>
-                        </View>
-                    )}
+                    {/* Team Emoji Inside the Pillar */}
+                    <View style={styles.emojiContainer}>
+                        <Text style={styles.emoji}>{team.emoji || '👤'}</Text>
+                    </View>
                 </View>
             </View>
         );
@@ -148,23 +146,25 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 16,
         alignItems: 'center',
         paddingTop: 16,
+        paddingBottom: 16,
         position: 'relative',
-        justifyContent: 'flex-start',
+        justifyContent: 'space-between',
     },
     rankNumber: {
         fontSize: 28,
         fontWeight: 'bold',
-        marginBottom: 8,
         zIndex: 2,
     },
     crownContainer: {
-        marginBottom: 4,
+        position: 'absolute',
+        top: -45,
+        width: '100%',
+        alignItems: 'center',
     },
     crownEmoji: {
-        fontSize: 24,
+        fontSize: 32,
     },
     emojiContainer: {
-        marginTop: 10,
         opacity: 0.9,
     },
     emoji: {

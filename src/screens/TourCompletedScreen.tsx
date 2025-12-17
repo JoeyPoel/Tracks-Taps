@@ -3,6 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Confetti from '../components/activeTourScreen/animations/Confetti';
+import AppHeader from '../components/Header';
 import Podium from '../components/tourCompleted/Podium';
 import ReviewForm from '../components/tourCompleted/ReviewForm';
 import { useTheme } from '../context/ThemeContext';
@@ -45,14 +46,9 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
     const runnerUps = activeTeams.slice(3);
     const winnerName = winner?.name || winner?.user?.name || `Team ${winner?.id}`;
 
-    // Has current user submitted a review?
-    // We can infer this if needed, or track it in hook. 
-    // Assuming simplistic "submitted" state isn't persisted across reloads without backend flag
-    // For now, let's keep the button always available or assume hook handles visibility logic.
-    // Ideally user.reviews check would be better.
-
     return (
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+            <AppHeader title={t('tourCompleted')} showBackButton={true} onBackPress={handleBackToHome} />
             {celebrate && <Confetti />}
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -64,7 +60,6 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                     end={{ x: 1, y: 1 }}
                     style={styles.headerGradient}
                 >
-                    <Text style={styles.congratsTitle}>{t('tourCompleted')}</Text>
                     <Text style={styles.tourTitle}>{activeTour.tour?.title}</Text>
                 </LinearGradient>
 
@@ -147,7 +142,7 @@ const styles = StyleSheet.create({
     },
     headerGradient: {
         width: '100%',
-        paddingTop: 20,
+        paddingTop: 10,
         paddingBottom: 30,
         alignItems: 'center',
         borderBottomLeftRadius: 30,
@@ -155,15 +150,11 @@ const styles = StyleSheet.create({
         marginBottom: -30, // Overlap with winner card
         zIndex: 1,
     },
-    congratsTitle: {
+    tourTitle: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#fff',
-        marginBottom: 2,
-    },
-    tourTitle: {
-        fontSize: 12,
         color: 'rgba(255, 255, 255, 0.8)',
+        paddingBottom: 10,
     },
     winnerCard: {
         width: '85%',

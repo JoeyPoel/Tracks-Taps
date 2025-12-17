@@ -1,13 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import AppHeader from '../components/Header';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useWaitingLobby } from '../hooks/useWaitingLobby';
 
 export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: number }) {
     const { theme } = useTheme();
+    const router = useRouter();
     const { t } = useLanguage();
 
     const {
@@ -21,6 +24,7 @@ export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: nu
 
     return (
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+            <AppHeader title={"Lobby"} showBackButton={true} onBackPress={() => router.replace('/')} />
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                 <LinearGradient
                     colors={[theme.secondary, theme.primary]}
