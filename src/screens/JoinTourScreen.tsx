@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import AppHeader from '../components/Header';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -20,7 +19,7 @@ export default function JoinTourScreen() {
     } = useJoinTour();
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+        <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
             <AppHeader />
 
             <KeyboardAvoidingView
@@ -97,7 +96,7 @@ export default function JoinTourScreen() {
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
-        </SafeAreaView>
+        </View>
     );
 }
 

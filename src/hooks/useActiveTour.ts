@@ -54,6 +54,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     const [triviaSelected, setTriviaSelected] = useState<{ [key: number]: number }>({});
 
     useEffect(() => {
+        setShowConfetti(false);
         if (activeTourId) {
             fetchActiveTourById(activeTourId, userId);
         }

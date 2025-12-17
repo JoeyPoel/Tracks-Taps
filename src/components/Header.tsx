@@ -2,6 +2,7 @@ import { usePathname, useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ArrowLeftIcon } from 'react-native-heroicons/outline';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 
 interface AppHeaderProps {
@@ -46,8 +47,18 @@ export default function AppHeader({
     }
   };
 
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={[styles.container, { backgroundColor: theme.bgPrimary, borderBottomColor: theme.borderSecondary }]}>
+    <View style={[
+      styles.container,
+      {
+        backgroundColor: theme.bgPrimary,
+        borderBottomColor: theme.borderSecondary,
+        paddingTop: insets.top,
+        height: 60 + insets.top
+      }
+    ]}>
       {/* Left side - Back button or empty space */}
       <View style={styles.leftContainer}>
         {showBackButton && (

@@ -8,13 +8,14 @@ interface StartTourButtonProps {
     onPress: () => void;
     buttonText: string;
     disabled?: boolean;
+    style?: any;
 }
 
-export default function StartTourButton({ onPress, buttonText, disabled }: StartTourButtonProps) {
+export default function StartTourButton({ onPress, buttonText, disabled, style }: StartTourButtonProps) {
     const { theme } = useTheme();
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, style]}>
             <TouchableOpacity onPress={onPress} activeOpacity={0.8} disabled={disabled}>
                 <LinearGradient
                     colors={[theme.fixedGradientFrom, theme.fixedGradientTo]}
@@ -34,8 +35,7 @@ export default function StartTourButton({ onPress, buttonText, disabled }: Start
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: 24,
-        paddingVertical: 16,
+        // padding removed to let parent control layout
     },
     button: {
         flexDirection: 'row',

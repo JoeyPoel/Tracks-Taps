@@ -18,10 +18,10 @@ export const TeamCard: React.FC<TeamCardProps> = ({ name, color, emoji }) => {
             <View style={styles.teamHeader}>
                 <Text style={{ fontSize: 32, marginRight: 16 }}>{emoji}</Text>
                 <View>
-                    <Text style={[styles.name, { color: '#FFF', fontSize: 18, fontWeight: 'bold' }]}>
+                    <Text style={[styles.name, { color: theme.textPrimary, fontSize: 18, fontWeight: 'bold' }]}>
                         {name || t('yourTeamName')}
                     </Text>
-                    <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: '600' }}>
+                    <Text style={{ color: theme.textSecondary, fontSize: 14, fontWeight: '600' }}>
                         {t('ready') || 'Ready to join!'}
                     </Text>
                 </View>

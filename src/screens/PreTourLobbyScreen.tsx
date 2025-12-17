@@ -85,7 +85,7 @@ export default function PreTourLobbyScreen() {
                 <View style={{ flex: 1 }} />
 
                 <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: theme.primary }]}
+                    style={[styles.actionButton, { backgroundColor: theme.primary, marginTop: 16 }]}
                     onPress={() => router.push({
                         pathname: '/team-setup',
                         params: {
@@ -102,8 +102,16 @@ export default function PreTourLobbyScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: theme.secondary, marginTop: 12 }]}
+                    style={[
+                        styles.actionButton,
+                        {
+                            backgroundColor: theme.secondary,
+                            marginTop: 12,
+                            opacity: (!userTeam || !userTeam.name) ? 0.5 : 1
+                        }
+                    ]}
                     onPress={() => router.push(`/active-tour/${activeTourId}`)}
+                    disabled={!userTeam || !userTeam.name}
                 >
                     <Text style={styles.actionButtonText}>{t('startTour')}</Text>
                     <Ionicons name="play" size={20} color="#FFF" style={{ marginLeft: 8 }} />

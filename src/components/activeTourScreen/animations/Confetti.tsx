@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, Dimensions, View, Easing } from 'react-native';
+import { Animated, Dimensions, Easing, StyleSheet, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -12,14 +12,14 @@ const NUM_CONFETTI = 80;
 const ConfettiPiece = () => {
   // 1. Setup Animation Values
   // Start at -100 (just above screen)
-  const animatedY = useRef(new Animated.Value(-100)).current; 
+  const animatedY = useRef(new Animated.Value(-100)).current;
   const animatedRotate = useRef(new Animated.Value(0)).current;
-  const animatedOpacity = useRef(new Animated.Value(1)).current; 
+  const animatedOpacity = useRef(new Animated.Value(1)).current;
 
   // 2. Randomize Properties
   const [props] = useState(() => {
-    const duration = 4000 + Math.random() * 3000; 
-    
+    const duration = 4000 + Math.random() * 3000;
+
     return {
       left: Math.random() * width,
       backgroundColor: COLORS[Math.floor(Math.random() * COLORS.length)],
@@ -36,7 +36,7 @@ const ConfettiPiece = () => {
       Animated.sequence([
         Animated.delay(props.delay),
         Animated.timing(animatedY, {
-          toValue: height + 50, 
+          toValue: height + 50,
           duration: props.duration,
           easing: Easing.linear,
           useNativeDriver: true,
@@ -57,7 +57,7 @@ const ConfettiPiece = () => {
       Animated.sequence([
         Animated.delay(props.delay),
         // Stay fully visible for 70% of the fall
-        Animated.delay(props.duration * 0.7), 
+        Animated.delay(props.duration * 0.7),
         // Fade out smoothly during the last 30%
         Animated.timing(animatedOpacity, {
           toValue: 0,
@@ -77,12 +77,12 @@ const ConfettiPiece = () => {
     <Animated.View
       style={{
         position: 'absolute',
-        top: 0, 
+        top: 0,
         left: props.left,
         width: props.size,
         height: props.size * 1.5,
         backgroundColor: props.backgroundColor,
-        opacity: animatedOpacity, 
+        opacity: animatedOpacity,
         transform: [
           { translateY: animatedY },
           { rotate: spin },
@@ -94,6 +94,10 @@ const ConfettiPiece = () => {
 };
 
 const Confetti = () => {
+  useEffect(() => {
+    console.log('Confetti rendered!');
+  }, []);
+
   return (
     <View style={styles.container} pointerEvents="none">
       {[...Array(NUM_CONFETTI)].map((_, index) => (

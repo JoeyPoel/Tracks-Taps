@@ -58,7 +58,7 @@ export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: nu
 
                     {/* Team List */}
                     <View style={styles.teamList}>
-                        {teams.map((team) => {
+                        {teams.filter(team => team.id !== userTeam?.id).map((team) => {
                             const isFinished = !!team.finishedAt;
                             const statusColor = team.color;
 
@@ -106,11 +106,11 @@ export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: nu
                                         </View>
                                         <View style={{ marginLeft: 12 }}>
                                             <Text style={[styles.yourTeamName, { color: theme.textPrimary }]}>{userTeam.name}</Text>
-                                            <Text style={[styles.yourTeamMembers, { color: theme.textSecondary }]}>You</Text>
+                                            <Text style={[styles.yourTeamMembers, { color: theme.success }]}>{t('finished')}!</Text>
                                         </View>
                                     </View>
                                 )}
-                                <Ionicons name="checkmark" size={20} color={theme.success} />
+                                <Ionicons name="checkmark-circle" size={24} color={theme.success} />
                             </View>
                         </View>
 

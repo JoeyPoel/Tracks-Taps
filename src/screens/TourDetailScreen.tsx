@@ -84,6 +84,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           onPress={() => startTour(false, false)}
           buttonText={loadingMode === 'solo' ? "Starting..." : t('startTour')}
           disabled={loadingMode !== null}
+          style={{ paddingHorizontal: 24, paddingVertical: 16 }}
         />
 
         <View style={{ paddingHorizontal: 24, marginBottom: 16 }}>

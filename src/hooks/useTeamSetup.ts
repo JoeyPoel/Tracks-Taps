@@ -60,12 +60,14 @@ export const useTeamSetup = () => {
                 selectedEmoji
             );
 
-            await fetchActiveTours(user.id);
-
+            setLoading(false);
             router.push({
                 pathname: '/lobby',
                 params: { activeTourId: activeTourId }
             });
+
+            // Refresh store in background
+            fetchActiveTours(user.id).catch(console.error);
 
         } catch (error: any) {
             console.error('Error in team setup:', error);

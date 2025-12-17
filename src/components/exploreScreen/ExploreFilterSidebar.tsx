@@ -153,6 +153,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                         <AccordionSection
                             title="Duration (min)"
                             expanded={expandedSections.duration}
+                            selectedValue={localFilters.minDuration || localFilters.maxDuration ? 'Custom' : 'All'}
                             onToggle={() => toggleSection('duration')}
                         >
                             <View style={styles.rangeContainer}>
