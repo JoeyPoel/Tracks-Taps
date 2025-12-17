@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapTourCard from '../components/mapScreen/MapTourCard';
 import { useLanguage } from '../context/LanguageContext';
@@ -12,7 +12,7 @@ import { Stop } from '../types/models';
 import { getStopIcon } from '../utils/stopIcons';
 
 export default function MapScreen() {
-  const { theme } = useTheme();
+  const { theme, mode } = useTheme();
   const { t } = useLanguage();
   const insets = useSafeAreaInsets();
 
@@ -32,8 +32,9 @@ export default function MapScreen() {
       <MapView
         ref={mapRef}
         style={styles.map}
-        provider={PROVIDER_GOOGLE}
+
         showsUserLocation={true}
+        userInterfaceStyle={mode}
         showsMyLocationButton={false}
         initialRegion={{
           latitude: 52.3676,

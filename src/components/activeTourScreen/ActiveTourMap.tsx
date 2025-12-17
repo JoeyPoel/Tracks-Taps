@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { PaperAirplaneIcon } from 'react-native-heroicons/outline';
-import MapView, { LatLng, Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { LatLng, Marker, Polyline } from 'react-native-maps';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { routingService } from '../../services/routingService';
@@ -23,7 +23,7 @@ interface ActiveTourMapProps {
 }
 
 export default function ActiveTourMap({ currentStop, previousStop, onNavigate }: ActiveTourMapProps) {
-    const { theme } = useTheme();
+    const { theme, mode } = useTheme();
     const { t } = useLanguage();
     const [route, setRoute] = useState<{ coords: LatLng[], type: 'WALKING' | 'DIRECT' } | null>(null);
     const mapRef = useRef<MapView>(null);
@@ -77,7 +77,7 @@ export default function ActiveTourMap({ currentStop, previousStop, onNavigate }:
             <MapView
                 ref={mapRef}
                 style={styles.map}
-                provider={PROVIDER_GOOGLE}
+                userInterfaceStyle={mode}
                 showsUserLocation={true}
                 showsMyLocationButton={false}
                 initialRegion={{

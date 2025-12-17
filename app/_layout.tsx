@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from '@/src/context/AuthContext';
 import { LanguageProvider } from '@/src/context/LanguageContext';
 import { ThemeProvider } from '@/src/context/ThemeContext';
 import { UserProvider } from '@/src/context/UserContext';
+import ThemedStatusBar from '@/src/components/ThemedStatusBar';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import React, { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
@@ -42,6 +43,7 @@ function AuthenticatedLayout() {
                         <Stack.Screen name="auth" options={{ headerShown: false }} />
                         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                     </Stack>
+                    <ThemedStatusBar />
                     <AuthRequiredModal />
                 </UserProvider>
             </ThemeProvider>
