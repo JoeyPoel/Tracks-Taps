@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Tracks&Taps",
-    "slug": "tracks-taps",
+    "slug": "tracks-and-taps",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/Logo.png",
@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.joeypoel.trackstaps",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Tracks Taps uses your location to show your position on the map and verify location-based challenges."
+        "NSLocationWhenInUseUsageDescription": "Tracks Taps uses your location to show your position on the map and verify location-based challenges.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {

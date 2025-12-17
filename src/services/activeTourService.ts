@@ -1,4 +1,4 @@
-import client from '../api/client';
+import client from '@/src/api/apiClient';
 
 export const activeTourService = {
     async getActiveToursForUser(userId: number) {
@@ -55,7 +55,7 @@ export const activeTourService = {
         const response = await client.post(`/active-tour/${activeTourId}/current-stop`, { activeTourId, currentStop, userId });
         return response.data;
     },
-    
+
     async updateTeamDetails(activeTourId: number, userId: number, name: string, color: string, emoji: string) {
         const response = await client.post('/active-tour/team', { activeTourId, userId, name, color, emoji });
         return response.data;

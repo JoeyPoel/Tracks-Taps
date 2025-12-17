@@ -26,6 +26,7 @@ export default function AppHeader({
   if (pathname.includes('/map')) title = 'Map';
   else if (pathname.includes('/profile')) title = 'Profile';
   else if (pathname.includes('/preferences')) title = 'App Preferences';
+  else if (pathname.includes('/join')) title = 'Join Tour';
   else if (pathname === '/' || pathname.includes('/explore')) title = 'Explore';
 
   const isExplore = title === 'Explore';

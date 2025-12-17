@@ -54,6 +54,20 @@ prisma/seed.ts
 actions-runner/
 .vercel
 
+
 # Vercel / Build Artifacts
-api/
+/api/
 vercel.json
+
+# IDEs
+.idea/
+.vscode/
+
+# Logs & Coverage
+*.log
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*

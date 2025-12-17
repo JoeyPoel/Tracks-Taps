@@ -11,14 +11,14 @@ interface SettingsItemProps {
 }
 
 export default function SettingsItem({ icon, title, subtitle, onPress }: SettingsItemProps) {
-  const { theme } = useTheme();
+  const { theme, mode } = useTheme();
 
   return (
     <TouchableOpacity
       style={[styles.itemContainer, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
       onPress={onPress}
     >
-      <View style={[styles.iconWrapper, { backgroundColor: theme.bgTertiary }]}>
+      <View style={[styles.iconWrapper, { backgroundColor: mode === 'dark' ? theme.bgTertiary : theme.bgPrimary }]}>
         {icon}
       </View>
       <View style={styles.textWrapper}>

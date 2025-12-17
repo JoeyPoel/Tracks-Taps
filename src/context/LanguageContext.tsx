@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { strings as allStrings } from './strings';
 
 type Language = 'en' | 'es' | 'nl'; // Supported languages
@@ -15,7 +15,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguage] = useState<Language>('en');
 
   const t = (key: keyof typeof allStrings['en']) => {
-    return allStrings[language][key] || key;
+    return (allStrings[language] as any)[key] || key;
   };
 
   return (

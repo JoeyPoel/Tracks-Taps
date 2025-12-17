@@ -1,4 +1,4 @@
-import client from '../api/client';
+import client from '@/src/api/apiClient';
 
 export const mapTourService = {
     async getTours(bounds?: { minLat: number; maxLat: number; minLng: number; maxLng: number }) {

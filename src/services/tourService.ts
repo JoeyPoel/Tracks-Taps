@@ -1,4 +1,4 @@
-import client from '../api/client';
+import client from '@/src/api/apiClient';
 
 import { TourFilters } from '../types/filters';
 

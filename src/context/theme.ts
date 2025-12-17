@@ -17,40 +17,41 @@ export const lightTheme = {
   info: "#2563EB", // Blue-600
   infoText: "#1E3A8A", // Blue-900
 
-  // Backgrounds - Adjusted for distinct surfaces
-  bgPrimary: "#F1F5F9",  // Slate-100 (Main Background)
-  bgSecondary: "#e4e6e9ff", // White (Cards/Surfaces)
-  bgTertiary: "#E2E8F0", // Slate-200 (Secondary areas)
+  // Backgrounds - Premium Pro Feel
+  // Using a very subtle off-white for the main background to let the white cards pop
+  bgPrimary: "#F8FAFC",  // Slate-50
+  bgSecondary: "#FFFFFF", // Pure White (Cards/Surfaces) - CRITICAL CHANGE
+  bgTertiary: "#F1F5F9", // Slate-100 (Secondary areas)
   bgInput: "#FFFFFF",
   bgDisabled: "#F1F5F9",
-  bgSuccess: "#A7F3D0", // Emerald-200
-  bgInfo: "#BFDBFE", // Blue-200
+  bgSuccess: "#ECFDF5", // Emerald-50 (Subtle)
+  bgInfo: "#EFF6FF", // Blue-50 (Subtle)
 
-  // Text - Higher contrast
-  textPrimary: "#0F172A", // Slate-900
-  textSecondary: "#334155", // Slate-700 (Darkened)
-  textTertiary: "#64748B", // Slate-500
-  textDisabled: "#94A3B8", // Slate-400
+  // Text - High Contrast & Sharp
+  textPrimary: "#1E293B", // Slate-800 (Softer than pure black but very sharp)
+  textSecondary: "#475569", // Slate-600
+  textTertiary: "#94A3B8", // Slate-400
+  textDisabled: "#CBD5E1", // Slate-300
   textLink: "#FF375D",
   textOnPrimary: "#FFFFFF",
   textOnSecondary: "#FFFFFF",
   textOnSuccess: "#064E3B",
   textOnInfo: "#1E3A8A",
 
-  // Borders - More visible
-  borderPrimary: "#CBD5E1", // Slate-300
-  borderSecondary: "#E2E8F0", // Slate-200
-  borderInput: "#94A3B8", // Slate-400 (Stronger input border)
+  // Borders - Subtle but defined
+  borderPrimary: "#E2E8F0", // Slate-200
+  borderSecondary: "#F1F5F9", // Slate-100
+  borderInput: "#CBD5E1", // Slate-300
   borderFocus: "#FF375D",
   borderSuccess: "#34D399", // Emerald-400
 
   // Icons
   iconPrimary: "#FF375D",
   iconSecondary: "#0EA5E9", // Sky-500
-  iconMuted: "#64748B", // Slate-500
+  iconMuted: "#94A3B8", // Slate-400
 
-  shadowColor: "rgba(15, 23, 42, 0.1)", // Slightly stronger shadow
-  overlay: "rgba(15, 23, 42, 0.6)",
+  shadowColor: "rgba(0, 0, 0, 0.08)", // Softer, more diffuse shadow
+  overlay: "rgba(15, 23, 42, 0.4)", // Lighter overlay
 
   fixedWhite: "#FFFFFF",
   fixedBlack: "#000000",
@@ -60,35 +61,36 @@ export const lightTheme = {
   fixedGradientFromLevel: "#FBBF24",
   fixedGradientToLevel: "#F87171",
 
-  starColor: "#F59E0B", // Amber-500 (Brighter)
+  starColor: "#F59E0B", // Amber-500
   pubgolfColor: "#F59E0B",
-  gold: "#EAB308", // Yellow-500 (Brighter)
-  orange: "#F97316", // Orange-500 (Brighter)
-  pink: "#EC4899", // Pink-500 (Brighter)
+  gold: "#EAB308", // Yellow-500
+  orange: "#F97316", // Orange-500
+  pink: "#EC4899", // Pink-500
 
-  challengeFailedBackground: '#FECACA', // Red-200
-  challengeFailedBorder: '#EF4444', // Red-500
+  // Challenge Status Colors - Subtle Tints (No more heavy filters)
+  challengeFailedBackground: '#FEF2F2', // Red-50 (Very subtle)
+  challengeFailedBorder: '#FCA5A5', // Red-300 (Softer border)
 
-  challengeCorrectBackground: '#A7F3D0', // Emerald-200
-  challengeCorrectBorder: '#10B981', // Emerald-500
+  challengeCorrectBackground: '#F0FDF4', // Emerald-50 (Very subtle)
+  challengeCorrectBorder: '#86EFAC', // Emerald-300 (Softer border)
 
   // PubGolf: [Text/Border/GradStart (600), GradEnd (500), Background (200)]
   pubGolf: {
-    holeInOne: ['#D97706', '#F59E0B', '#FDE68A'], // Amber-600/500/200
-    albatross: ['#7E22CE', '#A855F7', '#E9D5FF'], // Purple-600/500/200
-    eagle: ['#C026D3', '#D946EF', '#F5D0FE'], // Fuchsia-600/500/200
-    birdie: ['#16A34A', '#22C55E', '#BBF7D0'], // Green-600/500/200
-    par: ['#2563EB', '#3B82F6', '#BFDBFE'], // Blue-600/500/200
-    bogey: ['#EA580C', '#F97316', '#FED7AA'], // Orange-600/500/200
-    doubleBogey: ['#DC2626', '#EF4444', '#FECACA'], // Red-600/500/200
-    tripleBogey: ['#4B5563', '#6B7280', '#E5E7EB'], // Gray-600/500/200
+    holeInOne: ['#D97706', '#F59E0B', '#FFFBEB'], // Amber-600/500/Amber-50
+    albatross: ['#7E22CE', '#A855F7', '#FAF5FF'], // Purple-600/500/Purple-50
+    eagle: ['#C026D3', '#D946EF', '#FDF4FF'], // Fuchsia-600/500/Fuchsia-50
+    birdie: ['#16A34A', '#22C55E', '#F0FDF4'], // Green-600/500/Green-50
+    par: ['#2563EB', '#3B82F6', '#EFF6FF'], // Blue-600/500/Blue-50
+    bogey: ['#EA580C', '#F97316', '#FFF7ED'], // Orange-600/500/Orange-50
+    doubleBogey: ['#DC2626', '#EF4444', '#FEF2F2'], // Red-600/500/Red-50
+    tripleBogey: ['#4B5563', '#6B7280', '#F9FAFB'], // Gray-600/500/Gray-50
   },
 
-  bgPrimaryColor: '#F1F5F9',
+  bgPrimaryColor: '#F8FAFC',
   bgSecondaryColor: '#FFFFFF',
-  bgAccentColor: '#FEF3C7', // Amber-100
+  bgAccentColor: '#FFFBEB', // Amber-50
 
-  pubGolfInput: '#94A3B8', // Slate-400 (Swapped from Dark Mode)
+  pubGolfInput: '#CBD5E1', // Slate-300
 };
 
 export const darkTheme = {

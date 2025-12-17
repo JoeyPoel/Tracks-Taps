@@ -2,7 +2,7 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import React from 'react';
 import { Animated, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CircleStackIcon, GiftIcon, XMarkIcon } from 'react-native-heroicons/outline';
-import client from '../../api/client';
+import client from '../../api/apiClient';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserContext } from '../../context/UserContext';
 

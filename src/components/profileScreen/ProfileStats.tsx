@@ -17,7 +17,7 @@ export default function ProfileStats({ toursDone, totalPoints, friends }: Profil
     return (
         <View style={styles.container}>
             <View style={[styles.statCard, { backgroundColor: theme.bgSecondary }]}>
-                <MapPinIcon size={24} color={theme.danger} style={styles.icon} />
+                <MapPinIcon size={24} color={theme.secondary} style={styles.icon} />
                 <Text style={[styles.value, { color: theme.textPrimary }]}>{toursDone}</Text>
                 <Text style={[styles.label, { color: theme.textSecondary }]}>{t('toursDone')}</Text>
             </View>

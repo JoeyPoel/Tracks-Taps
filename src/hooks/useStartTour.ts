@@ -1,7 +1,7 @@
+import client from '@/src/api/apiClient'; // Use configured client
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Platform } from 'react-native';
-import client from '../api/client'; // Use configured client
 import { useLanguage } from '../context/LanguageContext';
 import { useUserContext } from '../context/UserContext';
 import { authEvents } from '../utils/authEvents';
