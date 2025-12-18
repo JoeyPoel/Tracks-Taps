@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { activeTourService } from '../services/activeTourService';
 import { useStore } from '../store/store';
-import { ActiveChallenge, Team } from '../types/models';
+import { ActiveChallenge, PubGolfStop, Stop, Team } from '../types/models';
+import { getScoreDetails } from '../utils/pubGolfUtils';
 
 export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?: (amount: number) => void) => {
     // Global State
@@ -31,7 +32,24 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
 
     const currentStop = currentTeam?.currentStop || 1;
     const streak = currentTeam?.streak || 0;
-    const points = currentTeam?.score || 0;
+
+    const pubGolfXP = useMemo(() => {
+        const stops = activeTour?.tour?.stops as Stop[] | undefined;
+        const pgStops = currentTeam?.pubGolfStops as PubGolfStop[] | undefined;
+
+        if (!pgStops || !stops) return 0;
+
+        return pgStops.reduce((total: number, pgStop: PubGolfStop) => {
+            const stop = stops.find((s: Stop) => s.id === pgStop.stopId);
+            // Ensure we have a valid stop, par, and played sips
+            if (!stop || typeof stop.pubgolfPar !== 'number' || !pgStop.sips || pgStop.sips <= 0) return total;
+
+            const details = getScoreDetails(stop.pubgolfPar, pgStop.sips);
+            return total + (details?.recommendedXP || 0);
+        }, 0);
+    }, [currentTeam, activeTour]);
+
+    const points = (currentTeam?.score || 0) + pubGolfXP;
 
     // Derived Challenge State
     const { completedChallenges, failedChallenges } = useMemo(() => {
@@ -226,6 +244,6 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         points,
         updateActiveTourLocal,
         currentTeam,
-        // isUpdating - removed from public API 
+        setFloatingPointsAmount
     };
 };

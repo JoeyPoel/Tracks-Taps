@@ -232,9 +232,12 @@ export const strings = {
     change: 'Change',
     updateSuccess: 'Profile updated successfully!',
     updateError: 'Failed to update profile.',
+    viewRulesAndScoring: 'View Rules & Scoring',
+    scoring: 'Scoring',
   },
   es: {
     profile: 'Perfil',
+
     manageAccount: 'Administrar su cuenta',
     personalInfo: 'Información personal',
     appPreferences: 'Preferencias de la app',
@@ -445,6 +448,8 @@ export const strings = {
     change: 'Cambiar',
     updateSuccess: '¡Perfil actualizado con éxito!',
     updateError: 'Error al actualizar el perfil.',
+    viewRulesAndScoring: 'Ver Reglas y Puntuación',
+    scoring: 'Puntuación',
   },
   nl: {
     profile: 'Profiel',
@@ -658,5 +663,7 @@ export const strings = {
     change: 'Wijzigen',
     updateSuccess: 'Profiel succesvol bijgewerkt!',
     updateError: 'Profiel bijwerken mislukt.',
+    viewRulesAndScoring: 'Bekijk Regels & Scoring',
+    scoring: 'Scoring',
   },
 };

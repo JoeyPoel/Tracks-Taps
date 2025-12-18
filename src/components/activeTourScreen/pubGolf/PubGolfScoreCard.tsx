@@ -1,9 +1,11 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { ExclamationCircleIcon, FireIcon, FlagIcon, TrophyIcon } from 'react-native-heroicons/outline';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ChevronDownIcon, ChevronUpIcon, ExclamationCircleIcon, FireIcon, FlagIcon, TrophyIcon } from 'react-native-heroicons/outline';
+import { BoltIcon } from 'react-native-heroicons/solid';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
+import { PUB_GOLF_LEGEND_DATA } from '../../../utils/pubGolfUtils';
 
 interface PubGolfScoreCardProps {
     totalSips: number;
@@ -14,6 +16,7 @@ interface PubGolfScoreCardProps {
 export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: PubGolfScoreCardProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const [isRulesOpen, setIsRulesOpen] = useState(false);
 
     const isUnderPar = currentScore < 0;
     const isOverPar = currentScore > 0;
@@ -59,16 +62,52 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
                 </View>
             </View>
 
-            <View style={[styles.infoContainer, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-                <View style={styles.infoRow}>
-                    <Text style={[styles.infoText, { color: theme.fixedWhite }]}>
-                        {t('pubGolfInstructions')}
-                    </Text>
-                </View>
-                <Text style={[styles.legend, { color: 'rgba(255,255,255,0.8)' }]}>
-                    {t('pubGolfLegend')}
+            <TouchableOpacity
+                style={[styles.toggleButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
+                onPress={() => setIsRulesOpen(!isRulesOpen)}
+                activeOpacity={0.7}
+            >
+                <Text style={[styles.toggleButtonText, { color: theme.fixedWhite }]}>
+                    {t('viewRulesAndScoring') || "View Rules & Scoring"}
                 </Text>
-            </View>
+                {isRulesOpen ? (
+                    <ChevronUpIcon size={20} color={theme.fixedWhite} />
+                ) : (
+                    <ChevronDownIcon size={20} color={theme.fixedWhite} />
+                )}
+            </TouchableOpacity>
+
+            {isRulesOpen && (
+                <View style={[styles.infoContainer, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
+                    <View style={styles.infoRow}>
+                        <Text style={[styles.infoText, { color: theme.fixedWhite }]}>
+                            {t('pubGolfInstructions')}
+                        </Text>
+                    </View>
+
+                    <View>
+                        <Text style={[styles.legendTitle, { color: 'rgba(255,255,255,0.8)' }]}>
+                            {t('scoring')} & {t('xp')}
+                        </Text>
+                        {PUB_GOLF_LEGEND_DATA.map((item) => (
+                            <View key={item.nameKey} style={styles.legendRow}>
+                                <View style={styles.legendItemLeft}>
+                                    <Text style={styles.legendEmoji}>{item.emoji}</Text>
+                                    <Text style={[styles.legendName, { color: theme.fixedWhite }]}>
+                                        {t(item.nameKey as any)}
+                                    </Text>
+                                </View>
+                                <View style={styles.legendXp}>
+                                    <BoltIcon size={12} color={theme.fixedWhite} />
+                                    <Text style={[styles.legendXpText, { color: theme.fixedWhite }]}>
+                                        {item.xp} XP
+                                    </Text>
+                                </View>
+                            </View>
+                        ))}
+                    </View>
+                </View>
+            )}
         </LinearGradient>
     );
 }
@@ -126,23 +165,68 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: 'bold',
     },
-    infoContainer: {
+    toggleButton: {
         width: '100%',
         marginTop: 16,
+        padding: 12,
+        borderRadius: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    toggleButtonText: {
+        fontWeight: '600',
+        marginRight: 8,
+    },
+    infoContainer: {
+        width: '100%',
+        marginTop: 8,
         borderRadius: 12,
         padding: 12,
     },
     infoRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: 12,
+        paddingBottom: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255,255,255,0.1)',
     },
     infoText: {
         fontSize: 14,
         lineHeight: 20,
     },
-    legend: {
+    legendTitle: {
         fontSize: 12,
-        marginTop: 4,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        textTransform: 'uppercase',
+    },
+    legendRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 4,
+    },
+    legendItemLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    legendEmoji: {
+        marginRight: 8,
+        fontSize: 16,
+    },
+    legendName: {
+        fontSize: 14,
+        fontWeight: '500',
+    },
+    legendXp: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    legendXpText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        marginLeft: 4,
     },
 });

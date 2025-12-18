@@ -1,4 +1,5 @@
 import { SessionStatus } from '@prisma/client';
+import { getScoreDetails } from '../../src/utils/pubGolfUtils';
 import { activeTourRepository } from '../repositories/activeTourRepository';
 import { challengeRepository } from '../repositories/challengeRepository';
 import { userRepository } from '../repositories/userRepository';
@@ -171,7 +172,26 @@ export const activeTourService = {
         const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
         if (!team) throw new Error("Team not found");
 
-        await activeTourRepository.updatePubGolfScore(team.id, stopId, sips);
+        // 1. Get previous state
+        const existingStop = await activeTourRepository.findPubGolfStop(team.id, stopId);
+        const oldSips = existingStop?.sips;
+
+        // 2. Update
+        const updatedStop = await activeTourRepository.updatePubGolfScore(team.id, stopId, sips);
+
+        // 3. Calculate and Award XP Delta
+        const par = updatedStop.stop.pubgolfPar;
+        if (par !== null) {
+            // Treat 0 sips as "unplayed" (no XP)
+            const oldXP = (oldSips && oldSips > 0) ? (getScoreDetails(par, oldSips)?.recommendedXP || 0) : 0;
+            const newXP = (sips && sips > 0) ? (getScoreDetails(par, sips)?.recommendedXP || 0) : 0;
+
+            const xpDiff = newXP - oldXP;
+
+            if (xpDiff !== 0) {
+                await userRepository.addXp(userId, xpDiff);
+            }
+        }
 
         // Return updated progress
         return await activeTourService.getActiveTourProgress(activeTourId, userId);

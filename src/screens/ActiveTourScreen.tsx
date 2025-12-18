@@ -16,6 +16,7 @@ import { useActiveTour } from '../hooks/useActiveTour';
 import { activeTourService } from '../services/activeTourService';
 import { LevelSystem } from '../utils/levelUtils';
 import { openMapApp } from '../utils/mapUtils';
+import { getScoreDetails } from '../utils/pubGolfUtils';
 
 function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user: any }) {
     const { theme } = useTheme();
@@ -49,6 +50,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         points,
         updateActiveTourLocal,
         currentTeam,
+        setFloatingPointsAmount,
     } = useActiveTour(activeTourId, user.id, updateUserXp);
 
     React.useEffect(() => {
@@ -66,6 +68,26 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         const updatedPubGolfStops = currentTeam.pubGolfStops?.map((pg: any) =>
             pg.stopId === stopId ? { ...pg, sips } : pg
         ) || [];
+
+        // XP Calculation
+        const stop = activeTour?.tour?.stops?.find((s: any) => s.id === stopId);
+        if (stop && stop.pubgolfPar) {
+            const par = stop.pubgolfPar;
+            const existingEntry = currentTeam.pubGolfStops?.find((pg: any) => pg.stopId === stopId);
+            const oldSips = existingEntry ? existingEntry.sips : 0;
+
+            const oldXP = (oldSips && oldSips > 0) ? (getScoreDetails(par, oldSips)?.recommendedXP || 0) : 0;
+            const newXP = (sips && sips > 0) ? (getScoreDetails(par, sips)?.recommendedXP || 0) : 0;
+
+            const diff = newXP - oldXP;
+            if (diff !== 0) {
+                updateUserXp(diff);
+                if (diff > 0) {
+                    setFloatingPointsAmount(diff);
+                    setShowFloatingPoints(true);
+                }
+            }
+        }
 
         // If not found, add it? (Logic implies it exists from seed, but strictly might need to create)
         if (!updatedPubGolfStops.find((pg: any) => pg.stopId === stopId)) {

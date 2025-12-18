@@ -3,6 +3,7 @@ export interface ScoreDetails {
     subKey: string;
     colorKey: string;
     emoji: string;
+    recommendedXP: number;
 }
 
 export const getScoreDetails = (par: number, sips?: number): ScoreDetails | null => {
@@ -15,7 +16,8 @@ export const getScoreDetails = (par: number, sips?: number): ScoreDetails | null
         nameKey: 'holeInOne',
         subKey: 'legendary',
         colorKey: 'holeInOne',
-        emoji: '🌟'
+        emoji: '🌟',
+        recommendedXP: 200
     };
 
     // Under Par
@@ -23,19 +25,22 @@ export const getScoreDetails = (par: number, sips?: number): ScoreDetails | null
         nameKey: 'albatross',
         subKey: 'unreal',
         colorKey: 'albatross',
-        emoji: '🦕'
+        emoji: '🦕',
+        recommendedXP: 180
     };
     if (diff === -2) return {
         nameKey: 'eagle',
         subKey: 'amazing',
         colorKey: 'eagle',
-        emoji: '🦅'
+        emoji: '🦅',
+        recommendedXP: 150
     };
     if (diff === -1) return {
         nameKey: 'birdie',
         subKey: 'greatJob',
         colorKey: 'birdie',
-        emoji: '🐦'
+        emoji: '🐦',
+        recommendedXP: 125
     };
 
     // Par
@@ -43,7 +48,8 @@ export const getScoreDetails = (par: number, sips?: number): ScoreDetails | null
         nameKey: 'parScore',
         subKey: 'perfect',
         colorKey: 'par',
-        emoji: '⛳'
+        emoji: '⛳',
+        recommendedXP: 100
     };
 
     // Over Par
@@ -51,13 +57,15 @@ export const getScoreDetails = (par: number, sips?: number): ScoreDetails | null
         nameKey: 'bogey',
         subKey: 'niceTry',
         colorKey: 'bogey',
-        emoji: '😅'
+        emoji: '😅',
+        recommendedXP: 60
     };
     if (diff === 2) return {
         nameKey: 'doubleBogey',
         subKey: '',
         colorKey: 'doubleBogey',
-        emoji: '😳'
+        emoji: '😳',
+        recommendedXP: 30
     };
 
     // Triple Bogey+
@@ -65,7 +73,19 @@ export const getScoreDetails = (par: number, sips?: number): ScoreDetails | null
         nameKey: 'tripleBogeyPlus',
         subKey: '',
         colorKey: 'tripleBogey',
-        emoji: '💀'
+        emoji: '💀',
+        recommendedXP: 0
     };
 };
+
+export const PUB_GOLF_LEGEND_DATA = [
+    { nameKey: 'holeInOne', xp: 200, emoji: '🌟', colorKey: 'holeInOne' },
+    { nameKey: 'albatross', xp: 180, emoji: '🦕', colorKey: 'albatross' },
+    { nameKey: 'eagle', xp: 150, emoji: '🦅', colorKey: 'eagle' },
+    { nameKey: 'birdie', xp: 125, emoji: '🐦', colorKey: 'birdie' },
+    { nameKey: 'parScore', xp: 100, emoji: '⛳', colorKey: 'par' },
+    { nameKey: 'bogey', xp: 60, emoji: '😅', colorKey: 'bogey' },
+    { nameKey: 'doubleBogey', xp: 30, emoji: '😳', colorKey: 'doubleBogey' },
+    { nameKey: 'tripleBogeyPlus', xp: 0, emoji: '💀', colorKey: 'tripleBogey' },
+];
 

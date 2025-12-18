@@ -233,6 +233,18 @@ export const activeTourRepository = {
         });
     },
 
+    async findPubGolfStop(teamId: number, stopId: number) {
+        return await prisma.pubGolfStop.findFirst({
+            where: {
+                teamId,
+                stopId
+            },
+            include: {
+                stop: true
+            }
+        });
+    },
+
     async updatePubGolfScore(teamId: number, stopId: number, sips: number) {
         // Find the specific PubGolfStop entry
         const pubGolfStop = await prisma.pubGolfStop.findFirst({
@@ -248,7 +260,8 @@ export const activeTourRepository = {
 
         return await prisma.pubGolfStop.update({
             where: { id: pubGolfStop.id },
-            data: { sips }
+            data: { sips },
+            include: { stop: true }
         });
     },
 
