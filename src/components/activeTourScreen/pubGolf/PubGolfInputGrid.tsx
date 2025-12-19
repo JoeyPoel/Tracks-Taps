@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
+import { AnimatedPressable } from '../../common/AnimatedPressable';
 
 interface PubGolfInputGridProps {
     par: number;
@@ -43,7 +44,7 @@ export default function PubGolfInputGrid({
                             : {};
 
                         return (
-                            <TouchableOpacity
+                            <AnimatedPressable
                                 key={num}
                                 style={[
                                     styles.sipButton,
@@ -58,12 +59,14 @@ export default function PubGolfInputGrid({
                                     selectedStyles,
                                 ]}
                                 onPress={() => onSelectSips(num)}
+                                interactionScale="medium"
+                                haptic="selection"
                             >
                                 <Text style={[
                                     styles.sipButtonText,
                                     { color: theme.fixedWhite },
                                 ]}>{num}</Text>
-                            </TouchableOpacity>
+                            </AnimatedPressable>
                         );
                     })}
                 </View>

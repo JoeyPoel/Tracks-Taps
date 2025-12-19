@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
+import { AnimatedPressable } from '../../common/AnimatedPressable';
 import ActiveChallengeCard from '../ActiveChallengeCard';
 
 interface TriviaChallengeProps {
@@ -63,11 +64,13 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
                         }
 
                         return (
-                            <TouchableOpacity
+                            <AnimatedPressable
                                 key={index}
                                 style={styles.optionRow}
                                 onPress={() => !isDone && setTriviaSelected((prev: any) => ({ ...prev, [challenge.id]: index }))}
                                 disabled={isDone}
+                                interactionScale="subtle"
+                                haptic="selection"
                             >
                                 <View style={[
                                     styles.radioButton,
@@ -82,7 +85,7 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
                                     isDone && isCorrect && { color: theme.success, fontWeight: 'bold' },
                                     isDone && isSelected && isFailed && { color: theme.danger, fontWeight: 'bold' }
                                 ]}>{option}</Text>
-                            </TouchableOpacity>
+                            </AnimatedPressable>
                         )
                     })}
                 </View>

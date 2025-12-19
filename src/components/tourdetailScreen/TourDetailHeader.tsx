@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../../context/ThemeContext';
+import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
+import { AnimatedButton } from '../common/AnimatedButton';
 
 interface TourDetailHeaderProps {
   title: string;
@@ -50,9 +51,12 @@ export default function TourDetailHeader({
 
       <Text style={[styles.description, { color: theme.textPrimary }]}>{description}</Text>
 
-      <TouchableOpacity style={[styles.button, { backgroundColor: theme.primary }]} onPress={onStartTour}>
-        <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>{t('startTour')}</Text>
-      </TouchableOpacity>
+      <AnimatedButton
+        title={t('startTour')}
+        onPress={onStartTour}
+        variant="primary"
+        style={styles.button}
+      />
     </View>
   );
 }

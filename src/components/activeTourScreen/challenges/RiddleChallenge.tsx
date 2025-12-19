@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
+import { AnimatedPressable } from '../../common/AnimatedPressable';
 import ActiveChallengeCard from '../ActiveChallengeCard';
 
 import { Challenge } from '../../../types/models';
@@ -66,15 +67,17 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
                 </Text>
 
                 {challenge.hint && (
-                    <TouchableOpacity
+                    <AnimatedPressable
                         onPress={() => setShowHint(!showHint)}
                         style={styles.hintToggle}
+                        interactionScale="subtle"
+                        haptic="selection"
                     >
                         <Ionicons name={showHint ? "eye-off-outline" : "bulb-outline"} size={20} color={theme.accent} />
                         <Text style={{ color: theme.accent, marginLeft: 4 }}>
                             {showHint ? (t('hideHint') || "Hide Hint") : (t('showHint') || "Need a hint?")}
                         </Text>
-                    </TouchableOpacity>
+                    </AnimatedPressable>
                 )}
 
                 {showHint && challenge.hint && (

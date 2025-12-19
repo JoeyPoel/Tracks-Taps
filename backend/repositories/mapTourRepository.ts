@@ -6,6 +6,7 @@ export const mapTourRepository = {
             return await prisma.tour.findMany({
                 include: {
                     stops: true,
+                    reviews: true,
                 },
             });
         }
@@ -23,6 +24,7 @@ export const mapTourRepository = {
             },
             include: {
                 stops: true,
+                reviews: true,
             },
         });
     },

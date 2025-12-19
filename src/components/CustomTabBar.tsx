@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, LayoutChangeEvent, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, LayoutChangeEvent, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { AnimatedPressable } from './common/AnimatedPressable';
 
 interface CustomTabBarProps {
   tabs: string[];
@@ -29,7 +30,13 @@ export default function CustomTabBar({ tabs, activeIndex, onTabPress }: CustomTa
   return (
     <View style={[styles.tabBar, { borderBottomColor: theme.borderSecondary }]} onLayout={handleLayout}>
       {tabs.map((tab, index) => (
-        <TouchableOpacity key={tab} style={styles.tab} onPress={() => onTabPress(index)}>
+        <AnimatedPressable
+          key={tab}
+          style={styles.tab}
+          onPress={() => onTabPress(index)}
+          interactionScale="subtle"
+          haptic="selection"
+        >
           <Text
             style={{
               color: activeIndex === index ? theme.primary : theme.textSecondary,
@@ -38,7 +45,7 @@ export default function CustomTabBar({ tabs, activeIndex, onTabPress }: CustomTa
           >
             {tab}
           </Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       ))}
       {tabBarWidth > 0 && (
         <Animated.View

@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import AppHeader from '../components/Header';
+import { AnimatedButton } from '../components/common/AnimatedButton';
+import { JoinInfoCards } from '../components/joinScreen/JoinInfoCards';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useJoinTour } from '../hooks/useJoinTour';
@@ -57,43 +59,17 @@ export default function JoinTourScreen() {
                         {error && <Text style={[styles.errorText, { color: theme.warning }]}>{error}</Text>}
                     </View>
 
-                    <TouchableOpacity
-                        style={[
-                            styles.joinButton,
-                            { backgroundColor: theme.primary, opacity: loading || !tourCode ? 0.7 : 1 }
-                        ]}
+                    <AnimatedButton
+                        title={loading ? t('verifying') : t('joinTourButton')}
                         onPress={handleJoinTour}
+                        loading={loading}
                         disabled={loading || !tourCode}
-                    >
-                        <Text style={styles.joinButtonText}>
-                            {loading ? t('verifying') : t('joinTourButton')}
-                        </Text>
-                        {!loading && <Ionicons name="arrow-forward" size={20} color="#FFF" style={{ marginLeft: 8 }} />}
-                    </TouchableOpacity>
+                        icon={!loading ? "arrow-forward" : undefined}
+                        variant="primary"
+                        style={styles.joinButtonRefactored}
+                    />
 
-                    {/* Info Cards */}
-                    <View style={[styles.infoCard, { backgroundColor: theme.bgSecondaryColor, borderColor: theme.secondary }]}>
-                        <View style={styles.cardHeader}>
-                            <View style={[styles.iconBadge, { backgroundColor: theme.bgSecondaryColor }]}>
-                                <Ionicons name="sparkles" size={16} color={theme.secondary} />
-                            </View>
-                            <Text style={[styles.cardTitle, { color: theme.secondary }]}>{t('howItWorks')}</Text>
-                        </View>
-                        <Text style={[styles.cardStep, { color: theme.textSecondary }]}>{t('howItWorksStep1')}</Text>
-                        <Text style={[styles.cardStep, { color: theme.textSecondary }]}>{t('howItWorksStep2')}</Text>
-                        <Text style={[styles.cardStep, { color: theme.textSecondary }]}>{t('howItWorksStep3')}</Text>
-                        <Text style={[styles.cardStep, { color: theme.textSecondary }]}>{t('howItWorksStep4')}</Text>
-                    </View>
-
-                    <View style={[styles.infoCard, { backgroundColor: theme.bgAccentColor, borderColor: theme.accent, marginTop: 16 }]}>
-                        <View style={styles.cardHeader}>
-                            <View style={[styles.iconBadge, { backgroundColor: theme.bgAccentColor }]}>
-                                <Ionicons name="people" size={16} color={theme.accent} />
-                            </View>
-                            <Text style={[styles.cardTitle, { color: theme.accent }]}>{t('teamPlay')}</Text>
-                        </View>
-                        <Text style={[styles.cardDesc, { color: theme.textSecondary }]}>{t('teamPlayDesc')}</Text>
-                    </View>
+                    <JoinInfoCards />
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>
@@ -129,58 +105,7 @@ const styles = StyleSheet.create({
         letterSpacing: 1,
     },
     errorText: { marginTop: 8, fontSize: 14 },
-    joinButton: {
-        height: 56,
-        borderRadius: 12,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
+    joinButtonRefactored: {
         marginBottom: 32,
-    },
-    joinButtonText: { color: '#FFF', fontSize: 18, fontWeight: '700' },
-    dividerContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 32, position: 'relative' },
-    divider: { height: 1, flex: 1 },
-    dividerText: { paddingHorizontal: 16, position: 'absolute' },
-    qrContainer: {
-        borderWidth: 2,
-        borderRadius: 16,
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 32,
-        height: 200,
-    },
-    qrText: { fontSize: 18, fontWeight: '600', marginTop: 16, marginBottom: 8 },
-    qrSubtext: { fontSize: 14 },
-    // Info Card Styles
-    infoCard: {
-        borderRadius: 16,
-        borderWidth: 1,
-        padding: 20,
-    },
-    cardHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    iconBadge: {
-        width: 32,
-        height: 32,
-        borderRadius: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 12,
-    },
-    cardTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-    },
-    cardStep: {
-        fontSize: 14,
-        lineHeight: 22,
-        marginBottom: 4,
-    },
-    cardDesc: {
-        fontSize: 14,
-        lineHeight: 20,
     },
 });

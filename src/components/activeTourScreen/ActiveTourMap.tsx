@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { PaperAirplaneIcon } from 'react-native-heroicons/outline';
 import MapView, { LatLng, Marker, Polyline } from 'react-native-maps';
 import { useLanguage } from '../../context/LanguageContext';
@@ -7,6 +7,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { routingService } from '../../services/routingService';
 import { StopType } from '../../types/models';
 import { getStopIcon } from '../../utils/stopIcons';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 
 interface StopLocation {
     latitude: number;
@@ -122,10 +123,15 @@ export default function ActiveTourMap({ currentStop, previousStop, onNavigate }:
                 )}
             </MapView>
 
-            <TouchableOpacity style={[styles.navigateButton, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]} onPress={onNavigate}>
+            <AnimatedPressable
+                style={[styles.navigateButton, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
+                onPress={onNavigate}
+                interactionScale="subtle"
+                haptic="selection"
+            >
                 <PaperAirplaneIcon size={20} color={theme.primary} />
                 <Text style={[styles.navigateText, { color: theme.primary }]}>{t('navigate')}</Text>
-            </TouchableOpacity>
+            </AnimatedPressable>
         </View>
     );
 }

@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AnimatedButton } from '../components/common/AnimatedButton';
 import Confetti from '../components/activeTourScreen/animations/Confetti';
 import AppHeader from '../components/Header';
 import Podium from '../components/tourCompleted/Podium';
@@ -102,13 +103,13 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                 )}
 
                 <View style={styles.actionsContainer}>
-                    <TouchableOpacity
-                        style={[styles.writeReviewButton, { backgroundColor: theme.primary, shadowColor: theme.primary }]}
+                    <AnimatedButton
+                        title={t('writeReview')}
                         onPress={() => setShowReviewForm(true)}
-                    >
-                        <Ionicons name="star-outline" size={20} color={theme.fixedWhite} style={{ marginRight: 8 }} />
-                        <Text style={[styles.writeReviewText, { color: theme.fixedWhite }]}>{t('writeReview')}</Text>
-                    </TouchableOpacity>
+                        icon="star"
+                        variant="primary"
+                        style={{ marginBottom: 16 }}
+                    />
 
                     <ReviewForm
                         visible={showReviewForm}
@@ -118,13 +119,12 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                         tourName={activeTour.tour?.title}
                     />
 
-                    <TouchableOpacity
-                        style={[styles.homeButton, { backgroundColor: theme.bgSecondary }]}
+                    <AnimatedButton
+                        title={t('backToHome')}
                         onPress={handleBackToHome}
-                    >
-                        <Text style={[styles.homeButtonText, { color: theme.textPrimary }]}>{t('backToHome')}</Text>
-                        <Ionicons name="chevron-forward" size={20} color={theme.textPrimary} />
-                    </TouchableOpacity>
+                        icon="chevron-forward"
+                        variant="secondary"
+                    />
                 </View>
 
             </ScrollView>

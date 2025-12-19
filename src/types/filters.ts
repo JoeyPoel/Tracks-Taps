@@ -14,4 +14,6 @@ export interface TourFilters {
     difficulty?: Difficulty;
     sortBy?: SortOption;
     sortOrder?: SortOrder;
+    page?: number;
+    limit?: number;
 }

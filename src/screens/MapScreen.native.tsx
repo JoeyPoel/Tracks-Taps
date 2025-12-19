@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AnimatedPressable } from '../components/common/AnimatedPressable';
 import MapTourCard from '../components/mapScreen/MapTourCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -97,7 +98,7 @@ export default function MapScreen() {
       </MapView>
 
       {selectedTour && (
-        <TouchableOpacity
+        <AnimatedPressable
           style={[
             styles.backButton,
             {
@@ -107,10 +108,11 @@ export default function MapScreen() {
             }
           ]}
           onPress={handleBack}
+          interactionScale="subtle"
         >
           <Ionicons name="arrow-back" size={24} color={theme.primary} />
           <Text style={[styles.backText, { color: theme.primary }]}>{t('backToAllTours')}</Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       )}
 
       {selectedTour && (
@@ -121,8 +123,10 @@ export default function MapScreen() {
             distance={`${(selectedTour as any).distance} km`}
             duration={`${(selectedTour as any).duration} min`}
             stops={(selectedTour as any).stops?.length || 0}
-            rating={(selectedTour as any).rating || 0}
-            reviewCount={(selectedTour as any).reviewCount || 0}
+            rating={selectedTour.reviews && selectedTour.reviews.length > 0
+              ? selectedTour.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / selectedTour.reviews.length
+              : 0}
+            reviewCount={selectedTour.reviews?.length || 0}
             points={(selectedTour as any).points || 0}
             onPress={() => {
               router.push(`/tour/${selectedTour.id}`);

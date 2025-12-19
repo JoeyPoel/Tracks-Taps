@@ -2,7 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AnimatedButton } from '../components/common/AnimatedButton';
 import AppHeader from '../components/Header';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -114,15 +115,13 @@ export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: nu
                             </View>
                         </View>
 
-                        <TouchableOpacity style={styles.viewResultsButton} onPress={handleViewResults}>
-                            <LinearGradient
-                                colors={[theme.primary, theme.primaryHover]}
-                                style={styles.buttonGradient}
-                            >
-                                <Text style={[styles.buttonText, { color: theme.fixedWhite }]}>{t('viewResults')}</Text>
-                                <Ionicons name="chevron-forward" size={20} color={theme.fixedWhite} />
-                            </LinearGradient>
-                        </TouchableOpacity>
+                        <AnimatedButton
+                            title={t('viewResults')}
+                            onPress={handleViewResults}
+                            icon="chevron-forward"
+                            variant="primary"
+                            style={styles.viewResultsButton}
+                        />
 
                         <Text style={[styles.autoRedirectText, { color: theme.textSecondary }]}>
                             {t('autoResults')}

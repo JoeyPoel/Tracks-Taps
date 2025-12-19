@@ -1,7 +1,8 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import React, { ReactNode } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { ChevronRightIcon } from 'react-native-heroicons/outline';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 
 interface SettingsItemProps {
   icon: ReactNode;
@@ -14,9 +15,11 @@ export default function SettingsItem({ icon, title, subtitle, onPress }: Setting
   const { theme, mode } = useTheme();
 
   return (
-    <TouchableOpacity
+    <AnimatedPressable
       style={[styles.itemContainer, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
       onPress={onPress}
+      interactionScale="subtle"
+      haptic="selection"
     >
       <View style={[styles.iconWrapper, { backgroundColor: mode === 'dark' ? theme.bgTertiary : theme.bgPrimary }]}>
         {icon}
@@ -26,7 +29,7 @@ export default function SettingsItem({ icon, title, subtitle, onPress }: Setting
         {subtitle && <Text style={[styles.subtitle, { color: theme.textSecondary }]}>{subtitle}</Text>}
       </View>
       <ChevronRightIcon size={20} color={theme.iconMuted} />
-    </TouchableOpacity>
+    </AnimatedPressable>
   );
 }
 

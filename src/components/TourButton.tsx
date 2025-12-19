@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { AnimatedPressable } from './common/AnimatedPressable';
 
 interface StartTourButtonProps {
     onPress: () => void;
@@ -15,21 +16,25 @@ export default function StartTourButton({ onPress, buttonText, disabled, style }
     const { theme } = useTheme();
 
     return (
-        <View style={[styles.container, style]}>
-            <TouchableOpacity onPress={onPress} activeOpacity={0.8} disabled={disabled}>
-                <LinearGradient
-                    colors={[theme.fixedGradientFrom, theme.fixedGradientTo]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={[styles.button, { opacity: disabled ? 0.7 : 1 }]}
-                >
-                    <Ionicons name="play" size={20} color={theme.fixedWhite} />
-                    <Text style={[styles.buttonText, { color: theme.fixedWhite }]}>
-                        {buttonText}
-                    </Text>
-                </LinearGradient>
-            </TouchableOpacity>
-        </View>
+        <AnimatedPressable
+            onPress={onPress}
+            disabled={disabled}
+            style={[styles.container, style]}
+            interactionScale="medium"
+            haptic="medium"
+        >
+            <LinearGradient
+                colors={[theme.fixedGradientFrom, theme.fixedGradientTo]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[styles.button, { opacity: disabled ? 0.7 : 1 }]}
+            >
+                <Ionicons name="play" size={20} color={theme.fixedWhite} />
+                <Text style={[styles.buttonText, { color: theme.fixedWhite }]}>
+                    {buttonText}
+                </Text>
+            </LinearGradient>
+        </AnimatedPressable>
     );
 }
 

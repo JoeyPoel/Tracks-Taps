@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import {
     BoltIcon,
     CameraIcon,
@@ -13,6 +13,7 @@ import {
 } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 
 export type ChallengeType = 'location' | 'trivia' | 'camera' | 'picture' | 'true_false' | 'dare' | 'riddle';
 
@@ -121,19 +122,25 @@ export default function ActiveChallengeCard({
                     <Text style={[styles.completedText, { color: theme.danger }]}>{t('challengeFailed')}</Text>
                 </View>
             ) : (
-                <TouchableOpacity
-                    style={[
-                        styles.button,
-                        { backgroundColor: getIconColor() },
-                        disabled && { backgroundColor: theme.textSecondary, opacity: 0.5 }
-                    ]}
+
+                <AnimatedPressable
+                    style={
+                        [
+                            styles.button,
+                            { backgroundColor: getIconColor() },
+                            disabled && { backgroundColor: theme.textSecondary, opacity: 0.5 }
+                        ]
+                    }
                     onPress={onPress}
                     disabled={disabled}
+                    interactionScale="medium"
+                    haptic="light"
                 >
                     <Text style={[styles.buttonText, { color: theme.fixedWhite }]}>{actionLabel}</Text>
-                </TouchableOpacity>
-            )}
-        </LinearGradient>
+                </AnimatedPressable >
+            )
+            }
+        </LinearGradient >
     );
 }
 

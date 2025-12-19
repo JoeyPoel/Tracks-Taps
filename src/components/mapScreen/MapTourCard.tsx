@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 
 interface MapTourCardProps {
     title: string;
@@ -31,7 +32,7 @@ export default function MapTourCard({
     const { t } = useLanguage();
 
     return (
-        <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={{ width: '100%' }}>
+        <AnimatedPressable onPress={onPress} style={{ width: '100%' }} interactionScale="medium" haptic="light">
             <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
                 <View style={styles.content}>
                     <Text style={[styles.title, { color: theme.textPrimary }]} numberOfLines={1}>{title}</Text>
@@ -72,7 +73,7 @@ export default function MapTourCard({
                     </View>
                 </View>
             </View>
-        </TouchableOpacity>
+        </AnimatedPressable>
     );
 }
 

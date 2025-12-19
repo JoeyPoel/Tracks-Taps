@@ -1,9 +1,11 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { BoltIcon, ClockIcon, MapIcon, MapPinIcon, StarIcon } from 'react-native-heroicons/outline';
+import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { ClockIcon, MapIcon, MapPinIcon } from 'react-native-heroicons/outline';
+import { BoltIcon as BoltIconSolid, StarIcon as StarIconSolid } from 'react-native-heroicons/solid';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 
 interface TourCardProps {
   title: string;
@@ -38,75 +40,73 @@ export default function TourCard({
   const { t } = useLanguage();
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
-      <View style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
-        <ImageBackground source={{ uri: imageUrl }} style={styles.imageBackground}>
-          <LinearGradient
-            colors={['transparent', theme.overlay]}
-            style={styles.gradient}
-          >
-            {difficulty && (
-              <View style={[styles.difficultyBadge, { backgroundColor: theme.bgSecondary }]}>
-                <Text style={[styles.difficultyText, { color: theme.textPrimary }]}>
-                  {difficulty}
-                </Text>
-              </View>
-            )}
-
-            {modes.length > 0 && (
-              <View style={styles.modesContainer}>
-                {modes.map((mode, index) => (
-                  <View key={index} style={[styles.modeTag, { backgroundColor: theme.secondary }]}>
-                    <Text style={[styles.modeText, { color: theme.textOnSecondary }]}>
-                      {mode}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            )}
-          </LinearGradient>
-        </ImageBackground>
-
-        <View style={styles.content}>
-          <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
-          <Text style={[styles.author, { color: theme.textSecondary }]}>{t('by')} {author}</Text>
-
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <MapIcon size={16} color={theme.textSecondary} />
-              <Text style={[styles.statText, { color: theme.textSecondary }]}>{distance}</Text>
+    <AnimatedPressable onPress={onPress} style={[styles.card, { backgroundColor: theme.bgSecondary }]} interactionScale="subtle">
+      <ImageBackground source={{ uri: imageUrl }} style={styles.imageBackground}>
+        <LinearGradient
+          colors={['transparent', theme.overlay]}
+          style={styles.gradient}
+        >
+          {difficulty && (
+            <View style={[styles.difficultyBadge, { backgroundColor: theme.bgSecondary }]}>
+              <Text style={[styles.difficultyText, { color: theme.textPrimary }]}>
+                {difficulty}
+              </Text>
             </View>
+          )}
 
-            <View style={styles.statItem}>
-              <ClockIcon size={16} color={theme.textSecondary} />
-              <Text style={[styles.statText, { color: theme.textSecondary }]}>{duration}</Text>
+          {modes.length > 0 && (
+            <View style={styles.modesContainer}>
+              {modes.map((mode, index) => (
+                <View key={index} style={[styles.modeTag, { backgroundColor: theme.secondary }]}>
+                  <Text style={[styles.modeText, { color: theme.textOnSecondary }]}>
+                    {mode}
+                  </Text>
+                </View>
+              ))}
             </View>
+          )}
+        </LinearGradient>
+      </ImageBackground>
 
-            <View style={styles.statItem}>
-              <MapPinIcon size={16} color={theme.textSecondary} />
-              <Text style={[styles.statText, { color: theme.textSecondary }]}>{stops} {t('stops')}</Text>
-            </View>
+      <View style={styles.content}>
+        <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
+        <Text style={[styles.author, { color: theme.textSecondary }]}>{t('by')} {author}</Text>
+
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <MapIcon size={16} color={theme.textSecondary} />
+            <Text style={[styles.statText, { color: theme.textSecondary }]}>{distance}</Text>
           </View>
 
-          <View style={styles.footer}>
-            <View style={styles.ratingContainer}>
-              <StarIcon size={18} color={theme.starColor} />
-              <Text style={[styles.ratingText, { color: theme.textPrimary }]}>
-                {rating.toFixed(1)}
-              </Text>
-              <Text style={[styles.reviewCount, { color: theme.textSecondary }]}>
-                ({reviewCount})
-              </Text>
-            </View>
+          <View style={styles.statItem}>
+            <ClockIcon size={16} color={theme.textSecondary} />
+            <Text style={[styles.statText, { color: theme.textSecondary }]}>{duration}</Text>
+          </View>
 
-            <View style={styles.pointsContainer}>
-              <BoltIcon size={18} color={theme.primary} />
-              <Text style={[styles.pointsText, { color: theme.primary }]}>{points} {t('pts')}</Text>
-            </View>
+          <View style={styles.statItem}>
+            <MapPinIcon size={16} color={theme.textSecondary} />
+            <Text style={[styles.statText, { color: theme.textSecondary }]}>{stops} {t('stops')}</Text>
+          </View>
+        </View>
+
+        <View style={styles.footer}>
+          <View style={styles.ratingContainer}>
+            <StarIconSolid size={18} color={theme.starColor} />
+            <Text style={[styles.ratingText, { color: theme.textPrimary }]}>
+              {rating.toFixed(1)}
+            </Text>
+            <Text style={[styles.reviewCount, { color: theme.textSecondary }]}>
+              ({reviewCount})
+            </Text>
+          </View>
+
+          <View style={styles.pointsContainer}>
+            <BoltIconSolid size={18} color={theme.primary} />
+            <Text style={[styles.pointsText, { color: theme.primary }]}>{points} {t('pts')}</Text>
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </AnimatedPressable>
   );
 }
 

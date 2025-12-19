@@ -1,11 +1,12 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { ChevronDownIcon, ChevronUpIcon, ExclamationCircleIcon, FireIcon, FlagIcon, TrophyIcon } from 'react-native-heroicons/outline';
 import { BoltIcon } from 'react-native-heroicons/solid';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
 import { PUB_GOLF_LEGEND_DATA } from '../../../utils/pubGolfUtils';
+import { AnimatedPressable } from '../../common/AnimatedPressable';
 
 interface PubGolfScoreCardProps {
     totalSips: number;
@@ -62,10 +63,11 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
                 </View>
             </View>
 
-            <TouchableOpacity
+            <AnimatedPressable
                 style={[styles.toggleButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
                 onPress={() => setIsRulesOpen(!isRulesOpen)}
-                activeOpacity={0.7}
+                interactionScale="subtle"
+                haptic="light"
             >
                 <Text style={[styles.toggleButtonText, { color: theme.fixedWhite }]}>
                     {t('viewRulesAndScoring') || "View Rules & Scoring"}
@@ -75,7 +77,7 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
                 ) : (
                     <ChevronDownIcon size={20} color={theme.fixedWhite} />
                 )}
-            </TouchableOpacity>
+            </AnimatedPressable>
 
             {isRulesOpen && (
                 <View style={[styles.infoContainer, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>

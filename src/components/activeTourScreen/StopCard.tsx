@@ -1,9 +1,9 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Stop } from '../../types/models';
+import { GenericCard } from '../common/GenericCard';
 
 
 export default function StopCard({ stop }: { stop: Stop }) {
@@ -11,14 +11,10 @@ export default function StopCard({ stop }: { stop: Stop }) {
     const { t } = useLanguage();
 
     return (
-        <LinearGradient
-            colors={[
-                `${theme.fixedGradientFrom}22`,
-                `${theme.fixedGradientTo}22`
-            ]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={[styles.container, { borderColor: theme.secondary }]}
+        <GenericCard
+            variant="gradient"
+            gradientColors={[`${theme.fixedGradientFrom}22`, `${theme.fixedGradientTo}22`]}
+            style={[styles.container, { borderColor: theme.secondary, borderWidth: 1 }]}
         >
             <View>
                 <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>
@@ -28,7 +24,7 @@ export default function StopCard({ stop }: { stop: Stop }) {
                     {t('completeAllChallengesToContinue')}
                 </Text>
             </View>
-        </LinearGradient>
+        </GenericCard>
     );
 }
 

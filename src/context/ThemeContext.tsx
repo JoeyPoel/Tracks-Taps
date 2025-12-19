@@ -1,7 +1,6 @@
-import React, {createContext, ReactNode, useContext, useEffect, useState} from 'react';
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { ColorSchemeName, useColorScheme } from "react-native";
 import { darkTheme, lightTheme } from './theme';
-import {ColorSchemeName, useColorScheme} from "react-native";
-import {JSX} from "react/jsx-runtime";
 
 type ThemeMode = "light" | "dark";
 
@@ -19,11 +18,11 @@ const themes = {
 const ThemeContext = createContext<ThemeContextProps>({
     mode: "light",
     theme: lightTheme,
-    toggleTheme: (): void => {},
+    toggleTheme: (): void => { },
 });
 
 
-export const ThemeProvider = ({ children }: { children: ReactNode }): JSX.Element => {
+export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode => {
     const systemScheme: ColorSchemeName = useColorScheme(); // "light" | "dark"
     const [mode, setMode] = useState<ThemeMode>(systemScheme === "dark" ? "dark" : "light");
 

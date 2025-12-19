@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AnimatedButton } from '../components/common/AnimatedButton';
+import { AnimatedPressable } from '../components/common/AnimatedPressable';
+import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { ColorSelector } from '../components/teamSetup/ColorSelector';
 import { EmojiSelector } from '../components/teamSetup/EmojiSelector';
 import { TeamCard } from '../components/teamSetup/TeamCard';
@@ -28,9 +30,9 @@ export default function TeamSetupScreen() {
     } = useTeamSetup();
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+        <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} animateEntry={false}>
             <View style={[styles.header, { borderBottomColor: theme.borderPrimary }]}>
-                <TouchableOpacity
+                <AnimatedPressable
                     onPress={() => {
                         if (router.canGoBack()) {
                             router.back();
@@ -40,9 +42,10 @@ export default function TeamSetupScreen() {
                     }}
                     style={styles.closeButton}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    interactionScale="subtle"
                 >
                     <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
-                </TouchableOpacity>
+                </AnimatedPressable>
                 <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('teamSetup')}</Text>
                 <View style={{ width: 24 }} />
             </View>
@@ -63,17 +66,16 @@ export default function TeamSetupScreen() {
             </ScrollView>
 
             <View style={[styles.footer, { borderTopColor: theme.borderPrimary, backgroundColor: theme.bgPrimary }]}>
-                <TouchableOpacity
-                    style={[styles.createButton, { backgroundColor: theme.primary, opacity: loading ? 0.7 : 1 }]}
+                <AnimatedButton
+                    title={loading ? t('creating') : t('saveTeam')}
                     onPress={() => handleCreateTeam(false)}
+                    loading={loading}
                     disabled={loading}
-                >
-                    <Text style={styles.createButtonText}>
-                        {loading ? t('creating') : t('saveTeam')}
-                    </Text>
-                </TouchableOpacity>
+                    variant="primary"
+                    style={styles.createButton}
+                />
             </View>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 }
 
@@ -93,10 +95,7 @@ const styles = StyleSheet.create({
     backLink: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },
     footer: { padding: 24, borderTopWidth: 1 },
     createButton: {
-        height: 50,
-        borderRadius: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
+        width: '100%',
     },
-    createButtonText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+    // Removed createButtonText as it's handled by AnimatedButton
 });

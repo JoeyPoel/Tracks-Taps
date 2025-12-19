@@ -1,10 +1,11 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useSegments } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, StyleSheet, Text, View } from 'react-native';
 import { LockClosedIcon, XMarkIcon } from 'react-native-heroicons/outline';
 import { useTheme } from '../context/ThemeContext';
 import { authEvents } from '../utils/authEvents';
+import { AnimatedButton } from './common/AnimatedButton';
+import { AnimatedPressable } from './common/AnimatedPressable';
 
 export default function AuthRequiredModal() {
     const [visible, setVisible] = useState(false);
@@ -52,9 +53,9 @@ export default function AuthRequiredModal() {
             <View style={styles.centeredView}>
                 <View style={[styles.backdrop, { backgroundColor: 'rgba(0,0,0,0.5)' }]} />
                 <View style={[styles.modalView, { backgroundColor: theme.bgPrimary }]}>
-                    <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
+                    <AnimatedPressable style={styles.closeButton} onPress={handleClose} interactionScale="subtle" haptic="light">
                         <XMarkIcon size={24} color={theme.textSecondary} />
-                    </TouchableOpacity>
+                    </AnimatedPressable>
 
                     <View style={styles.iconContainer}>
                         <LockClosedIcon size={48} color={theme.primary} />
@@ -68,23 +69,19 @@ export default function AuthRequiredModal() {
                     </Text>
 
                     <View style={styles.buttonContainer}>
-                        <TouchableOpacity onPress={handleLogin} style={styles.fullWidthButton}>
-                            <LinearGradient
-                                colors={[theme.primary, theme.primary]}
-                                style={styles.primaryButton}
-                            >
-                                <Text style={styles.primaryButtonText}>Log In</Text>
-                            </LinearGradient>
-                        </TouchableOpacity>
+                        <AnimatedButton
+                            title="Log In"
+                            onPress={handleLogin}
+                            variant="primary"
+                            style={styles.fullWidthButton}
+                        />
 
-                        <TouchableOpacity
+                        <AnimatedButton
+                            title="Create Account"
                             onPress={handleRegister}
-                            style={[styles.secondaryButton, { borderColor: theme.borderPrimary }]}
-                        >
-                            <Text style={[styles.secondaryButtonText, { color: theme.textPrimary }]}>
-                                Create Account
-                            </Text>
-                        </TouchableOpacity>
+                            variant="outline"
+                            style={styles.fullWidthButton}
+                        />
                     </View>
                 </View>
             </View>

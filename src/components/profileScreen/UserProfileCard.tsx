@@ -1,7 +1,9 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { PencilIcon } from 'react-native-heroicons/outline';
+import { GenericCard } from '../common/GenericCard';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -26,13 +28,13 @@ export default function UserProfileCard({
     const { t } = useLanguage();
 
     return (
-        <View style={styles.cardContainer}>
-            <LinearGradient
-                colors={[theme.bgSecondary, theme.bgTertiary]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.gradient}
-            >
+        <GenericCard
+            style={styles.cardContainer}
+            variant="gradient"
+            gradientColors={[theme.bgSecondary, theme.bgTertiary]}
+            padding="none"
+        >
+            <View style={{ padding: 20 }}>
                 <View style={styles.contentContainer}>
                     <View style={styles.avatarSection}>
                         <View style={styles.avatarContainer}>
@@ -41,12 +43,13 @@ export default function UserProfileCard({
                                 style={[styles.avatar, { borderColor: theme.borderPrimary }]}
                             />
                             {onEditPress && (
-                                <TouchableOpacity
+                                <AnimatedPressable
                                     style={[styles.editButton, { backgroundColor: theme.primary, borderColor: theme.bgSecondary }]}
                                     onPress={onEditPress}
+                                    interactionScale="subtle"
                                 >
                                     <PencilIcon size={14} color={theme.fixedWhite} />
-                                </TouchableOpacity>
+                                </AnimatedPressable>
                             )}
                         </View>
                     </View>
@@ -77,8 +80,8 @@ export default function UserProfileCard({
                         </View>
                     </View>
                 </View>
-            </LinearGradient>
-        </View>
+            </View>
+        </GenericCard>
     );
 }
 

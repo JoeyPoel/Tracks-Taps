@@ -1,9 +1,10 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, StyleSheet, Text, View } from 'react-native';
 import { BoltIcon, FireIcon, StarIcon, XMarkIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
@@ -66,9 +67,9 @@ export default function ActiveTourHeader({
         <View style={[styles.container, { backgroundColor: theme.bgPrimary, borderBottomColor: theme.borderPrimary }]}>
             {/* Row 1: Close + Stats */}
             <View style={styles.topRow}>
-                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                <AnimatedPressable onPress={onClose} style={styles.closeButton} interactionScale="subtle">
                     <XMarkIcon size={24} color={theme.textPrimary} />
-                </TouchableOpacity>
+                </AnimatedPressable>
 
                 <View style={styles.statsContainer}>
                     <View style={[styles.statBadge, { backgroundColor: theme.bgTertiary }]}>

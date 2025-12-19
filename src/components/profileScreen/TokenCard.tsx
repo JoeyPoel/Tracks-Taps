@@ -1,8 +1,9 @@
 import { useLanguage } from '@/src/context/LanguageContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { CircleStackIcon, ShoppingCartIcon, SparklesIcon, UserPlusIcon } from 'react-native-heroicons/outline';
 import { useTheme } from '../../context/ThemeContext';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 
 interface TokenCardProps {
     tokens: number;
@@ -34,15 +35,15 @@ export default function TokenCard({ tokens, onBuyPress, onInvitePress }: TokenCa
                 </View>
 
                 <View style={styles.actions}>
-                    <TouchableOpacity style={styles.button} onPress={onBuyPress}>
+                    <AnimatedPressable style={styles.button} onPress={onBuyPress} interactionScale="subtle" haptic="light">
                         <ShoppingCartIcon size={20} color={theme.fixedWhite} style={styles.buttonIcon} />
                         <Text style={styles.buttonText}>{t('buyTokens')}</Text>
-                    </TouchableOpacity>
+                    </AnimatedPressable>
 
-                    <TouchableOpacity style={styles.button} onPress={onInvitePress}>
+                    <AnimatedPressable style={styles.button} onPress={onInvitePress} interactionScale="subtle" haptic="light">
                         <UserPlusIcon size={20} color={theme.fixedWhite} style={styles.buttonIcon} />
                         <Text style={styles.buttonText}>{t('inviteFriends')}</Text>
-                    </TouchableOpacity>
+                    </AnimatedPressable>
                 </View>
             </LinearGradient>
         </View>

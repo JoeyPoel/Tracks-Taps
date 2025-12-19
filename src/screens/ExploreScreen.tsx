@@ -1,6 +1,6 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { AdjustmentsHorizontalIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
 import ActiveTourCard from '../components/exploreScreen/ActiveTourCard';
 import ExploreFilterSidebar from '../components/exploreScreen/ExploreFilterSidebar';
@@ -9,6 +9,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 import { useStore } from '../store/store';
+import { Tour } from '../types/models';
 
 export default function ExploreScreen() {
   const router = useRouter();
@@ -30,18 +31,20 @@ export default function ExploreScreen() {
   // Debounce search
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      if (searchText !== tourFilters.searchQuery) {
-        setTourFilters({ ...tourFilters, searchQuery: searchText });
+      const query = (searchText || '').trim();
+      if (query !== (tourFilters.searchQuery || '')) {
+        setTourFilters({ ...tourFilters, searchQuery: query, page: 1, limit: 20 });
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [searchText]);
+  }, [searchText, tourFilters]);
 
   useFocusEffect(
     useCallback(() => {
       // Sync local text if filters change externally (e.g. clear filters)
-      if (tourFilters.searchQuery !== undefined && tourFilters.searchQuery !== searchText) {
-        setSearchText(tourFilters.searchQuery);
+      const currentFilterQuery = tourFilters.searchQuery || '';
+      if (currentFilterQuery !== searchText) {
+        setSearchText(currentFilterQuery);
       }
 
       if (user?.id) {
@@ -86,46 +89,58 @@ export default function ExploreScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {activeTour && (() => {
-          const currentTeam = activeTour.teams?.find((t: any) => t.userId === user?.id) || activeTour.teams?.[0];
-          const totalStops = activeTour.tour?._count?.stops || activeTour.tour?.stops?.length || 1;
-          const currentStop = currentTeam?.currentStop || 1;
-          const progress = currentStop / totalStops;
-
-          return (
-            <ActiveTourCard
-              title={activeTour.tour?.title || ''}
-              imageUrl={activeTour.tour?.imageUrl || ''}
-              progress={progress}
-              onResume={() => router.push({ pathname: '/active-tour/[id]' as any, params: { id: activeTour.id } })}
-            />
-          );
-        })()}
-
-        {tours.map((tour) => (
+      <FlatList
+        data={tours}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }: { item: Tour }) => (
           <TourCard
-            key={tour.id}
-            title={tour.title}
-            author={tour.author?.name || 'Unknown'}
-            imageUrl={tour.imageUrl}
-            distance={`${tour.distance} km`}
-            duration={`${tour.duration} min`}
-            stops={tour._count?.stops || 0}
-            rating={tour.reviews && tour.reviews.length > 0
-              ? tour.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / tour.reviews.length
+            title={item.title}
+            author={item.author?.name || 'Unknown'}
+            imageUrl={item.imageUrl}
+            distance={`${item.distance} km`}
+            duration={`${item.duration} min`}
+            stops={item._count?.stops || 0}
+            rating={item.reviews && item.reviews.length > 0
+              ? item.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / item.reviews.length
               : 0}
-            reviewCount={tour.reviews?.length || 0}
-            points={tour.points}
-            modes={tour.modes}
-            difficulty={tour.difficulty}
+            reviewCount={item.reviews?.length || 0}
+            points={item.points}
+            modes={item.modes}
+            difficulty={item.difficulty}
             onPress={async () => {
-              fetchTourDetails(tour.id, tour);
-              router.push({ pathname: '/tour/[id]', params: { id: tour.id } });
+              fetchTourDetails(item.id, item);
+              router.push({ pathname: '/tour/[id]', params: { id: item.id } });
             }}
           />
-        ))}
-      </ScrollView>
+        )}
+        ListHeaderComponent={() => (
+          <>
+            {activeTour && (() => {
+              const currentTeam = activeTour.teams?.find((t: any) => t.userId === user?.id) || activeTour.teams?.[0];
+              const totalStops = activeTour.tour?._count?.stops || activeTour.tour?.stops?.length || 1;
+              const currentStop = currentTeam?.currentStop || 1;
+              const progress = currentStop / totalStops;
+
+              return (
+                <ActiveTourCard
+                  title={activeTour.tour?.title || ''}
+                  imageUrl={activeTour.tour?.imageUrl || ''}
+                  progress={progress}
+                  onResume={() => router.push({ pathname: '/active-tour/[id]' as any, params: { id: activeTour.id } })}
+                />
+              );
+            })()}
+          </>
+        )}
+        contentContainerStyle={styles.scrollContent}
+        onEndReached={() => {
+          if (!loading && tours.length >= (tourFilters.limit || 20)) {
+            setTourFilters({ ...tourFilters, page: (tourFilters.page || 1) + 1 });
+          }
+        }}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={loading ? <ActivityIndicator size="small" color={theme.primary} style={{ marginVertical: 20 }} /> : null}
+      />
 
       <ExploreFilterSidebar
         visible={filterVisible}

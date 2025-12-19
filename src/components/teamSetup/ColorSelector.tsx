@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { CheckIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { TEAM_COLORS } from '../../utils/teamUtils';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 
 interface ColorSelectorProps {
     selectedColor: string;
@@ -19,7 +20,7 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({ selectedColor, onS
             <Text style={[styles.label, { color: theme.textPrimary }]}>{t('teamColor')}</Text>
             <View style={styles.grid}>
                 {TEAM_COLORS.map(color => (
-                    <TouchableOpacity
+                    <AnimatedPressable
                         key={color}
                         style={[
                             styles.option,
@@ -27,11 +28,13 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({ selectedColor, onS
                             selectedColor === color && styles.selectedOption
                         ]}
                         onPress={() => onSelect(color)}
+                        interactionScale="subtle"
+                        haptic="selection"
                     >
                         {selectedColor === color && (
                             <CheckIcon size={24} color="#FFF" />
                         )}
-                    </TouchableOpacity>
+                    </AnimatedPressable>
                 ))}
             </View>
         </View>

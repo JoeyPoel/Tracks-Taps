@@ -1,9 +1,10 @@
 import { usePathname, useRouter } from 'expo-router';
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { ArrowLeftIcon } from 'react-native-heroicons/outline';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
+import { AnimatedPressable } from './common/AnimatedPressable';
 
 interface AppHeaderProps {
   title?: string; // Optional title override
@@ -62,9 +63,9 @@ export default function AppHeader({
       {/* Left side - Back button or empty space */}
       <View style={styles.leftContainer}>
         {showBackButton && (
-          <Pressable onPress={handleBackPress} style={styles.iconButton}>
+          <AnimatedPressable onPress={handleBackPress} style={styles.iconButton} interactionScale="subtle">
             <ArrowLeftIcon size={24} color={theme.textPrimary} />
-          </Pressable>
+          </AnimatedPressable>
         )}
       </View>
 
@@ -83,9 +84,9 @@ export default function AppHeader({
       {/* Right side - Icon button or empty space */}
       <View style={styles.rightContainer}>
         {rightIcon && onRightIconPress && (
-          <Pressable onPress={onRightIconPress} style={styles.iconButton}>
+          <AnimatedPressable onPress={onRightIconPress} style={styles.iconButton} interactionScale="subtle">
             {rightIcon}
-          </Pressable>
+          </AnimatedPressable>
         )}
       </View>
     </View>

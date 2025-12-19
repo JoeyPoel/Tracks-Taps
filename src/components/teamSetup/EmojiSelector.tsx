@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { TEAM_EMOJIS } from '../../utils/teamUtils';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 
 interface EmojiSelectorProps {
     selectedEmoji: string;
@@ -18,7 +19,7 @@ export const EmojiSelector: React.FC<EmojiSelectorProps> = ({ selectedEmoji, onS
             <Text style={[styles.label, { color: theme.textPrimary }]}>{t('teamEmoji')}</Text>
             <View style={styles.grid}>
                 {TEAM_EMOJIS.map(emoji => (
-                    <TouchableOpacity
+                    <AnimatedPressable
                         key={emoji}
                         style={[
                             styles.option,
@@ -26,9 +27,11 @@ export const EmojiSelector: React.FC<EmojiSelectorProps> = ({ selectedEmoji, onS
                             selectedEmoji === emoji && { borderColor: theme.primary, borderWidth: 2 }
                         ]}
                         onPress={() => onSelect(emoji)}
+                        interactionScale="subtle"
+                        haptic="selection"
                     >
                         <Text style={{ fontSize: 24 }}>{emoji}</Text>
-                    </TouchableOpacity>
+                    </AnimatedPressable>
                 ))}
             </View>
         </View>

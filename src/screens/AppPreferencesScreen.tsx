@@ -5,27 +5,37 @@ import { useTheme } from '../context/ThemeContext';
 import { darkTheme } from '../context/theme';
 
 
+import AppHeader from '../components/Header';
+
+import { Stack } from 'expo-router';
+
 export default function AppPreferencesScreen() {
   const { theme, toggleTheme } = useTheme();
   const { t, language, setLanguage } = useLanguage();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
-      <Text style={[styles.header, { color: theme.textPrimary }]}>{t('appPreferences')}</Text>
+      <Stack.Screen options={{ headerShown: false }} />
+      <AppHeader
+        showBackButton
+        title={t('appPreferences')}
+      />
 
-      {/* Dark Mode Toggle */}
-      <View style={styles.preferenceItem}>
-        <Text style={[styles.preferenceText, { color: theme.textPrimary }]}>{t('darkMode')}</Text>
-        <Switch value={theme === darkTheme} onValueChange={toggleTheme} />
-      </View>
+      <View style={styles.content}>
+        {/* Dark Mode Toggle */}
+        <View style={styles.preferenceItem}>
+          <Text style={[styles.preferenceText, { color: theme.textPrimary }]}>{t('darkMode')}</Text>
+          <Switch value={theme === darkTheme} onValueChange={toggleTheme} />
+        </View>
 
-      {/* Language Selection */}
-      <View style={styles.preferenceItem}>
-        <Text style={[styles.preferenceText, { color: theme.textPrimary }]}>{t('language')}</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <Button title="EN" onPress={() => setLanguage('en')} disabled={language === 'en'} />
-          <Button title="ES" onPress={() => setLanguage('es')} disabled={language === 'es'} />
-          <Button title="NL" onPress={() => setLanguage('nl')} disabled={language === 'nl'} />
+        {/* Language Selection */}
+        <View style={styles.preferenceItem}>
+          <Text style={[styles.preferenceText, { color: theme.textPrimary }]}>{t('language')}</Text>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Button title="EN" onPress={() => setLanguage('en')} disabled={language === 'en'} />
+            <Button title="ES" onPress={() => setLanguage('es')} disabled={language === 'es'} />
+            <Button title="NL" onPress={() => setLanguage('nl')} disabled={language === 'nl'} />
+          </View>
         </View>
       </View>
     </View>
@@ -33,8 +43,8 @@ export default function AppPreferencesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24 },
-  header: { fontSize: 22, fontWeight: '700', marginBottom: 16 },
+  container: { flex: 1 },
+  content: { padding: 24 },
   preferenceItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',

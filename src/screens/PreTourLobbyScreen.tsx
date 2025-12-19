@@ -1,15 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, Text, View } from 'react-native';
+import { AnimatedButton } from '../components/common/AnimatedButton';
+import { AnimatedPressable } from '../components/common/AnimatedPressable';
+import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { TeamCard } from '../components/teamSetup/TeamCard';
 import { TourCodeDisplay } from '../components/teamSetup/TourCodeDisplay';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 
-import { activeTourService } from '../services/activeTourService';
+import { usePreTourLobby } from '../hooks/usePreTourLobby';
 
 export default function PreTourLobbyScreen() {
     const { theme } = useTheme();
@@ -19,35 +21,20 @@ export default function PreTourLobbyScreen() {
     const { user } = useUserContext();
     const activeTourId = Number(params.activeTourId);
 
-    const [activeTour, setActiveTour] = React.useState<any>(null);
-    const [userTeam, setUserTeam] = React.useState<any>(null);
+    const { activeTour, userTeam, loadLobbyDetails } = usePreTourLobby(activeTourId, user);
 
     useFocusEffect(
         useCallback(() => {
             if (activeTourId && user) {
                 loadLobbyDetails();
             }
-        }, [activeTourId, user])
+        }, [activeTourId, user, loadLobbyDetails])
     );
 
-    const loadLobbyDetails = async () => {
-        try {
-            const tour = await activeTourService.getActiveTourById(activeTourId);
-            setActiveTour(tour);
-
-            if (tour && tour.teams) {
-                const team = tour.teams.find((t: any) => t.userId === user?.id);
-                setUserTeam(team);
-            }
-        } catch (error) {
-            console.error('Failed to load lobby details', error);
-        }
-    };
-
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+        <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} animateEntry={false}>
             <View style={[styles.header, { borderBottomColor: theme.borderPrimary }]}>
-                <TouchableOpacity
+                <AnimatedPressable
                     onPress={() => {
                         if (router.canGoBack()) {
                             router.back();
@@ -56,9 +43,10 @@ export default function PreTourLobbyScreen() {
                         }
                     }}
                     style={styles.closeButton}
+                    interactionScale="subtle"
                 >
                     <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
-                </TouchableOpacity>
+                </AnimatedPressable>
                 <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>Lobby</Text>
                 <View style={{ width: 24 }} />
             </View>
@@ -84,8 +72,8 @@ export default function PreTourLobbyScreen() {
 
                 <View style={{ flex: 1 }} />
 
-                <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: theme.primary, marginTop: 16 }]}
+                <AnimatedButton
+                    title={(userTeam && userTeam.name) ? (t('editTeam') || "Edit Team") : (t('setupTeam') || "Setup Team")}
                     onPress={() => router.push({
                         pathname: '/team-setup',
                         params: {
@@ -96,28 +84,21 @@ export default function PreTourLobbyScreen() {
                             currentEmoji: userTeam?.emoji
                         }
                     })}
-                >
-                    <Text style={styles.actionButtonText}>{(userTeam && userTeam.name) ? (t('editTeam') || "Edit Team") : (t('setupTeam') || "Setup Team")}</Text>
-                    <Ionicons name="pencil" size={20} color="#FFF" style={{ marginLeft: 8 }} />
-                </TouchableOpacity>
+                    icon="pencil"
+                    variant="primary"
+                    style={{ marginBottom: 16 }}
+                />
 
-                <TouchableOpacity
-                    style={[
-                        styles.actionButton,
-                        {
-                            backgroundColor: theme.secondary,
-                            marginTop: 12,
-                            opacity: (!userTeam || !userTeam.name) ? 0.5 : 1
-                        }
-                    ]}
+                <AnimatedButton
+                    title={t('startTour')}
                     onPress={() => router.push(`/active-tour/${activeTourId}`)}
                     disabled={!userTeam || !userTeam.name}
-                >
-                    <Text style={styles.actionButtonText}>{t('startTour')}</Text>
-                    <Ionicons name="play" size={20} color="#FFF" style={{ marginLeft: 8 }} />
-                </TouchableOpacity>
+                    icon="play"
+                    variant="secondary"
+                    style={{ opacity: (!userTeam || !userTeam.name) ? 0.5 : 1 }}
+                />
             </View>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 }
 
@@ -136,13 +117,5 @@ const styles = StyleSheet.create({
     iconContainer: { alignItems: 'center', marginBottom: 32, marginTop: 20 },
     title: { fontSize: 24, fontWeight: 'bold', marginBottom: 8, marginTop: 16 },
     subtitle: { fontSize: 16, textAlign: 'center' },
-    actionButton: {
-        height: 56,
-        borderRadius: 12,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    actionButtonText: { color: '#FFF', fontSize: 18, fontWeight: '700' },
+    // actionButton/Text styles removed as they are handled by AnimatedButton
 });

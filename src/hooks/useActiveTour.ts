@@ -205,6 +205,56 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         }
     }
 
+    const handleSaveSips = async (stopId: number, sips: number) => {
+        if (!currentTeam) return;
+
+        // Optimistic update via Store
+        const updatedPubGolfStops = currentTeam.pubGolfStops?.map((pg: any) =>
+            pg.stopId === stopId ? { ...pg, sips } : pg
+        ) || [];
+
+        // XP Calculation
+        const stop = activeTour?.tour?.stops?.find((s: any) => s.id === stopId);
+        if (stop && stop.pubgolfPar) {
+            const par = stop.pubgolfPar;
+            const existingEntry = currentTeam.pubGolfStops?.find((pg: any) => pg.stopId === stopId);
+            const oldSips = existingEntry ? existingEntry.sips : 0;
+
+            const oldXP = (oldSips && oldSips > 0) ? (getScoreDetails(par, oldSips)?.recommendedXP || 0) : 0;
+            const newXP = (sips && sips > 0) ? (getScoreDetails(par, sips)?.recommendedXP || 0) : 0;
+
+            const diff = newXP - oldXP;
+            if (diff !== 0 && onXpEarned) {
+                onXpEarned(diff);
+                if (diff > 0) {
+                    setFloatingPointsAmount(diff);
+                    setShowFloatingPoints(true);
+                }
+            }
+        }
+
+        // If not found, add it? (Logic implies it exists from seed, but strictly might need to create)
+        if (!updatedPubGolfStops.find((pg: any) => pg.stopId === stopId)) {
+            updatedPubGolfStops.push({ stopId, sips, teamId: currentTeam.id });
+        }
+
+        const updatedTeam = { ...currentTeam, pubGolfStops: updatedPubGolfStops };
+        const previousTeams = activeTour?.teams || [];
+
+        updateActiveTourLocal({ teams: [updatedTeam] });
+
+        if (userId) {
+            try {
+                // FIRE AND FORGET
+                await activeTourService.updatePubGolfScore(activeTourId, stopId, sips, userId);
+            } catch (error) {
+                console.error("Failed to save sips:", error);
+                // Revert
+                updateActiveTourLocal({ teams: previousTeams });
+            }
+        }
+    };
+
     const handleFinishTour = async (): Promise<boolean> => {
         if (!userId) return false;
         try {
@@ -244,6 +294,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         points,
         updateActiveTourLocal,
         currentTeam,
-        setFloatingPointsAmount
+        setFloatingPointsAmount,
+        handleSaveSips
     };
 };

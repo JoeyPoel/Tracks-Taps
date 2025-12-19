@@ -2,8 +2,10 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { useExploreFilterSidebar } from '@/src/hooks/useExploreFilterSidebar';
 import { Difficulty } from '@/src/types/models';
 import React from 'react';
-import { Animated, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Animated, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon, StopIcon, XMarkIcon } from 'react-native-heroicons/outline';
+import { AnimatedButton } from '../common/AnimatedButton';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 
 interface FilterSidebarProps {
     visible: boolean;
@@ -22,7 +24,7 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({ title, expanded, on
     const { theme } = useTheme();
     return (
         <View style={{ borderBottomWidth: 1, borderBottomColor: theme.borderPrimary }}>
-            <TouchableOpacity onPress={onToggle} style={styles.accordionHeader}>
+            <AnimatedPressable onPress={onToggle} style={styles.accordionHeader} interactionScale="subtle" haptic="selection">
                 <Text style={[styles.accordionTitle, { color: theme.textPrimary }]}>{title.toUpperCase()}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     {selectedValue && (
@@ -35,7 +37,7 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({ title, expanded, on
                         <ChevronDownIcon size={20} color={theme.textPrimary} />
                     }
                 </View>
-            </TouchableOpacity>
+            </AnimatedPressable>
             {expanded && <View style={styles.accordionContent}>{children}</View>}
         </View>
     );
@@ -64,23 +66,23 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
     } = useExploreFilterSidebar(visible, onClose);
 
     const ModeOption = ({ label, selected, onPress }: { label: string, selected: boolean, onPress: () => void }) => (
-        <TouchableOpacity style={styles.optionRow} onPress={onPress}>
+        <AnimatedPressable style={styles.optionRow} onPress={onPress} interactionScale="subtle" haptic="light">
             <Text style={[styles.optionText, { color: theme.textPrimary, fontWeight: selected ? 'bold' : 'normal' }]}>{label}</Text>
             {selected ? <CheckIcon size={20} color={theme.primary} /> : <StopIcon size={20} color={theme.textPrimary} />}
-        </TouchableOpacity>
+        </AnimatedPressable>
     );
 
     const RadioOption = ({ label, selected, onPress }: { label: string, selected: boolean, onPress: () => void }) => (
-        <TouchableOpacity style={styles.optionRow} onPress={onPress}>
+        <AnimatedPressable style={styles.optionRow} onPress={onPress} interactionScale="subtle" haptic="light">
             <Text style={[styles.optionText, { color: theme.textPrimary, fontWeight: selected ? 'bold' : 'normal' }]}>{label}</Text>
             {selected && <CheckIcon size={20} color={theme.primary} />}
-        </TouchableOpacity>
+        </AnimatedPressable>
     );
 
     return (
         <Modal transparent visible={visible} onRequestClose={handleClose} animationType="none">
             <View style={styles.overlay}>
-                <TouchableOpacity style={styles.backdrop} onPress={handleClose} activeOpacity={1} />
+                <Pressable style={styles.backdrop} onPress={handleClose} />
 
                 <Animated.View style={[
                     styles.sidebar,
@@ -92,9 +94,9 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                 ]}>
                     <View style={styles.header}>
                         <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>Filters</Text>
-                        <TouchableOpacity onPress={handleClose}>
+                        <AnimatedPressable onPress={handleClose} interactionScale="subtle" haptic="light">
                             <XMarkIcon size={24} color={theme.textPrimary} />
-                        </TouchableOpacity>
+                        </AnimatedPressable>
                     </View>
 
                     <ScrollView style={styles.content}>
@@ -228,16 +230,18 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                     </ScrollView>
 
                     <View style={[styles.footer, { borderTopColor: theme.borderPrimary }]}>
-                        <TouchableOpacity
-                            style={[styles.applyButton, { backgroundColor: theme.primary }]}
+                        <AnimatedButton
+                            title="Apply Filters"
                             onPress={handleApply}
-                        >
-                            <Text style={[styles.applyButtonText, { color: '#fff' }]}>Apply Filters</Text>
-                        </TouchableOpacity>
+                            style={styles.applyButton}
+                        />
 
-                        <TouchableOpacity style={[styles.clearButton, { borderColor: theme.borderPrimary }]} onPress={handleClear}>
-                            <Text style={[styles.clearButtonText, { color: theme.textSecondary }]}>Clear Filters</Text>
-                        </TouchableOpacity>
+                        <AnimatedButton
+                            title="Clear Filters"
+                            onPress={handleClear}
+                            variant="outline"
+                            style={styles.clearButton}
+                        />
                     </View>
                 </Animated.View>
             </View>
@@ -258,9 +262,9 @@ const styles = StyleSheet.create({
     optionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 20 },
     optionText: { fontSize: 14 },
     footer: { padding: 20, borderTopWidth: 1 },
-    applyButton: { padding: 15, alignItems: 'center', marginBottom: 10, borderRadius: 8 },
+    applyButton: { padding: 10, alignItems: 'center', marginBottom: 10, borderRadius: 8 },
     applyButtonText: { fontWeight: 'bold', fontSize: 16 },
-    clearButton: { padding: 15, alignItems: 'center', borderWidth: 1, borderRadius: 8 },
+    clearButton: { padding: 10, alignItems: 'center', borderWidth: 1, borderRadius: 8 },
     clearButtonText: { fontSize: 14, fontWeight: '600' },
     rangeContainer: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 10 },
     rangeInputWrapper: { flex: 1, marginHorizontal: 5 },

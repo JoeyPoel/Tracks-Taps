@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { ActivityIndicator, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, Modal, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { AnimatedButton } from '../common/AnimatedButton';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 
 interface ReviewFormProps {
     visible: boolean;
@@ -54,9 +56,9 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
         >
             <View style={[styles.modalOverlay, { backgroundColor: theme.overlay }]}>
                 <View style={[styles.modalContent, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
-                    <TouchableOpacity style={styles.closeIcon} onPress={onClose}>
+                    <AnimatedPressable style={styles.closeIcon} onPress={onClose} interactionScale="subtle" haptic="light">
                         <Ionicons name="close" size={24} color={theme.textSecondary} />
-                    </TouchableOpacity>
+                    </AnimatedPressable>
 
                     <Text style={[styles.title, { color: theme.textPrimary }]}>Rate Your Experience</Text>
                     <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
@@ -65,14 +67,14 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
 
                     <View style={styles.starsContainer}>
                         {[1, 2, 3, 4, 5].map((star) => (
-                            <TouchableOpacity key={star} onPress={() => setRating(star)}>
+                            <AnimatedPressable key={star} onPress={() => setRating(star)} interactionScale="medium" haptic="selection">
                                 <Ionicons
                                     name={star <= rating ? "star" : "star-outline"}
                                     size={40}
                                     color={theme.starColor}
                                     style={{ marginHorizontal: 6 }}
                                 />
-                            </TouchableOpacity>
+                            </AnimatedPressable>
                         ))}
                     </View>
 
@@ -87,51 +89,49 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                         textAlignVertical="top"
                     />
 
-                    <TouchableOpacity
+                    <AnimatedPressable
                         style={[styles.addPhotoButton, { backgroundColor: theme.bgTertiary, borderColor: theme.borderSecondary }]}
                         onPress={handleAddMockPhoto}
+                        interactionScale="subtle"
+                        haptic="light"
                     >
                         <Ionicons name="camera-outline" size={20} color={theme.textPrimary} style={{ marginRight: 8 }} />
                         <Text style={[styles.addPhotoText, { color: theme.textPrimary }]}>{t('takePhoto')}</Text>
                         <Text style={[styles.photoCount, { color: theme.textSecondary }]}>{photos.length}/5</Text>
-                    </TouchableOpacity>
+                    </AnimatedPressable>
 
                     <View style={styles.photoGrid}>
                         {photos.map((uri, index) => (
                             <View key={index} style={styles.photoItem}>
                                 <Image source={{ uri }} style={styles.photo} />
-                                <TouchableOpacity
+                                <AnimatedPressable
                                     style={[styles.deletePhotoBtn, { borderColor: theme.bgSecondary }]}
                                     onPress={() => removePhoto(index)}
+                                    interactionScale="subtle"
+                                    haptic="warning"
                                 >
                                     <Ionicons name="close" size={12} color="#fff" />
-                                </TouchableOpacity>
+                                </AnimatedPressable>
                             </View>
                         ))}
                     </View>
 
                     <View style={styles.footer}>
-                        <TouchableOpacity
-                            style={[styles.cancelButton, { backgroundColor: theme.bgDisabled }]}
+                        <AnimatedButton
+                            title={t('cancel')}
                             onPress={onClose}
-                        >
-                            <Text style={[styles.cancelButtonText, { color: theme.textPrimary }]}>{t('cancel')}</Text>
-                        </TouchableOpacity>
+                            variant="secondary"
+                            style={styles.cancelButton}
+                        />
 
-                        <TouchableOpacity
-                            style={[
-                                styles.submitButton,
-                                { backgroundColor: theme.primary, opacity: (rating === 0 || submitting) ? 0.6 : 1 }
-                            ]}
+                        <AnimatedButton
+                            title={t('submitReview')}
                             onPress={handlePress}
+                            variant="primary"
+                            loading={submitting}
                             disabled={rating === 0 || submitting}
-                        >
-                            {submitting ? (
-                                <ActivityIndicator color={theme.textOnPrimary} />
-                            ) : (
-                                <Text style={[styles.submitButtonText, { color: theme.textOnPrimary }]}>{t('submitReview')}</Text>
-                            )}
-                        </TouchableOpacity>
+                            style={styles.submitButton}
+                        />
                     </View>
                 </View>
             </View>
@@ -231,23 +231,16 @@ const styles = StyleSheet.create({
     },
     footer: {
         flexDirection: 'row',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         gap: 12,
+        marginTop: 16,
     },
     cancelButton: {
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        borderRadius: 8,
-    },
-    cancelButtonText: {
-        fontWeight: '600',
+        flex: 1,
+        height: 48,
     },
     submitButton: {
-        paddingVertical: 12,
-        paddingHorizontal: 24,
-        borderRadius: 8,
-    },
-    submitButtonText: {
-        fontWeight: 'bold',
+        flex: 1,
+        height: 48,
     },
 });

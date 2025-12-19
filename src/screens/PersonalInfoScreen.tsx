@@ -18,7 +18,8 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { ArrowLeftIcon, CameraIcon } from 'react-native-heroicons/outline';
+import { CameraIcon } from 'react-native-heroicons/outline';
+import AppHeader from '../components/Header';
 
 export default function PersonalInfoScreen() {
     const { theme } = useTheme();
@@ -112,14 +113,10 @@ export default function PersonalInfoScreen() {
         >
             <Stack.Screen options={{ headerShown: false }} />
 
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                    <ArrowLeftIcon size={24} color={theme.textPrimary} />
-                </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('personalInfo')}</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <AppHeader
+                showBackButton
+                title={t('personalInfo')}
+            />
 
             <ScrollView contentContainerStyle={styles.content}>
 
@@ -226,17 +223,6 @@ export default function PersonalInfoScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingTop: 60,
-        paddingBottom: 20,
-    },
-    backButton: {
-        padding: 8,
     },
     headerTitle: {
         fontSize: 20,

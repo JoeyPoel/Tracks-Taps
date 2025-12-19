@@ -1,6 +1,8 @@
-import { useRouter } from 'expo-router';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { ShareIcon, UserGroupIcon } from 'react-native-heroicons/outline';
+import { Stack, useRouter } from 'expo-router';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { UserGroupIcon } from 'react-native-heroicons/outline';
+import { AnimatedPressable } from '../components/common/AnimatedPressable';
+import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import AppHeader from '../components/Header';
 import StartTourButton from '../components/TourButton';
 import TourAbout from '../components/tourdetailScreen/TourAbout';
@@ -46,7 +48,8 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+    <ScreenWrapper withScrollView style={{ backgroundColor: theme.bgPrimary, paddingTop: 0 }} animateEntry={false}>
+      <Stack.Screen options={{ headerShown: false }} />
       <AppHeader
         showBackButton
         onBackPress={() => {
@@ -56,73 +59,67 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             router.replace('/');
           }
         }}
-        rightIcon={<ShareIcon size={24} color={theme.textPrimary} />}
-        onRightIconPress={() => {
-          // Implement share functionality later
-          console.log('Share button pressed');
-        }}
       />
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <TourHeader
-          title={tour.title}
-          author={tour.author?.name || 'Unknown'}
-          imageUrl={tour.imageUrl}
-        />
+      <TourHeader
+        title={tour.title}
+        author={tour.author?.name || 'Unknown'}
+        imageUrl={tour.imageUrl}
+      />
 
-        <TourStats
-          distance={`${tour.distance} km`}
-          duration={`${tour.duration} min`}
-          stops={tour.stops?.length || tour._count?.stops || 0}
-          points={tour.points}
-        />
+      <TourStats
+        distance={`${tour.distance} km`}
+        duration={`${tour.duration} min`}
+        stops={tour.stops?.length || tour._count?.stops || 0}
+        points={tour.points}
+      />
 
-        <TourAbout
-          description={tour.description}
-        />
+      <TourAbout
+        description={tour.description}
+      />
 
-        <StartTourButton
-          onPress={() => startTour(false, false)}
-          buttonText={loadingMode === 'solo' ? "Starting..." : t('startTour')}
+      <StartTourButton
+        onPress={() => startTour(false, false)}
+        buttonText={loadingMode === 'solo' ? "Starting..." : t('startTour')}
+        disabled={loadingMode !== null}
+        style={{ paddingHorizontal: 24, paddingVertical: 16 }}
+      />
+
+      <View style={{ paddingHorizontal: 24, marginBottom: 16 }}>
+        <AnimatedPressable
+          style={{
+            backgroundColor: theme.bgSecondary,
+            borderWidth: 1,
+            borderColor: theme.borderPrimary,
+            borderRadius: 12,
+            paddingVertical: 16,
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            opacity: loadingMode !== null ? 0.7 : 1
+          }}
+          onPress={() => startTour(false, true)}
           disabled={loadingMode !== null}
-          style={{ paddingHorizontal: 24, paddingVertical: 16 }}
-        />
+          interactionScale="medium"
+        >
+          <UserGroupIcon size={20} color={theme.primary} style={{ marginRight: 8 }} />
+          <Text style={{ color: theme.textPrimary, fontSize: 16, fontWeight: 'bold' }}>
+            {loadingMode === 'lobby' ? "Starting..." : "Play With Friends"}
+          </Text>
+        </AnimatedPressable>
+      </View>
 
-        <View style={{ paddingHorizontal: 24, marginBottom: 16 }}>
-          <TouchableOpacity
-            style={{
-              backgroundColor: theme.bgSecondary,
-              borderWidth: 1,
-              borderColor: theme.borderPrimary,
-              borderRadius: 12,
-              paddingVertical: 16,
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-              opacity: loadingMode !== null ? 0.7 : 1
-            }}
-            onPress={() => startTour(false, true)}
-            disabled={loadingMode !== null}
-          >
-            <UserGroupIcon size={20} color={theme.primary} style={{ marginRight: 8 }} />
-            <Text style={{ color: theme.textPrimary, fontSize: 16, fontWeight: 'bold' }}>
-              {loadingMode === 'lobby' ? "Starting..." : "Play With Friends"}
-            </Text>
-          </TouchableOpacity>
-        </View>
+      <TourGameModes
+        modes={tour.modes}
+        challengesCount={tour.challenges.length || 0}
+        stopsCount={tour.stops.length || 0}
+      />
 
-        <TourGameModes
-          modes={tour.modes}
-          challengesCount={tour.challenges.length || 0}
-          stopsCount={tour.stops.length || 0}
-        />
-
-        <TourReviews
-          reviews={formattedReviews}
-          averageRating={averageRating}
-          totalReviews={reviewCount}
-        />
-      </ScrollView>
-    </View>
+      <TourReviews
+        reviews={formattedReviews}
+        averageRating={averageRating}
+        totalReviews={reviewCount}
+      />
+    </ScreenWrapper>
   );
 }
 

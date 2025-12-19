@@ -6,6 +6,9 @@ export const tourController = {
             const url = new URL(request.url);
             const searchParams = url.searchParams;
 
+            console.log('DEBUG: TourController request URL:', request.url);
+            console.log('DEBUG: searchParams:', Object.fromEntries(searchParams.entries()));
+
             const filters: any = {
                 searchQuery: searchParams.get('searchQuery') || undefined,
                 location: searchParams.get('location') || undefined,

@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 
 interface TourCodeDisplayProps {
     code: string;
@@ -37,12 +38,14 @@ export const TourCodeDisplay = ({ code }: TourCodeDisplayProps) => {
                     <Text style={[styles.codeText, { color: theme.accent }]}>{displayCode}</Text>
                 </View>
 
-                <TouchableOpacity
+                <AnimatedPressable
                     style={[styles.copyButton, { backgroundColor: theme.accent }]}
                     onPress={handleCopy}
+                    interactionScale="subtle"
+                    haptic="light"
                 >
                     <Ionicons name="copy-outline" size={24} color={theme.accentText} />
-                </TouchableOpacity>
+                </AnimatedPressable>
             </View>
         </View>
     );

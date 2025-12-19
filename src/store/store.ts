@@ -60,11 +60,17 @@ export const useStore = create<StoreState>((set, get) => ({
     errorTours: null,
 
     fetchTours: async () => {
+        const { tourFilters, tours } = get();
+        // If appending, don't set global loadingTours (maybe add a loadingMore state? For now, we use loadingTours)
         set({ loadingTours: true, errorTours: null });
         try {
-            const tours = await tourService.getAllTours(get().tourFilters);
-            if (Array.isArray(tours)) {
-                set({ tours, loadingTours: false });
+            const newTours = await tourService.getAllTours(tourFilters);
+            if (Array.isArray(newTours)) {
+                if (tourFilters.page && tourFilters.page > 1) {
+                    set({ tours: [...tours, ...newTours], loadingTours: false });
+                } else {
+                    set({ tours: newTours, loadingTours: false });
+                }
             } else {
                 throw new Error('Invalid response format');
             }

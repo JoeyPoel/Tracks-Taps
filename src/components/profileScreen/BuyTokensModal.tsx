@@ -1,10 +1,11 @@
 import { useLanguage } from '@/src/context/LanguageContext';
 import React from 'react';
-import { Animated, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Dimensions, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { CircleStackIcon, GiftIcon, XMarkIcon } from 'react-native-heroicons/outline';
 import client from '../../api/apiClient';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserContext } from '../../context/UserContext';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 
 interface BuyTokensModalProps {
     visible: boolean;
@@ -100,9 +101,9 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                             <CircleStackIcon size={24} color={theme.accent} />
                             <Text style={[styles.title, { color: theme.textPrimary }]}>{t('buyTokens')}</Text>
                         </View>
-                        <TouchableOpacity onPress={handleClose}>
+                        <AnimatedPressable onPress={handleClose} interactionScale="subtle" haptic="light">
                             <XMarkIcon size={24} color={theme.textSecondary} />
-                        </TouchableOpacity>
+                        </AnimatedPressable>
                     </View>
 
                     <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
@@ -115,7 +116,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                             const pricePerToken = (pkg.price / totalTokens).toFixed(2);
 
                             return (
-                                <TouchableOpacity
+                                <AnimatedPressable
                                     key={index}
                                     style={[
                                         styles.packageCard,
@@ -125,6 +126,8 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                                     ]}
                                     onPress={() => handleBuy(pkg)}
                                     disabled={isLoading}
+                                    interactionScale="medium"
+                                    haptic="selection"
                                 >
                                     {pkg.popular && (
                                         <View style={[styles.popularBadge, { backgroundColor: theme.danger }]}>
@@ -157,7 +160,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                                             €{pricePerToken}/token
                                         </Text>
                                     </View>
-                                </TouchableOpacity>
+                                </AnimatedPressable>
                             );
                         })}
                     </ScrollView>

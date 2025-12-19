@@ -38,6 +38,14 @@ Tracks-Taps/
 
 ---
 
+## 🎨 UI & UX System
+
+### **Animations & Haptics**
+We use a centralized system for interactions to ensuring a premium feel.
+- **Components**: `AnimatedPressable`, `AnimatedButton`.
+- **System**: See [ANIMATION_SYSTEM.md](./ANIMATION_SYSTEM.md) for details on spring configs and haptic patterns.
+- **Rule**: Avoid raw `TouchableOpacity` or `Pressable`. Use the animated components to maintain consistency.
+
 ## 🚀 Deployment (Web & API)
 
 We deploy to **Vercel** to host both the Web SPA and the API.

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
+import { AnimatedPressable } from '../../common/AnimatedPressable';
 import ActiveChallengeCard from '../ActiveChallengeCard';
 
 import { Challenge } from '../../../types/models';
@@ -84,7 +85,7 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
                         }
 
                         return (
-                            <TouchableOpacity
+                            <AnimatedPressable
                                 key={option}
                                 style={[
                                     styles.optionButton,
@@ -92,11 +93,13 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
                                 ]}
                                 onPress={() => handleSelect(option)}
                                 disabled={isDone}
+                                interactionScale="subtle"
+                                haptic="selection"
                             >
                                 <Text style={[styles.optionText, { color: textColor }]}>
                                     {option === 'true' ? (t('true') || "True") : (t('false') || "False")}
                                 </Text>
-                            </TouchableOpacity>
+                            </AnimatedPressable>
                         );
                     })}
                 </View>
