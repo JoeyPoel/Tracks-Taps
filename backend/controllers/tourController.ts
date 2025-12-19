@@ -19,6 +19,8 @@ export const tourController = {
                 difficulty: searchParams.get('difficulty') || undefined,
                 sortBy: searchParams.get('sortBy') || undefined,
                 sortOrder: searchParams.get('sortOrder') || undefined,
+                page: searchParams.get('page') ? Number(searchParams.get('page')) : 1,
+                limit: searchParams.get('limit') ? Number(searchParams.get('limit')) : 20,
             };
 
             const modes = searchParams.getAll('modes[]');

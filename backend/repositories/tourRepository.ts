@@ -8,11 +8,16 @@ export const tourRepository = {
         const where: Prisma.TourWhereInput = {};
 
         if (filters.searchQuery) {
-            where.OR = [
-                { title: { contains: filters.searchQuery, mode: 'insensitive' } },
-                { description: { contains: filters.searchQuery, mode: 'insensitive' } },
-                { location: { contains: filters.searchQuery, mode: 'insensitive' } }
-            ];
+            const terms = filters.searchQuery.trim().split(/\s+/);
+            if (terms.length > 0) {
+                where.AND = terms.map(term => ({
+                    OR: [
+                        { title: { contains: term, mode: 'insensitive' } },
+                        { description: { contains: term, mode: 'insensitive' } },
+                        { location: { contains: term, mode: 'insensitive' } }
+                    ]
+                }));
+            }
         }
 
         if (filters.location) {
@@ -56,9 +61,15 @@ export const tourRepository = {
             orderBy.createdAt = 'desc';
         }
 
+        const page = filters.page && filters.page > 0 ? filters.page : 1;
+        const limit = filters.limit && filters.limit > 0 ? filters.limit : 20;
+        const skip = (page - 1) * limit;
+
         return await prisma.tour.findMany({
             where,
             orderBy,
+            skip,
+            take: limit,
             include: {
                 author: {
                     select: { name: true },
