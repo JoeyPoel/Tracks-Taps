@@ -117,16 +117,16 @@ async function main() {
         }
     };
 
-    // --- TOUR 1: Tata Steel Industrial Safari ---
+    // --- TOUR 1: Tata Steel Industrial Safari (Expanded) ---
     const tataTour = await prisma.tour.create({
         data: {
             title: 'Tata Steel Industrial Safari',
             location: 'IJmuiden',
-            description: 'Explore the massive industrial landscape of Tata Steel. Discover the raw power of steel production, the history of the Hoogovens, and the complex relationship between industry and nature.',
-            imageUrl: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80', // Reliable Industrial Image
-            distance: 12.5,
-            duration: 90, // Driving/Biking
-            points: 1200,
+            description: 'A deep dive into the massive industrial landscape. From blast furnaces to the North Sea dunes, this tour reveals the raw power and surprising nature of the Steelworks.',
+            imageUrl: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80',
+            distance: 14.5,
+            duration: 120, // Driving/Biking
+            points: 1600,
             modes: ['DRIVING', 'BIKING'],
             difficulty: Difficulty.HARD,
             authorId: alice.id,
@@ -138,7 +138,7 @@ async function main() {
     const tataStops = [
         {
             name: 'Main Gate & Hoogovens Museum',
-            description: 'The historic entrance to the steelworks. Start here to learn about the origins of the Royal Blast Furnaces.',
+            description: 'The historic entrance. Start here to learn about the origins of the Royal Blast Furnaces.',
             order: 1,
             number: 1,
             lat: 52.4690,
@@ -147,7 +147,7 @@ async function main() {
             challenges: [
                 {
                     title: 'Blast from the Past',
-                    description: 'Look at the historic photos outside the museum.',
+                    description: 'Look at the historic photos.',
                     type: ChallengeType.TRIVIA,
                     points: 100,
                     content: 'In what year was the "Koninklijke Hoogovens" founded?',
@@ -155,18 +155,38 @@ async function main() {
                     answer: '1918',
                 },
                 {
-                    title: 'Gatekeeper',
-                    description: 'Check in at the main gate reception.',
+                    title: 'Check-in',
+                    description: 'Verify your arrival.',
                     type: ChallengeType.LOCATION,
                     points: 50,
                 }
             ]
         },
         {
-            name: 'Blast Furnace 7',
-            description: 'The heart of the operation. This massive structure converts iron ore into liquid iron.',
+            name: 'Blast Furnace 6 View',
+            description: 'A safe viewing spot for one of the older furnaces, often emitting steam.',
             order: 2,
             number: 2,
+            lat: 52.4670,
+            lng: 4.5900,
+            type: StopType.Facilities,
+            challenges: [
+                {
+                    title: 'Steam Watch',
+                    description: 'Count the steam vents.',
+                    type: ChallengeType.TRIVIA,
+                    points: 75,
+                    content: 'How many major steam vents can you see on this unit?',
+                    options: ['2', '4', '6', '8'],
+                    answer: '4',
+                }
+            ]
+        },
+        {
+            name: 'Blast Furnace 7',
+            description: 'The heart of the operation. This massive structure converts iron ore into liquid iron.',
+            order: 3,
+            number: 3,
             lat: 52.4655,
             lng: 4.5800,
             type: StopType.Facilities,
@@ -185,8 +205,8 @@ async function main() {
         {
             name: 'Coking Plant Viewpoint',
             description: 'Watch the "quenching" towers release massive clouds of steam as coke is cooled.',
-            order: 3,
-            number: 3,
+            order: 4,
+            number: 4,
             lat: 52.4720,
             lng: 4.5750,
             type: StopType.Viewpoint,
@@ -202,7 +222,7 @@ async function main() {
                     description: 'What is "Coke" used for?',
                     type: ChallengeType.TRIVIA,
                     points: 120,
-                    content: 'Why is coal converted into coke for steelmaking?',
+                    content: 'Why is coal converted into coke?',
                     options: ['To burn hotter', 'To remove impurities', 'To make it liquid', 'To add carbon'],
                     answer: 'To burn hotter',
                 }
@@ -210,9 +230,9 @@ async function main() {
         },
         {
             name: 'North Sea Canal Harbor',
-            description: 'Where raw materials arrive from all over the world. Massive cranes unload iron ore and coal.',
-            order: 4,
-            number: 4,
+            description: 'Where raw materials arrive from all over the world. Massive cranes unload iron ore.',
+            order: 5,
+            number: 5,
             lat: 52.4630,
             lng: 4.5600,
             type: StopType.Viewpoint,
@@ -229,28 +249,66 @@ async function main() {
             ]
         },
         {
-            name: 'Dunes & Industry',
-            description: 'The edge where the factory meets the protected dune reserve.',
-            order: 5,
-            number: 5,
-            lat: 52.4850,
-            lng: 4.5900,
+            name: 'Rolling Mills Exterior',
+            description: 'The incredibly long buildings where steel slabs are rolled into thin sheets.',
+            order: 6,
+            number: 6,
+            lat: 52.4600,
+            lng: 4.5700,
+            type: StopType.Facilities,
+            challenges: [
+                {
+                    title: 'Length Estimation',
+                    description: 'Estimate the building length.',
+                    type: ChallengeType.TRIVIA,
+                    points: 80,
+                    content: 'Approx. how long is the Hot Strip Mill?',
+                    options: ['500m', '800m', '1.2km', '2km'],
+                    answer: '800m',
+                }
+            ]
+        },
+        {
+            name: 'Reyndersweg Beach',
+            description: 'A surreal view where the industry meets the sea and surfers.',
+            order: 7,
+            number: 7,
+            lat: 52.4750,
+            lng: 4.5500,
             type: StopType.Nature_Park,
             challenges: [
                 {
-                    title: 'Nature\'s Resilience',
-                    description: 'Find the walking path entrance.',
+                    title: 'Contrast Photo',
+                    description: 'Capture the beach and factory.',
+                    type: ChallengeType.PICTURE,
+                    points: 150,
+                    content: 'Take a photo showing both the sand/sea and the industrial skyline.',
+                }
+            ]
+        },
+        {
+            name: 'Wijk aan Zee Bunkers',
+            description: 'Remnants of the Atlantic Wall hidden in the dunes near the steelworks.',
+            order: 8,
+            number: 8,
+            lat: 52.4800,
+            lng: 4.5850,
+            type: StopType.Monument_Landmark,
+            challenges: [
+                {
+                    title: 'Bunker Hunt',
+                    description: 'Find a bunker entrance.',
                     type: ChallengeType.LOCATION,
-                    points: 60,
+                    points: 100,
                 },
                 {
-                    title: 'Environmental Balance',
-                    description: 'Observation challenge.',
+                    title: 'History Buff',
+                    description: 'WWII Trivia.',
                     type: ChallengeType.TRIVIA,
                     points: 90,
-                    content: 'What type of specialized filter system is visible on the newer stacks?',
-                    options: ['De-NOx', 'Scrubbers', 'Cyclones', 'Electrostatic'],
-                    answer: 'De-NOx',
+                    content: 'Which line of defense were these bunkers part of?',
+                    options: ['Maginot Line', 'Atlantic Wall', 'Siegfried Line', 'Dutch Water Line'],
+                    answer: 'Atlantic Wall',
                 }
             ]
         }
@@ -260,136 +318,581 @@ async function main() {
     await createReviews(tataTour.id);
 
 
-    // --- TOUR 2: Historic Utrecht Canals & Secrets ---
-    const utrechtTour = await prisma.tour.create({
+    // --- TOUR 2: Barcelona: Gaudi's Dream ---
+    const bcnGaudiTour = await prisma.tour.create({
         data: {
-            title: 'Historic Utrecht Canals',
-            location: 'Utrecht',
-            description: 'Wander along the Oudegracht and discover hidden courtyards, ancient wharf cellars, and the secrets of the Dom City.',
-            imageUrl: 'https://images.unsplash.com/photo-1667053312990-c17655704190?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-            distance: 4.5,
-            duration: 120,
-            points: 600,
-            modes: ['WALKING'],
+            title: 'Barcelona: Gaudi\'s Dream',
+            location: 'Barcelona',
+            description: 'Immerse yourself in the whimsical and organic world of Antoni Gaudi. Visit his most iconic masterpieces.',
+            imageUrl: 'https://images.unsplash.com/photo-1543783207-9273e96ad03f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60', // Sagrada Familia / Gaudi
+            distance: 6.5,
+            duration: 180,
+            points: 1400,
+            modes: ['WALKING', 'TRANSIT'],
             difficulty: Difficulty.MEDIUM,
             authorId: bob.id,
-            startLat: 52.0907,
-            startLng: 5.1214,
+            startLat: 41.4036,
+            startLng: 2.1744,
         },
     });
 
-    const utrechtStops = [
+    const bcnGaudiStops = [
         {
-            name: 'Dom Tower Underpass',
-            description: 'The portal to the city center. Walk through the archway of the tallest church tower.',
+            name: 'La Sagrada Familia',
+            description: 'Gaudi\'s incomplete magnum opus. A basilica like no other.',
             order: 1,
             number: 1,
-            lat: 52.0907,
-            lng: 5.1214,
+            lat: 41.4036,
+            lng: 2.1744,
             type: StopType.Monument_Landmark,
             challenges: [
                 {
-                    title: 'Height Check',
-                    description: 'Look up!',
+                    title: 'Facade Details',
+                    description: 'Find the turtle.',
                     type: ChallengeType.TRIVIA,
-                    points: 50,
-                    content: 'How many steps does it take to climb to the top?',
-                    options: ['465', '395', '512', '280'],
-                    answer: '465',
+                    points: 100,
+                    content: 'There is a turtle at the base of a column. Which facade is it on?',
+                    options: ['Nativity', 'Passion', 'Glory', 'West'],
+                    answer: 'Nativity',
+                },
+                {
+                    title: 'Selfie with Glory',
+                    description: 'Take a photo with the church.',
+                    type: ChallengeType.PICTURE,
+                    points: 100,
+                    content: 'Capture the sheer scale of the spires.',
                 }
             ]
         },
         {
-            name: 'Pandhof of the Dom',
-            description: 'A hidden medieval monastery garden with beautiful flora and gothic architecture.',
+            name: 'Hospital de Sant Pau',
+            description: 'Not Gaudi, but majestic Modernisme by Domènech i Montaner nearby.',
             order: 2,
             number: 2,
-            lat: 52.0910,
-            lng: 5.1225,
+            lat: 41.4115,
+            lng: 2.1750,
+            type: StopType.Museum_Art,
+            challenges: [
+                {
+                    title: 'The Tunnels',
+                    description: 'Walk towards the entrance.',
+                    type: ChallengeType.LOCATION,
+                    points: 60,
+                }
+            ]
+        },
+        {
+            name: 'Park Güell Entrance',
+            description: 'First, admire the gingerbread-style gatehouses.',
+            order: 3,
+            number: 3,
+            lat: 41.4145,
+            lng: 2.1527,
             type: StopType.Nature_Park,
             challenges: [
                 {
-                    title: 'Secret Garden',
-                    description: 'Find the fountain in the center.',
-                    type: ChallengeType.LOCATION,
-                    points: 75,
-                },
-                {
-                    title: 'Gargoyle Spotting',
-                    description: 'Look at the roof gutters.',
+                    title: 'Fairy Tale House',
+                    description: 'Look at the roofs.',
                     type: ChallengeType.TRIVIA,
                     points: 80,
-                    content: 'What statue sits atop the fountain?',
-                    options: ['Hugo Wstinc', 'Saint Martin', 'Dom Canon', 'A Bishop'],
-                    answer: 'Hugo Wstinc',
+                    content: 'What covers the roofs of the gatehouses?',
+                    options: ['Trencadís Tiles', 'Thatch', 'Slate', 'Copper'],
+                    answer: 'Trencadís Tiles',
                 }
             ]
         },
         {
-            name: 'Oudegracht Wharf Cellars',
-            description: 'Walk down to the water. These cellars were medieval warehouses.',
-            order: 3,
-            number: 3,
-            lat: 52.0930,
-            lng: 5.1180,
-            type: StopType.Viewpoint,
+            name: 'The Dragon Stairway',
+            description: 'Meet "El Drac", the famous mosaic salamander.',
+            order: 4,
+            number: 4,
+            lat: 41.4150,
+            lng: 2.1520,
+            type: StopType.Monument_Landmark,
             challenges: [
                 {
-                    title: 'Water Level',
-                    description: 'Touch the water (carefully!).',
+                    title: 'Dragon Tamer',
+                    description: 'Get close to the dragon.',
+                    type: ChallengeType.LOCATION,
+                    points: 150,
+                }
+            ]
+        },
+        {
+            name: 'Casa Vicens',
+            description: 'Gaudi\'s first major house, showcasing Moorish influences.',
+            order: 5,
+            number: 5,
+            lat: 41.4035,
+            lng: 2.1506,
+            type: StopType.Museum_Art,
+            challenges: [
+                {
+                    title: 'Flower Power',
+                    description: 'Examine the tiles.',
+                    type: ChallengeType.TRIVIA,
+                    points: 70,
+                    content: 'What yellow flower features prominently on the tiles?',
+                    options: ['Marigold', 'Sunflower', 'Rose', 'Tulip'],
+                    answer: 'Marigold',
+                }
+            ]
+        },
+        {
+            name: 'Casa Milà (La Pedrera)',
+            description: 'The stone quarry house with iconic chimneys.',
+            order: 6,
+            number: 6,
+            lat: 41.3954,
+            lng: 2.1620,
+            type: StopType.Monument_Landmark,
+            challenges: [
+                {
+                    title: 'Chimney Soldiers',
+                    description: 'Look up at the roof.',
+                    type: ChallengeType.LOCATION,
+                    points: 80,
+                }
+            ]
+        },
+        {
+            name: 'Casa Batlló',
+            description: 'The House of Bones. A colorful, skeletal masterpiece.',
+            order: 7,
+            number: 7,
+            lat: 41.3917,
+            lng: 2.1649,
+            type: StopType.Museum_Art,
+            challenges: [
+                {
+                    title: 'Dragon Sword',
+                    description: 'Spot the cross on top.',
+                    type: ChallengeType.TRIVIA,
+                    points: 90,
+                    content: 'The roof represents the back of a dragon. What does the tower with the cross represent?',
+                    options: ['St. George\'s Lance', 'A Tree', 'A Bone', 'A Flag'],
+                    answer: 'St. George\'s Lance',
+                }
+            ]
+        },
+        {
+            name: 'Cascada Monumental',
+            description: 'A grand fountain in Ciutadella park where a young Gaudi assisted.',
+            order: 8,
+            number: 8,
+            lat: 41.3888,
+            lng: 2.1865,
+            type: StopType.Nature_Park,
+            challenges: [
+                {
+                    title: 'Golden Chariot',
+                    description: 'Find the top statue.',
+                    type: ChallengeType.LOCATION,
+                    points: 100,
+                }
+            ]
+        }
+    ];
+
+    await createStopsAndChallenges(bcnGaudiTour.id, bcnGaudiStops);
+    await createReviews(bcnGaudiTour.id);
+
+
+    // --- TOUR 3: Barcelona: Gothic & Tapas ---
+    const bcnTapasTour = await prisma.tour.create({
+        data: {
+            title: 'Barcelona: Gothic & Tapas',
+            location: 'Barcelona',
+            description: 'Wander the narrow medieval streets of the Gothic Quarter and stop for delicious tapas along the way.',
+            imageUrl: 'https://images.unsplash.com/photo-1511537632536-b7a727ccf78e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60', // Tapas / Food
+            distance: 4.0,
+            duration: 150,
+            points: 1100,
+            modes: ['WALKING'],
+            difficulty: Difficulty.EASY,
+            authorId: joey.id,
+            startLat: 41.3833,
+            startLng: 2.1750,
+        },
+    });
+
+    const bcnTapasStops = [
+        {
+            name: 'Barcelona Cathedral',
+            description: 'The heart of the Gothic quarter. Gothic splendor at its finest.',
+            order: 1,
+            number: 1,
+            lat: 41.3840,
+            lng: 2.1762,
+            type: StopType.Monument_Landmark,
+            challenges: [
+                {
+                    title: 'Geese Guardian',
+                    description: 'Enter the cloister.',
+                    type: ChallengeType.TRIVIA,
+                    points: 75,
+                    content: 'How many white geese live in the cathedral cloister?',
+                    options: ['13', '7', '10', '12'],
+                    answer: '13',
+                }
+            ]
+        },
+        {
+            name: 'Plaça del Rei',
+            description: 'A medieval square surrounded by the Royal Palace.',
+            order: 2,
+            number: 2,
+            lat: 41.3841,
+            lng: 2.1775,
+            type: StopType.Monument_Landmark,
+            challenges: [
+                {
+                    title: 'Royal Steps',
+                    description: 'Stand on the stairs.',
+                    type: ChallengeType.LOCATION,
+                    points: 50,
+                }
+            ]
+        },
+        {
+            name: 'El Xampanyet',
+            description: 'A legendary tapas bar famous for its Cava and anchovies.',
+            order: 3,
+            number: 3,
+            lat: 41.3850,
+            lng: 2.1818,
+            type: StopType.Food_Dining,
+            challenges: [
+                {
+                    title: 'Sparkling Toast',
+                    description: 'Try the house drink.',
+                    type: ChallengeType.TRIVIA,
+                    points: 100,
+                    content: 'What type of drink is "Xampanyet"?',
+                    options: ['Sparkling Wine/Cava', 'Red Wine', 'Beer', 'Vermouth'],
+                    answer: 'Sparkling Wine/Cava',
+                }
+            ]
+        },
+        {
+            name: 'Santa Maria del Mar',
+            description: 'The people\'s cathedral, built by sailors and porters.',
+            order: 4,
+            number: 4,
+            lat: 41.3845,
+            lng: 2.1820,
+            type: StopType.Monument_Landmark,
+            challenges: [
+                {
+                    title: 'Porter\'s Strength',
+                    description: 'Look at the main doors.',
+                    type: ChallengeType.LOCATION,
+                    points: 60,
+                },
+                {
+                    title: 'Book Fame',
+                    description: 'Literature check.',
+                    type: ChallengeType.TRIVIA,
+                    points: 80,
+                    content: 'Which famous novel is set around the building of this church?',
+                    options: ['Cathedral of the Sea', 'Shadow of the Wind', 'Pillars of the Earth', 'Angels & Demons'],
+                    answer: 'Cathedral of the Sea',
+                }
+            ]
+        },
+        {
+            name: 'Mercat de Santa Caterina',
+            description: 'A colorful market with a waving mosaic roof.',
+            order: 5,
+            number: 5,
+            lat: 41.3860,
+            lng: 2.1780,
+            type: StopType.Food_Dining,
+            challenges: [
+                {
+                    title: 'Roof Rainbow',
+                    description: 'Look at the roof (if visible) or architecture.',
+                    type: ChallengeType.LOCATION,
+                    points: 50,
+                }
+            ]
+        },
+        {
+            name: 'Els Quatre Gats',
+            description: 'A historic cafe where Picasso held his first exhibition.',
+            order: 6,
+            number: 6,
+            lat: 41.3858,
+            lng: 2.1735,
+            type: StopType.Coffee_Drink,
+            challenges: [
+                {
+                    title: 'Artistic Spirit',
+                    description: 'Soak up the history.',
+                    type: ChallengeType.TRIVIA,
+                    points: 90,
+                    content: 'Which artist designed the menu cover for this cafe?',
+                    options: ['Picasso', 'Dali', 'Miro', 'Gaudi'],
+                    answer: 'Picasso',
+                }
+            ]
+        },
+        {
+            name: 'Plaça de Sant Jaume',
+            description: 'The political center of Barcelona since Roman times.',
+            order: 7,
+            number: 7,
+            lat: 41.3828,
+            lng: 2.1770,
+            type: StopType.Monument_Landmark,
+            challenges: [
+                {
+                    title: 'Power Center',
+                    description: 'Identify the buildings.',
                     type: ChallengeType.LOCATION,
                     points: 40,
                 }
             ]
         },
         {
-            name: 'Museum Speelklok',
-            description: 'The most musical museum in the world, dedicated to self-playing instruments.',
-            order: 4,
-            number: 4,
-            lat: 52.0915,
-            lng: 5.1160,
-            type: StopType.Museum_Art,
+            name: 'Can Culleretes',
+            description: 'The oldest restaurant in Barcelona, dating back to 1786.',
+            order: 8,
+            number: 8,
+            lat: 41.3810,
+            lng: 2.1748,
+            type: StopType.Food_Dining,
             challenges: [
                 {
-                    title: 'Street Organ Power',
-                    description: 'Listen for the music.',
+                    title: 'Historical Feast',
+                    description: 'Find the date on the sign.',
                     type: ChallengeType.TRIVIA,
-                    points: 100,
-                    content: 'What is the "Perlee" famous for?',
-                    options: ['Street Organs', 'Carillons', 'Music Boxes', 'Pianos'],
-                    answer: 'Street Organs',
+                    points: 120,
+                    content: 'What year was this restaurant established?',
+                    options: ['1786', '1850', '1900', '1650'],
+                    answer: '1786',
                 }
             ]
         }
     ];
 
-    await createStopsAndChallenges(utrechtTour.id, utrechtStops);
-    await createReviews(utrechtTour.id);
+    await createStopsAndChallenges(bcnTapasTour.id, bcnTapasStops);
+    await createReviews(bcnTapasTour.id);
 
 
-    // --- TOUR 3: Amsterdam Architectural Gems ---
+    // --- TOUR 4: Warsaw: Phoenix City ---
+    const warsawTour = await prisma.tour.create({
+        data: {
+            title: 'Warsaw: Phoenix City',
+            location: 'Warsaw',
+            description: 'Discover the resilience of Warsaw. A journey through the reconstructed Old Town and historic landmarks reborn from ashes.',
+            imageUrl: 'https://images.unsplash.com/photo-1519197924294-8ba99162e184?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60', // Warsaw Old Town
+            distance: 5.5,
+            duration: 140,
+            points: 1250,
+            modes: ['WALKING'],
+            difficulty: Difficulty.MEDIUM,
+            authorId: alice.id,
+            startLat: 52.2475,
+            startLng: 21.0135,
+        },
+    });
+
+    const warsawStops = [
+        {
+            name: 'Sigismund\'s Column',
+            description: 'The meeting point of Warsaw, standing tall in Castle Square.',
+            order: 1,
+            number: 1,
+            lat: 52.2475,
+            lng: 21.0135,
+            type: StopType.Monument_Landmark,
+            challenges: [
+                {
+                    title: 'King of Heights',
+                    description: 'Look at the statue.',
+                    type: ChallengeType.TRIVIA,
+                    points: 60,
+                    content: 'What is King Sigismund holding?',
+                    options: ['Cross and Sword', 'Orb and Scepter', 'Sword and Shield', 'Book'],
+                    answer: 'Cross and Sword',
+                }
+            ]
+        },
+        {
+            name: 'Royal Castle',
+            description: 'The symbol of Polish statehood, beautifully reconstructed.',
+            order: 2,
+            number: 2,
+            lat: 52.2480,
+            lng: 21.0150,
+            type: StopType.Museum_Art,
+            challenges: [
+                {
+                    title: 'Castle Clock',
+                    description: 'Check the main tower.',
+                    type: ChallengeType.LOCATION,
+                    points: 50,
+                }
+            ]
+        },
+        {
+            name: 'Old Town Market Place',
+            description: 'The vibrant heart of the Old Town with the Mermaid statue.',
+            order: 3,
+            number: 3,
+            lat: 52.2497,
+            lng: 21.0122,
+            type: StopType.Monument_Landmark,
+            challenges: [
+                {
+                    title: 'Warrior Maid',
+                    description: 'Find the Mermaid statue.',
+                    type: ChallengeType.TRIVIA,
+                    points: 80,
+                    content: 'What is the Warsaw Mermaid holding?',
+                    options: ['Sword and Shield', 'Trident', 'Fishing Net', 'Harp'],
+                    answer: 'Sword and Shield',
+                },
+                {
+                    title: 'Market Selfie',
+                    description: 'Photo with a colorful house.',
+                    type: ChallengeType.PICTURE,
+                    points: 100,
+                    content: 'Capture the colorful facades of the market square.',
+                }
+            ]
+        },
+        {
+            name: 'Warsaw Barbican',
+            description: 'The fortified outpost between the Old and New Towns.',
+            order: 4,
+            number: 4,
+            lat: 52.2515,
+            lng: 21.0105,
+            type: StopType.Monument_Landmark,
+            challenges: [
+                {
+                    title: 'Wall Walk',
+                    description: 'Touch the red bricks.',
+                    type: ChallengeType.LOCATION,
+                    points: 60,
+                }
+            ]
+        },
+        {
+            name: 'Warsaw Uprising Monument',
+            description: 'A powerful tribute to the heroes of 1944.',
+            order: 5,
+            number: 5,
+            lat: 52.2493,
+            lng: 21.0065,
+            type: StopType.Monument_Landmark,
+            challenges: [
+                {
+                    title: 'Descending Soldiers',
+                    description: 'Observe the figures.',
+                    type: ChallengeType.TRIVIA,
+                    points: 100,
+                    content: 'Where are the soldiers in the sculpture descending into?',
+                    options: ['The Sewers', 'A Bunker', 'A Trench', 'The River'],
+                    answer: 'The Sewers',
+                }
+            ]
+        },
+        {
+            name: 'Chopin Bench',
+            description: 'Sit and listen to Chopin\'s music on Krakowskie Przedmieście.',
+            order: 6,
+            number: 6,
+            lat: 52.2435,
+            lng: 21.0160,
+            type: StopType.Monument_Landmark,
+            challenges: [
+                {
+                    title: 'Musical Rest',
+                    description: 'Press the button.',
+                    type: ChallengeType.LOCATION,
+                    points: 70,
+                }
+            ]
+        },
+        {
+            name: 'Holy Cross Church',
+            description: 'Where Chopin\'s heart is preserved.',
+            order: 7,
+            number: 7,
+            lat: 52.2390,
+            lng: 21.0175,
+            type: StopType.Mono,
+            challenges: [
+                {
+                    title: 'Heart of the Matter',
+                    description: 'Find the pillar.',
+                    type: ChallengeType.TRIVIA,
+                    points: 120,
+                    content: 'Whose heart is entombed in a pillar here?',
+                    options: ['Frederic Chopin', 'Marie Curie', 'Copernicus', 'John Paul II'],
+                    answer: 'Frederic Chopin',
+                }
+            ]
+        },
+        {
+            name: 'Palace of Culture and Science',
+            description: 'The controversial yet iconic Stalinist skyscraper.',
+            order: 8,
+            number: 8,
+            lat: 52.2317,
+            lng: 21.0060,
+            type: StopType.Viewpoint,
+            challenges: [
+                {
+                    title: 'The Gift',
+                    description: 'Look up at the spire.',
+                    type: ChallengeType.TRIVIA,
+                    points: 90,
+                    content: 'Who originally "gifted" this building to Poland?',
+                    options: ['Soviet Union', 'USA', 'Germany', 'France'],
+                    answer: 'Soviet Union',
+                },
+                {
+                    title: 'Tallest Tale',
+                    description: 'Verify the height.',
+                    type: ChallengeType.TRUE_FALSE,
+                    points: 50,
+                    content: 'Is this the tallest building in Poland?',
+                    answer: 'false', // Varso Tower is taller now
+                }
+            ]
+        }
+    ];
+
+    await createStopsAndChallenges(warsawTour.id, warsawStops);
+    await createReviews(warsawTour.id);
+
+
+    // --- TOUR 5: Amsterdam Canals & Culture (Expanded) ---
     const amsterdamTour = await prisma.tour.create({
         data: {
-            title: 'Amsterdam Architectural Gems',
+            title: 'Amsterdam Canals & Culture',
             location: 'Amsterdam',
-            description: 'Go beyond the Red Light District and explore the diverse architecture of Amsterdam, from the Golden Age to the Amsterdam School.',
-            imageUrl: 'https://images.unsplash.com/photo-1536880756060-98a6a140f0a7?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-            distance: 6.0,
-            duration: 150,
-            points: 750,
+            description: 'Go beyond the Red Light District and explore the diverse architecture, hidden gems, and new icons of Amsterdam.',
+            imageUrl: 'https://images.unsplash.com/photo-1542456209-411a5cc692c8?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60', // Amsterdam Canal
+            distance: 7.5,
+            duration: 180,
+            points: 1300,
             modes: ['WALKING', 'BIKING'],
             difficulty: Difficulty.EASY,
             authorId: alice.id,
-            startLat: 52.3600,
-            startLng: 4.8852,
+            startLat: 52.3890,
+            startLng: 4.8690,
         },
     });
 
     const amsStops = [
         {
             name: 'Het Schip',
-            description: 'A masterpiece of the Amsterdam School of architecture. It looks like a ship!',
+            description: 'A masterpiece of the Amsterdam School. It looks like a ship!',
             order: 1,
             number: 1,
             lat: 52.3890,
@@ -397,19 +900,10 @@ async function main() {
             type: StopType.Museum_Art,
             challenges: [
                 {
-                    title: 'Brick Expressionism',
-                    description: 'Admire the brickwork.',
-                    type: ChallengeType.TRIVIA,
-                    points: 100,
-                    content: 'What was the original function of "Het Schip"?',
-                    options: ['Social Housing', 'A Shipyard', 'A Palace', 'A Hotel'],
-                    answer: 'Social Housing',
-                },
-                {
-                    title: 'The Hidden Shape',
-                    description: 'Look at the building from the corner.',
+                    title: 'Hidden Shape',
+                    description: 'Look at the corner.',
                     type: ChallengeType.RIDDLE,
-                    points: 150,
+                    points: 100,
                     content: 'I have a bow but no arrow, I have a deck but no cards. What am I?',
                     hint: 'Think about what kind of vessel this building resembles.',
                     answer: 'Ship',
@@ -418,7 +912,7 @@ async function main() {
         },
         {
             name: 'NDSM Wharf',
-            description: 'A former shipyard turned into a cultural hotspot with graffiti art and cool cafes.',
+            description: 'Former shipyard turned cultural hotspot with daily graffiti art.',
             order: 2,
             number: 2,
             lat: 52.3990,
@@ -426,14 +920,8 @@ async function main() {
             type: StopType.Nightlife,
             challenges: [
                 {
-                    title: 'Street Art Hunter',
-                    description: 'Find the giant Anne Frank mural.',
-                    type: ChallengeType.LOCATION,
-                    points: 80,
-                },
-                {
                     title: 'Selfie with Art',
-                    description: 'Take a picture with your favorite graffiti.',
+                    description: 'Find a cool mural.',
                     type: ChallengeType.PICTURE,
                     points: 100,
                     content: 'Capture the colorful expressions of NDSM.',
@@ -442,7 +930,7 @@ async function main() {
         },
         {
             name: 'EYE Film Museum',
-            description: 'A futuristic building on the IJ river dedicated to film history.',
+            description: 'Futuristic building dedicated to film history.',
             order: 3,
             number: 3,
             lat: 52.3845,
@@ -450,34 +938,111 @@ async function main() {
             type: StopType.Museum_Art,
             challenges: [
                 {
-                    title: 'Modern Lines',
-                    description: 'Stand under the cantilever.',
-                    type: ChallengeType.LOCATION,
-                    points: 50,
-                },
-                {
-                    title: 'Architect ID',
-                    description: 'Who designed this?',
-                    type: ChallengeType.TRIVIA,
-                    points: 120,
-                    content: 'Which Austrian firm designed the EYE?',
-                    options: ['Delugan Meissl', 'Rem Koolhaas', 'Zaha Hadid', 'MVRDV'],
-                    answer: 'Delugan Meissl',
-                },
-                {
-                    title: 'Floating Foundation',
-                    description: 'Fact check about the building.',
-                    type: ChallengeType.TRUE_FALSE,
-                    points: 50,
-                    content: 'The EYE Film Museum is built entirely on floating pontoons.',
-                    answer: 'false', // It's on piles
-                },
-                {
                     title: 'Movie Star Pose',
-                    description: 'Act like a star.',
+                    description: 'Act like a star on the steps.',
                     type: ChallengeType.DARE,
                     points: 100,
-                    content: 'Strike a dramatic pose on the stairs and hold it for 10 seconds while someone films/judges you!',
+                    content: 'Strike a dramatic pose on the stairs.',
+                }
+            ]
+        },
+        {
+            name: 'A\'DAM Lookout',
+            description: 'Observation deck with a swing over the edge.',
+            order: 4,
+            number: 4,
+            lat: 52.3840,
+            lng: 4.9015,
+            type: StopType.Viewpoint,
+            challenges: [
+                {
+                    title: 'Over the Edge',
+                    description: 'Look up at the swing.',
+                    type: ChallengeType.LOCATION,
+                    points: 70,
+                }
+            ]
+        },
+        {
+            name: 'NEMO Science Museum',
+            description: 'The green copper ship-shaped museum.',
+            order: 5,
+            number: 5,
+            lat: 52.3740,
+            lng: 4.9125,
+            type: StopType.Museum_Art,
+            challenges: [
+                {
+                    title: 'Roof Walk',
+                    description: 'Go to the roof piazza.',
+                    type: ChallengeType.LOCATION,
+                    points: 80,
+                },
+                {
+                    title: 'Architect',
+                    description: 'Who designed this?',
+                    type: ChallengeType.TRIVIA,
+                    points: 90,
+                    content: 'Which famous Italian architect designed NEMO?',
+                    options: ['Renzo Piano', 'Michelangelo', 'Follador', 'Rossi'],
+                    answer: 'Renzo Piano',
+                }
+            ]
+        },
+        {
+            name: 'Scheepvaartmuseum',
+            description: 'The National Maritime Museum with a replica ship.',
+            order: 6,
+            number: 6,
+            lat: 52.3715,
+            lng: 4.9150,
+            type: StopType.Museum_Art,
+            challenges: [
+                {
+                    title: 'Ship Ahoy',
+                    description: 'Spot the East Indiaman.',
+                    type: ChallengeType.TRIVIA,
+                    points: 60,
+                    content: 'What is the name of the replica ship docked outside?',
+                    options: ['Amsterdam', 'Batavia', 'De Zeven Provincien', 'Flying Dutchman'],
+                    answer: 'Amsterdam',
+                }
+            ]
+        },
+        {
+            name: 'Python Bridge',
+            description: 'A winding red snake-like bridge.',
+            order: 7,
+            number: 7,
+            lat: 52.3755,
+            lng: 4.9350,
+            type: StopType.Monument_Landmark,
+            challenges: [
+                {
+                    title: 'Red Snake',
+                    description: 'Walk the curves.',
+                    type: ChallengeType.LOCATION,
+                    points: 100,
+                }
+            ]
+        },
+        {
+            name: 'Brouwerij \'t IJ',
+            description: 'A brewery under a windmill.',
+            order: 8,
+            number: 8,
+            lat: 52.3665,
+            lng: 4.9265,
+            type: StopType.Food_Dining,
+            challenges: [
+                {
+                    title: 'Ostrich Logo',
+                    description: 'Find the bird logo.',
+                    type: ChallengeType.TRIVIA,
+                    points: 75,
+                    content: 'What bird is the logo of this brewery?',
+                    options: ['Ostrich', 'Eagle', 'Swan', 'Duck'],
+                    answer: 'Ostrich',
                 }
             ]
         }
@@ -487,171 +1052,13 @@ async function main() {
     await createReviews(amsterdamTour.id);
 
 
-    // --- TOUR 4: Rotterdam Skyline Run ---
-    const rotterdamTour = await prisma.tour.create({
-        data: {
-            title: 'Rotterdam Skyline Run',
-            location: 'Rotterdam',
-            description: 'A high-energy route crossing the iconic bridges of Rotterdam. Perfect for runners who want a view.',
-            imageUrl: 'https://images.unsplash.com/photo-1614521272693-73052eaefc51?q=80&w=1194&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-            distance: 8.5,
-            duration: 50, // Running pace
-            points: 900,
-            modes: ['RUNNING'],
-            difficulty: Difficulty.HARD,
-            authorId: joey.id,
-            startLat: 51.9089,
-            startLng: 4.4876,
-        },
-    });
-
-    const rdamStops = [
-        {
-            name: 'Erasmus Bridge',
-            description: 'Start your run at "The Swan".',
-            order: 1,
-            number: 1,
-            lat: 51.9089,
-            lng: 4.4876,
-            type: StopType.Monument_Landmark,
-            challenges: [
-                {
-                    title: 'Bridge Sprint',
-                    description: 'Run to the middle pylon.',
-                    type: ChallengeType.LOCATION,
-                    points: 100,
-                }
-            ]
-        },
-        {
-            name: 'Hotel New York',
-            description: 'The historic HQ of the Holland America Line.',
-            order: 2,
-            number: 2,
-            lat: 51.9030,
-            lng: 4.4830,
-            type: StopType.Food_Dining,
-            challenges: [
-                {
-                    title: 'Immigrant Steps',
-                    description: 'Find the suitcase sculpture.',
-                    type: ChallengeType.TRIVIA,
-                    points: 75,
-                    content: 'Where did the ships from here primarily sail to?',
-                    options: ['New York', 'Jakarta', 'Cape Town', 'Sydney'],
-                    answer: 'New York',
-                }
-            ]
-        },
-        {
-            name: 'Cube Houses',
-            description: 'End your run at this mind-bending forest of houses.',
-            order: 3,
-            number: 3,
-            lat: 51.9207,
-            lng: 4.4906,
-            type: StopType.Monument_Landmark,
-            challenges: [
-                {
-                    title: 'Tilt Your Head',
-                    description: 'Stand under a cube.',
-                    type: ChallengeType.LOCATION,
-                    points: 60,
-                }
-            ]
-        }
-    ];
-
-    await createStopsAndChallenges(rotterdamTour.id, rdamStops);
-    await createReviews(rotterdamTour.id);
-
-
-    // --- TOUR 5: Kennemer Dunes Nature Walk ---
-    const natureTour = await prisma.tour.create({
-        data: {
-            title: 'Kennemer Dunes Wildlife',
-            location: 'Zandvoort',
-            description: 'Escape the city and spot Highland cattle, Konik horses, and maybe a wisent in this rugged coastal park.',
-            imageUrl: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80', // Reliable Nature/Forest Image
-            distance: 7.0,
-            duration: 180,
-            points: 850,
-            modes: ['WALKING', 'NATURE'],
-            difficulty: Difficulty.MEDIUM,
-            authorId: bob.id,
-            startLat: 52.4170,
-            startLng: 4.5680,
-        },
-    });
-
-    const natureStops = [
-        {
-            name: 'Visitor Center De Kennemerduinen',
-            description: 'Start your journey here and pick up a map.',
-            order: 1,
-            number: 1,
-            lat: 52.4170,
-            lng: 4.5680,
-            type: StopType.Info_Point,
-            challenges: [
-                {
-                    title: 'Eco-check',
-                    description: 'Find the bird watching board.',
-                    type: ChallengeType.TRIVIA,
-                    points: 50,
-                    content: 'Which huge bovine animal was reintroduced here?',
-                    options: ['Wisent', 'Moose', 'Buffalo', 'Yak'],
-                    answer: 'Wisent',
-                }
-            ]
-        },
-        {
-            name: '\'t Wed',
-            description: 'A beautiful dune lake where you can swim in summer.',
-            order: 2,
-            number: 2,
-            lat: 52.4190,
-            lng: 4.5580,
-            type: StopType.Nature_Park,
-            challenges: [
-                {
-                    title: 'Lake Reflection',
-                    description: 'Reach the waters edge.',
-                    type: ChallengeType.LOCATION,
-                    points: 60,
-                }
-            ]
-        },
-        {
-            name: 'Vogelmeer Viewpoint',
-            description: 'The best spot to see rare birds and wild horses drinking.',
-            order: 3,
-            number: 3,
-            lat: 52.4250,
-            lng: 4.5450,
-            type: StopType.Viewpoint,
-            challenges: [
-                {
-                    title: 'Quiet Observer',
-                    description: 'Spend 1 minute in silence.',
-                    type: ChallengeType.LOCATION,
-                    points: 100,
-                }
-            ]
-        }
-    ];
-
-    await createStopsAndChallenges(natureTour.id, natureStops);
-    await createReviews(natureTour.id);
-
-
-    // --- TOUR 6: Breda PubGolf Championship ---
+    // --- TOUR 6: Breda PubGolf Championship (Preserved) ---
     const bredaTour = await prisma.tour.create({
         data: {
             title: 'Breda PubGolf Championship',
             location: 'Breda',
             description: 'The ultimate pub golf experience in the pearl of the south. 12 holes, 12 drinks, one champion.',
-            imageUrl: 'https://images.unsplash.com/photo-1569496453553-f35768ed0e36?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Reliable Breda Grote Markt
+            imageUrl: 'https://images.unsplash.com/photo-1569496453553-f35768ed0e36?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
             distance: 3.5,
             duration: 240, // 4 hours
             points: 1500,
@@ -920,11 +1327,11 @@ async function main() {
 
 
     // --- Mock Active Tour for Dev ---
-    // Start the Amsterdam Architectural Gems tour for Joey (to show new challenges)
+    // Start the Breda tour for Joey
     const activeTour = await prisma.activeTour.create({
         data: {
             id: 112233445,
-            tourId: amsterdamTour.id,
+            tourId: bredaTour.id,
             status: SessionStatus.IN_PROGRESS,
         },
     });
@@ -941,7 +1348,7 @@ async function main() {
         }
     });
 
-    console.log('Seed data created successfully with 5 high-quality tours.');
+    console.log('Seed data created successfully with 6 high-quality tours.');
 }
 
 main()

@@ -13,21 +13,48 @@ function AuthenticatedLayout() {
     const segment = useSegments();
     const router = useRouter();
 
+    const [isReady, setIsReady] = React.useState(false);
+    const [hasSeenOnboarding, setHasSeenOnboarding] = React.useState(false);
+
     useEffect(() => {
-        if (loading) return;
+        // Check onboarding status
+        const checkOnboarding = async () => {
+            // const value = await AsyncStorage.getItem('hasSeenOnboarding');
+            // setHasSeenOnboarding(value === 'true');
+            setHasSeenOnboarding(false);
+            setIsReady(true);
+        };
+        checkOnboarding();
+    }, []);
+
+    useEffect(() => {
+        if (loading || !isReady) return;
 
         const inAuthGroup = segment[0] === 'auth';
 
-        // If user is validated and tries to access auth pages, redirect to home
-        if (session && inAuthGroup) {
-            router.replace('/');
-        } else if (!session && !inAuthGroup) {
-            // Redirect unauthenticated users to login
-            router.replace('/auth/login');
+        if (session) {
+            // If authenticated, go to home (unless already there, but Replace covers this)
+            if (inAuthGroup) {
+                router.replace('/');
+            }
+        } else {
+            // Not authenticated
+            if (!inAuthGroup) {
+                // Initial redirect logic
+                if (!hasSeenOnboarding) {
+                    router.replace('/auth/onboarding' as any);
+                } else {
+                    router.replace('/auth/login');
+                }
+            } else if (segment[1] === 'login' && !hasSeenOnboarding) {
+                // Guard: If trying to access login but hasn't seen onboarding, redirect back
+                // This protects against deep links or manual navigation to /auth/login
+                // router.replace('/auth/onboarding' as any);
+            }
         }
-    }, [session, loading, segment]);
+    }, [session, loading, isReady, segment, hasSeenOnboarding]);
 
-    if (loading) {
+    if (!isReady || loading) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <ActivityIndicator size="large" />
