@@ -1,4 +1,11 @@
+import { randomBytes, scryptSync } from 'crypto';
 import { prisma } from '../../src/lib/prisma';
+
+const hashPassword = (password: string) => {
+    const salt = randomBytes(16).toString('hex');
+    const hashedPassword = scryptSync(password, salt, 64).toString('hex');
+    return `${salt}:${hashedPassword}`;
+};
 
 export const userRepository = {
     async getUserProfile(userId: number) {
@@ -35,11 +42,12 @@ export const userRepository = {
         });
     },
 
-    async createUser(data: { email: string; name: string }) {
+    async createUser(data: { email: string; name: string; password?: string }) {
         return await prisma.user.create({
             data: {
-                ...data,
-                passwordHash: 'placeholder', // Since auth is handled by Supabase
+                email: data.email,
+                name: data.name,
+                passwordHash: data.password ? hashPassword(data.password) : 'auth_handled_by_supabase',
                 xp: 0,
                 tokens: 0,
                 level: 1,

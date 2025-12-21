@@ -18,9 +18,10 @@ export const userService = {
         return user;
     },
 
-    async createUserByEmail(email: string) {
+    async createUserByEmail(email: string, password?: string) {
         const user = await userRepository.createUser({
             email,
+            password,
             name: email.split('@')[0], // Default name from email
         });
         return { ...user, level: LevelSystem.getLevel(user.xp) };

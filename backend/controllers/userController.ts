@@ -71,7 +71,7 @@ export const userController = {
     async createUser(request: Request, parsedBody?: any) {
         try {
             const body = parsedBody || await request.json();
-            const { email } = body;
+            const { email, password } = body;
 
             if (!email) {
                 return Response.json({ error: 'Missing email' }, { status: 400 });
@@ -83,7 +83,7 @@ export const userController = {
                 return Response.json(existing);
             }
 
-            const newUser = await userService.createUserByEmail(email);
+            const newUser = await userService.createUserByEmail(email, password);
             return Response.json(newUser);
         } catch (error) {
             console.error('Error creating user:', error);

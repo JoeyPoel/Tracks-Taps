@@ -1,6 +1,13 @@
 import { ChallengeType, Difficulty, PrismaClient, SessionStatus, StopType } from '@prisma/client';
+import { randomBytes, scryptSync } from 'crypto';
 
 const prisma = new PrismaClient();
+
+const hashPassword = (password: string) => {
+    const salt = randomBytes(16).toString('hex');
+    const hashedPassword = scryptSync(password, salt, 64).toString('hex');
+    return `${salt}:${hashedPassword}`;
+};
 
 async function main() {
     console.log('Start seeding ...');
@@ -20,7 +27,7 @@ async function main() {
     const joey = await prisma.user.create({
         data: {
             email: 'Joey@example.com',
-            passwordHash: 'hashedpassword',
+            passwordHash: hashPassword('hashedpassword'),
             name: 'Joey',
             level: 5,
             xp: 1250,
@@ -29,11 +36,11 @@ async function main() {
     });
 
     const alice = await prisma.user.create({
-        data: { email: 'alice@example.com', passwordHash: 'pw', name: 'Alice', level: 3, xp: 400, tokens: 50 },
+        data: { email: 'alice@example.com', passwordHash: hashPassword('pw'), name: 'Alice', level: 3, xp: 400, tokens: 50 },
     });
 
     const bob = await prisma.user.create({
-        data: { email: 'bob@example.com', passwordHash: 'pw', name: 'Bob', level: 8, xp: 3000, tokens: 500 },
+        data: { email: 'bob@example.com', passwordHash: hashPassword('pw'), name: 'Bob', level: 8, xp: 3000, tokens: 500 },
     });
 
     // Helper to create stops and challenges
@@ -824,7 +831,7 @@ async function main() {
             number: 7,
             lat: 52.2390,
             lng: 21.0175,
-            type: StopType.Mono,
+            type: StopType.Monument_Landmark,
             challenges: [
                 {
                     title: 'Heart of the Matter',

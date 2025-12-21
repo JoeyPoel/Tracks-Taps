@@ -1,11 +1,28 @@
+import SocialButton from '@/src/components/SocialButton';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
+import { AuthService } from '@/src/services/authService';
 import { supabase } from '@/utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+    ActivityIndicator,
+    Alert,
+    Dimensions,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+
+const { width } = Dimensions.get('window');
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -15,6 +32,11 @@ export default function LoginScreen() {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
+    React.useEffect(() => {
+        AuthService.configureGoogle();
+    }, []);
 
     const handleLogin = async () => {
         if (!email || !password) {
@@ -33,123 +55,206 @@ export default function LoginScreen() {
         }
     };
 
+    const handleGoogleLogin = async () => {
+        setLoading(true);
+        const data = await AuthService.signInWithGoogle();
+        setLoading(false);
+        if (data?.session) {
+            // Logged in
+        }
+    };
+
     return (
-        <LinearGradient
-            colors={[theme.fixedGradientFrom, theme.fixedGradientTo]}
-            style={styles.container}
-        >
-            <View style={[styles.card, { backgroundColor: theme.bgPrimary }]}>
-                <Text style={[styles.title, { color: theme.textPrimary }]}>{t('welcomeBack')}</Text>
+        <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={styles.keyboardView}
+            >
+                <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-                <View style={styles.inputContainer}>
-                    <Text style={[styles.label, { color: theme.textSecondary }]}>{t('email')}</Text>
-                    <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderInput }]}>
-                        <Ionicons name="mail-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
-                        <TextInput
-                            style={[styles.input, { color: theme.textPrimary }]}
-                            placeholder={t('enterEmail')}
-                            placeholderTextColor={theme.textTertiary}
-                            value={email}
-                            onChangeText={setEmail}
-                            autoCapitalize="none"
-                            keyboardType="email-address"
-                        />
+                    {/* Header Section matching Onboarding */}
+                    <View style={styles.header}>
+                        <Animated.View
+                            entering={FadeInUp.delay(200).springify()}
+                            style={styles.imageContainer}
+                        >
+                            <Image
+                                source={isPasswordFocused ? require('@/assets/images/login/password.png') : require('@/assets/images/login/welcome.png')}
+                                style={styles.headerImage}
+                                resizeMode="contain"
+                            />
+                        </Animated.View>
+
+                        <Animated.Text
+                            entering={FadeInDown.delay(400).springify()}
+                            style={[styles.title, { color: theme.textPrimary }]}
+                        >
+                            {t('welcomeBack')}
+                        </Animated.Text>
+
+                        <Animated.Text
+                            entering={FadeInDown.delay(600).springify()}
+                            style={[styles.subtitle, { color: theme.textSecondary }]}
+                        >
+                            {t('loginSubtitle')}
+                        </Animated.Text>
                     </View>
-                </View>
 
-                <View style={styles.inputContainer}>
-                    <Text style={[styles.label, { color: theme.textSecondary }]}>{t('password')}</Text>
-                    <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderInput }]}>
-                        <Ionicons name="lock-closed-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
-                        <TextInput
-                            style={[styles.input, { color: theme.textPrimary }]}
-                            placeholder={t('enterPassword')}
-                            placeholderTextColor={theme.textTertiary}
-                            value={password}
-                            onChangeText={setPassword}
-                            secureTextEntry={!showPassword}
+                    {/* Form Section */}
+                    <Animated.View
+                        entering={FadeInDown.delay(800).springify()}
+                        style={styles.form}
+                    >
+                        <View style={styles.inputContainer}>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('email')}</Text>
+                            <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderInput }]}>
+                                <Ionicons name="mail-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
+                                <TextInput
+                                    style={[styles.input, { color: theme.textPrimary }]}
+                                    placeholder={t('enterEmail')}
+                                    placeholderTextColor={theme.textTertiary}
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    autoCapitalize="none"
+                                    keyboardType="email-address"
+                                />
+                            </View>
+                        </View>
+
+                        <View style={styles.inputContainer}>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('password')}</Text>
+                            <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderInput }]}>
+                                <Ionicons name="lock-closed-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
+                                <TextInput
+                                    style={[styles.input, { color: theme.textPrimary }]}
+                                    placeholder={t('enterPassword')}
+                                    placeholderTextColor={theme.textTertiary}
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    secureTextEntry={!showPassword}
+                                    onFocus={() => setIsPasswordFocused(true)}
+                                    onBlur={() => setIsPasswordFocused(false)}
+                                />
+                                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                                    <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={theme.textTertiary} />
+                                </TouchableOpacity>
+                            </View>
+                            <Link href="/auth/forgot-password" asChild>
+                                <TouchableOpacity style={styles.forgotContainer}>
+                                    <Text style={[styles.forgotText, { color: theme.primary }]}>{t('forgotPassword')}</Text>
+                                </TouchableOpacity>
+                            </Link>
+                        </View>
+
+                        <TouchableOpacity
+                            style={[styles.button, { backgroundColor: theme.primary }]}
+                            onPress={handleLogin}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <ActivityIndicator color={theme.textOnPrimary} />
+                            ) : (
+                                <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>{t('login')}</Text>
+                            )}
+                        </TouchableOpacity>
+
+                        <View style={styles.dividerContainer}>
+                            <View style={[styles.dividerLine, { backgroundColor: theme.borderPrimary }]} />
+                            <Text style={[styles.dividerText, { color: theme.textSecondary }]}>{t('or')}</Text>
+                            <View style={[styles.dividerLine, { backgroundColor: theme.borderPrimary }]} />
+                        </View>
+
+                        <SocialButton
+                            text={t('googleSignIn')}
+                            onPress={handleGoogleLogin}
+                            icon="google"
+                            loading={loading}
                         />
-                        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                            <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={theme.textTertiary} />
-                        </TouchableOpacity>
-                    </View>
-                    <Link href="/auth/forgot-password" asChild>
-                        <TouchableOpacity style={styles.forgotContainer}>
-                            <Text style={[styles.forgotText, { color: theme.primary }]}>{t('forgotPassword')}</Text>
-                        </TouchableOpacity>
-                    </Link>
-                </View>
 
-                <TouchableOpacity
-                    style={[styles.button, { backgroundColor: theme.primary }]}
-                    onPress={handleLogin}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <ActivityIndicator color={theme.textOnPrimary} />
-                    ) : (
-                        <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>{t('login')}</Text>
-                    )}
-                </TouchableOpacity>
-
-                <View style={styles.footer}>
-                    <Text style={[styles.footerText, { color: theme.textSecondary }]}>{t('noAccount')} </Text>
-                    <Link href="/auth/register" asChild>
-                        <TouchableOpacity>
-                            <Text style={[styles.link, { color: theme.primary }]}>{t('signUp')}</Text>
-                        </TouchableOpacity>
-                    </Link>
-                </View>
-            </View>
-        </LinearGradient>
+                        <View style={styles.footer}>
+                            <Text style={[styles.footerText, { color: theme.textSecondary }]}>{t('noAccount')} </Text>
+                            <Link href="/auth/register" asChild>
+                                <TouchableOpacity>
+                                    <Text style={[styles.link, { color: theme.primary }]}>{t('signUp')}</Text>
+                                </TouchableOpacity>
+                            </Link>
+                        </View>
+                    </Animated.View>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
     },
-    card: {
-        width: '100%',
-        maxWidth: 400,
-        padding: 24,
-        borderRadius: 24,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.30,
-        shadowRadius: 4.65,
-        elevation: 8,
+    keyboardView: {
+        flex: 1,
+    },
+    scrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        paddingHorizontal: 24,
+        paddingTop: 120, // Increased top padding to center visually and push content down
+        paddingBottom: 40,
+    },
+    header: {
+        alignItems: 'center',
+        marginBottom: 30,
+    },
+    imageContainer: {
+        marginBottom: 20,
+        alignItems: 'center',
+    },
+    headerImage: {
+        width: 140,
+        height: 140,
+    },
+    glow: {
+        position: 'absolute',
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        opacity: 0.15,
+        zIndex: -1,
     },
     title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 24,
+        fontSize: 32,
+        fontWeight: '800',
         textAlign: 'center',
+        marginBottom: 12,
+        letterSpacing: 0.5,
+    },
+    subtitle: {
+        fontSize: 16,
+        textAlign: 'center',
+        lineHeight: 24,
+        paddingHorizontal: 20,
+    },
+    form: {
+        width: '100%',
     },
     inputContainer: {
-        marginBottom: 16,
+        marginBottom: 20,
     },
     label: {
         fontSize: 14,
         marginBottom: 8,
         fontWeight: '600',
+        marginLeft: 4,
     },
     inputWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
-        height: 50,
+        height: 56,
         borderWidth: 1,
-        borderRadius: 12,
+        borderRadius: 16,
         paddingHorizontal: 16,
     },
     inputIcon: {
-        marginRight: 10,
+        marginRight: 12,
     },
     input: {
         flex: 1,
@@ -159,22 +264,45 @@ const styles = StyleSheet.create({
     forgotContainer: {
         alignSelf: 'flex-end',
         marginTop: 8,
+        marginRight: 4,
     },
     forgotText: {
         fontSize: 14,
         fontWeight: '600',
     },
     button: {
-        height: 50,
-        borderRadius: 12,
+        height: 56,
+        borderRadius: 16, // Matching input radius or slightly rounded like onboarding (30 or 12)
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 8,
+        marginTop: 12,
         marginBottom: 24,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 4,
     },
     buttonText: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: 'bold',
+    },
+    dividerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 24,
+    },
+    dividerLine: {
+        flex: 1,
+        height: 1,
+    },
+    dividerText: {
+        marginHorizontal: 16,
+        fontSize: 14,
+        fontWeight: '600',
     },
     footer: {
         flexDirection: 'row',

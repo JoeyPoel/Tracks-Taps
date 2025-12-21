@@ -2,10 +2,25 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { supabase } from '@/utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
+import { Lock } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+    ActivityIndicator,
+    Alert,
+    Dimensions,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+
+const { width } = Dimensions.get('window');
 
 export default function ForgotPasswordScreen() {
     const router = useRouter();
@@ -32,107 +47,151 @@ export default function ForgotPasswordScreen() {
     };
 
     return (
-        <LinearGradient
-            colors={[theme.fixedGradientFrom, theme.fixedGradientTo]}
-            style={styles.container}
-        >
-            <View style={[styles.card, { backgroundColor: theme.bgPrimary }]}>
-                <Text style={[styles.title, { color: theme.textPrimary }]}>{t('resetPassword')}</Text>
+        <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={styles.keyboardView}
+            >
+                <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-                <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-                    {t('enterEmail')}
-                </Text>
+                    {/* Header Section matching Onboarding */}
+                    <View style={styles.header}>
+                        <Animated.View
+                            entering={FadeInUp.delay(200).springify()}
+                            style={styles.iconContainer}
+                        >
+                            <Lock size={80} color={theme.primary} strokeWidth={1.5} />
+                            <View style={[styles.glow, { backgroundColor: theme.primary }]} />
+                        </Animated.View>
 
-                <View style={styles.inputContainer}>
-                    <Text style={[styles.label, { color: theme.textSecondary }]}>{t('email')}</Text>
-                    <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderInput }]}>
-                        <Ionicons name="mail-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
-                        <TextInput
-                            style={[styles.input, { color: theme.textPrimary }]}
-                            placeholder={t('enterEmail')}
-                            placeholderTextColor={theme.textTertiary}
-                            value={email}
-                            onChangeText={setEmail}
-                            autoCapitalize="none"
-                            keyboardType="email-address"
-                        />
+                        <Animated.Text
+                            entering={FadeInDown.delay(400).springify()}
+                            style={[styles.title, { color: theme.textPrimary }]}
+                        >
+                            {t('resetPassword')}
+                        </Animated.Text>
+
+                        <Animated.Text
+                            entering={FadeInDown.delay(600).springify()}
+                            style={[styles.subtitle, { color: theme.textSecondary }]}
+                        >
+                            {t('forgotPasswordSubtitle')}
+                        </Animated.Text>
                     </View>
-                </View>
 
-                <TouchableOpacity
-                    style={[styles.button, { backgroundColor: theme.primary }]}
-                    onPress={handleReset}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <ActivityIndicator color={theme.textOnPrimary} />
-                    ) : (
-                        <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>{t('sendResetLink')}</Text>
-                    )}
-                </TouchableOpacity>
+                    {/* Form Section */}
+                    <Animated.View
+                        entering={FadeInDown.delay(800).springify()}
+                        style={styles.form}
+                    >
+                        <View style={styles.inputContainer}>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('email')}</Text>
+                            <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderInput }]}>
+                                <Ionicons name="mail-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
+                                <TextInput
+                                    style={[styles.input, { color: theme.textPrimary }]}
+                                    placeholder={t('enterEmail')}
+                                    placeholderTextColor={theme.textTertiary}
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    autoCapitalize="none"
+                                    keyboardType="email-address"
+                                />
+                            </View>
+                        </View>
 
-                <View style={styles.footer}>
-                    <Link href="/auth/login" asChild>
-                        <TouchableOpacity>
-                            <Text style={[styles.link, { color: theme.primary }]}>{t('backToLogin')}</Text>
+                        <TouchableOpacity
+                            style={[styles.button, { backgroundColor: theme.primary }]}
+                            onPress={handleReset}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <ActivityIndicator color={theme.textOnPrimary} />
+                            ) : (
+                                <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>{t('sendResetLink')}</Text>
+                            )}
                         </TouchableOpacity>
-                    </Link>
-                </View>
-            </View>
-        </LinearGradient>
+
+                        <View style={styles.footer}>
+                            <Link href="/auth/login" asChild>
+                                <TouchableOpacity>
+                                    <Text style={[styles.link, { color: theme.primary }]}>{t('backToLogin')}</Text>
+                                </TouchableOpacity>
+                            </Link>
+                        </View>
+                    </Animated.View>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    keyboardView: {
+        flex: 1,
+    },
+    scrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        paddingHorizontal: 24,
+        paddingTop: 120, // Increased top padding to center visually and push content down
+        paddingBottom: 40,
+    },
+    header: {
+        alignItems: 'center',
+        marginBottom: 40,
+    },
+    iconContainer: {
+        marginBottom: 30,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
     },
-    card: {
-        width: '100%',
-        maxWidth: 400,
-        padding: 24,
-        borderRadius: 24,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.30,
-        shadowRadius: 4.65,
-        elevation: 8,
+    glow: {
+        position: 'absolute',
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        opacity: 0.15,
+        zIndex: -1,
     },
     title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 8,
+        fontSize: 32,
+        fontWeight: '800',
         textAlign: 'center',
+        marginBottom: 12,
+        letterSpacing: 0.5,
     },
     subtitle: {
-        fontSize: 14,
-        marginBottom: 24,
+        fontSize: 16,
         textAlign: 'center',
+        lineHeight: 24,
+        paddingHorizontal: 20,
+    },
+    form: {
+        width: '100%',
     },
     inputContainer: {
-        marginBottom: 16,
+        marginBottom: 20,
     },
     label: {
         fontSize: 14,
         marginBottom: 8,
         fontWeight: '600',
+        marginLeft: 4,
     },
     inputWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
-        height: 50,
+        height: 56,
         borderWidth: 1,
-        borderRadius: 12,
+        borderRadius: 16,
         paddingHorizontal: 16,
     },
     inputIcon: {
-        marginRight: 10,
+        marginRight: 12,
     },
     input: {
         flex: 1,
@@ -140,15 +199,23 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     button: {
-        height: 50,
-        borderRadius: 12,
+        height: 56,
+        borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 8,
+        marginTop: 12,
         marginBottom: 24,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 4,
     },
     buttonText: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: 'bold',
     },
     footer: {

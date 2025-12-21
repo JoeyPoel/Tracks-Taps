@@ -16,6 +16,7 @@
     "@expo/vector-icons": "^15.0.3",
     "@prisma/client": "^5.22.0",
     "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-google-signin/google-signin": "^16.0.0",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
@@ -56,9 +57,11 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/react": "~19.1.0",
     "@types/react-native": "^0.72.8",
     "babel-plugin-module-resolver": "^5.0.2",
+    "bcryptjs": "^3.0.3",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "prisma": "^5.22.0",
