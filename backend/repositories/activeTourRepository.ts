@@ -130,7 +130,7 @@ export const activeTourRepository = {
                 tour: {
                     include: {
                         stops: {
-                            orderBy: { order: 'asc' },
+                            orderBy: { number: 'asc' },
                             include: {
                                 challenges: true,
                                 // Optimized: Removed redundant pubGolfStops fetch from tour stops
