@@ -86,7 +86,7 @@ model Tour {
 model Stop {
   id           Int      @id @default(autoincrement())
   tourId       Int
-  tour         Tour     @relation(fields: [tourId], references: [id])
+  tour         Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
   number       Int
   name         String
   description  String
@@ -128,9 +128,9 @@ model Challenge {
 
   // Polymorphic Relations (Nullable FKs)
   tourId Int?
-  tour   Tour? @relation(fields: [tourId], references: [id])
+  tour   Tour? @relation(fields: [tourId], references: [id], onDelete: Cascade)
   stopId Int?
-  stop   Stop? @relation(fields: [stopId], references: [id])
+  stop   Stop? @relation(fields: [stopId], references: [id], onDelete: Cascade)
 
   // Relations
   activeChallenges ActiveChallenge[]
@@ -139,7 +139,7 @@ model Challenge {
 model ActiveTour {
   id           Int           @id // Manually assigned 9-digit ID
   tourId       Int
-  tour         Tour          @relation(fields: [tourId], references: [id])
+  tour         Tour          @relation(fields: [tourId], references: [id], onDelete: Cascade)
   status       SessionStatus @default(WAITING)
   winnerTeamId Int?
   createdAt    DateTime      @default(now())
@@ -180,7 +180,7 @@ model ActiveChallenge {
   teamId      Int
   team        Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
   challengeId Int
-  challenge   Challenge @relation(fields: [challengeId], references: [id])
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
   completed   Boolean   @default(false)
   completedAt DateTime?
   failed      Boolean   @default(false)
@@ -193,7 +193,7 @@ model PubGolfStop {
   teamId    Int
   team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   stopId    Int
-  stop      Stop     @relation(fields: [stopId], references: [id])
+  stop      Stop     @relation(fields: [stopId], references: [id], onDelete: Cascade)
   sips      Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -209,7 +209,7 @@ model Review {
 
   // Relations
   tourId   Int
-  tour     Tour @relation(fields: [tourId], references: [id])
+  tour     Tour @relation(fields: [tourId], references: [id], onDelete: Cascade)
   authorId Int
   author   User @relation(fields: [authorId], references: [id])
 }

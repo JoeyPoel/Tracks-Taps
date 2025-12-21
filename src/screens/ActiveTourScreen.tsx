@@ -58,10 +58,6 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         }
     }, [activeTourId, currentTeam, loading]);
 
-
-
-
-
     // Derived PubGolf Scores
     const pubGolfScores: Record<number, number> = {};
     if (currentTeam?.pubGolfStops) {
