@@ -88,6 +88,9 @@ export const tourRepository = {
             include: {
                 author: true,
                 stops: {
+                    orderBy: {
+                        number: 'asc',
+                    },
                     include: {
                         challenges: true,
                     },

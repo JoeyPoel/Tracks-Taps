@@ -51,7 +51,7 @@ async function main() {
                     tourId: tourId,
                     name: stopData.name,
                     description: stopData.description,
-                    order: stopData.order,
+
                     number: stopData.number,
                     latitude: stopData.lat,
                     longitude: stopData.lng,
@@ -65,15 +65,14 @@ async function main() {
                 await prisma.challenge.create({
                     data: {
                         title: challengeData.title,
-                        description: challengeData.description,
                         type: challengeData.type,
                         points: challengeData.points,
-                        content: challengeData.content,
+                        content: challengeData.content || challengeData.description,
                         options: challengeData.options,
                         answer: challengeData.answer,
                         stopId: stop.id,
                         tourId: tourId,
-                    },
+                    } as any, // Cast to any to avoid TS error until client is regenerated
                 });
             }
         }

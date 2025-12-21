@@ -2,11 +2,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import {
+    AcademicCapIcon,
     BoltIcon,
     CameraIcon,
     CheckCircleIcon,
     FireIcon,
-    KeyIcon,
     MapPinIcon,
     QuestionMarkCircleIcon,
     XCircleIcon
@@ -20,7 +20,7 @@ export type ChallengeType = 'location' | 'trivia' | 'camera' | 'picture' | 'true
 interface ActiveChallengeCardProps {
     title: string;
     points: number;
-    description: string;
+    content?: never; // Deprecated, use children instead
     type: ChallengeType;
     isCompleted: boolean;
     isFailed: boolean;
@@ -32,7 +32,6 @@ interface ActiveChallengeCardProps {
 export default function ActiveChallengeCard({
     title,
     points,
-    description,
     type,
     isCompleted,
     isFailed,
@@ -44,47 +43,38 @@ export default function ActiveChallengeCard({
     const { theme } = useTheme();
     const { t } = useLanguage();
 
-    const getIconComponent = () => {
-        // Safe mapping with strict types
-        switch (type) {
-            case 'location': return MapPinIcon;
-            case 'trivia': return QuestionMarkCircleIcon;
-            case 'camera': return CameraIcon;
-            case 'picture': return CameraIcon;
-            case 'true_false': return CheckCircleIcon;
-            case 'dare': return FireIcon;
-            case 'riddle': return KeyIcon;
-            default: return QuestionMarkCircleIcon;
-        }
+    const getBackgroundColors = (): [string, string] => {
+        if (isCompleted) return [theme.challengeCorrectBackground, theme.challengeCorrectBackground];
+        if (isFailed) return [theme.challengeFailedBackground, theme.challengeFailedBackground];
+        return [theme.bgSecondary, theme.bgSecondary];
     };
 
-    const StatusIcon = getIconComponent() || QuestionMarkCircleIcon;
-
-    const getIconColor = () => {
-        switch (type) {
-            case 'location': return theme.accent; // Yellow
-            case 'trivia': return theme.secondary; // Blue
-            case 'camera': return theme.primary; // Pink
-            case 'picture': return theme.primary;
-            case 'true_false': return theme.secondary;
-            case 'dare': return theme.danger; // Red/Attention
-            case 'riddle': return theme.accent; // Yellow/Mystery
-            default: return theme.primary;
-        }
-    };
-
-    const getBorderColor = () => {
-        if (isCompleted) return theme.challengeCorrectBorder; // Green
-        if (isFailed) return theme.challengeFailedBorder; // Red
+    const getBorderColor = (): string => {
+        if (isCompleted) return theme.challengeCorrectBorder;
+        if (isFailed) return theme.challengeFailedBorder;
         return theme.borderPrimary;
     };
 
-    const getBackgroundColors = (): [string, string, ...string[]] => {
-        if (isCompleted) return [theme.challengeCorrectBackground, theme.challengeCorrectBackground];
-        if (isFailed) return [theme.challengeFailedBackground, theme.challengeFailedBackground];
-        return [theme.bgSecondary, theme.bgTertiary];
+    const getIconColor = (): string => {
+        if (isCompleted) return theme.success;
+        if (isFailed) return theme.danger;
+        return theme.primary;
     };
 
+    const StatusIcon = (() => {
+        if (isCompleted) return CheckCircleIcon;
+        if (isFailed) return XCircleIcon;
+        switch (type) {
+            case 'location': return MapPinIcon;
+            case 'trivia': return AcademicCapIcon;
+            case 'camera':
+            case 'picture': return CameraIcon;
+            case 'true_false':
+            case 'riddle': return QuestionMarkCircleIcon;
+            case 'dare': return FireIcon;
+            default: return BoltIcon;
+        }
+    })();
     return (
         <LinearGradient
             colors={getBackgroundColors()}
@@ -104,9 +94,7 @@ export default function ActiveChallengeCard({
                 </View>
             </View>
 
-            <Text style={[styles.cardDescription, { color: theme.textSecondary }]}>
-                {description}
-            </Text>
+
 
             {/* Always render children if provided, to show options even if completed/failed */}
             {children}
@@ -182,11 +170,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 16,
     },
-    cardDescription: {
-        fontSize: 14,
-        marginBottom: 16,
-        lineHeight: 20,
-    },
+
     button: {
         paddingVertical: 12,
         borderRadius: 8,

@@ -32,7 +32,7 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
         setSelected(value);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = (): void => {
         if (!selected || isDone) return;
 
         const correctAnswer = challenge.answer?.toLowerCase(); // 'true' or 'false'
@@ -47,7 +47,6 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
         <ActiveChallengeCard
             title={challenge.title}
             points={challenge.points}
-            description={challenge.description}
             type="trivia"
             isCompleted={isCompleted}
             isFailed={isFailed}
@@ -55,10 +54,10 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
             actionLabel={t('submitAnswer') || "Submit"}
             disabled={isDone || !selected}
         >
+            <Text style={[styles.description, { color: theme.textPrimary }]}>
+                {challenge.content}
+            </Text>
             <View style={styles.content}>
-                <Text style={[styles.question, { color: theme.textPrimary }]}>
-                    {challenge.content}
-                </Text>
 
                 <View style={styles.optionsRow}>
                     {['true', 'false'].map((option) => {
@@ -115,6 +114,11 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
 };
 
 const styles = StyleSheet.create({
+    description: {
+        fontSize: 14,
+        marginBottom: 16,
+        lineHeight: 20,
+    },
     content: {
         marginBottom: 8,
     },

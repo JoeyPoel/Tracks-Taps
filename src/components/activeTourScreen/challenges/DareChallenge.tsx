@@ -25,7 +25,6 @@ const DareChallenge: React.FC<DareChallengeProps> = ({
         <ActiveChallengeCard
             title={challenge.title}
             points={challenge.points}
-            description={challenge.description}
             type="location" // Reuse location icon/style for dare for now, or add new type
             isCompleted={isCompleted}
             isFailed={isFailed}

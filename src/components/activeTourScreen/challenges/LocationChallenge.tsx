@@ -25,7 +25,6 @@ const LocationChallenge: React.FC<LocationChallengeProps> = ({
         <ActiveChallengeCard
             title={challenge.title}
             points={challenge.points}
-            description={challenge.description}
             type="location"
             isCompleted={isCompleted}
             isFailed={isFailed}
@@ -33,14 +32,24 @@ const LocationChallenge: React.FC<LocationChallengeProps> = ({
             actionLabel={t('claimPoints') || "Claim Points"}
             disabled={isDone}
         >
-            <Text style={[styles.successText, { color: theme.primary }]}>
-                {t('rightLocation') || "You are at the right location!"}
+            <Text style={[styles.description, { color: theme.textPrimary }]}>
+                {challenge.content}
             </Text>
+            {isCompleted && (
+                <Text style={[styles.successText, { color: theme.primary }]}>
+                    {t('rightLocation') || "You are at the right location!"}
+                </Text>
+            )}
         </ActiveChallengeCard>
     );
 };
 
 const styles = StyleSheet.create({
+    description: {
+        fontSize: 14,
+        marginBottom: 16,
+        lineHeight: 20,
+    },
     successText: {
         textAlign: 'center',
         marginBottom: 16,

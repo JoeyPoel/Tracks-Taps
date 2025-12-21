@@ -30,7 +30,6 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
         <ActiveChallengeCard
             title={challenge.title}
             points={challenge.points}
-            description={challenge.description}
             type="trivia"
             isCompleted={isCompleted}
             isFailed={isFailed}
@@ -38,10 +37,11 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
             actionLabel={isFailed ? (t('wrongAnswer') || "Wrong Answer") : isCompleted ? (t('completed') || "Completed") : (t('submitAnswer') || "Submit Answer")}
             disabled={isDone}
         >
+            <Text style={[styles.description, { color: theme.textPrimary }]}>
+                {challenge.content}
+            </Text>
             <View>
-                <Text style={[styles.questionText, { color: theme.textPrimary }]}>
-                    {challenge.content}
-                </Text>
+                {/* Content moved to card header */}
                 <View style={styles.optionsContainer}>
                     {challenge.options.map((option: string, index: number) => {
                         const isSelected = triviaSelected[challenge.id] === index;
@@ -100,6 +100,11 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
 };
 
 const styles = StyleSheet.create({
+    description: {
+        fontSize: 14,
+        marginBottom: 16,
+        lineHeight: 20,
+    },
     questionText: {
         fontSize: 16,
         fontWeight: '600',

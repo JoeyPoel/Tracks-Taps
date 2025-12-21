@@ -22,7 +22,7 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
     const { t } = useLanguage();
     const isDone = isCompleted || isFailed;
 
-    const handlePress = () => {
+    const handlePress = (): void => {
         // In a real app, this would open the camera
         // For now, we simulate success
         onComplete(challenge);
@@ -32,7 +32,6 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
         <ActiveChallengeCard
             title={challenge.title}
             points={challenge.points}
-            description={challenge.description}
             type="camera"
             isCompleted={isCompleted}
             isFailed={isFailed}
@@ -40,10 +39,11 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
             actionLabel={t('takePhoto') || "Take Photo"}
             disabled={isDone}
         >
+            <Text style={[styles.description, { color: theme.textPrimary }]}>
+                {challenge.content}
+            </Text>
             <View style={styles.content}>
-                <Text style={[styles.instruction, { color: theme.textSecondary }]}>
-                    {challenge.content}
-                </Text>
+
                 {isCompleted && (
                     <View style={styles.placeholderImage}>
                         <Ionicons name="image" size={40} color={theme.textSecondary} />
@@ -56,6 +56,11 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
 };
 
 const styles = StyleSheet.create({
+    description: {
+        fontSize: 14,
+        marginBottom: 16,
+        lineHeight: 20,
+    },
     content: {
         marginBottom: 8,
     },

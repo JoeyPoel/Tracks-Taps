@@ -40,7 +40,6 @@ export interface Stop {
     number: number;
     name: string;
     description: string;
-    order: number;
     createdAt: Date;
     updatedAt: Date;
     longitude: number;

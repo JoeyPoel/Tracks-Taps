@@ -18,7 +18,7 @@ export default function StopCard({ stop }: { stop: Stop }) {
         >
             <View>
                 <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>
-                    {`${t('Stop')} ${stop.id}: ${stop.name}`}
+                    {`${t('Stop')} ${stop.number}: ${stop.name}`}
                 </Text>
                 <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
                     {t('completeAllChallengesToContinue')}
@@ -32,7 +32,6 @@ const styles = StyleSheet.create({
     container: {
         marginHorizontal: 16,
         marginTop: 24,
-        padding: 16,
         borderRadius: 12,
         borderWidth: 1,
         marginBottom: 24,

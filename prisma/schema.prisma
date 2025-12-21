@@ -84,13 +84,13 @@ model Tour {
 }
 
 model Stop {
-  id           Int      @id @default(autoincrement())
-  tourId       Int
-  tour         Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  number       Int
-  name         String
-  description  String
-  order        Int
+  id          Int    @id @default(autoincrement())
+  tourId      Int
+  tour        Tour   @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  number      Int
+  name        String
+  description String
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   longitude    Float
@@ -114,17 +114,16 @@ enum ChallengeType {
 }
 
 model Challenge {
-  id          Int           @id @default(autoincrement())
-  title       String
-  description String
-  type        ChallengeType
-  points      Int
-  content     String? // Question for trivia, or extra info
-  hint        String?
-  answer      String? // For trivia
-  options     String[] // For trivia
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id        Int           @id @default(autoincrement())
+  title     String
+  type      ChallengeType
+  points    Int
+  content   String? // Question for trivia, or extra info
+  hint      String?
+  answer    String? // For trivia
+  options   String[] // For trivia
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
   // Polymorphic Relations (Nullable FKs)
   tourId Int?

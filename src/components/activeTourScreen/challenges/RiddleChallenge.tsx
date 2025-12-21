@@ -29,7 +29,7 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
     const [showHint, setShowHint] = useState(false);
     const isDone = isCompleted || isFailed;
 
-    const handleSubmit = () => {
+    const handleSubmit = (): void => {
         if (!answer.trim() || isDone) return;
 
         const normalizedInput = answer.trim().toLowerCase();
@@ -38,13 +38,6 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
         if (normalizedInput === normalizedAnswer) {
             onComplete(challenge);
         } else {
-            // Maybe allow multiple tries? For now fail
-            // Or give feedback without failing immediately? 
-            // Requirement said "True or false challenges ... UI differnt", Riddle wasn't spec'd to fail immediately but let's assume one try or loose try.
-            // Actually riddles usually allow retry. Let's fail for now to match interface, or maybe just show error toast.
-            // Let's implement it as: if wrong, just shake/error message, don't permanent fail unless attempts exhausted.
-            // But existing logic seemed to be 'fail' on wrong answer for trivia.
-            // I'll stick to fail for consistency with existing system, but maybe add a warning.
             onFail(challenge);
         }
     };
@@ -53,7 +46,6 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
         <ActiveChallengeCard
             title={challenge.title}
             points={challenge.points}
-            description={challenge.description}
             type="trivia" // Use trivia style
             isCompleted={isCompleted}
             isFailed={isFailed}
@@ -61,10 +53,10 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
             actionLabel={t('submitAnswer') || "Submit"}
             disabled={isDone || !answer.trim()}
         >
+            <Text style={[styles.description, { color: theme.textPrimary }]}>
+                {challenge.content}
+            </Text>
             <View style={styles.content}>
-                <Text style={[styles.riddleText, { color: theme.textPrimary }]}>
-                    {challenge.content}
-                </Text>
 
                 {challenge.hint && (
                     <AnimatedPressable
@@ -115,6 +107,11 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
 };
 
 const styles = StyleSheet.create({
+    description: {
+        fontSize: 14,
+        marginBottom: 16,
+        lineHeight: 20,
+    },
     content: {
         marginBottom: 8,
     },

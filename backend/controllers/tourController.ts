@@ -148,7 +148,6 @@ export const tourController = {
                         number: stop.number,
                         name: stop.name || '',
                         description: stop.description || '',
-                        order: stop.order,
                         latitude: parseFloat(stop.latitude) || 0,
                         longitude: parseFloat(stop.longitude) || 0,
                         type: mapStopType(stop.type),
