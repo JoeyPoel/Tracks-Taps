@@ -13,6 +13,7 @@ To prevent repetition, every challenge object must follow this strict content ru
 - **Distance Calculation**: Calculate the real walking distance between all coordinates in km.
 - **Duration Calculation**: Calculate duration using this formula: `(Total distance / 5km/h) + (3 minutes per challenge) + (5 minutes per stop)`.
 - **Geospatial Logic**: Sequential stops must be within **300m - 600m** of each other. The tour must form a logical walking path (loop or line).
+- **Tour Wide Challenges**: Include **2-3 challenges** that are NOT tied to a specific stop (e.g., "Find a red hydrant anywhere"). These should have `stopId: null`.
 
 # 3. DATA INTEGRITY & DATABASE SYNC
 - **ID Matching**: Top-level `id` must match `stop.tourId` and `challenge.tourId`.
@@ -56,7 +57,10 @@ To prevent repetition, every challenge object must follow this strict content ru
       "latitude": 0.0000,
       "type": "",
       "pubgolfPar": [1-5],
+      "pubgolfPar": [1-5],
       "pubgolfDrink": "",
+      "imageUrl": "[URL]",
+      "detailedDescription": "[Longer description about the stop history/facts]",
       "challenges": [
         {
           "id": [ChallengeID],
@@ -73,7 +77,23 @@ To prevent repetition, every challenge object must follow this strict content ru
       ]
     }
   ],
-  "challenges": [ /* EVERY CHALLENGE OBJECT DUPLICATED HERE */ ],
+  ],
+  "challenges": [ 
+    /* EVERY CHALLENGE OBJECT DUPLICATED HERE */
+    /* PLUS TOUR WIDE CHALLENGES (stopId: null) */
+    {
+        "id": [ChallengeID],
+        "tourId": [TourID],
+        "stopId": null,
+        "title": "Tour Wide Challenge",
+        "type": "TRIVIA",
+        "points": 100,
+        "content": "Find something blue along the route",
+        "answer": "Blue",
+        "options": [],
+        "hint": ""
+    }
+  ],
   "reviews": [ { "id": 1, "content": "Masterpiece of a tour!", "rating": 5, "author": { "name": "ProWalker", "level": 10 } } ]
 }
 

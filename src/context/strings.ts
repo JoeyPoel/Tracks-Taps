@@ -83,6 +83,7 @@ export const strings = {
     next: 'Next',
     tokens: 'Tokens',
     pubgolf: 'Pub Golf',
+    info: 'Info',
     // Pub Golf specific
     par: 'Par',
     sipsTaken: 'Sips taken:',
@@ -323,6 +324,7 @@ export const strings = {
     next: 'Siguiente',
     tokens: 'Fichas',
     pubgolf: 'Pub Golf',
+    info: 'Info',
     // Pub Golf specific
     par: 'Par',
     sipsTaken: 'Sorbos tomados:',
@@ -542,6 +544,7 @@ export const strings = {
     next: 'Volgende',
     tokens: 'Tokens',
     pubgolf: 'Pub Golf',
+    info: 'Info',
     // Pub Golf specific
     par: 'Par',
     sipsTaken: 'Slokken genomen:',

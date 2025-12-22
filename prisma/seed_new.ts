@@ -58,6 +58,8 @@ async function main() {
                     pubgolfPar: stopData.pubgolfPar,
                     pubgolfDrink: stopData.pubgolfDrink,
                     type: stopData.type || StopType.Viewpoint,
+                    imageUrl: stopData.imageUrl,
+                    detailedDescription: stopData.detailedDescription,
                 },
             });
 
@@ -75,6 +77,23 @@ async function main() {
                     } as any, // Cast to any to avoid TS error until client is regenerated
                 });
             }
+        }
+    };
+
+    const createTourChallenges = async (tourId: number, challengesData: any[]) => {
+        for (const challengeData of challengesData) {
+            await prisma.challenge.create({
+                data: {
+                    title: challengeData.title,
+                    type: challengeData.type,
+                    points: challengeData.points,
+                    content: challengeData.content || challengeData.description,
+                    options: challengeData.options,
+                    answer: challengeData.answer,
+                    tourId: tourId,
+                    // No stopId
+                } as any,
+            });
         }
     };
 
@@ -150,6 +169,8 @@ async function main() {
             lat: 52.4690,
             lng: 4.6042,
             type: StopType.Museum_Art,
+            imageUrl: 'https://images.unsplash.com/photo-1565793298595-6a879b1d9bf9?auto=format&fit=crop&w=800&q=80',
+            detailedDescription: 'The Main Gate is the historic entry point to the massive steelworks. Established in 1918, the Hoogovens Museum preserves the rich history of steelmaking in the region. Here you can see original machinery, photos of the early days, and understand the impact of the industry on the local community.',
             challenges: [
                 {
                     title: 'Blast from the Past',
@@ -171,6 +192,7 @@ async function main() {
         {
             name: 'Blast Furnace 6 View',
             description: 'A safe viewing spot for one of the older furnaces, often emitting steam.',
+            detailedDescription: 'From this vantage point, you can safely observe Blast Furnace 6. This unit, although older, is a testament to the longevity of industrial engineering. Watch closely for the steam vents—these are crucial safety mechanisms that release excess pressure and heat. The steam is often visible from miles away, acting as a beacon of industry in the IJmuiden skyline.',
             order: 2,
             number: 2,
             lat: 52.4670,
@@ -191,6 +213,7 @@ async function main() {
         {
             name: 'Blast Furnace 7',
             description: 'The heart of the operation. This massive structure converts iron ore into liquid iron.',
+            detailedDescription: 'Blast Furnace 7 is the crown jewel of the Tata Steel site. Standing over 80 meters tall, it operates 24/7, reaching internal temperatures of over 2000°C. Here, raw iron ore is smelted with coke and limestone to produce liquid iron, which is then transported in torpedo ladles to the steel plant. It is a terrifying yet awe-inspiring display of human mastery over elements.',
             order: 3,
             number: 3,
             lat: 52.4655,
@@ -211,6 +234,7 @@ async function main() {
         {
             name: 'Coking Plant Viewpoint',
             description: 'Watch the "quenching" towers release massive clouds of steam as coke is cooled.',
+            detailedDescription: 'The Coking Plant is where coal is baked at high temperatures in the absence of oxygen to create "coke"—a pure carbon fuel essential for the blast furnaces. The most dramatic moment is "quenching," where the red-hot coke is cooled with water, releasing the massive white steam clouds you see dominating the horizon.',
             order: 4,
             number: 4,
             lat: 52.4720,
@@ -237,6 +261,7 @@ async function main() {
         {
             name: 'North Sea Canal Harbor',
             description: 'Where raw materials arrive from all over the world. Massive cranes unload iron ore.',
+            detailedDescription: 'This deep-water harbor connects the steelworks directly to the North Sea. Enormous bulk carrier ships from Brazil, Australia, and Canada dock here to offload iron ore and coal. The giant blue unloading cranes are capable of moving tons of material in a single scoop, feeding the conveyor belts that snake across the entire industrial terrain.',
             order: 5,
             number: 5,
             lat: 52.4630,
@@ -257,6 +282,7 @@ async function main() {
         {
             name: 'Rolling Mills Exterior',
             description: 'The incredibly long buildings where steel slabs are rolled into thin sheets.',
+            detailedDescription: 'The Rolling Mills act like a giant pasta maker for steel. Glowing hot slabs of steel, thick as a mattress, are passed through heavy rollers until they become sheets as thin as a car door or a soup can. The Hot Strip Mill alone is nearly a kilometer long to accommodate the cooling and rolling process.',
             order: 6,
             number: 6,
             lat: 52.4600,
@@ -277,6 +303,7 @@ async function main() {
         {
             name: 'Reyndersweg Beach',
             description: 'A surreal view where the industry meets the sea and surfers.',
+            detailedDescription: 'Reyndersweg offers a stark contrast between nature and industry. On one side, the waves of the North Sea crash against the shore, attracting surfers and kiteboarders. On the other, the monolithic silhouette of the steelworks looms. It is a unique interface zone where distinct worlds collide, offering beautiful yet dystopian photo opportunities.',
             order: 7,
             number: 7,
             lat: 52.4750,
@@ -295,6 +322,7 @@ async function main() {
         {
             name: 'Wijk aan Zee Bunkers',
             description: 'Remnants of the Atlantic Wall hidden in the dunes near the steelworks.',
+            detailedDescription: 'Hidden in the dunes are the concrete scars of World War II. These bunkers were part of the Atlantic Wall, a coastal defense system built by Nazi Germany. The steelworks themselves were a strategic asset and target during the war. Exploring these ruins offers a somber reminder of the area’s turbulent past amidst the modern industrial growth.',
             order: 8,
             number: 8,
             lat: 52.4800,
@@ -323,6 +351,27 @@ async function main() {
     await createStopsAndChallenges(tataTour.id, tataStops);
     await createReviews(tataTour.id);
 
+    const tataTourChallenges = [
+        {
+            title: 'Industrial Spy',
+            description: 'Spot a train.',
+            type: ChallengeType.TRIVIA,
+            points: 150,
+            content: 'How many torpedo cars (liquid iron transport) did you spot during the tour?',
+            options: ['0-2', '3-5', 'More than 5'],
+            answer: 'More than 5',
+        },
+        {
+            title: 'Safety First',
+            description: 'Find a safety sign.',
+            type: ChallengeType.PICTURE,
+            points: 100,
+            content: 'Take a picture of a "Safety First" or warning sign anywhere on the site.',
+        }
+
+    ];
+    await createTourChallenges(tataTour.id, tataTourChallenges);
+
 
     // --- TOUR 2: Barcelona: Gaudi's Dream ---
     const bcnGaudiTour = await prisma.tour.create({
@@ -346,6 +395,7 @@ async function main() {
         {
             name: 'La Sagrada Familia',
             description: 'Gaudi\'s incomplete magnum opus. A basilica like no other.',
+            detailedDescription: 'La Sagrada Familia is Antoni Gaudí’s crowning achievement, a project he worked on for 43 years until his death. Combining Gothic and Art Nouveau forms, it mimics nature with tree-like columns and organic shapes. The basilica has been under construction since 1882 and is financed entirely by private donations and ticket sales. Each facade tells a different biblical story, from the joy of the Nativity to the stark sorrow of the Passion.',
             order: 1,
             number: 1,
             lat: 41.4036,
@@ -373,6 +423,7 @@ async function main() {
         {
             name: 'Hospital de Sant Pau',
             description: 'Not Gaudi, but majestic Modernisme by Domènech i Montaner nearby.',
+            detailedDescription: 'While Gaudí gets the spotlight, the Hospital de Sant Pau by Lluís Domènech i Montaner is a masterpiece of Art Nouveau. It was designed as a "garden city" for the sick, believing that beauty and nature aid healing. Its colorful ceramic domes and intricate mosaics make it one of the most beautiful hospital complexes in the world, now a UNESCO World Heritage site.',
             order: 2,
             number: 2,
             lat: 41.4115,
@@ -390,6 +441,7 @@ async function main() {
         {
             name: 'Park Güell Entrance',
             description: 'First, admire the gingerbread-style gatehouses.',
+            detailedDescription: 'The entrance to Park Güell feels like stepping into a fairy tale. The two gatehouses, originally the porter’s lodge and thewaiting room, feature roofs covered in "trencadís" (broken tile mosaics) that resemble gingerbread houses with icing. This playful architecture sets the tone for the park, which was originally intended to be a luxury housing estate for Barcelona’s elite.',
             order: 3,
             number: 3,
             lat: 41.4145,
@@ -410,6 +462,7 @@ async function main() {
         {
             name: 'The Dragon Stairway',
             description: 'Meet "El Drac", the famous mosaic salamander.',
+            detailedDescription: 'At the heart of the Dragon Stairway sits "El Drac," the iconic mosaic salamander that has become a symbol of Barcelona. It guards the fountain and represents the alchemical element of fire. Visitors from around the world come to marvel at its vibrant colors and snap a photo with this friendly guardian of the park.',
             order: 4,
             number: 4,
             lat: 41.4150,
@@ -427,6 +480,7 @@ async function main() {
         {
             name: 'Casa Vicens',
             description: 'Gaudi\'s first major house, showcasing Moorish influences.',
+            detailedDescription: 'Casa Vicens is the first house designed by Gaudí and marks the beginning of his illustrious career. Built as a summer home, it displays a heavy Neo-Mudéjar (Moorish revival) influence, featuring vibrant green and cream tiles, angular towers, and lush garden motifs. It stands as a colorful testament to Gaudí’s early genius before he fully developed his signature organic style.',
             order: 5,
             number: 5,
             lat: 41.4035,
@@ -447,6 +501,7 @@ async function main() {
         {
             name: 'Casa Milà (La Pedrera)',
             description: 'The stone quarry house with iconic chimneys.',
+            detailedDescription: 'Casa Milà, popularly known as "La Pedrera" (The Stone Quarry) due to its rough, undulating limestone facade, was Gaudí’s last private residence design. It is structural innovation at its finest, featuring a self-supporting stone facade and free-plan floors. The rooftop is a sculpture garden in itself, where the chimneys look like medieval knights standing guard.',
             order: 6,
             number: 6,
             lat: 41.3954,
@@ -464,6 +519,7 @@ async function main() {
         {
             name: 'Casa Batlló',
             description: 'The House of Bones. A colorful, skeletal masterpiece.',
+            detailedDescription: 'Casa Batlló is often called the "House of Bones" because of its visceral, skeletal appearance. The balconies look like skull fragments, and the supporting pillars resemble human bones. The roof is arched like the back of a dragon, with shiny scales of ceramic tiles, representing the legend of Saint George (patron saint of Catalonia) slaying the dragon.',
             order: 7,
             number: 7,
             lat: 41.3917,
@@ -484,6 +540,7 @@ async function main() {
         {
             name: 'Cascada Monumental',
             description: 'A grand fountain in Ciutadella park where a young Gaudi assisted.',
+            detailedDescription: 'Before he was a master architect, a young Antoni Gaudí worked as an assistant on this monumental fountain in Parc de la Ciutadella. Modeled after the treble fountain in Rome, the Cascada Monumental features a triumphant arch and a golden chariot of Aurora at the top. It is a stunning example of 19th-century classicism with early touches of the brilliance Gaudí would later unleash.',
             order: 8,
             number: 8,
             lat: 41.3888,
@@ -526,6 +583,7 @@ async function main() {
         {
             name: 'Barcelona Cathedral',
             description: 'The heart of the Gothic quarter. Gothic splendor at its finest.',
+            detailedDescription: 'The Cathedral of the Holy Cross and Saint Eulalia is the spiritual center of the Gothic Quarter. Construction began in the 13th century and took centuries to complete. Unlike Sagrada Familia, this is a prime example of classic Catalan Gothic architecture. Its cloister is famous for housing 13 white geese, representing the age of Saint Eulalia when she was martyred.',
             order: 1,
             number: 1,
             lat: 41.3840,
@@ -546,6 +604,7 @@ async function main() {
         {
             name: 'Plaça del Rei',
             description: 'A medieval square surrounded by the Royal Palace.',
+            detailedDescription: 'Plaça del Rei (King’s Square) is arguably the best-preserved medieval square in Barcelona. It is surrounded by the Palau Reial Major, the residence of the Counts of Barcelona. It is said that Christopher Columbus was received here by King Ferdinand and Queen Isabella after his first voyage to the Americas. The steps you stand on echo with centuries of royal history.',
             order: 2,
             number: 2,
             lat: 41.3841,
@@ -563,6 +622,7 @@ async function main() {
         {
             name: 'El Xampanyet',
             description: 'A legendary tapas bar famous for its Cava and anchovies.',
+            detailedDescription: 'El Xampanyet, named after its sparkling house wine, is a Barcelona institution. Dating back to 1929, it has retained its old-world charm with blue tiled walls and marble tables. It is chaotic, loud, and utterly authentic. It is the perfect place to experience the Catalan tradition of "vermut" or an evening aperitif accompanied by fresh anchovies.',
             order: 3,
             number: 3,
             lat: 41.3850,
@@ -583,6 +643,7 @@ async function main() {
         {
             name: 'Santa Maria del Mar',
             description: 'The people\'s cathedral, built by sailors and porters.',
+            detailedDescription: 'Santa Maria del Mar is a unique church built entirely by the parishioners of the port area—sailors, porters, and fishermen—in the 14th century. Unlike other churches built by royalty, this is the "church of the people." Its soaring columns are spaced wide apart, creating a sense of openness and unity. Its construction story was immortalized in the novel "Cathedral of the Sea."',
             order: 4,
             number: 4,
             lat: 41.3845,
@@ -609,6 +670,7 @@ async function main() {
         {
             name: 'Mercat de Santa Caterina',
             description: 'A colorful market with a waving mosaic roof.',
+            detailedDescription: 'The Mercat de Santa Caterina sits on the site of an old convent and stands out for its spectacular undulating roof. The roof is covered in 325,000 colorful ceramic tiles arranged to look like a pixelated fruit and vegetable market when viewed from the air. It is a brilliant fusion of modern architecture and traditional market culture, offering fresh produce and delicious food stalls.',
             order: 5,
             number: 5,
             lat: 41.3860,
@@ -626,6 +688,7 @@ async function main() {
         {
             name: 'Els Quatre Gats',
             description: 'A historic cafe where Picasso held his first exhibition.',
+            detailedDescription: 'Els Quatre Gats ("The Four Cats") opened in 1897 modeled after Le Chat Noir in Paris. It became the gathering place for Barcelona\'s modernist artists, including a young Pablo Picasso. In fact, Picasso held his very first solo exhibition here and even designed the menu cover. Stepping inside is like stepping back into the bohemian artistic revolution of the turn of the century.',
             order: 6,
             number: 6,
             lat: 41.3858,
@@ -646,6 +709,7 @@ async function main() {
         {
             name: 'Plaça de Sant Jaume',
             description: 'The political center of Barcelona since Roman times.',
+            detailedDescription: 'Plaça de Sant Jaume has been the political heart of the city since the Roman era when it was the main forum. Today, it is flanked by the two most important government buildings: the Palace of the Generalitat (Catalan Government) and the City Hall of Barcelona. It is often the site of major protests, celebrations, and the famous "castellers" (human towers) during festivals.',
             order: 7,
             number: 7,
             lat: 41.3828,
@@ -663,6 +727,7 @@ async function main() {
         {
             name: 'Can Culleretes',
             description: 'The oldest restaurant in Barcelona, dating back to 1786.',
+            detailedDescription: 'Can Culleretes holds the title of the oldest restaurant in Barcelona and the second oldest in all of Spain, established in 1786. Its walls are lined with oil paintings and photos of celebrities who have dined there over the centuries. It serves traditional Catalan cuisine, keeping recipes alive that have delighted patrons for over 230 years.',
             order: 8,
             number: 8,
             lat: 41.3810,
@@ -708,6 +773,7 @@ async function main() {
         {
             name: 'Sigismund\'s Column',
             description: 'The meeting point of Warsaw, standing tall in Castle Square.',
+            detailedDescription: 'Sigismund\'s Column, erected in 1644, is the oldest secular monument in Warsaw. It commemorates King Sigismund III Vasa, who moved the capital from Kraków to Warsaw. The statue stands 22 meters high and has survived wars and uprisings, though it was rebuilt after WWII. It is the classic meeting point for locals and the symbolic gateway to the Old Town.',
             order: 1,
             number: 1,
             lat: 52.2475,
@@ -728,6 +794,7 @@ async function main() {
         {
             name: 'Royal Castle',
             description: 'The symbol of Polish statehood, beautifully reconstructed.',
+            detailedDescription: 'The Royal Castle was the official residence of Polish monarchs. Like most of Warsaw, it was completely destroyed during World War II but was meticulously rebuilt between 1971 and 1984 using brick rubble from the original structure. It is a symbol of Polish resilience and pride, showcasing lavish interiors, including the Throne Room and the Canaletto Room.',
             order: 2,
             number: 2,
             lat: 52.2480,
@@ -745,6 +812,7 @@ async function main() {
         {
             name: 'Old Town Market Place',
             description: 'The vibrant heart of the Old Town with the Mermaid statue.',
+            detailedDescription: 'The Old Town Market Place dates back to the 13th century. Once the center of commercial life, it was reduced to rubble in 1944. Its reconstruction was so faithful that it earned a place on the UNESCO World Heritage list. At its center stands the Syrenka (Mermaid), the armed protector and symbol of Warsaw, ready to defend the city with her sword and shield.',
             order: 3,
             number: 3,
             lat: 52.2497,
@@ -772,6 +840,7 @@ async function main() {
         {
             name: 'Warsaw Barbican',
             description: 'The fortified outpost between the Old and New Towns.',
+            detailedDescription: 'The Warsaw Barbican is a semicircular fortified outpost that was once part of the city\'s historic walls. Built in 1540, it is one of the few remaining relics of the complex network of fortifications that once encircled Warsaw. Today, it serves as a bridge between the Old Town and the New Town, often hosting street artists and musicians.',
             order: 4,
             number: 4,
             lat: 52.2515,
@@ -789,6 +858,7 @@ async function main() {
         {
             name: 'Warsaw Uprising Monument',
             description: 'A powerful tribute to the heroes of 1944.',
+            detailedDescription: 'The Warsaw Uprising Monument is a moving tribute to the thousands of insurgents who fought against Nazi occupation in 1944. The monument depicts two groups of soldiers: one charging courageously into battle, and another descending into the sewers, which were used as escape routes. It honors the ultimate sacrifice made by the city\'s residents for their freedom.',
             order: 5,
             number: 5,
             lat: 52.2493,
@@ -809,6 +879,7 @@ async function main() {
         {
             name: 'Chopin Bench',
             description: 'Sit and listen to Chopin\'s music on Krakowskie Przedmieście.',
+            detailedDescription: 'Warsaw is the city of Chopin, and his presence is felt everywhere. This multimedia bench is one of several scattered along the Royal Route. Press the button to listen to a snippet of his compositions while taking in the view of Krakowskie Przedmieście, the most prestigious street in the city, lined with aristocratic palaces and historic churches.',
             order: 6,
             number: 6,
             lat: 52.2435,
@@ -826,6 +897,7 @@ async function main() {
         {
             name: 'Holy Cross Church',
             description: 'Where Chopin\'s heart is preserved.',
+            detailedDescription: 'The Holy Cross Church is a Baroque masterpiece with a deeply moving secret. While Frédéric Chopin is buried in Pére Lachaise Cemetery in Paris, his final wish was for his heart to return to his beloved Poland. It is hermetically sealed in a jar of cognac and enshrined within a pillar of this church, a potent symbol of Polish romantic nationalism.',
             order: 7,
             number: 7,
             lat: 52.2390,
@@ -846,6 +918,7 @@ async function main() {
         {
             name: 'Palace of Culture and Science',
             description: 'The controversial yet iconic Stalinist skyscraper.',
+            detailedDescription: 'The Palace of Culture and Science is the tallest building in Poland and a controversial symbol of the Soviet era. "Gifted" by Stalin to the people of Poland in the 1950s, it is a classic example of Socialist Realist architecture. Despite its complicated history, it houses theaters, museums, cinemas, and a popular observation deck on the 30th floor offering panoramic views of the city.',
             order: 8,
             number: 8,
             lat: 52.2317,
@@ -899,6 +972,7 @@ async function main() {
         {
             name: 'Het Schip',
             description: 'A masterpiece of the Amsterdam School. It looks like a ship!',
+            detailedDescription: 'Het Schip gives a whole new meaning to "public housing." Designed by Michel de Klerk in the expressionist Amsterdam School style, this apartment block was built for the working class but looks like a luxurious ocean liner. Its unconventional shapes, towers, and decorative brickwork make it one of the most unique architectural landmarks in Amsterdam.',
             order: 1,
             number: 1,
             lat: 52.3890,
@@ -919,6 +993,7 @@ async function main() {
         {
             name: 'NDSM Wharf',
             description: 'Former shipyard turned cultural hotspot with daily graffiti art.',
+            detailedDescription: 'NDSM Wharf is Amsterdam’s raw, creative beating heart. Once a massive shipyard, it is now a post-industrial playground for artists, festivals, and startups. The derelict warehouses are covered in ever-changing street art, and the area buzzes with a gritty, unpolished energy that contrasts sharply with the manicured canals of the city center.',
             order: 2,
             number: 2,
             lat: 52.3990,
@@ -937,6 +1012,7 @@ async function main() {
         {
             name: 'EYE Film Museum',
             description: 'Futuristic building dedicated to film history.',
+            detailedDescription: 'The EYE Film Museum is a striking piece of modern architecture on the banks of the IJ river. Its sleek, white, geometric design resembles a giant eye or perhaps a spaceship. Inside, it houses a massive collection of Dutch and international films, posters, and equipment, celebrating the art of cinema in a setting that is a visual spectacle in itself.',
             order: 3,
             number: 3,
             lat: 52.3845,
@@ -955,6 +1031,7 @@ async function main() {
         {
             name: 'A\'DAM Lookout',
             description: 'Observation deck with a swing over the edge.',
+            detailedDescription: 'The A\'DAM Lookout offers an unrivaled 360-degree view of Amsterdam, from the historic center to the polders north of the city. For the thrill-seekers, it features "Over the Edge," Europe\'s highest swing. You can dangle 100 meters above the ground, back and forth over the edge of the tower, with the city sprawled out beneath your feet.',
             order: 4,
             number: 4,
             lat: 52.3840,
@@ -972,6 +1049,7 @@ async function main() {
         {
             name: 'NEMO Science Museum',
             description: 'The green copper ship-shaped museum.',
+            detailedDescription: 'NEMO Science Museum is impossible to miss. Designed by Renzo Piano, this green, copper-clad building rises out of the water like the bow of a giant ship. It is the largest science center in the Netherlands, designed to be hands-on and interactive. The sloping roof doubles as a public piazza, offering a fantastic city terrace for locals and visitors alike.',
             order: 5,
             number: 5,
             lat: 52.3740,
@@ -998,6 +1076,7 @@ async function main() {
         {
             name: 'Scheepvaartmuseum',
             description: 'The National Maritime Museum with a replica ship.',
+            detailedDescription: 'The Scheepvaartmuseum is housed in a former naval storehouse from 1656. It tells the story of how the sea has shaped Dutch culture and history. Moored outside is a full-scale replica of the "Amsterdam," an 18th-century East Indiaman ship that perished on its maiden voyage. Exploring the decks gives a visceral sense of life during the Dutch Golden Age of exploration.',
             order: 6,
             number: 6,
             lat: 52.3715,
@@ -1018,6 +1097,7 @@ async function main() {
         {
             name: 'Python Bridge',
             description: 'A winding red snake-like bridge.',
+            detailedDescription: 'The Python Bridge (officially the High Bridge) corresponds to its nickname perfectly. This bright red, undulating footbridge spans the canal connecting Sporenburg to Borneo Island. Its wave-like shape is not just artistic but functional, allowing sufficient clearance for boats underneath. Walking over its steep humps is a workout with a view!',
             order: 7,
             number: 7,
             lat: 52.3755,
@@ -1035,6 +1115,7 @@ async function main() {
         {
             name: 'Brouwerij \'t IJ',
             description: 'A brewery under a windmill.',
+            detailedDescription: 'Brouwerij \'t IJ offers the quintessential Dutch experience: drinking craft beer next to a windmill. Located in a former bathhouse next to the De Gooyer windmill, this brewery produces some of Amsterdam\'s most beloved organic beers. The terrace is a popular local hangout, perfect for sipping a Zatte or Natte while admiring the wooden sails of the mill.',
             order: 8,
             number: 8,
             lat: 52.3665,
@@ -1080,6 +1161,7 @@ async function main() {
         {
             name: 'De Beyerd',
             description: 'Hole 1: Start with a classic specialty beer.',
+            detailedDescription: 'Welcome to De Beyerd, a Breda institution since 1838. This family-run beer café is famous for its hospitality and its very own brewery. Start your Pub Golf round here with their signature "Drie Hoefijzers Klassiek" or another specialty brew. The warm, brown café interior sets the perfect relaxed tone before the competition heats up.',
             order: 1,
             number: 1,
             lat: 51.5895,
@@ -1102,6 +1184,7 @@ async function main() {
         {
             name: 'Café de Bruine Pij',
             description: 'Hole 2: An iconic brown cafe under the Church.',
+            detailedDescription: 'Café de Bruine Pij looks exactly like a pub should: dark wood, dim lights, and buzzing with conversation. Located right at the foot of the Grote Kerk (Great Church), it offers a stunning view from the terrace. Enjoy a perfectly poured flute of pilsner as you soak up the lively atmosphere of the Grote Markt during this par-4 hole.',
             order: 2,
             number: 2,
             lat: 51.5885,
@@ -1121,6 +1204,7 @@ async function main() {
         {
             name: '\'t Hart van Breda',
             description: 'Hole 3: Famous for nachos and gezelligheid.',
+            detailedDescription: '\'t Hart van Breda is known for two things: "Gezelligheid" (that untranslatable Dutch coziness) and their legendary nachos. It\'s a student favorite and a great spot to refuel. For this hole, sit back with a refreshing white wine or witbier. The par is 3, so keep the pace steady but enjoyable.',
             order: 3,
             number: 3,
             lat: 51.5888,
@@ -1143,6 +1227,7 @@ async function main() {
         {
             name: 'De Bommel',
             description: 'Hole 4: Time for a stronger pace.',
+            detailedDescription: 'De Bommel is where the night often shifts gear. It\'s a place where the music gets a bit louder and the crowd a bit rowdier. Hole 4 is a "Short" hole—a par 2. That means it\'s time for a shot! Salmiakki (Salmari) is the local favorite—a licorice liqueur that packs a punch but goes down smooth.',
             order: 4,
             number: 4,
             lat: 51.5890,
@@ -1162,6 +1247,7 @@ async function main() {
         {
             name: 'Dok 19',
             description: 'Hole 5: Craft beer by the harbor.',
+            detailedDescription: 'Take a short walk to the harbor for Dok 19. This spot is a haven for craft beer lovers, with an impressive selection on tap and in bottles. The vibe is laid-back and alternative. Sip on a hoppy IPA while looking out over the water. It\'s a par 5, designed to be a "long" hole, so take your time and enjoy the complex flavors.',
             order: 5,
             number: 5,
             lat: 51.5910,
@@ -1181,6 +1267,7 @@ async function main() {
         {
             name: 'Proost',
             description: 'Hole 6: Dance and drink.',
+            detailedDescription: 'Proost is more than a pub; it\'s a mini-club. By now, you might be ready to hit the dance floor. The drink of choice here is a refreshing Gin & Tonic. It\'s a par 3, offering a crisp break from the beers. Let the music energize you as you head into the back nine of the course.',
             order: 6,
             number: 6,
             lat: 51.5880,
@@ -1200,6 +1287,7 @@ async function main() {
         {
             name: 'Dependance',
             description: 'Hole 7: Keep the momentum going.',
+            detailedDescription: 'Dependance is located on the Vismarktstraat, the main artery of Breda\'s nightlife. It\'s a classic party pub where the sing-alongs are mandatory. You\'re back on the pilsner here, but this time it\'s a pint. It\'s a par 4, so pace yourself amongst the swaying crowd.',
             order: 7,
             number: 7,
             lat: 51.5878,
@@ -1222,6 +1310,7 @@ async function main() {
         {
             name: 'Walkabout',
             description: 'Hole 8: Australian vibes.',
+            detailedDescription: 'Walkabout brings the Outback to Breda. It\'s an Australian-themed sports bar known for its friendly staff and laid-back attitude. The challenge here is a "Snakebite"—a mix of lager, cider, and blackcurrant. It\'s sweet, dangerous, and delicious. A par 3 to keep spirits high.',
             order: 8,
             number: 8,
             lat: 51.5875,
@@ -1241,6 +1330,7 @@ async function main() {
         {
             name: 'Coyote',
             description: 'Hole 9: It\'s getting wild.',
+            detailedDescription: 'Coyote Breda is inspired by the famous "Coyote Ugly" movie. Expect bartenders dancing on the bar and a wild party atmosphere. Hole 9 calls for a Tequila shot. Salt, shot, lime—par 2. Get it done and join the party on the bar (if you dare)!',
             order: 9,
             number: 9,
             lat: 51.5872,
@@ -1263,6 +1353,7 @@ async function main() {
         {
             name: 'Peddels',
             description: 'Hole 10: The smallest pub.',
+            detailedDescription: 'Peddels claims to be one of the smallest party pubs in Breda. It gets packed, intimate, and incredibly sweaty. The challenge here is a "Pitcher" to share with your team (or tackle alone if you\'re brave/foolish). It\'s a par 5 because it takes teamwork and time to get through it in such a crushed environment.',
             order: 10,
             number: 10,
             lat: 51.5870,
@@ -1282,6 +1373,7 @@ async function main() {
         {
             name: 'Studio',
             description: 'Hole 11: Almost there.',
+            detailedDescription: 'Studio depends on when you arrive—it can be a chill cafe or a pumping nightspot. As you near the end of the course, we need a boost. Vodka Redbull is the drink of choice for Hole 11. The caffeine and sugar kick is exactly what you need to power through to the final hole.',
             order: 11,
             number: 11,
             lat: 51.5882,
@@ -1301,6 +1393,7 @@ async function main() {
         {
             name: 'Holy Moly',
             description: 'Hole 12: The Grand Finale.',
+            detailedDescription: 'Holy Moly is an "Experience Bar"—it\'s like stepping into a bizarre, trippy wonderland with hidden rooms and crazy decor (look for the tree!). This is the clubhouse. Order a celebratory cocktail to finish your round. Reflect on the night, tally your scores, and crown the Pub Golf Champion of Breda!',
             order: 12,
             number: 12,
             lat: 51.5892,

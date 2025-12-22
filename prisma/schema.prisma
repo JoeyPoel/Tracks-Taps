@@ -98,6 +98,8 @@ model Stop {
   type         StopType @default(Viewpoint)
   pubgolfPar   Int?
   pubgolfDrink String?
+  imageUrl           String?
+  detailedDescription String?
 
   // Relations
   challenges   Challenge[] // Stop-specific challenges

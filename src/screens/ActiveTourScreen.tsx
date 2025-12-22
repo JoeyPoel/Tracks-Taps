@@ -7,6 +7,8 @@ import Confetti from '../components/activeTourScreen/animations/Confetti';
 import FloatingPoints from '../components/activeTourScreen/animations/FloatingPoints';
 import ChallengeSection from '../components/activeTourScreen/ChallengeSection';
 import PubGolfSection from '../components/activeTourScreen/pubGolf/PubGolfSection';
+import StopInfoSection from '../components/activeTourScreen/StopInfoSection';
+import TourChallengesSection from '../components/activeTourScreen/TourChallengesSection';
 import TourNavigation from '../components/activeTourScreen/TourNavigation';
 import CustomTabBar from '../components/CustomTabBar';
 import { useLanguage } from '../context/LanguageContext';
@@ -76,6 +78,25 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const stopChallenges = currentStop?.challenges || [];
     const isLastStop = currentStopIndex === (activeTour.tour?.stops?.length || 0) - 1;
 
+    // Filter for tour-wide challenges (challenges with no stopId)
+    // Note: activeTour.tour.challenges contains ALL challenges for the tour, so we filter.
+    const tourAllChallenges = activeTour.tour?.challenges || [];
+    const tourWideChallenges = tourAllChallenges.filter((c: any) => !c.stopId);
+
+    const hasTourChallenges = tourWideChallenges.length > 0;
+    const hasPubGolf = activeTour.tour?.modes?.includes('PUBGOLF');
+
+    // Define Tabs dynamically
+    const tabs = [`${t('info')}`, `${t('challenges')}`];
+    if (hasTourChallenges) tabs.push(t('tourWideChallenges') || 'Tour Challenges');
+    if (hasPubGolf) tabs.push(`${t('pubgolf')}`);
+
+    // Helper to resolve tab content
+    const TAB_INFO = 0;
+    const TAB_STOP_CHALLENGES = 1;
+    const TAB_TOUR_CHALLENGES = hasTourChallenges ? 2 : -1;
+    const TAB_PUBGOLF = hasPubGolf ? (hasTourChallenges ? 3 : 2) : -1;
+
     const openMaps = async () => {
         if (!currentStop) return;
         await openMapApp(currentStop.latitude, currentStop.longitude, currentStop.name);
@@ -109,16 +130,16 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                 )}
 
                 <CustomTabBar
-                    tabs={
-                        activeTour.tour?.modes?.includes('PUBGOLF')
-                            ? [`${t('challenges')}`, `${t('pubgolf')}`]
-                            : [`${t('challenges')}`]
-                    }
+                    tabs={tabs}
                     activeIndex={activeTab}
                     onTabPress={setActiveTab}
                 />
 
-                {activeTab === 0 ? (
+                {activeTab === TAB_INFO && (
+                    <StopInfoSection stop={currentStop} />
+                )}
+
+                {activeTab === TAB_STOP_CHALLENGES && (
                     <ChallengeSection
                         currentStop={currentStop}
                         stopChallenges={stopChallenges}
@@ -127,17 +148,32 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                         triviaSelected={triviaSelected}
                         setTriviaSelected={setTriviaSelected}
                         handleChallengeComplete={handleChallengeComplete}
-                        handleChallengeFail={handleChallengeFail} // Pass handler
+                        handleChallengeFail={handleChallengeFail}
                         handleSubmitTrivia={handleSubmitTrivia}
                     />
-                ) : activeTour.tour?.modes?.includes('PUBGOLF') && activeTab === 1 ? (
+                )}
+
+                {activeTab === TAB_TOUR_CHALLENGES && (
+                    <TourChallengesSection
+                        challenges={tourWideChallenges}
+                        completedChallenges={completedChallenges}
+                        failedChallenges={failedChallenges}
+                        triviaSelected={triviaSelected}
+                        setTriviaSelected={setTriviaSelected}
+                        handleChallengeComplete={handleChallengeComplete}
+                        handleChallengeFail={handleChallengeFail}
+                        handleSubmitTrivia={handleSubmitTrivia}
+                    />
+                )}
+
+                {activeTab === TAB_PUBGOLF && (
                     <PubGolfSection
                         activeTour={activeTour}
                         pubGolfScores={pubGolfScores}
                         currentStopId={currentStop?.id}
                         handleSaveSips={handleSaveSips}
                     />
-                ) : null}
+                )}
 
                 <TourNavigation
                     currentStopIndex={currentStopIndex}

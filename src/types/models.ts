@@ -69,6 +69,7 @@ export interface Tour {
         name: string;
     };
     stops?: Stop[];
+    challenges?: Challenge[];
     reviews?: Review[];
     _count?: {
         stops: number;
