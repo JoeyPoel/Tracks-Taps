@@ -9,7 +9,7 @@ export const tourService = {
     },
 
     async getTourById(id: number) {
-        const response = await client.get(`/tour/${id}`);
+        const response = await client.get(`/tours/${id}`);
         return response.data;
     },
 
