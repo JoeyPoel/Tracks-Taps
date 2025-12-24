@@ -103,13 +103,13 @@ export const tourController = {
         }
     },
 
-    async createTour(request: Request) {
+    async createTour(request: Request, userId: number) {
         try {
             const data = await request.json();
 
             // Validation
-            if (!data.title || !data.location || !data.authorId) {
-                return Response.json({ error: 'Missing required fields (title, location, authorId)' }, { status: 400 });
+            if (!data.title || !data.location) {
+                return Response.json({ error: 'Missing required fields (title, location)' }, { status: 400 });
             }
 
             // Transform data to fit Prisma Create Input
@@ -126,20 +126,9 @@ export const tourController = {
                 startLat: data.startLat ? parseFloat(data.startLat) : null,
                 startLng: data.startLng ? parseFloat(data.startLng) : null,
 
-                // Connect Author or Create Placeholder if missing
+                // Connect Author (Logged in User)
                 author: {
-                    connectOrCreate: {
-                        where: { id: data.authorId },
-                        create: {
-                            id: data.authorId,
-                            name: data.author?.name || `User ${data.authorId}`,
-                            email: `user${data.authorId}@imported.placeholder`,
-                            passwordHash: 'placeholder_hash',
-                            level: data.author?.level || 1,
-                            xp: data.author?.xp || 0,
-                            tokens: data.author?.tokens || 0
-                        }
-                    }
+                    connect: { id: userId }
                 },
 
                 // Create Stops and Nested Challenges
