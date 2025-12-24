@@ -28,16 +28,28 @@ export default function ExploreScreen() {
   const [filterVisible, setFilterVisible] = useState(false);
   const [searchText, setSearchText] = useState(tourFilters.searchQuery || '');
 
-  // Debounce search
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      const query = (searchText || '').trim();
-      if (query !== (tourFilters.searchQuery || '')) {
-        setTourFilters({ ...tourFilters, searchQuery: query, page: 1, limit: 20 });
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchText, tourFilters]);
+  const activeTour = activeTours.length > 0 ? activeTours[0] : null;
+
+  const listHeader = React.useMemo(() => (
+    <>
+      {activeTour && (() => {
+        const currentTeam = activeTour.teams?.find((t: any) => t.userId === user?.id) || activeTour.teams?.[0];
+        const totalStops = activeTour.tour?._count?.stops || activeTour.tour?.stops?.length || 1;
+        const currentStop = currentTeam?.currentStop || 1;
+        const progress = currentStop / totalStops;
+
+        return (
+          <ActiveTourCard
+            title={activeTour.tour?.title || ''}
+            imageUrl={activeTour.tour?.imageUrl || ''}
+            progress={progress}
+            onResume={() => router.push({ pathname: '/active-tour/[id]' as any, params: { id: activeTour.id } })}
+          />
+        );
+      })()}
+    </>
+  ), [activeTour, user?.id, router]);
+
 
   useFocusEffect(
     useCallback(() => {
@@ -50,7 +62,7 @@ export default function ExploreScreen() {
       if (user?.id) {
         fetchAllData(user.id);
       }
-    }, [user?.id, fetchAllData, tourFilters.searchQuery])
+    }, [user?.id, fetchAllData])
   );
 
   if (loading && !tours.length) { // Only show full loader if no data
@@ -69,19 +81,33 @@ export default function ExploreScreen() {
     );
   }
 
-  const activeTour = activeTours.length > 0 ? activeTours[0] : null;
+
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bgPrimary }}>
       <View style={[styles.header, { backgroundColor: theme.bgPrimary }]}>
         <View style={[styles.searchContainer, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
-          <MagnifyingGlassIcon size={20} color={theme.textSecondary} style={{ marginRight: 8 }} />
+          <TouchableOpacity onPress={() => {
+            const query = (searchText || '').trim();
+            if (query !== (tourFilters.searchQuery || '')) {
+              setTourFilters({ ...tourFilters, searchQuery: query, page: 1, limit: 20 });
+            }
+          }}>
+            <MagnifyingGlassIcon size={20} color={theme.textSecondary} style={{ marginRight: 8 }} />
+          </TouchableOpacity>
           <TextInput
             style={[styles.searchInput, { color: theme.textPrimary }]}
             placeholder="Search tours..."
             placeholderTextColor={theme.textSecondary}
             value={searchText}
             onChangeText={setSearchText}
+            returnKeyType="search"
+            onSubmitEditing={() => {
+              const query = (searchText || '').trim();
+              if (query !== (tourFilters.searchQuery || '')) {
+                setTourFilters({ ...tourFilters, searchQuery: query, page: 1, limit: 20 });
+              }
+            }}
           />
         </View>
         <TouchableOpacity onPress={() => setFilterVisible(true)} style={[styles.filterButton, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
@@ -114,25 +140,7 @@ export default function ExploreScreen() {
             }}
           />
         )}
-        ListHeaderComponent={() => (
-          <>
-            {activeTour && (() => {
-              const currentTeam = activeTour.teams?.find((t: any) => t.userId === user?.id) || activeTour.teams?.[0];
-              const totalStops = activeTour.tour?._count?.stops || activeTour.tour?.stops?.length || 1;
-              const currentStop = currentTeam?.currentStop || 1;
-              const progress = currentStop / totalStops;
-
-              return (
-                <ActiveTourCard
-                  title={activeTour.tour?.title || ''}
-                  imageUrl={activeTour.tour?.imageUrl || ''}
-                  progress={progress}
-                  onResume={() => router.push({ pathname: '/active-tour/[id]' as any, params: { id: activeTour.id } })}
-                />
-              );
-            })()}
-          </>
-        )}
+        ListHeaderComponent={listHeader}
         contentContainerStyle={styles.scrollContent}
         onEndReached={() => {
           if (!loading && tours.length >= (tourFilters.limit || 20)) {

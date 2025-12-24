@@ -14,7 +14,8 @@ export const tourRepository = {
                     OR: [
                         { title: { contains: term, mode: 'insensitive' } },
                         { description: { contains: term, mode: 'insensitive' } },
-                        { location: { contains: term, mode: 'insensitive' } }
+                        { location: { contains: term, mode: 'insensitive' } },
+                        { author: { name: { contains: term, mode: 'insensitive' } } }
                     ]
                 }));
             }

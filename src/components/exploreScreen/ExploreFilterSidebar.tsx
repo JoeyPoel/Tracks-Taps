@@ -193,7 +193,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                             onToggle={() => toggleSection('modes')}
                             selectedValue={localFilters.modes?.length ? `${localFilters.modes.length} selected` : 'All'}
                         >
-                            {['WALKING', 'CYCLING', 'PUBGOLF', 'DRIVING'].map(mode => (
+                            {['PUBGOLF'].map(mode => (
                                 <ModeOption
                                     key={mode}
                                     label={mode}

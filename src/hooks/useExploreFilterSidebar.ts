@@ -54,15 +54,13 @@ export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) =
     };
 
     const handleClear = () => {
-        const emptyFilters: TourFilters = {};
+        // Create empty filters but preserve the current search query (text input)
+        // because users typically expect "Clear Filters" to clear the sidebar options, not the main search bar.
+        const emptyFilters: TourFilters = {
+            searchQuery: currentGlobalFilters.searchQuery
+        };
         setLocalFilters(emptyFilters);
         setGlobalFilters(emptyFilters);
-        // Don't close, or maybe close? User usually expects clear to just reset form.
-        // But "Clear Filters" button in their snippet does NOT close in logic provided? 
-        // "onClear={() => { ... }}" in prop.
-        // I will just clear local and global and keep open to let them verify. 
-        // Or common pattern: clear and close?
-        // User snippet: `onClear`.
     };
 
     const [expandedSections, setExpandedSections] = useState({

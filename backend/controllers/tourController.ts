@@ -44,9 +44,6 @@ export const tourController = {
             const url = new URL(request.url);
             const searchParams = url.searchParams;
 
-            console.log('DEBUG: TourController request URL:', request.url);
-            console.log('DEBUG: searchParams:', Object.fromEntries(searchParams.entries()));
-
             const filters: any = {
                 searchQuery: searchParams.get('searchQuery') || undefined,
                 location: searchParams.get('location') || undefined,
@@ -63,6 +60,16 @@ export const tourController = {
 
             const modes = searchParams.getAll('modes[]');
             if (modes.length > 0) filters.modes = modes;
+
+            // Handle genres (support both genres[] and comma-separated genres)
+            let genres = searchParams.getAll('genres[]');
+            if (genres.length === 0) {
+                const genresParam = searchParams.get('genres');
+                if (genresParam) {
+                    genres = genresParam.split(',');
+                }
+            }
+            if (genres.length > 0) filters.genres = genres;
 
             const tours = await tourService.getAllTours(filters);
             return Response.json(tours);
