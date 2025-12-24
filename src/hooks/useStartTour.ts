@@ -8,7 +8,7 @@ import { authEvents } from '../utils/authEvents';
 
 export type StartTourMode = 'solo' | 'lobby' | null;
 
-export const useStartTour = (tourId: number) => {
+export const useStartTour = (tourId: number, authorId?: number) => {
     const { user, refreshUser } = useUserContext();
     const router = useRouter();
     const [loadingMode, setLoadingMode] = useState<StartTourMode>(null);
@@ -25,9 +25,6 @@ export const useStartTour = (tourId: number) => {
                 tourId: tourId,
                 force: force,
             });
-
-            // Axios throws on 4xx/5xx by default unless validatedStatus is changed.
-            // But we might need to handle 409 separately if it throws.
 
             const newActiveTour = response.data;
 
@@ -91,7 +88,9 @@ export const useStartTour = (tourId: number) => {
             return;
         }
 
-        if (user.tokens < 1) {
+        const isAuthor = authorId !== undefined && user.id && parseInt(user.id.toString()) === authorId;
+
+        if (!isAuthor && user.tokens < 1) {
             if (Platform.OS === 'web') {
                 alert(t('insufficientTokensMessage'));
             } else {
@@ -100,7 +99,7 @@ export const useStartTour = (tourId: number) => {
             return;
         }
 
-        if (!force) {
+        if (!force && !isAuthor) {
             if (Platform.OS === 'web') {
                 if (window.confirm(t('startTourCostMessage').replace('{0}', user.tokens.toString()))) {
                     await executeStartTour(force, isLobbyMode);

@@ -17,9 +17,6 @@ interface ReviewCardProps {
 export function ReviewCard({ draft, updateDraft }: ReviewCardProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
-    const { user } = useAuth();
-
-    const authorName = user?.user_metadata?.name || user?.email || t('you');
 
     return (
         <View style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
@@ -27,7 +24,7 @@ export function ReviewCard({ draft, updateDraft }: ReviewCardProps) {
 
             <View style={styles.content}>
                 <Text style={[styles.title, { color: theme.textPrimary }]}>{draft.title}</Text>
-                <Text style={[styles.author, { color: theme.textSecondary }]}>{t('by')} {authorName}</Text>
+                <Text style={[styles.author, { color: theme.textSecondary }]}>{t('by')} {t('you')}</Text>
 
                 <ReviewCardStats draft={draft} updateDraft={updateDraft} />
 

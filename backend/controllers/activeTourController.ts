@@ -10,7 +10,7 @@ export const activeTourController = {
                 return Response.json({ error: 'Missing userId or tourId' }, { status: 400 });
             }
 
-            const newActiveTour = await activeTourService.startTourWithConflictCheck(tourId, userId, force, teamName, teamColor, teamEmoji);
+            const newActiveTour = await activeTourService.startTourWithConflictCheck(Number(tourId), Number(userId), force, teamName, teamColor, teamEmoji);
             return Response.json(newActiveTour);
 
         } catch (error: any) {
@@ -35,7 +35,7 @@ export const activeTourController = {
                 return Response.json({ error: 'Missing userId or activeTourId' }, { status: 400 });
             }
 
-            const team = await activeTourService.joinTour(activeTourId, userId, teamName, teamColor, teamEmoji);
+            const team = await activeTourService.joinTour(Number(activeTourId), Number(userId), teamName, teamColor, teamEmoji);
             return Response.json(team);
 
         } catch (error: any) {

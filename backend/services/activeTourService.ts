@@ -3,6 +3,7 @@ import { SessionStatus } from '@prisma/client';
 import { getScoreDetails } from '../../src/utils/pubGolfUtils';
 import { activeTourRepository } from '../repositories/activeTourRepository';
 import { challengeRepository } from '../repositories/challengeRepository';
+import { tourRepository } from '../repositories/tourRepository';
 import { userRepository } from '../repositories/userRepository';
 
 export const activeTourService = {
@@ -24,8 +25,14 @@ export const activeTourService = {
             await Promise.all(activeTours.map(tour => activeTourRepository.deleteActiveTourById(tour.id)));
         }
 
-        // Deduct 1 token for playing a tour
-        await userRepository.deductTokens(userId, 1);
+        // Check if user is the author
+        const tour = await tourRepository.getTourById(tourId);
+        if (!tour) throw new Error("Tour not found");
+
+        if (tour.authorId !== userId) {
+            // Deduct 1 token for playing a tour IF not author
+            await userRepository.deductTokens(userId, 1);
+        }
 
         return await activeTourRepository.createActiveTour(tourId, userId, teamName, teamColor, teamEmoji);
     },

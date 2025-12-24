@@ -41,10 +41,16 @@ export function useTourSubmission(user: any) {
                 startLng: tourDraft.startLng,
             };
 
-            await tourService.createTour(payload);
+            const createdTour = await tourService.createTour(payload);
 
             Alert.alert(t('tourCreatedSuccess'), t('playForFree'), [
-                { text: 'OK', onPress: () => router.replace('/(tabs)/profile') }
+                {
+                    text: 'OK',
+                    onPress: () => router.replace({
+                        pathname: '/tour/[id]',
+                        params: { id: createdTour.id }
+                    })
+                }
             ]);
 
         } catch (error: any) {

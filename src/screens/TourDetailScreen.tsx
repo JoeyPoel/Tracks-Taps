@@ -10,6 +10,7 @@ import TourGameModes from '../components/tourdetailScreen/TourGameModes';
 import TourHeader from '../components/tourdetailScreen/TourHeader';
 import TourReviews from '../components/tourdetailScreen/TourReviews';
 import TourStats from '../components/tourdetailScreen/TourStats';
+import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useStartTour } from '../hooks/useStartTour';
@@ -18,6 +19,7 @@ import { useTourDetails } from '../hooks/useTourDetails';
 export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
   const { t } = useLanguage();
+  const { user } = useAuth();
   const router = useRouter();
 
   const {
@@ -29,7 +31,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
     formattedReviews
   } = useTourDetails(tourId);
 
-  const { startTour, loadingMode } = useStartTour(tourId);
+  const { startTour, loadingMode } = useStartTour(tourId, tour?.authorId);
 
   if (loading) {
     return (
@@ -81,7 +83,11 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
       <StartTourButton
         onPress={() => startTour(false, false)}
-        buttonText={loadingMode === 'solo' ? "Starting..." : t('startTour')}
+        buttonText={
+          loadingMode === 'solo'
+            ? "Starting..."
+            : (user?.id && parseInt(user.id) === tour.authorId ? t('startTour') + " (Free)" : t('startTour'))
+        }
         disabled={loadingMode !== null}
         style={{ paddingHorizontal: 24, paddingVertical: 16 }}
       />
