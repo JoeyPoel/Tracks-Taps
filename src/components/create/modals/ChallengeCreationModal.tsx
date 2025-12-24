@@ -17,20 +17,23 @@ interface ChallengeCreationModalProps {
     visible: boolean;
     onClose: () => void;
     onSave: (challenge: any) => void;
+    initialData?: any;
 }
 
-export default function ChallengeCreationModal({ visible, onClose, onSave }: ChallengeCreationModalProps) {
+export default function ChallengeCreationModal({ visible, onClose, onSave, initialData }: ChallengeCreationModalProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
-    const { formState, updateField, handleSave } = useChallengeForm(onSave, onClose);
+    const { formState, updateField, handleSave } = useChallengeForm(onSave, onClose, initialData);
     const { title, content, answer, points, hint, type, tfAnswer, optionA, optionB, optionC, optionD } = formState;
 
     return (
         <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
             <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
                 <View style={styles.header}>
-                    <Text style={[styles.title, { color: theme.textPrimary }]}>{t('addChallenge')}</Text>
+                    <Text style={[styles.title, { color: theme.textPrimary }]}>
+                        {initialData ? t('editChallenge') : t('addChallenge')}
+                    </Text>
                     <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: theme.bgTertiary }]}>
                         <Ionicons name="close" size={20} color={theme.textPrimary} />
                     </TouchableOpacity>

@@ -1,7 +1,7 @@
 import { useLanguage } from '@/src/context/LanguageContext';
 import { ChallengeType } from '@/src/types/models';
 import { createChallengePayload, validateChallenge } from '@/src/utils/create/challengeUtils';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 
 export interface ChallengeFormState {
@@ -18,7 +18,7 @@ export interface ChallengeFormState {
     optionD: string;
 }
 
-export function useChallengeForm(onSave: (challenge: any) => void, onClose: () => void) {
+export function useChallengeForm(onSave: (challenge: any) => void, onClose: () => void, initialData?: any) {
     const { t } = useLanguage();
 
     const [formState, setFormState] = useState<ChallengeFormState>({
@@ -34,6 +34,26 @@ export function useChallengeForm(onSave: (challenge: any) => void, onClose: () =
         optionC: '',
         optionD: '',
     });
+
+    useEffect(() => {
+        if (initialData) {
+            setFormState({
+                title: initialData.title || '',
+                content: initialData.content || '',
+                answer: initialData.answer || '',
+                points: initialData.points ? String(initialData.points) : '50',
+                hint: initialData.hint || '',
+                type: initialData.type || ChallengeType.TRIVIA,
+                tfAnswer: initialData.type === ChallengeType.TRUE_FALSE ? initialData.answer === 'true' : true,
+                optionA: initialData.options?.[0] || '',
+                optionB: initialData.options?.[1] || '',
+                optionC: initialData.options?.[2] || '',
+                optionD: initialData.options?.[3] || '',
+            });
+        } else {
+            resetForm();
+        }
+    }, [initialData]);
 
     const updateField = <K extends keyof ChallengeFormState>(key: K, value: ChallengeFormState[K]) => {
         setFormState(prev => ({ ...prev, [key]: value }));

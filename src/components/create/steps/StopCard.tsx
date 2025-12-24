@@ -12,11 +12,13 @@ interface StopCardProps {
     index: number;
     isLast: boolean;
     onRemove: () => void;
+    onEdit: () => void;
     onAddChallenge: () => void;
+    onEditChallenge: (challengeIndex: number) => void;
     onRemoveChallenge: (challengeIndex: number) => void;
 }
 
-export function StopCard({ item, index, isLast, onRemove, onAddChallenge, onRemoveChallenge }: StopCardProps) {
+export function StopCard({ item, index, isLast, onRemove, onEdit, onAddChallenge, onEditChallenge, onRemoveChallenge }: StopCardProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
@@ -26,9 +28,13 @@ export function StopCard({ item, index, isLast, onRemove, onAddChallenge, onRemo
 
             <View style={{ flex: 1, paddingBottom: 24 }}>
                 <View style={[styles.stopCard, { backgroundColor: theme.bgSecondary }]}>
-                    <StopCardHeader item={item} onRemove={onRemove} />
+                    <StopCardHeader item={item} onRemove={onRemove} onEdit={onEdit} />
 
-                    <StopCardChallenges challenges={item.challenges} onRemoveChallenge={onRemoveChallenge} />
+                    <StopCardChallenges
+                        challenges={item.challenges}
+                        onEditChallenge={onEditChallenge}
+                        onRemoveChallenge={onRemoveChallenge}
+                    />
 
                     <TouchableOpacity
                         style={[styles.addChallengeBtn, { backgroundColor: theme.bgTertiary }]}

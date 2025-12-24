@@ -15,9 +15,11 @@ interface StepStopsProps {
     draft: TourDraft;
     actions: {
         addStop: (stop: any) => void;
+        editStop: (index: number, stop: any) => void;
         removeStop: (index: number) => void;
         addChallengeToStop: (stopIndex: number, challenge: any) => void;
         removeChallengeFromStop: (stopIndex: number, challengeIndex: number) => void;
+        editChallengeInStop: (stopIndex: number, challengeIndex: number, challenge: any) => void;
     };
 }
 
@@ -26,24 +28,49 @@ export default function StepStops({ draft, actions }: StepStopsProps) {
     const { t } = useLanguage();
 
     const [isStopModalVisible, setIsStopModalVisible] = useState(false);
+    const [editingStopIndex, setEditingStopIndex] = useState<number | null>(null);
     const [activeStopIndex, setActiveStopIndex] = useState<number | null>(null);
+    const [editingChallengeIndex, setEditingChallengeIndex] = useState<number | null>(null);
     const [isChallengeModalVisible, setIsChallengeModalVisible] = useState(false);
 
-    const handleAddStop = (newStop: any) => {
-        actions.addStop(newStop);
+    const handleSaveStop = (stop: any) => {
+        if (editingStopIndex !== null) {
+            actions.editStop(editingStopIndex, stop);
+        } else {
+            actions.addStop(stop);
+        }
         setIsStopModalVisible(false);
+        setEditingStopIndex(null);
+    };
+
+    const handleEditStop = (index: number) => {
+        setEditingStopIndex(index);
+        setIsStopModalVisible(true);
     };
 
     const openChallengeModal = (index: number) => {
         setActiveStopIndex(index);
+        setEditingChallengeIndex(null);
         setIsChallengeModalVisible(true);
     };
 
-    const handleAddChallenge = (challenge: any) => {
+    const handleSaveChallenge = (challenge: any) => {
         if (activeStopIndex === null) return;
-        actions.addChallengeToStop(activeStopIndex, challenge);
+
+        if (editingChallengeIndex !== null) {
+            actions.editChallengeInStop(activeStopIndex, editingChallengeIndex, challenge);
+        } else {
+            actions.addChallengeToStop(activeStopIndex, challenge);
+        }
         setIsChallengeModalVisible(false);
         setActiveStopIndex(null);
+        setEditingChallengeIndex(null);
+    };
+
+    const handleEditChallenge = (stopIndex: number, challengeIndex: number) => {
+        setActiveStopIndex(stopIndex);
+        setEditingChallengeIndex(challengeIndex);
+        setIsChallengeModalVisible(true);
     };
 
     return (
@@ -64,7 +91,9 @@ export default function StepStops({ draft, actions }: StepStopsProps) {
                             index={index}
                             isLast={index === draft.stops.length - 1}
                             onRemove={() => actions.removeStop(index)}
+                            onEdit={() => handleEditStop(index)}
                             onAddChallenge={() => openChallengeModal(index)}
+                            onEditChallenge={(cIdx) => handleEditChallenge(index, cIdx)}
                             onRemoveChallenge={(cIdx) => actions.removeChallengeFromStop(index, cIdx)}
                         />
                     ))}
@@ -73,7 +102,10 @@ export default function StepStops({ draft, actions }: StepStopsProps) {
 
             <AnimatedPressable
                 style={[styles.addButton, { borderColor: theme.borderPrimary, borderStyle: 'dashed' }]}
-                onPress={() => setIsStopModalVisible(true)}
+                onPress={() => {
+                    setEditingStopIndex(null);
+                    setIsStopModalVisible(true);
+                }}
             >
                 <Ionicons name="location" size={24} color={theme.primary} />
                 <Text style={[styles.addButtonText, { color: theme.primary }]}>{t('addStop')}</Text>
@@ -81,16 +113,28 @@ export default function StepStops({ draft, actions }: StepStopsProps) {
 
             <StopCreationModal
                 visible={isStopModalVisible}
-                onClose={() => setIsStopModalVisible(false)}
-                onSave={handleAddStop}
+                onClose={() => {
+                    setIsStopModalVisible(false);
+                    setEditingStopIndex(null);
+                }}
+                onSave={handleSaveStop}
                 modes={draft.modes}
                 existingStops={draft.stops}
+                initialData={editingStopIndex !== null ? draft.stops[editingStopIndex] : undefined}
             />
 
             <ChallengeCreationModal
                 visible={isChallengeModalVisible}
-                onClose={() => setIsChallengeModalVisible(false)}
-                onSave={handleAddChallenge}
+                onClose={() => {
+                    setIsChallengeModalVisible(false);
+                    setEditingChallengeIndex(null);
+                }}
+                onSave={handleSaveChallenge}
+                initialData={
+                    (activeStopIndex !== null && editingChallengeIndex !== null)
+                        ? draft.stops[activeStopIndex]?.challenges?.[editingChallengeIndex]
+                        : undefined
+                }
             />
         </View>
     );

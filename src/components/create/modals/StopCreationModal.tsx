@@ -14,13 +14,14 @@ interface StopCreationModalProps {
     onSave: (stop: any) => void;
     modes: string[];
     existingStops?: any[];
+    initialData?: any;
 }
 
-export default function StopCreationModal({ visible, onClose, onSave, modes = [], existingStops = [] }: StopCreationModalProps) {
+export default function StopCreationModal({ visible, onClose, onSave, modes = [], existingStops = [], initialData }: StopCreationModalProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
-    const { formState, region, setRegion, isPubGolfEnabled, updateField, handleSave } = useStopForm(onSave, visible, modes, existingStops);
+    const { formState, region, setRegion, isPubGolfEnabled, updateField, handleSave } = useStopForm(onSave, visible, modes, existingStops, initialData);
     const { name, description, detailedDescription, imageUrl, type, isPubGolfStop, drink, par, marker } = formState;
 
     return (
@@ -29,7 +30,9 @@ export default function StopCreationModal({ visible, onClose, onSave, modes = []
 
                 {/* Header */}
                 <View style={styles.header}>
-                    <Text style={[styles.title, {backgroundColor: theme.bgSecondary, color: theme.textPrimary }]}>{t('addStop')}</Text>
+                    <Text style={[styles.title, { backgroundColor: theme.bgSecondary, color: theme.textPrimary }]}>
+                        {initialData ? t('editStop') : t('addStop')}
+                    </Text>
                     <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: theme.bgTertiary }]}>
                         <Ionicons name="close" size={20} color={theme.textPrimary} />
                     </TouchableOpacity>
@@ -67,14 +70,13 @@ export default function StopCreationModal({ visible, onClose, onSave, modes = []
                     <TouchableOpacity
                         style={[
                             styles.saveButton,
-                            { backgroundColor: marker ? theme.primary : theme.bgTertiary }
+                            { backgroundColor: theme.primary }
                         ]}
                         onPress={handleSave}
-                        disabled={!marker}
                     >
                         <Text style={[
                             styles.saveButtonText,
-                            { color: marker ? 'white' : theme.textTertiary }
+                            { color: 'white' }
                         ]}>{t('confirmLocation')}</Text>
                     </TouchableOpacity>
                 </View>

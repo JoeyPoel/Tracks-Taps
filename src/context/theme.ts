@@ -16,6 +16,8 @@ export const lightTheme = {
   warningText: "#78350F", // Amber-900
   info: "#2563EB", // Blue-600
   infoText: "#1E3A8A", // Blue-900
+  error: "#DC2626", // Red-600
+  errorText: "#991B1B", // Red-900
 
   // Backgrounds - Premium Pro Feel
   // Using a very subtle off-white for the main background to let the white cards pop
@@ -123,6 +125,8 @@ export const darkTheme = {
   warningText: "#FDE68A",
   info: "#60A5FA",
   infoText: "#DBEAFE",
+  error: "#DC2626",
+  errorText: "#991B1B",
 
   bgPrimary: "#0F172A",
   bgSecondary: "#1E293B",

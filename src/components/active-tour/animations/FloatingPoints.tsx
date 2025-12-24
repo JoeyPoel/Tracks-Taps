@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
     textAlign: 'center',
-    width: 100, // Fixed width helps the centering logic work consistently
+    width: 120, // Fixed width helps the centering logic work consistently
   },
 });
 

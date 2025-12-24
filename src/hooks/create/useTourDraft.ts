@@ -83,6 +83,13 @@ export function useTourDraft() {
         updateDraft('stops', newStops);
     };
 
+    const editStop = (index: number, updatedStop: any) => {
+        const newStops = [...tourDraft.stops];
+        // Ensure we preserve the challenges of the stop we are editing
+        newStops[index] = { ...updatedStop, challenges: newStops[index].challenges };
+        updateDraft('stops', newStops);
+    };
+
     const addChallengeToStop = (stopIndex: number, challenge: any) => {
         const newStops = [...tourDraft.stops];
         const stop = newStops[stopIndex];
@@ -94,6 +101,15 @@ export function useTourDraft() {
         const newStops = [...tourDraft.stops];
         const stop = newStops[stopIndex];
         stop.challenges = stop.challenges.filter((_: any, i: number) => i !== challengeIndex);
+        updateDraft('stops', newStops);
+    };
+
+    const editChallengeInStop = (stopIndex: number, challengeIndex: number, updatedChallenge: any) => {
+        const newStops = [...tourDraft.stops];
+        const stop = newStops[stopIndex];
+        const newChallenges = [...stop.challenges];
+        newChallenges[challengeIndex] = updatedChallenge;
+        stop.challenges = newChallenges;
         updateDraft('stops', newStops);
     };
 
@@ -111,9 +127,11 @@ export function useTourDraft() {
         updateDraft,
         actions: {
             addStop,
+            editStop,
             removeStop,
             addChallengeToStop,
             removeChallengeFromStop,
+            editChallengeInStop,
             toggleMode
         }
     };

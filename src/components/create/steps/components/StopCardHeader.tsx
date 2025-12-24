@@ -7,9 +7,10 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 interface Props {
     item: any;
     onRemove: () => void;
+    onEdit: () => void;
 }
 
-export function StopCardHeader({ item, onRemove }: Props) {
+export function StopCardHeader({ item, onRemove, onEdit }: Props) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
@@ -31,9 +32,14 @@ export function StopCardHeader({ item, onRemove }: Props) {
                     </Text>
                 </View>
             </View>
-            <TouchableOpacity onPress={onRemove} style={styles.iconBtn}>
-                <Ionicons name="trash-outline" size={20} color={theme.textTertiary} />
-            </TouchableOpacity>
+            <View style={styles.actionsRow}>
+                <TouchableOpacity onPress={onEdit} style={[styles.iconBtn, { backgroundColor: theme.bgTertiary }]}>
+                    <Ionicons name="pencil" size={18} color={theme.textSecondary} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={onRemove} style={[styles.iconBtn, { backgroundColor: theme.bgTertiary }]}>
+                    <Ionicons name="trash-outline" size={18} color={theme.error} />
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }
@@ -44,6 +50,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'flex-start',
         padding: 16,
+    },
+    actionsRow: {
+        flexDirection: 'row',
+        gap: 8,
     },
     stopName: {
         fontSize: 18,
@@ -73,6 +83,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     iconBtn: {
-        padding: 4,
+        padding: 8,
+        borderRadius: 20,
     },
 });

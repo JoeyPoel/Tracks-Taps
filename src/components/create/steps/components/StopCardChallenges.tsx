@@ -6,10 +6,11 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface Props {
     challenges: any[];
+    onEditChallenge: (index: number) => void;
     onRemoveChallenge: (index: number) => void;
 }
 
-export function StopCardChallenges({ challenges, onRemoveChallenge }: Props) {
+export function StopCardChallenges({ challenges, onEditChallenge, onRemoveChallenge }: Props) {
     const { theme } = useTheme();
 
     if (!challenges || challenges.length === 0) return null;
@@ -24,9 +25,14 @@ export function StopCardChallenges({ challenges, onRemoveChallenge }: Props) {
                             <Ionicons name={icon} size={16} color={color} />
                             <Text style={[styles.challengeTitle, { color: theme.textSecondary }]}>{c.title}</Text>
                         </View>
-                        <TouchableOpacity onPress={() => onRemoveChallenge(cIdx)}>
-                            <Ionicons name="close-circle" size={16} color={theme.textDisabled} />
-                        </TouchableOpacity>
+                        <View style={styles.actions}>
+                            <TouchableOpacity onPress={() => onEditChallenge(cIdx)} style={styles.actionBtn}>
+                                <Ionicons name="pencil" size={16} color={theme.textSecondary} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => onRemoveChallenge(cIdx)} style={styles.actionBtn}>
+                                <Ionicons name="close-circle" size={16} color={theme.textDisabled} />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 );
             })}
@@ -50,4 +56,12 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '500',
     },
+    actions: {
+        flexDirection: 'row',
+        gap: 12,
+        alignItems: 'center',
+    },
+    actionBtn: {
+        padding: 4,
+    }
 });
