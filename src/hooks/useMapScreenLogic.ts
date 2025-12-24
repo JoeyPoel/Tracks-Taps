@@ -1,7 +1,9 @@
 import * as Location from 'expo-location';
+import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import MapView from 'react-native-maps';
 import { routingService } from '../services/routingService';
+import { tourService } from '../services/tourService';
 import { Tour } from '../types/models';
 import { useMapFit } from './useMapFit';
 import { useMapTours } from './useMapTour';
@@ -11,13 +13,48 @@ export const useMapScreenLogic = () => {
     const handleRegionChangeTimeout = useRef<any>(null);
     const lastRegion = useRef<any>(null);
     const regionRef = useRef<any>(null);
+    const { tourId } = useLocalSearchParams();
 
     const { tours, loading, refetch } = useMapTours();
     const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
     const [routeSegments, setRouteSegments] = useState<any[]>([]);
 
+    // Handle deep linking / navigation with tourId
+    useEffect(() => {
+        if (tourId) {
+            const id = Number(tourId);
+            const found = tours.find(t => t.id === id);
+
+            if (found) {
+                handleTourSelect(found);
+            } else {
+                // If not in current list (maybe outside bounds), fetch it specifically
+                tourService.getTourById(id).then(tour => {
+                    if (tour) {
+                        // Cast to Map Tour type if needed or ensure compatibility
+                        // Assuming getTourById returns full Tour which matches Map Tour structure
+                        const mapTour = tour;
+                        handleTourSelect(mapTour);
+                        // Optionally update map view immediately to this tour's location
+                        if (mapTour.stops && mapTour.stops.length > 0) {
+                            const firstStop = mapTour.stops[0];
+                            mapRef.current?.animateToRegion({
+                                latitude: firstStop.latitude,
+                                longitude: firstStop.longitude,
+                                latitudeDelta: 0.05,
+                                longitudeDelta: 0.05
+                            }, 1000);
+                        }
+                    }
+                }).catch(err => console.error("Failed to fetch selected tour on map", err));
+            }
+        }
+    }, [tourId, tours.length]); // Depend on tours.length to retry if tours load laters
+
     // Initial Location Effect
     useEffect(() => {
+        if (tourId) return; // Skip initial location if we have a target tour
+
         (async () => {
             try {
                 const { status } = await Location.requestForegroundPermissionsAsync();
@@ -51,7 +88,7 @@ export const useMapScreenLogic = () => {
                 }, 1000);
             }
         })();
-    }, []);
+    }, [tourId]);
 
     useMapFit(mapRef, tours, selectedTour);
 
@@ -100,6 +137,10 @@ export const useMapScreenLogic = () => {
             setTimeout(() => {
                 mapRef.current?.animateToRegion(lastRegion.current, 1000);
             }, 100);
+        } else {
+            // Default back to user location or Amsterdam if no last region
+            // This covers the case where we deeplinked in
+            // For now do nothing or maybe re-trigger location check?
         }
     };
 

@@ -4,6 +4,7 @@ import { useStore } from '../store/store';
 export interface Tour {
     id: number;
     title: string;
+    genre?: string;
     stops: Stop[];
 }
 

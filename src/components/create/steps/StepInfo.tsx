@@ -1,0 +1,138 @@
+import { WizardInput } from '@/src/components/create/common/WizardInput';
+import { WizardStepHeader } from '@/src/components/create/common/WizardStepHeader';
+import { useLanguage } from '@/src/context/LanguageContext';
+import { useTheme } from '@/src/context/ThemeContext';
+import { TourDraft } from '@/src/hooks/useCreateTour';
+import { GENRES } from '@/src/utils/genres';
+import React, { useRef } from 'react';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+interface StepInfoProps {
+    draft: TourDraft;
+    updateDraft: (key: keyof TourDraft, value: any) => void;
+}
+
+export default function StepInfo({ draft, updateDraft }: StepInfoProps) {
+    const { theme } = useTheme();
+    const { t } = useLanguage();
+    const scrollViewRef = useRef<ScrollView>(null);
+
+    return (
+        <View style={styles.container}>
+            <WizardStepHeader
+                title={t('stepInfoTitle')}
+                subtitle={t('stepInfoSubtitle')}
+            />
+
+            <View style={styles.form}>
+                <View>
+                    <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>Genre</Text>
+                    <ScrollView
+                        ref={scrollViewRef}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ gap: 10, paddingVertical: 4 }}
+                    >
+                        {GENRES.map((genre) => {
+                            const isSelected = draft.genre === genre.id;
+                            const Icon = genre.icon;
+                            return (
+                                <TouchableOpacity
+                                    key={genre.id}
+                                    style={[
+                                        styles.genreChip,
+                                        {
+                                            backgroundColor: isSelected ? genre.color : theme.bgTertiary,
+                                            borderColor: isSelected ? genre.color : theme.borderPrimary
+                                        }
+                                    ]}
+                                    onPress={() => updateDraft('genre', genre.id)}
+                                >
+                                    <Icon size={16} color={isSelected ? '#FFF' : theme.textSecondary} />
+                                    <Text style={[
+                                        styles.genreLabel,
+                                        { color: isSelected ? '#FFF' : theme.textSecondary }
+                                    ]}>
+                                        {genre.label}
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </ScrollView>
+                </View>
+
+                <WizardInput
+                    label={t('tourTitle')}
+                    // ... rest of the form ...
+                    value={draft.title}
+                    onChange={(text) => updateDraft('title', text)}
+                    placeholder={t('titlePlaceholder')}
+                />
+
+                <WizardInput
+                    label={t('tourLocation')}
+                    value={draft.location}
+                    onChange={(text) => updateDraft('location', text)}
+                    placeholder={t('locationPlaceholder')}
+                />
+
+                <WizardInput
+                    label={t('tourDescription')}
+                    value={draft.description}
+                    onChange={(text) => updateDraft('description', text)}
+                    placeholder={t('descPlaceholder')}
+                    multiline
+                />
+
+                <WizardInput
+                    label={t('tourImage')}
+                    value={draft.imageUrl}
+                    onChange={(text) => updateDraft('imageUrl', text)}
+                    placeholder={t('imagePlaceholder')}
+                />
+
+                {draft.imageUrl ? (
+                    <Image
+                        source={{ uri: draft.imageUrl }}
+                        style={[styles.imagePreview, { backgroundColor: theme.bgTertiary }]}
+                        resizeMode="cover"
+                    />
+                ) : null}
+            </View>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        gap: 8,
+    },
+    form: {
+        gap: 24,
+    },
+    imagePreview: {
+        width: '100%',
+        height: 200,
+        borderRadius: 24,
+        marginTop: 8,
+    },
+    sectionTitle: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        marginLeft: 4,
+    },
+    genreChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 20,
+        borderWidth: 1,
+        gap: 6,
+    },
+    genreLabel: {
+        fontSize: 14,
+        fontWeight: '500',
+    }
+});

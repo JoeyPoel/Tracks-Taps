@@ -69,30 +69,37 @@ const TourChallengesSection: React.FC<TourChallengesSectionProps> = ({
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 16,
+        marginTop: 8,
     },
     header: {
-        marginBottom: 16,
+        marginBottom: 24,
     },
     title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 4,
+        fontSize: 28,
+        fontWeight: '800',
+        letterSpacing: -0.5,
+        lineHeight: 34,
+        marginBottom: 8,
     },
     subtitle: {
-        fontSize: 14,
+        fontSize: 16,
+        lineHeight: 24,
+        opacity: 0.8,
     },
     noChallengesContainer: {
-        padding: 24,
+        padding: 32,
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 12,
+        borderRadius: 24,
         marginBottom: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.05)',
     },
     noChallengesText: {
         fontSize: 16,
         fontStyle: 'italic',
         textAlign: 'center',
+        opacity: 0.6,
     },
 });
 

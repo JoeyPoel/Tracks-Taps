@@ -1,9 +1,12 @@
+import { StopType } from '@/src/types/models';
+import { getStopIcon } from '@/src/utils/stopIcons';
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 
 interface StopInfoSectionProps {
-    stop: any; // Using any to avoid strict type issues if models aren't updated yet in frontend types
+    stop: any;
 }
 
 export default function StopInfoSection({ stop }: StopInfoSectionProps) {
@@ -11,24 +14,56 @@ export default function StopInfoSection({ stop }: StopInfoSectionProps) {
 
     if (!stop) return null;
 
-    return (
-        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-            {stop.imageUrl ? (
-                <Image
-                    source={{ uri: stop.imageUrl }}
-                    style={styles.image}
-                    resizeMode="cover"
-                />
-            ) : null}
+    const stopType = stop.type || StopType.Viewpoint;
+    const { label, icon } = { label: stopType.replace('_', ' '), icon: getStopIcon(stopType, 16, theme.primary) };
 
-            <View style={styles.content}>
-                <Text style={[styles.title, { color: theme.textPrimary }]}>{stop.name}</Text>
+    return (
+        <View style={styles.container}>
+            {stop.imageUrl ? (
+                <View style={styles.imageContainer}>
+                    <Image
+                        source={{ uri: stop.imageUrl }}
+                        style={styles.image}
+                        resizeMode="cover"
+                    />
+                    <LinearGradient
+                        colors={['transparent', 'rgba(0,0,0,0.6)']}
+                        style={styles.imageOverlay}
+                    />
+                    <View style={styles.imageTypeBadge}>
+                        <View style={[styles.iconBlur, { backgroundColor: theme.bgPrimary }]}>
+                            {getStopIcon(stopType, 16, theme.primary)}
+                            <Text style={[styles.typeText, { color: theme.textPrimary }]}>{label}</Text>
+                        </View>
+                    </View>
+                </View>
+            ) : (
+                <View style={[styles.placeholderHeader, { backgroundColor: theme.bgSecondary }]}>
+                    <View style={[styles.typeBadge, { backgroundColor: theme.bgPrimary, borderColor: theme.borderPrimary }]}>
+                        {getStopIcon(stopType, 20, theme.primary)}
+                        <Text style={[styles.typeText, { color: theme.textPrimary }]}>{label}</Text>
+                    </View>
+                </View>
+            )}
+
+            <View style={[
+                styles.contentCard,
+                {
+                    backgroundColor: theme.bgSecondary,
+                    shadowColor: theme.shadowColor,
+                }
+            ]}>
+                <View style={styles.headerRow}>
+                    <Text style={[styles.title, { color: theme.textPrimary }]}>{stop.name}</Text>
+                </View>
+
+                <View style={[styles.divider, { backgroundColor: theme.borderSecondary }]} />
 
                 <Text style={[styles.description, { color: theme.textSecondary }]}>
                     {stop.detailedDescription || stop.description || "No detailed information available for this stop."}
                 </Text>
             </View>
-        </ScrollView>
+        </View>
     );
 }
 
@@ -36,31 +71,101 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         width: '100%',
+        paddingTop: 12,
+    },
+    imageContainer: {
+        width: '100%',
+        height: 280,
+        borderRadius: 24,
+        overflow: 'hidden',
+        marginBottom: 20,
+        position: 'relative',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
+        elevation: 8,
     },
     image: {
         width: '100%',
-        height: 250,
-        borderRadius: 16,
-        marginBottom: 16,
+        height: '100%',
     },
-    placeholderImage: {
-        width: '100%',
-        height: 200,
-        borderRadius: 16,
-        marginBottom: 16,
-        justifyContent: 'center',
+    imageOverlay: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 100,
+    },
+    imageTypeBadge: {
+        position: 'absolute',
+        bottom: 16,
+        left: 16,
+    },
+    iconBlur: {
+        flexDirection: 'row',
         alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 20,
+        gap: 6,
+        // Optional transparency if supported or solid
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
-    content: {
-        paddingBottom: 24,
+    placeholderHeader: {
+        width: '100%',
+        paddingVertical: 32,
+        borderRadius: 24,
+        marginBottom: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.05)',
+    },
+    typeBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 24,
+        borderWidth: 1,
+        gap: 8,
+    },
+    typeText: {
+        fontSize: 13,
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    contentCard: {
+        borderRadius: 24,
+        padding: 24,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.06,
+        shadowRadius: 16,
+        elevation: 4, // Android
+        marginBottom: 24,
+    },
+    headerRow: {
+        marginBottom: 16,
     },
     title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 12,
+        fontSize: 28,
+        fontWeight: '800',
+        letterSpacing: -0.5,
+        lineHeight: 34,
+    },
+    divider: {
+        height: 1,
+        width: '100%',
+        marginBottom: 16,
     },
     description: {
         fontSize: 16,
-        lineHeight: 24,
+        lineHeight: 26,
+        fontWeight: '400',
     },
 });

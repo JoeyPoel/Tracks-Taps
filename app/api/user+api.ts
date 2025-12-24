@@ -1,6 +1,6 @@
 import { userController } from '@/backend/controllers/userController';
+import { verifyAuth } from '@/backend/utils/auth';
 import { userService } from '../../backend/services/userService';
-import { verifyAuth } from './_utils';
 
 export async function GET(request: Request) {
     const user = await verifyAuth(request);

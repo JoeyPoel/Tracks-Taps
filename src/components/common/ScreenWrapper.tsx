@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleProp, StyleSheet, ViewStyle, RefreshControlProps } from 'react-native';
+import { RefreshControlProps, StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import Animated, { SlideInRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
@@ -10,6 +10,8 @@ interface ScreenWrapperProps {
     withScrollView?: boolean;
     refreshControl?: React.ReactElement<RefreshControlProps>;
     animateEntry?: boolean;
+    includeTop?: boolean;
+    includeBottom?: boolean;
 }
 
 /**
@@ -22,6 +24,8 @@ export const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
     withScrollView = false,
     refreshControl,
     animateEntry = true,
+    includeTop = true,
+    includeBottom = true,
 }) => {
     const insets = useSafeAreaInsets();
     const { theme } = useTheme();
@@ -29,8 +33,8 @@ export const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
     const containerStyle = [
         styles.container,
         {
-            paddingTop: insets.top,
-            paddingBottom: insets.bottom,
+            paddingTop: includeTop ? insets.top : 0,
+            paddingBottom: includeBottom ? insets.bottom : 0,
             paddingLeft: insets.left,
             paddingRight: insets.right,
             backgroundColor: theme.bgPrimary
@@ -48,8 +52,8 @@ export const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
 
     if (withScrollView) {
         return (
-            <Animated.View 
-                style={containerStyle} 
+            <Animated.View
+                style={containerStyle}
                 entering={animateEntry ? enteringAnimation : undefined}
             >
                 <Animated.ScrollView

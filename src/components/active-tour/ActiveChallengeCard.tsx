@@ -1,14 +1,11 @@
+import { getChallengeIconProps } from '@/src/utils/challengeIcons';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import {
-    AcademicCapIcon,
     BoltIcon,
-    CameraIcon,
     CheckCircleIcon,
-    FireIcon,
-    MapPinIcon,
-    QuestionMarkCircleIcon,
     XCircleIcon
 } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
@@ -58,23 +55,27 @@ export default function ActiveChallengeCard({
     const getIconColor = (): string => {
         if (isCompleted) return theme.success;
         if (isFailed) return theme.danger;
-        return theme.primary;
+
+        try {
+            // Need to convert type string to uppercase to match ChallengeType enum if needed
+            // But getChallengeIconProps expects ChallengeType enum values or compatible strings
+            // Casting type as any to bypass strict enum check if types don't perfectly align yet
+            const challengeIconDetails = getChallengeIconProps(type.toUpperCase() as any, theme);
+            return challengeIconDetails.color || theme.primary;
+        } catch (e) {
+            return theme.primary;
+        }
     };
 
-    const StatusIcon = (() => {
-        if (isCompleted) return CheckCircleIcon;
-        if (isFailed) return XCircleIcon;
-        switch (type) {
-            case 'location': return MapPinIcon;
-            case 'trivia': return AcademicCapIcon;
-            case 'camera':
-            case 'picture': return CameraIcon;
-            case 'true_false':
-            case 'riddle': return QuestionMarkCircleIcon;
-            case 'dare': return FireIcon;
-            default: return BoltIcon;
+    const getIconName = (): any => {
+        try {
+            const challengeIconDetails = getChallengeIconProps(type.toUpperCase() as any, theme);
+            return challengeIconDetails.icon || 'help-circle-outline';
+        } catch (e) {
+            return 'help-circle-outline';
         }
-    })();
+    };
+
     return (
         <LinearGradient
             colors={getBackgroundColors()}
@@ -85,7 +86,13 @@ export default function ActiveChallengeCard({
         >
             <View style={styles.cardHeader}>
                 <View style={styles.cardTitleRow}>
-                    <StatusIcon size={24} color={getIconColor()} />
+                    {isCompleted ? (
+                        <CheckCircleIcon size={24} color={theme.success} />
+                    ) : isFailed ? (
+                        <XCircleIcon size={24} color={theme.danger} />
+                    ) : (
+                        <Ionicons name={getIconName()} size={24} color={getIconColor()} />
+                    )}
                     <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>{title}</Text>
                 </View>
                 <View style={styles.pointsBadge}>
@@ -115,7 +122,7 @@ export default function ActiveChallengeCard({
                     style={
                         [
                             styles.button,
-                            { backgroundColor: getIconColor() },
+                            { backgroundColor: theme.secondary },
                             disabled && { backgroundColor: theme.textSecondary, opacity: 0.5 }
                         ]
                     }
@@ -124,7 +131,7 @@ export default function ActiveChallengeCard({
                     interactionScale="medium"
                     haptic="light"
                 >
-                    <Text style={[styles.buttonText, { color: theme.fixedWhite }]}>{actionLabel}</Text>
+                    <Text style={[styles.buttonText, { color: theme.textOnSecondary }]}>{actionLabel}</Text>
                 </AnimatedPressable >
             )
             }

@@ -1,5 +1,5 @@
 import { userController } from '@/backend/controllers/userController';
-import { verifyAuth } from '../_utils';
+import { verifyAuth } from '@/backend/utils/auth';
 
 export async function POST(request: Request) {
     const user = await verifyAuth(request);

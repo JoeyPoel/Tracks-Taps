@@ -16,5 +16,10 @@ export const tourService = {
     async createReview(tourId: number, data: { rating: number; content: string; photos?: string[] }) {
         const response = await client.post(`/tours/${tourId}/reviews`, data);
         return response.data;
+    },
+
+    async createTour(data: any) {
+        const response = await client.post('/tours', data);
+        return response.data;
     }
 };

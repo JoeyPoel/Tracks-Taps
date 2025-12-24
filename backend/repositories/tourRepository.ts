@@ -44,6 +44,10 @@ export const tourRepository = {
             where.modes = { hasSome: filters.modes };
         }
 
+        if (filters.genres && filters.genres.length > 0) {
+            where.genre = { in: filters.genres };
+        }
+
         const orderBy: Prisma.TourOrderByWithRelationInput = {};
         if (filters.sortBy) {
             const order = filters.sortOrder || 'asc';

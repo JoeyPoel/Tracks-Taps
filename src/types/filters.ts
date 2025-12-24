@@ -12,6 +12,7 @@ export interface TourFilters {
     maxDuration?: number;
     modes?: string[];
     difficulty?: Difficulty;
+    genres?: string[];
     sortBy?: SortOption;
     sortOrder?: SortOrder;
     page?: number;

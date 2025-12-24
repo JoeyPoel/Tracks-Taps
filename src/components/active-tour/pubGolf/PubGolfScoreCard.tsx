@@ -116,8 +116,8 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
 
 const styles = StyleSheet.create({
     container: {
-        borderRadius: 20,
-        padding: 20,
+        borderRadius: 24,
+        padding: 24,
         marginVertical: 16,
         flexDirection: 'row',
         flexWrap: 'wrap',

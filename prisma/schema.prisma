@@ -1,12 +1,11 @@
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  engineType    = "library"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
 }
 
 enum StopType {
@@ -58,21 +57,21 @@ model User {
 }
 
 model Tour {
-  id              Int        @id @default(autoincrement())
-  title           String
-  location        String
-  description     String
-  imageUrl        String
-  distance        Float // Stored as Float for calculations
-  duration        Int // Stored in minutes
-  points          Int
-  modes           String[] // PostgreSQL array for modes
-  difficulty      Difficulty
-  challengesCount Int        @default(0) // Cache field
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
-  startLat        Float? // Optimization for map queries
-  startLng        Float? // Optimization for map queries
+  id          Int        @id @default(autoincrement())
+  title       String
+  location    String
+  description String
+  imageUrl    String
+  distance    Float // Stored as Float for calculations
+  duration    Int // Stored in minutes
+  points      Int
+  modes       String[] // PostgreSQL array for modes
+  difficulty  Difficulty
+  genre       String     @default("Adventure") // New field: Genre
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  startLat    Float? // Optimization for map queries
+  startLng    Float? // Optimization for map queries
 
   // Relations
   authorId    Int
@@ -91,14 +90,14 @@ model Stop {
   name        String
   description String
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  longitude    Float
-  latitude     Float
-  type         StopType @default(Viewpoint)
-  pubgolfPar   Int?
-  pubgolfDrink String?
-  imageUrl           String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  longitude           Float
+  latitude            Float
+  type                StopType @default(Viewpoint)
+  pubgolfPar          Int?
+  pubgolfDrink        String?
+  imageUrl            String?
   detailedDescription String?
 
   // Relations

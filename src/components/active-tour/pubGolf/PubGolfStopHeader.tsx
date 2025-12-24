@@ -33,11 +33,15 @@ export default function PubGolfStopHeader({
     const textColor = theme.textPrimary;
     const subTextColor = theme.textSecondary;
 
+    const isColoredCard = isCompleted && scoreDetails;
+
     const gradientColors = scoreDetails
         ? theme.pubGolf[scoreDetails.colorKey as keyof typeof theme.pubGolf].slice(0, 2) as [string, string]
         : isActive
             ? [theme.danger, theme.warning] as [string, string]
-            : [theme.textSecondary, theme.textTertiary] as [string, string];
+            : [theme.bgTertiary, theme.borderPrimary] as [string, string];
+
+    const numberTextColor = (scoreDetails || isActive) ? theme.fixedWhite : theme.textSecondary;
 
     return (
         <View style={styles.topSection}>
@@ -46,14 +50,14 @@ export default function PubGolfStopHeader({
                 colors={gradientColors}
                 style={[styles.numberBadge, { shadowColor: theme.shadowColor }]}
             >
-                <Text style={[styles.numberText, { color: theme.fixedWhite }]}>#{stopNumber}</Text>
+                <Text style={[styles.numberText, { color: numberTextColor }]}>#{stopNumber}</Text>
             </LinearGradient>
 
             {/* Middle: Info */}
             <View style={styles.info}>
                 <Text style={[styles.stopName, { color: textColor }]}>{stopName}</Text>
-                <View style={[styles.drinkBadge, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
-                    <Text style={[styles.drinkName, { color: theme.textSecondary }]}>
+                <View style={[styles.drinkBadge, { backgroundColor: isColoredCard ? 'rgba(255,255,255,0.2)' : theme.bgTertiary }]}>
+                    <Text style={[styles.drinkName, { color: isColoredCard ? theme.fixedWhite : theme.textSecondary }]}>
                         {drinkName}
                     </Text>
                 </View>

@@ -20,6 +20,7 @@ import {
 } from 'react-native';
 import { CameraIcon } from 'react-native-heroicons/outline';
 import AppHeader from '../components/Header';
+import { ScreenWrapper } from '../components/common/ScreenWrapper';
 
 export default function PersonalInfoScreen() {
     const { theme } = useTheme();
@@ -107,10 +108,7 @@ export default function PersonalInfoScreen() {
     }
 
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={[styles.container, { backgroundColor: theme.bgPrimary }]}
-        >
+        <ScreenWrapper animateEntry={false} includeTop={false} includeBottom={false}>
             <Stack.Screen options={{ headerShown: false }} />
 
             <AppHeader
@@ -118,105 +116,110 @@ export default function PersonalInfoScreen() {
                 title={t('personalInfo')}
             />
 
-            <ScrollView contentContainerStyle={styles.content}>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{ flex: 1 }}
+            >
+                <ScrollView contentContainerStyle={styles.content}>
 
-                {/* Avatar Section */}
-                <View style={styles.avatarContainer}>
-                    <Image
-                        source={avatarUrl ? { uri: avatarUrl } : require('../../assets/images/Mascott.png')}
-                        style={[styles.avatar, { borderColor: theme.borderPrimary }]}
-                    />
-                    <View style={styles.avatarInputContainer}>
-                        <Text style={[styles.label, { color: theme.textSecondary }]}>{t('profilePicture')}</Text>
+                    {/* Avatar Section */}
+                    <View style={styles.avatarContainer}>
+                        <Image
+                            source={avatarUrl ? { uri: avatarUrl } : require('../../assets/images/Mascott.png')}
+                            style={[styles.avatar, { borderColor: theme.borderPrimary }]}
+                        />
+                        <View style={styles.avatarInputContainer}>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('profilePicture')}</Text>
+                            <View style={[styles.inputWrapper, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
+                                <CameraIcon size={20} color={theme.textSecondary} style={styles.inputIcon} />
+                                <TextInput
+                                    style={[styles.input, { color: theme.textPrimary }]}
+                                    value={avatarUrl}
+                                    onChangeText={setAvatarUrl}
+                                    placeholder="https://example.com/avatar.png"
+                                    placeholderTextColor={theme.textSecondary}
+                                    autoCapitalize="none"
+                                />
+                            </View>
+                        </View>
+                    </View>
+
+                    {/* Name */}
+                    <View style={styles.formGroup}>
+                        <Text style={[styles.label, { color: theme.textSecondary }]}>{t('name')}</Text>
                         <View style={[styles.inputWrapper, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
-                            <CameraIcon size={20} color={theme.textSecondary} style={styles.inputIcon} />
                             <TextInput
                                 style={[styles.input, { color: theme.textPrimary }]}
-                                value={avatarUrl}
-                                onChangeText={setAvatarUrl}
-                                placeholder="https://example.com/avatar.png"
+                                value={name}
+                                onChangeText={setName}
+                                placeholder={t('name')}
                                 placeholderTextColor={theme.textSecondary}
-                                autoCapitalize="none"
                             />
                         </View>
                     </View>
-                </View>
 
-                {/* Name */}
-                <View style={styles.formGroup}>
-                    <Text style={[styles.label, { color: theme.textSecondary }]}>{t('name')}</Text>
-                    <View style={[styles.inputWrapper, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
-                        <TextInput
-                            style={[styles.input, { color: theme.textPrimary }]}
-                            value={name}
-                            onChangeText={setName}
-                            placeholder={t('name')}
-                            placeholderTextColor={theme.textSecondary}
-                        />
+                    {/* Email */}
+                    <View style={styles.formGroup}>
+                        <Text style={[styles.label, { color: theme.textSecondary }]}>{t('email')}</Text>
+                        <View style={[styles.inputWrapper, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
+                            <TextInput
+                                style={[styles.input, { color: theme.textPrimary }]}
+                                value={email}
+                                onChangeText={setEmail}
+                                placeholder={t('email')}
+                                placeholderTextColor={theme.textSecondary}
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                            />
+                        </View>
+                        <Text style={[styles.hint, { color: theme.textSecondary }]}>
+                            Changing email may require re-verification.
+                        </Text>
                     </View>
-                </View>
 
-                {/* Email */}
-                <View style={styles.formGroup}>
-                    <Text style={[styles.label, { color: theme.textSecondary }]}>{t('email')}</Text>
-                    <View style={[styles.inputWrapper, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
-                        <TextInput
-                            style={[styles.input, { color: theme.textPrimary }]}
-                            value={email}
-                            onChangeText={setEmail}
-                            placeholder={t('email')}
-                            placeholderTextColor={theme.textSecondary}
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                        />
+                    {/* Password */}
+                    <View style={styles.formGroup}>
+                        <Text style={[styles.label, { color: theme.textSecondary }]}>{t('password')}</Text>
+                        <View style={[styles.inputWrapper, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
+                            <TextInput
+                                style={[styles.input, { color: theme.textPrimary }]}
+                                value={password}
+                                onChangeText={setPassword}
+                                placeholder={t('password')}
+                                placeholderTextColor={theme.textSecondary}
+                                secureTextEntry
+                            />
+                        </View>
+                        <Text style={[styles.hint, { color: theme.textSecondary }]}>
+                            Leave blank to keep current password.
+                        </Text>
                     </View>
-                    <Text style={[styles.hint, { color: theme.textSecondary }]}>
-                        Changing email may require re-verification.
-                    </Text>
-                </View>
 
-                {/* Password */}
-                <View style={styles.formGroup}>
-                    <Text style={[styles.label, { color: theme.textSecondary }]}>{t('password')}</Text>
-                    <View style={[styles.inputWrapper, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
-                        <TextInput
-                            style={[styles.input, { color: theme.textPrimary }]}
-                            value={password}
-                            onChangeText={setPassword}
-                            placeholder={t('password')}
-                            placeholderTextColor={theme.textSecondary}
-                            secureTextEntry
-                        />
-                    </View>
-                    <Text style={[styles.hint, { color: theme.textSecondary }]}>
-                        Leave blank to keep current password.
-                    </Text>
-                </View>
+                    {/* Save Button */}
+                    <TouchableOpacity
+                        style={[styles.button, { backgroundColor: theme.primary, marginTop: 20 }]}
+                        onPress={handleSave}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <Text style={styles.buttonText}>{t('saveChanges')}</Text>
+                        )}
+                    </TouchableOpacity>
 
-                {/* Save Button */}
-                <TouchableOpacity
-                    style={[styles.button, { backgroundColor: theme.primary, marginTop: 20 }]}
-                    onPress={handleSave}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <ActivityIndicator color="#fff" />
-                    ) : (
-                        <Text style={styles.buttonText}>{t('saveChanges')}</Text>
-                    )}
-                </TouchableOpacity>
+                    {/* Logout Button */}
+                    <TouchableOpacity
+                        style={[styles.logoutButton, { borderColor: theme.danger }]}
+                        onPress={handleLogout}
+                        disabled={loading}
+                    >
+                        <Text style={[styles.logoutText, { color: theme.danger }]}>{t('logout')}</Text>
+                    </TouchableOpacity>
 
-                {/* Logout Button */}
-                <TouchableOpacity
-                    style={[styles.logoutButton, { borderColor: theme.danger }]}
-                    onPress={handleLogout}
-                    disabled={loading}
-                >
-                    <Text style={[styles.logoutText, { color: theme.danger }]}>{t('logout')}</Text>
-                </TouchableOpacity>
-
-            </ScrollView>
-        </KeyboardAvoidingView>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </ScreenWrapper>
     );
 }
 

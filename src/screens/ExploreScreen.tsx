@@ -106,7 +106,8 @@ export default function ExploreScreen() {
             reviewCount={item.reviews?.length || 0}
             points={item.points}
             modes={item.modes}
-            difficulty={item.difficulty}
+            difficulty={item.difficulty as any}
+            genre={(item as any).genre}
             onPress={async () => {
               fetchTourDetails(item.id, item);
               router.push({ pathname: '/tour/[id]', params: { id: item.id } });

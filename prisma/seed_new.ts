@@ -1,7 +1,21 @@
+import { PrismaPg } from '@prisma/adapter-pg';
 import { ChallengeType, Difficulty, PrismaClient, SessionStatus, StopType } from '@prisma/client';
 import { randomBytes, scryptSync } from 'crypto';
+import 'dotenv/config';
+import { Pool } from 'pg';
 
-const prisma = new PrismaClient();
+console.log('DATABASE_URL connection string:', `"${process.env.DATABASE_URL}"`);
+console.log('DIRECT_URL connection string:', `"${process.env.DIRECT_URL}"`);
+
+if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL is missing from environment variables');
+}
+
+const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL;
+
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 const hashPassword = (password: string) => {
     const salt = randomBytes(16).toString('hex');

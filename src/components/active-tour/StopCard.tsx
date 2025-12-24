@@ -30,18 +30,22 @@ export default function StopCard({ stop }: { stop: Stop }) {
 
 const styles = StyleSheet.create({
     container: {
-        marginHorizontal: 16,
-        marginTop: 24,
-        borderRadius: 12,
+        marginHorizontal: 0,
+        marginTop: 8,
+        borderRadius: 24,
         borderWidth: 1,
         marginBottom: 24,
+        overflow: 'hidden',
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 4,
+        fontSize: 20,
+        fontWeight: '800',
+        letterSpacing: -0.5,
+        marginBottom: 6,
     },
     subtitle: {
-        fontSize: 14,
+        fontSize: 15,
+        lineHeight: 22,
+        opacity: 0.8,
     },
 });

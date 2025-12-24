@@ -86,13 +86,14 @@ export default function PubGolfStopCard({
 
 const styles = StyleSheet.create({
     container: {
-        borderRadius: 16,
-        padding: 16,
-        marginBottom: 12,
-        // Subtle shadow
+        borderRadius: 24,
+        padding: 20,
+        marginBottom: 16,
+        // Softer, premium shadow
+        shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 5,
-        elevation: 6,
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 4,
     },
 });

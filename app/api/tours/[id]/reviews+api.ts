@@ -1,6 +1,6 @@
 import { reviewService } from '@/backend/services/reviewService';
+import { verifyAuth } from '@/backend/utils/auth';
 import { userRepository } from '../../../../backend/repositories/userRepository';
-import { verifyAuth } from '../../_utils';
 
 export async function POST(request: Request, context: any) {
     console.log('API POST /reviews called');

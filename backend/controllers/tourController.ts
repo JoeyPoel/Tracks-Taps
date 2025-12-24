@@ -156,7 +156,6 @@ export const tourController = {
                         challenges: {
                             create: Array.isArray(stop.challenges) ? stop.challenges.map((c: any) => ({
                                 title: c.title,
-                                description: c.content || c.title, // Use content as description if missing
                                 type: Object.values(ChallengeType).includes(c.type) ? c.type : ChallengeType.LOCATION, // Default or validate
                                 points: c.points || 0,
                                 content: c.content || '',
@@ -176,7 +175,6 @@ export const tourController = {
                             .filter((c: any) => !c.stopId && !c.tourId) // Simple heuristic: if it has no foreign keys in source, treat as global
                             .map((c: any) => ({
                                 title: c.title,
-                                description: c.content || c.title,
                                 type: Object.values(ChallengeType).includes(c.type) ? c.type : ChallengeType.LOCATION,
                                 points: c.points || 0,
                                 content: c.content || '',

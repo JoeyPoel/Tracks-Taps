@@ -67,6 +67,18 @@ export const lightTheme = {
   orange: "#F97316", // Orange-500
   pink: "#EC4899", // Pink-500
 
+  // Challenge Palette (Centralized)
+  challenges: {
+    trivia: '#F59E0B',    // Amber
+    trueFalse: '#10B981', // Emerald
+    picture: '#3B82F6',   // Blue
+    riddle: '#8B5CF6',    // Purple
+    location: '#EF4444',  // Red
+    checkIn: '#EC4899',   // Pink
+    dare: '#F97316',      // Orange
+    default: '#6B7280',   // Gray
+  },
+
   // Challenge Status Colors - Subtle Tints (No more heavy filters)
   challengeFailedBackground: '#FEF2F2', // Red-50 (Very subtle)
   challengeFailedBorder: '#FCA5A5', // Red-300 (Softer border)
@@ -156,6 +168,17 @@ export const darkTheme = {
   gold: "#FFD700",
   orange: "#FF5722",
   pink: "#E91E63",
+
+  challenges: {
+    trivia: '#FBBF24',    // Amber-400 (Lighter for dark mode)
+    trueFalse: '#34D399', // Emerald-400
+    picture: '#60A5FA',   // Blue-400
+    riddle: '#A78BFA',    // Violet-400
+    location: '#F87171',  // Red-400
+    checkIn: '#F472B6',   // Pink-400
+    dare: '#FB923C',      // Orange-400
+    default: '#9CA3AF',   // Gray-400
+  },
 
   challengeFailedBackground: '#2b0e0e',
   challengeFailedBorder: '#F87171',

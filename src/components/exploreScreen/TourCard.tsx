@@ -7,6 +7,8 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 
+import { getGenreIcon } from '../../utils/genres';
+
 interface TourCardProps {
   title: string;
   author: string;
@@ -18,6 +20,7 @@ interface TourCardProps {
   reviewCount: number;
   points: number;
   modes?: string[];
+  genre?: string;
   difficulty?: string;
   onPress?: () => void;
 }
@@ -33,6 +36,7 @@ export default function TourCard({
   reviewCount,
   points,
   modes = [],
+  genre,
   difficulty,
   onPress,
 }: TourCardProps) {
@@ -46,25 +50,39 @@ export default function TourCard({
           colors={['transparent', theme.overlay]}
           style={styles.gradient}
         >
-          {difficulty && (
-            <View style={[styles.difficultyBadge, { backgroundColor: theme.bgSecondary }]}>
-              <Text style={[styles.difficultyText, { color: theme.textPrimary }]}>
-                {difficulty}
-              </Text>
-            </View>
-          )}
+          <View style={styles.topRow}>
+            {genre && (
+              <View style={[styles.genreBadge, { backgroundColor: theme.bgSecondary }]}>
+                {(() => {
+                  const GenreIcon = getGenreIcon(genre);
+                  return <GenreIcon size={14} color={theme.textPrimary} />;
+                })()}
+                <Text style={[styles.genreText, { color: theme.textPrimary }]}>{genre}</Text>
+              </View>
+            )}
+          </View>
 
-          {modes.length > 0 && (
-            <View style={styles.modesContainer}>
-              {modes.map((mode, index) => (
-                <View key={index} style={[styles.modeTag, { backgroundColor: theme.secondary }]}>
-                  <Text style={[styles.modeText, { color: theme.textOnSecondary }]}>
-                    {mode}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
+          <View style={styles.bottomRow}>
+            {modes.length > 0 && (
+              <View style={styles.modesContainer}>
+                {modes.map((mode, index) => (
+                  <View key={index} style={[styles.modeTag, { backgroundColor: theme.secondary }]}>
+                    <Text style={[styles.modeText, { color: theme.textOnSecondary }]}>
+                      {mode}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {difficulty && (
+              <View style={[styles.difficultyBadge, { backgroundColor: theme.bgSecondary }]}>
+                <Text style={[styles.difficultyText, { color: theme.textPrimary }]}>
+                  {difficulty}
+                </Text>
+              </View>
+            )}
+          </View>
         </LinearGradient>
       </ImageBackground>
 
@@ -126,10 +144,10 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   difficultyBadge: {
-    alignSelf: 'flex-end',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+    marginBottom: 8,
   },
   difficultyText: {
     fontSize: 12,
@@ -138,12 +156,13 @@ const styles = StyleSheet.create({
   modesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    flex: 1,
   },
   modeTag: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 16,
-    marginRight: 8,
+    marginRight: 6,
     marginBottom: 8,
   },
   modeText: {
@@ -201,5 +220,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 4,
+  },
+  genreBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    gap: 4
+  },
+  genreText: {
+    fontSize: 12,
+    fontWeight: '700'
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    width: '100%',
+  },
+  bottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    width: '100%',
   },
 });

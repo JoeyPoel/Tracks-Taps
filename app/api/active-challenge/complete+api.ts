@@ -1,5 +1,5 @@
 import { activeTourController } from '@/backend/controllers/activeTourController';
-import { verifyAuth } from '../_utils';
+import { verifyAuth } from '@/backend/utils/auth';
 
 export async function POST(request: Request) {
     const user = await verifyAuth(request);

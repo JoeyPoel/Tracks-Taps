@@ -16,7 +16,11 @@ export enum Difficulty {
 export enum ChallengeType {
     LOCATION = 'LOCATION',
     TRIVIA = 'TRIVIA',
-    CHECK_IN = 'CHECK_IN'
+    PICTURE = 'PICTURE',
+    TRUE_FALSE = 'TRUE_FALSE',
+    DARE = 'DARE',
+    RIDDLE = 'RIDDLE',
+    CHECK_IN = 'CHECK_IN' // Keeping CHECK_IN if used legacy, but aligning with schema
 }
 
 export enum StopType {
@@ -61,7 +65,7 @@ export interface Tour {
     points: number;
     modes: string[];
     difficulty: Difficulty | string;
-    challengesCount: number;
+    genre: string; // New field
     createdAt: Date;
     updatedAt: Date;
     authorId: number;

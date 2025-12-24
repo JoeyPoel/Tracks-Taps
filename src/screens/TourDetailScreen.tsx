@@ -48,7 +48,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   }
 
   return (
-    <ScreenWrapper withScrollView style={{ backgroundColor: theme.bgPrimary, paddingTop: 0 }} animateEntry={false}>
+    <ScreenWrapper withScrollView style={{ backgroundColor: theme.bgPrimary }} animateEntry={false} includeTop={false} includeBottom={true}>
       <Stack.Screen options={{ headerShown: false }} />
       <AppHeader
         showBackButton
@@ -64,6 +64,8 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
         title={tour.title}
         author={tour.author?.name || 'Unknown'}
         imageUrl={tour.imageUrl}
+        genre={tour.genre}
+        onMapPress={() => router.push({ pathname: '/(tabs)/map', params: { tourId: tour.id } })}
       />
 
       <TourStats
@@ -84,7 +86,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
         style={{ paddingHorizontal: 24, paddingVertical: 16 }}
       />
 
-      <View style={{ paddingHorizontal: 24, marginBottom: 16 }}>
+      <View style={{ paddingHorizontal: 24, marginBottom: 16, gap: 12 }}>
         <AnimatedPressable
           style={{
             backgroundColor: theme.bgSecondary,
@@ -106,6 +108,8 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             {loadingMode === 'lobby' ? "Starting..." : "Play With Friends"}
           </Text>
         </AnimatedPressable>
+
+
       </View>
 
       <TourGameModes

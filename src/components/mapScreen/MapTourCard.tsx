@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { getGenreIcon } from '../../utils/genres';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 
 interface MapTourCardProps {
@@ -14,6 +15,7 @@ interface MapTourCardProps {
     rating: number;
     reviewCount: number;
     points: number;
+    genre: string; // Add genre
     onPress?: () => void;
 }
 
@@ -26,17 +28,27 @@ export default function MapTourCard({
     rating,
     reviewCount,
     points,
+    genre, // Destructure genre
     onPress,
 }: MapTourCardProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const GenreIcon = getGenreIcon(genre) || Ionicons; // Fallback?
 
     return (
         <AnimatedPressable onPress={onPress} style={{ width: '100%' }} interactionScale="medium" haptic="light">
             <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
                 <View style={styles.content}>
-                    <Text style={[styles.title, { color: theme.textPrimary }]} numberOfLines={1}>{title}</Text>
-                    <Text style={[styles.author, { color: theme.textSecondary }]}>{t('by')} {author}</Text>
+                    <View style={styles.headerRow}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.title, { color: theme.textPrimary }]} numberOfLines={1}>{title}</Text>
+                            <Text style={[styles.author, { color: theme.textSecondary }]}>{t('by')} {author}</Text>
+                        </View>
+                        {/* Genre Icon/Badge */}
+                        <View style={[styles.genreBadge, { backgroundColor: theme.bgTertiary }]}>
+                            <GenreIcon size={16} color={theme.textPrimary} />
+                        </View>
+                    </View>
 
                     <View style={styles.statsRow}>
                         <View style={styles.statItem}>
@@ -89,14 +101,27 @@ const styles = StyleSheet.create({
     content: {
         padding: 16,
     },
+    headerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+    },
     title: {
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 4,
+        paddingRight: 8,
     },
     author: {
         fontSize: 14,
         marginBottom: 12,
+    },
+    genreBadge: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     statsRow: {
         flexDirection: 'row',

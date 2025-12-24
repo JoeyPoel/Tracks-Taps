@@ -1,6 +1,7 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import { useExploreFilterSidebar } from '@/src/hooks/useExploreFilterSidebar';
 import { Difficulty } from '@/src/types/models';
+import { GENRES } from '@/src/utils/genres';
 import React from 'react';
 import { Animated, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon, StopIcon, XMarkIcon } from 'react-native-heroicons/outline';
@@ -62,6 +63,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
         toggleSection,
         updateFilter,
         toggleMode,
+        toggleGenre,
         SIDEBAR_WIDTH
     } = useExploreFilterSidebar(visible, onClose);
 
@@ -198,6 +200,33 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                                     selected={localFilters.modes?.includes(mode) || false}
                                     onPress={() => toggleMode(mode)}
                                 />
+                            ))}
+                        </AccordionSection>
+
+                        {/* GENRE */}
+                        <AccordionSection
+                            title="Genre"
+                            expanded={expandedSections.genre}
+                            onToggle={() => toggleSection('genre')}
+                            selectedValue={localFilters.genres?.length ? `${localFilters.genres.length} selected` : 'All'}
+                        >
+                            {GENRES.map(genre => (
+                                <AnimatedPressable
+                                    key={genre.id}
+                                    style={styles.optionRow}
+                                    onPress={() => toggleGenre(genre.id)}
+                                    interactionScale="subtle"
+                                    haptic="light"
+                                >
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                        {(() => {
+                                            const Icon = genre.icon;
+                                            return <Icon size={20} color={theme.textPrimary} />;
+                                        })()}
+                                        <Text style={[styles.optionText, { color: theme.textPrimary, fontWeight: localFilters.genres?.includes(genre.id) ? 'bold' : 'normal' }]}>{genre.label}</Text>
+                                    </View>
+                                    {localFilters.genres?.includes(genre.id) ? <CheckIcon size={20} color={theme.primary} /> : <StopIcon size={20} color={theme.textPrimary} />}
+                                </AnimatedPressable>
                             ))}
                         </AccordionSection>
 

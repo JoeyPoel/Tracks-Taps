@@ -48,12 +48,9 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     iconBadge: {
-        width: 32,
-        height: 32,
-        borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 12,
+        paddingRight: 6,
     },
     cardTitle: {
         fontSize: 18,

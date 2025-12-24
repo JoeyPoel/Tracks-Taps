@@ -24,6 +24,7 @@ export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) =
                 difficulty: false,
                 distance: false,
                 duration: false,
+                genre: false,
             });
             Animated.timing(slideAnim, {
                 toValue: 0, // Slide to natural position (right: 0)
@@ -71,6 +72,7 @@ export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) =
         difficulty: false,
         distance: false,
         duration: false,
+        genre: false,
     });
 
     const toggleSection = (section: keyof typeof expandedSections) => {
@@ -98,6 +100,17 @@ export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) =
         });
     };
 
+    const toggleGenre = (genreId: string) => {
+        setLocalFilters(prev => {
+            const currentGenres = prev.genres || [];
+            if (currentGenres.includes(genreId)) {
+                return { ...prev, genres: currentGenres.filter(g => g !== genreId) };
+            } else {
+                return { ...prev, genres: [...currentGenres, genreId] };
+            }
+        });
+    };
+
     return {
         slideAnim,
         localFilters,
@@ -108,6 +121,7 @@ export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) =
         toggleSection,
         updateFilter,
         toggleMode,
+        toggleGenre,
         SIDEBAR_WIDTH
     };
 };
