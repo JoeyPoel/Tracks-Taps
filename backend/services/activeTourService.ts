@@ -1,3 +1,4 @@
+import { prisma } from '@/src/lib/prisma';
 import { SessionStatus } from '@prisma/client';
 import { getScoreDetails } from '../../src/utils/pubGolfUtils';
 import { activeTourRepository } from '../repositories/activeTourRepository';
@@ -110,62 +111,71 @@ export const activeTourService = {
         const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
         if (!team) throw new Error("Team not found");
 
-        // Mark this team as finished
-        await activeTourRepository.updateTeamFinish(team.id, new Date(), team.score);
-
-        // Fetch full tour to check other teams
         const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
-        if (!activeTour) throw new Error("Tour not found");
+        if (!activeTour) throw new Error("Active tour not found");
 
-        const allTeamsFinished = activeTour.teams.every(t => t.finishedAt !== null);
+        // 1. Create UserPlayedTour record
+        await prisma.userPlayedTour.create({
+            data: {
+                userId: userId,
+                tourId: activeTour.tourId,
+                status: SessionStatus.COMPLETED,
+                score: team.score,
+                startedAt: activeTour.createdAt,
+                finishedAt: new Date(),
+                teamName: team.name,
+            }
+        });
 
-        if (allTeamsFinished) {
-            // Determine winner
-            // Sort by score DESC, then finishedAt ASC
-            const sortedTeams = [...activeTour.teams].sort((a, b) => {
-                if (b.score !== a.score) {
-                    return b.score - a.score; // Higher score first
-                }
-                const timeA = new Date(a.finishedAt!).getTime();
-                const timeB = new Date(b.finishedAt!).getTime();
-                return timeA - timeB; // Earlier time first
-            });
+        // 2. Delete the team (cascades to ActiveChallenges, PubGolfStops)
+        await activeTourRepository.deleteTeam(team.id);
 
-            const winner = sortedTeams[0];
+        // 3. Check if any teams remain
+        const updatedActiveTour = await activeTourRepository.findActiveTourById(activeTourId);
 
-            return await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.COMPLETED, winner.id);
-        } else {
-            // Tour continues for others
-            // Maybe return something indicating waiting for others?
-            return activeTour;
+        if (!updatedActiveTour || updatedActiveTour.teams.length === 0) {
+            await activeTourRepository.deleteActiveTourById(activeTourId);
+            return { status: 'COMPLETED', tourId: activeTour.tourId };
         }
+
+        return { status: 'COMPLETED', tourId: activeTour.tourId };
     },
 
     async abandonTour(activeTourId: number, userId: number) {
-        // 1. Find the team
+        // 1. Find the team & tour
         const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
         if (!team) {
             throw new Error('Team not found for this tour');
         }
 
-        // 2. Delete the team
+        const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
+        if (!activeTour) throw new Error("Active tour not found");
+
+        // 2. Create UserPlayedTour record (ABANDONED)
+        await prisma.userPlayedTour.create({
+            data: {
+                userId: userId,
+                tourId: activeTour.tourId,
+                status: SessionStatus.ABANDONED,
+                score: team.score,
+                startedAt: activeTour.createdAt,
+                finishedAt: new Date(),
+                teamName: team.name,
+            }
+        });
+
+        // 3. Delete the team
         await activeTourRepository.deleteTeam(team.id);
 
-        // 3. Check if any teams remain
-        const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
+        // 4. Check if any teams remain
+        const updatedActiveTour = await activeTourRepository.findActiveTourById(activeTourId);
 
-        // If activeTour is null (shouldn't be unless concurrently deleted), or no teams left
-        if (!activeTour || activeTour.teams.length === 0) {
+        if (!updatedActiveTour || updatedActiveTour.teams.length === 0) {
             await activeTourRepository.deleteActiveTourById(activeTourId);
-            // Return null or undefined to indicate deletion?? 
-            // Or return a "custom" status object. 
-            // The controller expects a response. 
-            // Let's return { status: 'DELETED' } or similar if strictly needed, 
-            // but previously it returned the updated tour.
             return { id: activeTourId, status: 'DELETED' };
         }
 
-        return activeTour;
+        return updatedActiveTour;
     },
 
     async updatePubGolfScore(activeTourId: number, stopId: number, sips: number, userId: number) {

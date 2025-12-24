@@ -54,6 +54,7 @@ model User {
   teams        Team[]
 
   activeTours ActiveTour[]
+  playedTours UserPlayedTour[]
 }
 
 model Tour {
@@ -75,11 +76,12 @@ model Tour {
 
   // Relations
   authorId    Int
-  author      User         @relation("TourAuthor", fields: [authorId], references: [id])
+  author      User             @relation("TourAuthor", fields: [authorId], references: [id])
   stops       Stop[]
   challenges  Challenge[] // Global challenges for the tour
   reviews     Review[]
   activeTours ActiveTour[]
+  playedTours UserPlayedTour[]
 }
 
 model Stop {
@@ -212,4 +214,18 @@ model Review {
   tour     Tour @relation(fields: [tourId], references: [id], onDelete: Cascade)
   authorId Int
   author   User @relation(fields: [authorId], references: [id])
+}
+
+model UserPlayedTour {
+  id         Int           @id @default(autoincrement())
+  userId     Int
+  user       User          @relation(fields: [userId], references: [id])
+  tourId     Int
+  tour       Tour          @relation(fields: [tourId], references: [id])
+  status     SessionStatus
+  score      Int           @default(0)
+  startedAt  DateTime
+  finishedAt DateTime      @default(now())
+  teamName   String?
+  createdAt  DateTime      @default(now())
 }
