@@ -31,8 +31,8 @@ export default function TourHeader({ title, author, imageUrl, genre, onMapPress 
                 <View style={styles.contentContainer}>
                     <View style={styles.content}>
                         {genre && GenreIcon && (
-                            <View style={[styles.genreBadge, { backgroundColor: theme.primary }]}>
-                                <GenreIcon size={14} color="#FFF" />
+                            <View style={[styles.genreBadge, { backgroundColor: theme.bgSecondary }]}>
+                                <GenreIcon size={14} color={theme.fixedWhite} />
                                 <Text style={styles.genreText}>{genre}</Text>
                             </View>
                         )}
@@ -48,7 +48,7 @@ export default function TourHeader({ title, author, imageUrl, genre, onMapPress 
                             onPress={onMapPress}
                             haptic="medium"
                         >
-                            <MapIcon size={20} color={theme.primary} />
+                            <MapIcon size={20} color={theme.fixedWhite} />
                         </AnimatedPressable>
                     )}
                 </View>

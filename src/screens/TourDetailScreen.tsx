@@ -48,7 +48,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   }
 
   return (
-    <ScreenWrapper withScrollView style={{ backgroundColor: theme.bgPrimary }} animateEntry={false} includeTop={false} includeBottom={true}>
+    <ScreenWrapper withScrollView style={{ backgroundColor: theme.bgPrimary }} animateEntry={false} includeTop={false} includeBottom={false}>
       <Stack.Screen options={{ headerShown: false }} />
       <AppHeader
         showBackButton
