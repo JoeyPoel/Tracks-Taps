@@ -35,11 +35,6 @@ const LocationChallenge: React.FC<LocationChallengeProps> = ({
             <Text style={[styles.description, { color: theme.textPrimary }]}>
                 {challenge.content}
             </Text>
-            {isCompleted && (
-                <Text style={[styles.successText, { color: theme.primary }]}>
-                    {t('rightLocation') || "You are at the right location!"}
-                </Text>
-            )}
         </ActiveChallengeCard>
     );
 };
