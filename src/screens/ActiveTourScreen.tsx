@@ -45,12 +45,9 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         handlePrevStop,
         handleNextStop,
         handleFinishTour,
-        handleAbandonTour,
         streak,
         points,
-        updateActiveTourLocal,
         currentTeam,
-        setFloatingPointsAmount,
         handleSaveSips
     } = useActiveTour(activeTourId, user.id, updateUserXp);
 
@@ -184,10 +181,12 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                         const success = await handleFinishTour();
                         if (success) {
                             await refreshUser(); // Refresh user data to update participations
-                            setTimeout(() => {
-                                router.dismissAll();
+                            router.dismissAll();
+                            if ((activeTour.teams?.length || 0) > 1) {
                                 router.replace({ pathname: '/tour-waiting-lobby/[id]', params: { id: activeTourId } });
-                            }, 3000);
+                            } else {
+                                router.replace({ pathname: '/tour-completed/[id]', params: { id: activeTourId } });
+                            }
                         }
                     }}
                 />

@@ -21,7 +21,7 @@ export default function StopCard({ stop }: { stop: Stop }) {
                     {`${t('Stop')} ${stop.number}: ${stop.name}`}
                 </Text>
                 <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-                    {t('completeAllChallengesToContinue')}
+                    {stop.description || t('completeAllChallengesToContinue')}
                 </Text>
             </View>
         </GenericCard>
