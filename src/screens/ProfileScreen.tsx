@@ -18,8 +18,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 
-import { LevelSystem } from '../utils/levelUtils';
 import { useFriends } from '../hooks/useFriends';
+import { LevelSystem } from '../utils/levelUtils';
 
 export default function ProfileScreen() {
   const { theme } = useTheme();
@@ -28,6 +28,12 @@ export default function ProfileScreen() {
   const [showBuyTokens, setShowBuyTokens] = useState(false);
 
   const { user, loading } = useUserContext();
+
+  const { loadFriends, friends } = useFriends();
+
+  React.useEffect(() => {
+    loadFriends();
+  }, [loadFriends]);
 
   if (loading && !user) {
     return (
@@ -63,11 +69,14 @@ export default function ProfileScreen() {
         onEditPress={() => router.push('/profile/personal-info')}
       />
 
-      {/* <ProfileStats
-        toursDone={user played tours} // route to played tours
-        toursCreated={user created tours} // route to created tours
-        friends={useFriends().friends.length}  // route push friends
-      /> */}
+      <ProfileStats
+        toursDone={user?.playedTours?.length || 0}
+        toursCreated={user?.createdTours?.length || 0}
+        friends={friends.length}
+        onPressToursDone={() => console.log('Navigate to tours done')}
+        onPressToursCreated={() => console.log('Navigate to created tours')}
+        onPressFriends={() => router.push('/(tabs)/friends')}
+      />
 
       <RecentAchievements achievements={achievements} />
 

@@ -1,38 +1,60 @@
 import { useLanguage } from '@/src/context/LanguageContext';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { BoltIcon, MapPinIcon, UserPlusIcon } from 'react-native-heroicons/outline';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { MapPinIcon, PencilSquareIcon, UsersIcon } from 'react-native-heroicons/outline';
 import { useTheme } from '../../context/ThemeContext';
 
 interface ProfileStatsProps {
     toursDone: number;
-    totalPoints: number;
+    toursCreated: number;
     friends: number;
+    onPressToursDone?: () => void;
+    onPressToursCreated?: () => void;
+    onPressFriends?: () => void;
 }
 
-export default function ProfileStats({ toursDone, totalPoints, friends }: ProfileStatsProps) {
+export default function ProfileStats({
+    toursDone,
+    toursCreated,
+    friends,
+    onPressToursDone,
+    onPressToursCreated,
+    onPressFriends
+}: ProfileStatsProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
     return (
         <View style={styles.container}>
-            <View style={[styles.statCard, { backgroundColor: theme.bgSecondary }]}>
+            <TouchableOpacity
+                style={[styles.statCard, { backgroundColor: theme.bgSecondary }]}
+                onPress={onPressToursDone}
+                activeOpacity={0.7}
+            >
                 <MapPinIcon size={24} color={theme.secondary} style={styles.icon} />
                 <Text style={[styles.value, { color: theme.textPrimary }]}>{toursDone}</Text>
                 <Text style={[styles.label, { color: theme.textSecondary }]}>{t('toursDone')}</Text>
-            </View>
+            </TouchableOpacity>
 
-            <View style={[styles.statCard, { backgroundColor: theme.bgSecondary }]}>
-                <BoltIcon size={24} color={theme.warning} style={styles.icon} />
-                <Text style={[styles.value, { color: theme.textPrimary }]}>{totalPoints}</Text>
-                <Text style={[styles.label, { color: theme.textSecondary }]}>{t('totalPoints')}</Text>
-            </View>
+            <TouchableOpacity
+                style={[styles.statCard, { backgroundColor: theme.bgSecondary }]}
+                onPress={onPressToursCreated}
+                activeOpacity={0.7}
+            >
+                <PencilSquareIcon size={24} color={theme.warning} style={styles.icon} />
+                <Text style={[styles.value, { color: theme.textPrimary }]}>{toursCreated}</Text>
+                <Text style={[styles.label, { color: theme.textSecondary }]}>{t('toursCreated')}</Text>
+            </TouchableOpacity>
 
-            <View style={[styles.statCard, { backgroundColor: theme.bgSecondary }]}>
-                <UserPlusIcon size={24} color={theme.primary} style={styles.icon} />
+            <TouchableOpacity
+                style={[styles.statCard, { backgroundColor: theme.bgSecondary }]}
+                onPress={onPressFriends}
+                activeOpacity={0.7}
+            >
+                <UsersIcon size={24} color={theme.primary} style={styles.icon} />
                 <Text style={[styles.value, { color: theme.textPrimary }]}>{friends}</Text>
                 <Text style={[styles.label, { color: theme.textSecondary }]}>{t('friends')}</Text>
-            </View>
+            </TouchableOpacity>
         </View>
     );
 }
@@ -61,5 +83,6 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 12,
+        textAlign: 'center',
     },
 });

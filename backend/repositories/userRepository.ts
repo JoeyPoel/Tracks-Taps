@@ -20,6 +20,19 @@ export const userRepository = {
                             }
                         }
                     }
+                },
+                createdTours: {
+                    select: {
+                        id: true,
+                        title: true
+                    }
+                },
+                playedTours: {
+                    select: {
+                        id: true,
+                        status: true,
+                        score: true
+                    }
                 }
             },
         });
@@ -36,6 +49,19 @@ export const userRepository = {
                                 status: true
                             }
                         }
+                    }
+                },
+                createdTours: {
+                    select: {
+                        id: true,
+                        title: true
+                    }
+                },
+                playedTours: {
+                    select: {
+                        id: true,
+                        status: true,
+                        score: true
                     }
                 }
             },

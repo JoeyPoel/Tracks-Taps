@@ -101,6 +101,11 @@ export interface User {
         id: number;
         title: string;
     }[];
+    playedTours?: {
+        id: number;
+        status: SessionStatus;
+        score: number;
+    }[];
 }
 
 export interface Challenge {
