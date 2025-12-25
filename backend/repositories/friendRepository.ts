@@ -61,4 +61,13 @@ export const friendRepository = {
             where: { id },
         });
     },
+    async updateRequestStatus(id: number, status: 'ACCEPTED' | 'DECLINED') {
+        return this.updateFriendshipStatus(id, status);
+    },
+
+    async getRequestById(id: number) {
+        return await prisma.friendship.findUnique({
+            where: { id }
+        });
+    },
 };

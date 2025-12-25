@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 import {
   Cog6ToothIcon,
@@ -18,6 +18,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 
+import { useAchievements } from '../hooks/useAchievements';
 import { useFriends } from '../hooks/useFriends';
 import { LevelSystem } from '../utils/levelUtils';
 
@@ -28,6 +29,12 @@ export default function ProfileScreen() {
   const [showBuyTokens, setShowBuyTokens] = useState(false);
 
   const { user, loading } = useUserContext();
+
+  const { achievements, loadAchievements } = useAchievements();
+
+  useEffect(() => {
+    loadAchievements();
+  }, [loadAchievements]);
 
   const { loadFriends, friends } = useFriends();
 
@@ -45,12 +52,6 @@ export default function ProfileScreen() {
 
   const progress = LevelSystem.getProgress(user?.xp || 0);
 
-  // Mock data for new UI elements
-  const achievements = [
-    { id: '1', title: 'Tour Master', description: 'Completed 5 tours', icon: 'trophy', color: '#FFC107' },
-    { id: '2', title: 'Rising Star', description: 'Earned 4000+ points', icon: 'flash', color: '#2AC3FF' },
-    { id: '3', title: 'Social Butterfly', description: 'Invited 3 friends', icon: 'people', color: '#FF375D' },
-  ];
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.bgPrimary }]}>

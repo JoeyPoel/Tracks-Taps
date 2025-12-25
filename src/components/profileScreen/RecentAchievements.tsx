@@ -14,11 +14,12 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 
 interface Achievement {
-    id: string;
+    id: number | string;
     title: string;
     description: string;
     icon: string;
     color: string;
+    unlockedAt?: string;
 }
 
 interface RecentAchievementsProps {

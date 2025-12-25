@@ -27,6 +27,9 @@ async function main() {
     console.log('Start seeding ...');
 
     // Clean up existing data
+    await prisma.userPlayedTour.deleteMany();
+    await prisma.notification.deleteMany();
+    await prisma.friendship.deleteMany();
     await prisma.pubGolfStop.deleteMany();
     await prisma.activeChallenge.deleteMany();
     await prisma.team.deleteMany();
@@ -35,6 +38,8 @@ async function main() {
     await prisma.challenge.deleteMany();
     await prisma.stop.deleteMany();
     await prisma.tour.deleteMany();
+    await prisma.userAchievement.deleteMany();
+    await prisma.achievement.deleteMany();
     await prisma.user.deleteMany();
 
     // 1. Create Users
@@ -1438,6 +1443,133 @@ async function main() {
     await createStopsAndChallenges(bredaTour.id, bredaStops);
     await createReviews(bredaTour.id);
 
+
+
+    // --- Achievements ---
+    console.log('Seeding achievements...');
+    const achievements = [
+        {
+            title: 'First Steps',
+            description: 'Complete your first tour',
+            icon: 'flag', // Simple start
+            color: '#4ADE80', // Green
+            criteria: 'TOUR_COMPLETION',
+            target: 1,
+            xpReward: 100,
+        },
+        {
+            title: 'Tour Master',
+            description: 'Complete 5 tours',
+            icon: 'trophy',
+            color: '#F59E0B', // Amber
+            criteria: 'TOUR_COMPLETION',
+            target: 5,
+            xpReward: 500,
+        },
+        {
+            title: 'Social Butterfly',
+            description: 'Add a friend',
+            icon: 'people',
+            color: '#EC4899', // Pink
+            criteria: 'FRIEND_ADD',
+            target: 1,
+            xpReward: 50,
+        },
+        {
+            title: 'Squad Goals',
+            description: 'Add 5 friends',
+            icon: 'people',
+            color: '#DB2777', // Darker Pink
+            criteria: 'FRIEND_ADD',
+            target: 5,
+            xpReward: 250,
+        },
+        {
+            title: 'Sharpshooter',
+            description: 'Get a Hole in One on PubGolf',
+            icon: 'star',
+            color: '#FACC15', // Yellow
+            criteria: 'PUBGOLF_HOLE_IN_ONE',
+            target: 1,
+            xpReward: 150,
+        },
+        {
+            title: 'On Fire',
+            description: 'Get 3 Hole in Ones in a single game',
+            icon: 'flame',
+            color: '#EF4444', // Red
+            criteria: 'PUBGOLF_STREAK',
+            target: 3,
+            xpReward: 1000,
+        },
+        {
+            title: 'Explorer',
+            description: 'Visit 10 unique stops',
+            icon: 'map',
+            color: '#3B82F6', // Blue
+            criteria: 'STOP_VISIT',
+            target: 10,
+            xpReward: 200,
+        },
+        {
+            title: 'Party Animal',
+            description: 'Complete a tour with a team of 4+',
+            icon: 'flash',
+            color: '#8B5CF6', // Purple
+            criteria: 'TEAM_SIZE',
+            target: 4,
+            xpReward: 300,
+        },
+        {
+            title: 'Veteran',
+            description: 'Reach Level 5',
+            icon: 'trophy',
+            color: '#6366F1', // Indigo
+            criteria: 'LEVEL_REACH',
+            target: 5,
+            xpReward: 500,
+        },
+        {
+            title: 'Critic',
+            description: 'Leave a review',
+            icon: 'star',
+            color: '#10B981', // Emerald
+            criteria: 'REVIEW_LEAVE',
+            target: 1,
+            xpReward: 100,
+        }
+    ];
+
+    for (const ach of achievements) {
+        await prisma.achievement.create({
+            data: {
+                title: ach.title,
+                description: ach.description,
+                icon: ach.icon,
+                color: ach.color,
+                criteria: ach.criteria,
+                target: ach.target,
+                xpReward: ach.xpReward,
+            }
+        });
+    }
+
+    // Give Joey some achievements
+    const allAchievements = await prisma.achievement.findMany();
+    if (allAchievements.length > 0) {
+        // Give 3 random achievements
+        const shuffled = allAchievements.sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, 3);
+
+        for (const ach of selected) {
+            await prisma.userAchievement.create({
+                data: {
+                    userId: joey.id,
+                    achievementId: ach.id,
+                }
+            });
+        }
+    }
 
     // --- Mock Active Tour for Dev ---
     // Start the Breda tour for Joey

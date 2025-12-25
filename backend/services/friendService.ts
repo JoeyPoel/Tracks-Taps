@@ -1,4 +1,5 @@
 import { friendRepository } from '../repositories/friendRepository';
+import { achievementService } from './achievementService';
 import { userRepository } from '../repositories/userRepository';
 
 export const friendService = {
@@ -56,7 +57,14 @@ export const friendService = {
 
     async respondToRequest(requestId: number, action: 'ACCEPT' | 'DECLINE') {
         if (action === 'ACCEPT') {
-            return await friendRepository.updateFriendshipStatus(requestId, 'ACCEPTED');
+            await friendRepository.updateRequestStatus(requestId, 'ACCEPTED');
+            // Check achievements for BOTH users
+            const request = await friendRepository.getRequestById(requestId);
+            if (request) {
+                await achievementService.checkFriendCount(request.requesterId);
+                await achievementService.checkFriendCount(request.addresseeId);
+            }
+            return { message: 'Friend request accepted' };
         } else {
             // For decline, typically we remove the pending request or mark declined
             return await friendRepository.deleteFriendship(requestId);
