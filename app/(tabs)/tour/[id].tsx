@@ -1,7 +1,7 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import TourDetailScreen from '@/src/screens/TourDetailScreen';
-import { useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 
 export default function TourDetailRoute() {
     const { theme } = useTheme();

@@ -11,6 +11,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 
+import InviteFriendsModal from '../components/common/InviteFriendsModal';
 import { usePreTourLobby } from '../hooks/usePreTourLobby';
 
 export default function PreTourLobbyScreen() {
@@ -20,6 +21,7 @@ export default function PreTourLobbyScreen() {
     const params = useLocalSearchParams();
     const { user } = useUserContext();
     const activeTourId = Number(params.activeTourId);
+    const [showInviteModal, setShowInviteModal] = React.useState(false);
 
     const { activeTour, userTeam, loadLobbyDetails } = usePreTourLobby(activeTourId, user);
 
@@ -73,6 +75,14 @@ export default function PreTourLobbyScreen() {
                 <View style={{ flex: 1 }} />
 
                 <AnimatedButton
+                    title={t('inviteFriends') || "Invite Friends"}
+                    onPress={() => setShowInviteModal(true)}
+                    icon="person-add"
+                    variant="secondary"
+                    style={{ marginBottom: 16 }}
+                />
+
+                <AnimatedButton
                     title={(userTeam && userTeam.name) ? (t('editTeam') || "Edit Team") : (t('setupTeam') || "Setup Team")}
                     onPress={() => router.push({
                         pathname: '/team-setup',
@@ -98,6 +108,12 @@ export default function PreTourLobbyScreen() {
                     style={{ opacity: (!userTeam || !userTeam.name) ? 0.5 : 1 }}
                 />
             </View>
+
+            <InviteFriendsModal
+                visible={showInviteModal}
+                onClose={() => setShowInviteModal(false)}
+                activeTourId={activeTourId}
+            />
         </ScreenWrapper>
     );
 }

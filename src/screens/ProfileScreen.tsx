@@ -19,6 +19,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 
 import { LevelSystem } from '../utils/levelUtils';
+import { useFriends } from '../hooks/useFriends';
 
 export default function ProfileScreen() {
   const { theme } = useTheme();
@@ -62,11 +63,11 @@ export default function ProfileScreen() {
         onEditPress={() => router.push('/profile/personal-info')}
       />
 
-      <ProfileStats
-        toursDone={user?.teams?.filter((t) => t.finishedAt).length || 0}
-        totalPoints={user?.xp || 0}
-        friends={3} // Mock friends count
-      />
+      {/* <ProfileStats
+        toursDone={user played tours} // route to played tours
+        toursCreated={user created tours} // route to created tours
+        friends={useFriends().friends.length}  // route push friends
+      /> */}
 
       <RecentAchievements achievements={achievements} />
 

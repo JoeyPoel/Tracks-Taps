@@ -55,6 +55,44 @@ model User {
 
   activeTours ActiveTour[]
   playedTours UserPlayedTour[]
+
+  // Friendships
+  friendshipsInitiated Friendship[] @relation("FriendshipInitiated")
+  friendshipsReceived  Friendship[] @relation("FriendshipReceived")
+
+  // Notifications
+  notifications Notification[]
+
+  @@index([email])
+}
+
+model Friendship {
+  id        Int      @id @default(autoincrement())
+  status    String   @default("PENDING") // PENDING, ACCEPTED, DECLINED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  requesterId Int
+  requester   User @relation("FriendshipInitiated", fields: [requesterId], references: [id])
+  addresseeId Int
+  addressee   User @relation("FriendshipReceived", fields: [addresseeId], references: [id])
+
+  @@unique([requesterId, addresseeId])
+  @@index([requesterId])
+  @@index([addresseeId])
+  @@index([status])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  type      String // FRIEND_REQUEST, GAME_INVITE
+  title     String
+  message   String
+  data      String? // JSON string for extra data (e.g., tourId)
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 model Tour {
@@ -82,6 +120,8 @@ model Tour {
   reviews     Review[]
   activeTours ActiveTour[]
   playedTours UserPlayedTour[]
+
+  @@index([authorId])
 }
 
 model Stop {
@@ -105,6 +145,8 @@ model Stop {
   // Relations
   challenges   Challenge[] // Stop-specific challenges
   pubGolfStops PubGolfStop[]
+
+  @@index([tourId])
 }
 
 enum ChallengeType {
@@ -136,6 +178,9 @@ model Challenge {
 
   // Relations
   activeChallenges ActiveChallenge[]
+
+  @@index([tourId])
+  @@index([stopId])
 }
 
 model ActiveTour {
@@ -151,6 +196,10 @@ model ActiveTour {
   teams  Team[]
   user   User?  @relation(fields: [userId], references: [id])
   userId Int?
+
+  @@index([tourId])
+  @@index([userId])
+  @@index([status])
 }
 
 model Team {
@@ -175,6 +224,9 @@ model Team {
   // Relations
   activeChallenges ActiveChallenge[]
   pubGolfStops     PubGolfStop[]
+
+  @@index([activeTourId])
+  @@index([userId])
 }
 
 model ActiveChallenge {
@@ -188,6 +240,8 @@ model ActiveChallenge {
   failed      Boolean   @default(false)
 
   @@unique([teamId, challengeId])
+  @@index([teamId])
+  @@index([challengeId])
 }
 
 model PubGolfStop {
@@ -199,6 +253,9 @@ model PubGolfStop {
   sips      Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([teamId])
+  @@index([stopId])
 }
 
 model Review {
@@ -214,6 +271,9 @@ model Review {
   tour     Tour @relation(fields: [tourId], references: [id], onDelete: Cascade)
   authorId Int
   author   User @relation(fields: [authorId], references: [id])
+
+  @@index([tourId])
+  @@index([authorId])
 }
 
 model UserPlayedTour {
@@ -228,4 +288,7 @@ model UserPlayedTour {
   finishedAt DateTime      @default(now())
   teamName   String?
   createdAt  DateTime      @default(now())
+
+  @@index([userId])
+  @@index([tourId])
 }
