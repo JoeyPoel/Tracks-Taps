@@ -71,10 +71,13 @@ export default function FriendProfileScreen() {
                     avatarUrl={user.avatarUrl}
                 />
 
-                <ProfileStats
-                    toursDone={user.playedTours?.length || 0} // Assuming playedTours is returned or aggregated
-                    totalPoints={user.xp || 0}
-                    friends={0} // We might not get their friend count yet
+               <ProfileStats
+                    toursDone={user?.playedTours?.length || 0}
+                    toursCreated={user?.createdTours?.length || 0}
+                    friends={user?.friends?.length || 0}
+                    onPressToursDone={() => console.log('Navigate to tours done')}
+                    onPressToursCreated={() => console.log('Navigate to created tours')}
+                    onPressFriends={() => router.push('/(tabs)/friends')}
                 />
             </ScrollView>
         </ScreenWrapper>

@@ -21,6 +21,7 @@ export function SelectableFriendCard({ friend, isSelected, onToggle }: Selectabl
                 isSelected && styles.selectedItemCard
             ]}
             onPress={() => onToggle(friend.id)}
+            activeOpacity={1}
         >
             {isSelected && (
                 <LinearGradient

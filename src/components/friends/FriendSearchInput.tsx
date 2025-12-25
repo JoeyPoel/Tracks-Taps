@@ -48,5 +48,7 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 16,
         marginRight: 8,
+        letterSpacing: 0.5,
+        paddingVertical: 4,
     },
 });

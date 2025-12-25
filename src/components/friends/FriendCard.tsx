@@ -17,6 +17,7 @@ export function FriendCard({ friend }: FriendCardProps) {
         <TouchableOpacity
             style={[styles.card, { backgroundColor: theme.bgSecondary }]}
             onPress={() => router.push({ pathname: '/friend-profile', params: { userId: friend.id } })}
+            activeOpacity={1}
         >
             <View style={styles.cardContent}>
                 <Image source={friend.avatarUrl ? { uri: friend.avatarUrl } : require('../../../assets/images/Mascott.png')} style={styles.avatar} />

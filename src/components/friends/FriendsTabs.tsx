@@ -26,9 +26,9 @@ export function FriendsTabs({ activeTab, onTabChange, requestCount }: FriendsTab
                     style={[styles.tab, activeTab === 'requests' && { backgroundColor: theme.bgSecondary }]}
                     onPress={() => onTabChange('requests')}
                 >
+
                     <Text style={[styles.tabText, { color: activeTab === 'requests' ? theme.primary : theme.textSecondary }]}>
                         Requests
-                        {requestCount > 0 && <View style={styles.badge} />}
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -66,6 +66,5 @@ const styles = StyleSheet.create({
         backgroundColor: '#FF3B30',
         position: 'absolute',
         top: -2,
-        right: -10,
     }
 });

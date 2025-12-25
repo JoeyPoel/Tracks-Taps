@@ -20,7 +20,6 @@ export function FadeInList({ children, delay = 0, stagger = 100, style }: FadeIn
                     entering={
                         FadeInDown
                             .delay(delay + index * stagger)
-                            .springify()
                             .damping(20)
                             .mass(0.8)
                     }
@@ -39,7 +38,6 @@ export function FadeInItem({ children, delay = 0, index = 0 }: { children: React
             entering={
                 FadeInDown
                     .delay(delay + index * 100)
-                    .springify()
                     .damping(20)
                     .mass(0.8)
             }

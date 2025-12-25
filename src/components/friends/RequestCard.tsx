@@ -1,5 +1,4 @@
 import { useTheme } from '@/src/context/ThemeContext';
-import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -22,17 +21,30 @@ export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) 
                 </View>
             </View>
             <View style={styles.actionRow}>
-                <TouchableOpacity onPress={() => onAccept(request.id)} style={{ flex: 1 }}>
-                    <LinearGradient
-                        colors={[theme.primary, theme.secondary]}
-                        style={styles.actionButton}
+                <TouchableOpacity
+                    onPress={() => onAccept(request.id)}
+                    style={{ flex: 1 }}
+                    activeOpacity={0.8}
+                >
+                    <View
+                        style={[styles.actionButton, { backgroundColor: theme.primary }]}
                     >
                         <Text style={styles.actionButtonText}>Accept</Text>
-                    </LinearGradient>
+                    </View>
                 </TouchableOpacity>
                 <TouchableOpacity
                     onPress={() => onDecline(request.id)}
-                    style={[styles.actionButton, { backgroundColor: theme.bgSecondary, marginLeft: 8, flex: 1 }]}
+                    style={[
+                        styles.actionButton,
+                        {
+                            backgroundColor: 'transparent',
+                            marginLeft: 8,
+                            flex: 1,
+                            borderWidth: 1,
+                            borderColor: theme.secondary
+                        }
+                    ]}
+                    activeOpacity={0.8}
                 >
                     <Text style={[styles.actionButtonText, { color: theme.textPrimary }]}>Decline</Text>
                 </TouchableOpacity>
