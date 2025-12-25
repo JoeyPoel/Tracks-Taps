@@ -14,18 +14,25 @@ const getBaseUrl = () => {
     const hostUri = Constants.expoConfig?.hostUri;
     if (!hostUri) {
         // Fallback for production or if hostUri is missing
+        // For Android Emulator, use 10.0.2.2
+        if (Platform.OS === 'android') {
+            console.log('API Client: hostUri missing, falling back to 10.0.2.2 for Android');
+            return 'http://10.0.2.2:8081/api';
+        }
         return 'http://localhost:8081/api';
     }
 
     // hostUri is "IP:PORT"
     const [host, port] = hostUri.split(':');
-    return `http://${host}:${port}/api`;
+    const url = `http://${host}:${port}/api`;
+    console.log('API Client Base URL:', url);
+    return url;
 };
 
 // Create an Axios instance with default configuration
 const client = axios.create({
     baseURL: getBaseUrl(),
-    timeout: 15000,
+    timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
     },

@@ -5,6 +5,7 @@ import { useFriends } from '@/src/hooks/useFriends';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AppModal } from './AppModal';
 
 interface InviteFriendsModalProps {
     visible: boolean;

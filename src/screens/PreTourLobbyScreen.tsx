@@ -50,7 +50,13 @@ export default function PreTourLobbyScreen() {
                     <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
                 </AnimatedPressable>
                 <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>Lobby</Text>
-                <View style={{ width: 24 }} />
+                <AnimatedPressable
+                    onPress={() => setShowInviteModal(true)}
+                    interactionScale="subtle"
+                    style={{ padding: 4 }}
+                >
+                    <Ionicons name="person-add" size={24} color={theme.primary} />
+                </AnimatedPressable>
             </View>
 
             <View style={styles.content}>
@@ -75,14 +81,6 @@ export default function PreTourLobbyScreen() {
                 <View style={{ flex: 1 }} />
 
                 <AnimatedButton
-                    title={t('inviteFriends') || "Invite Friends"}
-                    onPress={() => setShowInviteModal(true)}
-                    icon="person-add"
-                    variant="secondary"
-                    style={{ marginBottom: 16 }}
-                />
-
-                <AnimatedButton
                     title={(userTeam && userTeam.name) ? (t('editTeam') || "Edit Team") : (t('setupTeam') || "Setup Team")}
                     onPress={() => router.push({
                         pathname: '/team-setup',
@@ -95,7 +93,7 @@ export default function PreTourLobbyScreen() {
                         }
                     })}
                     icon="pencil"
-                    variant="primary"
+                    variant="secondary"
                     style={{ marginBottom: 16 }}
                 />
 
@@ -104,7 +102,7 @@ export default function PreTourLobbyScreen() {
                     onPress={() => router.push(`/active-tour/${activeTourId}`)}
                     disabled={!userTeam || !userTeam.name}
                     icon="play"
-                    variant="secondary"
+                    variant="primary"
                     style={{ opacity: (!userTeam || !userTeam.name) ? 0.5 : 1 }}
                 />
             </View>
