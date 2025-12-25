@@ -29,7 +29,7 @@ export default function Podium({ teams }: PodiumProps) {
             barHeight = 100;
         }
 
-        const displayName = team.name || team.user?.name || `Team ${team.id}`;
+        const displayName = team.name || team.user?.name;
 
         // Use team color with opacity for the bar
         // Need to parse hex to rgba or just opacity style if color is hex

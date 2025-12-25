@@ -45,7 +45,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
 
     const podiumTeams = activeTeams.slice(0, 3);
     const runnerUps = activeTeams.slice(3);
-    const winnerName = winner?.name || winner?.user?.name || `Team ${winner?.id}`;
+    const winnerName = winner?.name || winner?.user?.name || t('you');
 
     return (
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
