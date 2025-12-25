@@ -180,13 +180,15 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                     onFinishTour={async () => {
                         const success = await handleFinishTour();
                         if (success) {
-                            await refreshUser(); // Refresh user data to update participations
-                            router.dismissAll();
-                            if ((activeTour.teams?.length || 0) > 1) {
-                                router.replace({ pathname: '/tour-waiting-lobby/[id]', params: { id: activeTourId } });
-                            } else {
-                                router.replace({ pathname: '/tour-completed/[id]', params: { id: activeTourId } });
-                            }
+                            setTimeout(async () => {
+                                await refreshUser(); // Refresh user data to update participations
+                                router.dismissAll();
+                                if ((activeTour.teams?.length || 0) > 1) {
+                                    router.replace({ pathname: '/tour-waiting-lobby/[id]', params: { id: activeTourId } });
+                                } else {
+                                    router.replace({ pathname: '/tour-completed/[id]', params: { id: activeTourId } });
+                                }
+                            }, 3000);
                         }
                     }}
                 />
