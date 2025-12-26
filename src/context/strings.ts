@@ -196,6 +196,7 @@ export const strings = {
     teamPlay: 'Team Play',
     teamPlayDesc: 'Join forces with friends or compete against other teams in epic challenges!',
     // New Challenge Types
+    uploading: 'Uploading...',
     takePhoto: 'Take Photo',
     true: 'True',
     false: 'False',

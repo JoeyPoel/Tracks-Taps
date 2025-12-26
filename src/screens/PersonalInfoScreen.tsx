@@ -1,3 +1,4 @@
+import { ImageUploader } from '@/src/components/common/ImageUploader';
 import { useAuth } from '@/src/context/AuthContext';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
@@ -8,7 +9,6 @@ import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
-    Image,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -16,9 +16,8 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from 'react-native';
-import { CameraIcon } from 'react-native-heroicons/outline';
 import AppHeader from '../components/Header';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 
@@ -44,6 +43,8 @@ export default function PersonalInfoScreen() {
             setEmail(authUser.email || '');
         }
     }, [dbUser, authUser]);
+
+
 
     const handleSave = async () => {
         setLoading(true);
@@ -124,24 +125,14 @@ export default function PersonalInfoScreen() {
 
                     {/* Avatar Section */}
                     <View style={styles.avatarContainer}>
-                        <Image
-                            source={avatarUrl ? { uri: avatarUrl } : require('../../assets/images/Mascott.png')}
-                            style={[styles.avatar, { borderColor: theme.borderPrimary }]}
+                        <ImageUploader
+                            label={t('profilePicture')}
+                            initialImage={avatarUrl}
+                            onUploadComplete={setAvatarUrl}
+                            folder="avatars"
+                            variant="avatar"
+                            placeholder={t('takePhoto')}
                         />
-                        <View style={styles.avatarInputContainer}>
-                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('profilePicture')}</Text>
-                            <View style={[styles.inputWrapper, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
-                                <CameraIcon size={20} color={theme.textSecondary} style={styles.inputIcon} />
-                                <TextInput
-                                    style={[styles.input, { color: theme.textPrimary }]}
-                                    value={avatarUrl}
-                                    onChangeText={setAvatarUrl}
-                                    placeholder="https://example.com/avatar.png"
-                                    placeholderTextColor={theme.textSecondary}
-                                    autoCapitalize="none"
-                                />
-                            </View>
-                        </View>
                     </View>
 
                     {/* Name */}

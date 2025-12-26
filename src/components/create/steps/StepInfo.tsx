@@ -1,3 +1,4 @@
+import { ImageUploader } from '@/src/components/common/ImageUploader';
 import { WizardInput } from '@/src/components/create/common/WizardInput';
 import { WizardStepHeader } from '@/src/components/create/common/WizardStepHeader';
 import { useLanguage } from '@/src/context/LanguageContext';
@@ -5,7 +6,7 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { TourDraft } from '@/src/hooks/useCreateTour';
 import { GENRES } from '@/src/utils/genres';
 import React, { useRef } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface StepInfoProps {
     draft: TourDraft;
@@ -84,20 +85,13 @@ export default function StepInfo({ draft, updateDraft }: StepInfoProps) {
                     multiline
                 />
 
-                <WizardInput
+                <ImageUploader
                     label={t('tourImage')}
-                    value={draft.imageUrl}
-                    onChange={(text) => updateDraft('imageUrl', text)}
+                    initialImage={draft.imageUrl}
+                    onUploadComplete={(url) => updateDraft('imageUrl', url)}
+                    folder="tours"
                     placeholder={t('imagePlaceholder')}
                 />
-
-                {draft.imageUrl ? (
-                    <Image
-                        source={{ uri: draft.imageUrl }}
-                        style={[styles.imagePreview, { backgroundColor: theme.bgTertiary }]}
-                        resizeMode="cover"
-                    />
-                ) : null}
             </View>
         </View>
     );

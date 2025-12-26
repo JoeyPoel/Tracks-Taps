@@ -1,6 +1,8 @@
+import { uploadImage } from '@/src/services/imageService';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
-import { Image, Modal, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Modal, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedButton } from '../common/AnimatedButton';
@@ -22,22 +24,41 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
     const [content, setContent] = useState('');
     const [photos, setPhotos] = useState<string[]>([]);
 
+    const [uploading, setUploading] = useState(false);
+
     const handlePress = () => {
         if (rating > 0) {
             onSubmit(rating, content, photos);
         }
     };
 
-    const handleAddMockPhoto = () => {
-        if (photos.length < 5) {
-            const mockImages = [
-                'https://picsum.photos/100/100?random=1',
-                'https://picsum.photos/100/100?random=2',
-                'https://picsum.photos/100/100?random=3',
-                'https://picsum.photos/100/100?random=4',
-                'https://picsum.photos/100/100?random=5',
-            ];
-            setPhotos([...photos, mockImages[photos.length]]);
+    const handleAddPhoto = async () => {
+        if (photos.length >= 5) return;
+
+        try {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('Permission needed', 'Sorry, we need camera roll permissions to make this work!');
+                return;
+            }
+
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: 'images',
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 0.8,
+            });
+
+            if (!result.canceled && result.assets[0].uri) {
+                setUploading(true);
+                const publicUrl = await uploadImage(result.assets[0].uri, 'images', 'reviews');
+                setPhotos([...photos, publicUrl]);
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            Alert.alert("Upload Failed", "There was an error uploading your photo.");
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -91,12 +112,19 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
 
                     <AnimatedPressable
                         style={[styles.addPhotoButton, { backgroundColor: theme.bgTertiary, borderColor: theme.borderSecondary }]}
-                        onPress={handleAddMockPhoto}
+                        onPress={handleAddPhoto}
                         interactionScale="subtle"
                         haptic="light"
+                        disabled={uploading || photos.length >= 5}
                     >
-                        <Ionicons name="camera-outline" size={20} color={theme.textPrimary} style={{ marginRight: 8 }} />
-                        <Text style={[styles.addPhotoText, { color: theme.textPrimary }]}>{t('takePhoto')}</Text>
+                        {uploading ? (
+                            <ActivityIndicator size="small" color={theme.textPrimary} style={{ marginRight: 8 }} />
+                        ) : (
+                            <Ionicons name="camera-outline" size={20} color={theme.textPrimary} style={{ marginRight: 8 }} />
+                        )}
+                        <Text style={[styles.addPhotoText, { color: theme.textPrimary }]}>
+                            {uploading ? t('uploading') : t('takePhoto')}
+                        </Text>
                         <Text style={[styles.photoCount, { color: theme.textSecondary }]}>{photos.length}/5</Text>
                     </AnimatedPressable>
 

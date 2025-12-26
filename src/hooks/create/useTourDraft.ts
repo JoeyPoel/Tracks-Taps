@@ -22,7 +22,7 @@ const INITIAL_DRAFT: TourDraft = {
     title: '',
     description: '',
     location: '',
-    imageUrl: 'https://images.unsplash.com/photo-1500835556837-99ac94a94552?q=80&w=1000&auto=format&fit=crop',
+    imageUrl: '',
     difficulty: 'MEDIUM',
     genre: 'Adventure',
     modes: [],

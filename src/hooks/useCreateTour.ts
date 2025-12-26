@@ -22,7 +22,7 @@ export function useCreateTour() {
     const handleNext = () => {
         // Validation check before next step
         if (currentStep === 0) {
-            if (!tourDraft.title || !tourDraft.location) {
+            if (!tourDraft.title || !tourDraft.location || !tourDraft.imageUrl) {
                 Alert.alert(t('missingInfo'), t('fillAllFields'));
                 return;
             }

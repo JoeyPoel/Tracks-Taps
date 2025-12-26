@@ -1,3 +1,4 @@
+import { ImageUploader } from '@/src/components/common/ImageUploader';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { StopType } from '@/src/types/models';
@@ -67,13 +68,12 @@ export function StopForm({
             </View>
 
             <View>
-                <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>{t('tourImage')}</Text>
-                <TextInput
-                    style={[styles.input, { backgroundColor: theme.bgSecondary, color: theme.textPrimary }]}
-                    value={imageUrl}
-                    onChangeText={setImageUrl}
-                    placeholder="https://..."
-                    placeholderTextColor={theme.textDisabled}
+                <ImageUploader
+                    label={t('tourImage')}
+                    initialImage={imageUrl}
+                    onUploadComplete={setImageUrl}
+                    folder="stops"
+                    placeholder={t('imagePlaceholder')}
                 />
             </View>
 
