@@ -20,7 +20,13 @@ export const activeTourRepository = {
                 },
             },
             include: {
-                tour: true,
+                tour: {
+                    include: {
+                        _count: {
+                            select: { stops: true }
+                        }
+                    }
+                },
                 teams: {
                     where: { userId: userId }
                 }

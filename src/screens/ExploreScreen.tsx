@@ -36,7 +36,8 @@ export default function ExploreScreen() {
         const currentTeam = activeTour.teams?.find((t: any) => t.userId === user?.id) || activeTour.teams?.[0];
         const totalStops = activeTour.tour?._count?.stops || activeTour.tour?.stops?.length || 1;
         const currentStop = currentTeam?.currentStop || 1;
-        const progress = currentStop / totalStops;
+        // Progress is (stop - 1) completed / total. Clamp to 0..1 range.
+        const progress = Math.min(Math.max((currentStop - 1) / totalStops, 0), 1);
 
         return (
           <ActiveTourCard
