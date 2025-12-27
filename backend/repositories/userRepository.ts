@@ -38,6 +38,13 @@ export const userRepository = {
         });
     },
 
+    async getUserById(userId: number) {
+        return await prisma.user.findUnique({
+            where: { id: userId },
+        });
+    },
+
+
     async getUserByEmail(email: string) {
         return await prisma.user.findUnique({
             where: { email },

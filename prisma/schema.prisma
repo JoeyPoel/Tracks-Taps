@@ -62,8 +62,9 @@ model User {
   friendshipsInitiated Friendship[] @relation("FriendshipInitiated")
   friendshipsReceived  Friendship[] @relation("FriendshipReceived")
 
-  // Notifications
-  notifications Notification[]
+  // Game Invites
+  sentInvites     GameInvite[] @relation("SentInvites")
+  receivedInvites GameInvite[] @relation("ReceivedInvites")
 
   // Achievements
   achievements UserAchievement[]
@@ -88,16 +89,30 @@ model Friendship {
   @@index([status])
 }
 
-model Notification {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  type      String // FRIEND_REQUEST, GAME_INVITE
-  title     String
-  message   String
-  data      String? // JSON string for extra data (e.g., tourId)
-  read      Boolean  @default(false)
+model GameInvite {
+  id Int @id @default(autoincrement())
+
+  // Link to ActiveTour (Session)
+  activeTourId Int
+  activeTour   ActiveTour @relation(fields: [activeTourId], references: [id], onDelete: Cascade)
+
+  inviterId Int
+  inviter   User @relation("SentInvites", fields: [inviterId], references: [id])
+
+  inviteeId Int
+  invitee   User @relation("ReceivedInvites", fields: [inviteeId], references: [id])
+
+  status String @default("PENDING") // PENDING, ACCEPTED, DECLINED
+
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tour      Tour?    @relation(fields: [tourId], references: [id])
+  tourId    Int?
+
+  @@index([inviteeId])
+  @@index([inviterId])
+  @@index([activeTourId])
+  @@index([status])
 }
 
 model Tour {
@@ -126,6 +141,7 @@ model Tour {
   activeTours ActiveTour[]
   playedTours UserPlayedTour[]
   feedbacks   Feedback[]
+  gameInvites GameInvite[]
 
   @@index([authorId])
 }
@@ -199,9 +215,10 @@ model ActiveTour {
   updatedAt    DateTime      @updatedAt
 
   // Relations
-  teams  Team[]
-  user   User?  @relation(fields: [userId], references: [id])
-  userId Int?
+  teams       Team[]
+  user        User?        @relation(fields: [userId], references: [id])
+  userId      Int?
+  gameInvites GameInvite[]
 
   @@index([tourId])
   @@index([userId])
