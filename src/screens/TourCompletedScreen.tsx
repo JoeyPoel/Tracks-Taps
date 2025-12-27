@@ -14,7 +14,7 @@ import { useTourCompleted } from '../hooks/useTourCompleted';
 
 type RevealState = 'CALCULATING' | 'REVEAL_3' | 'REVEAL_2' | 'REVEAL_1' | 'CELEBRATE';
 
-export default function TourCompletedScreen({ activeTourId }: { activeTourId: number }) {
+export default function TourCompletedScreen({ activeTourId, celebrate = false }: { activeTourId: number; celebrate?: boolean }) {
     const { theme } = useTheme();
 
     // Use custom hook for logic

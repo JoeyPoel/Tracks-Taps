@@ -223,4 +223,17 @@ export const activeTourService = {
         // Return updated progress
         return await activeTourService.getActiveTourProgress(activeTourId, userId);
     },
+
+    async startTourSession(activeTourId: number, userId: number) {
+        const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
+        if (!activeTour) throw new Error("Active tour not found");
+
+        // Verify host
+        // Now that we set userId in createActiveTour, we can trust this check
+        if (activeTour.userId !== userId) {
+            throw new Error("Only the host can start the tour");
+        }
+
+        return await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.IN_PROGRESS);
+    }
 };

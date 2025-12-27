@@ -1,29 +1,31 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useCallback } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { AnimatedButton } from '../components/common/AnimatedButton';
-import { AnimatedPressable } from '../components/common/AnimatedPressable';
-import { ScreenWrapper } from '../components/common/ScreenWrapper';
-import { TeamCard } from '../components/teamSetup/TeamCard';
-import { TourCodeDisplay } from '../components/teamSetup/TourCodeDisplay';
-import { useLanguage } from '../context/LanguageContext';
-import { useTheme } from '../context/ThemeContext';
-import { useUserContext } from '../context/UserContext';
+import React, { useCallback, useState } from 'react';
+import { ScrollView, View } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import InviteFriendsModal from '../components/common/InviteFriendsModal';
+import { ScreenWrapper } from '../components/common/ScreenWrapper';
+import { TourCodeDisplay } from '../components/teamSetup/TourCodeDisplay';
+import { useTheme } from '../context/ThemeContext';
+import { useUserContext } from '../context/UserContext';
 import { usePreTourLobby } from '../hooks/usePreTourLobby';
+
+// New Components
+import { LobbyFooter } from '../components/preTourLobby/LobbyFooter';
+import { LobbyHeader } from '../components/preTourLobby/LobbyHeader';
+import { LobbyMyTeam } from '../components/preTourLobby/LobbyMyTeam';
+import { LobbyPlayerList } from '../components/preTourLobby/LobbyPlayerList';
+import { LobbyTourInfo } from '../components/preTourLobby/LobbyTourInfo';
 
 export default function PreTourLobbyScreen() {
     const { theme } = useTheme();
-    const { t } = useLanguage();
     const router = useRouter();
     const params = useLocalSearchParams();
     const { user } = useUserContext();
     const activeTourId = Number(params.activeTourId);
-    const [showInviteModal, setShowInviteModal] = React.useState(false);
+    const [showInviteModal, setShowInviteModal] = useState(false);
 
-    const { activeTour, userTeam, loadLobbyDetails } = usePreTourLobby(activeTourId, user);
+    const { activeTour, userTeam, loadLobbyDetails, startTour } = usePreTourLobby(activeTourId, user);
 
     useFocusEffect(
         useCallback(() => {
@@ -33,79 +35,47 @@ export default function PreTourLobbyScreen() {
         }, [activeTourId, user, loadLobbyDetails])
     );
 
+    // Auto-redirect when tour starts
+    React.useEffect(() => {
+        if (activeTour?.status === 'IN_PROGRESS') {
+            router.replace(`/active-tour/${activeTourId}`);
+        }
+    }, [activeTour?.status, activeTourId]);
+
     return (
-        <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} animateEntry={false}>
-            <View style={[styles.header, { borderBottomColor: theme.borderPrimary }]}>
-                <AnimatedPressable
-                    onPress={() => {
-                        if (router.canGoBack()) {
-                            router.back();
-                        } else {
-                            router.replace('/');
-                        }
-                    }}
-                    style={styles.closeButton}
-                    interactionScale="subtle"
-                >
-                    <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
-                </AnimatedPressable>
-                <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>Lobby</Text>
-                <AnimatedPressable
-                    onPress={() => setShowInviteModal(true)}
-                    interactionScale="subtle"
-                    style={{ padding: 4 }}
-                >
-                    <Ionicons name="person-add" size={24} color={theme.primary} />
-                </AnimatedPressable>
-            </View>
+        <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} animateEntry={false} includeTop>
 
-            <View style={styles.content}>
-                <View style={styles.iconContainer}>
-                    <Ionicons name="people-circle-outline" size={80} color={theme.primary} />
-                    <Text style={[styles.title, { color: theme.textPrimary }]}>{t('marketingLobbyTitle') || "You're in!"}</Text>
-                    <Text style={[styles.subtitle, { color: theme.textSecondary }]}>{t('marketingLobbySubtitle') || "Wait for your team or start setup."}</Text>
-                </View>
+            <LobbyHeader onInvitePress={() => setShowInviteModal(true)} />
 
-                {activeTourId && (
+            <ScrollView contentContainerStyle={{ padding: 20 }} showsVerticalScrollIndicator={false}>
+
+                <LobbyTourInfo activeTour={activeTour} />
+
+                {/* Game Code Section */}
+                <Animated.View entering={FadeInUp.delay(200).springify()} style={{ marginBottom: 16 }}>
                     <TourCodeDisplay code={activeTourId.toString()} />
-                )}
+                </Animated.View>
 
-                {userTeam && userTeam.name && (
-                    <TeamCard
-                        name={userTeam.name}
-                        color={userTeam.color}
-                        emoji={userTeam.emoji}
-                    />
-                )}
-
-                <View style={{ flex: 1 }} />
-
-                <AnimatedButton
-                    title={(userTeam && userTeam.name) ? (t('editTeam') || "Edit Team") : (t('setupTeam') || "Setup Team")}
-                    onPress={() => router.push({
-                        pathname: '/team-setup',
-                        params: {
-                            activeTourId,
-                            mode: 'update',
-                            currentName: userTeam?.name,
-                            currentColor: userTeam?.color,
-                            currentEmoji: userTeam?.emoji
-                        }
-                    })}
-                    icon="pencil"
-                    variant="secondary"
-                    style={{ marginBottom: 16 }}
+                <LobbyMyTeam
+                    userTeam={userTeam}
+                    activeTourId={activeTourId}
                 />
 
-                <AnimatedButton
-                    title={t('startTour')}
-                    onPress={() => router.push(`/active-tour/${activeTourId}`)}
-                    disabled={!userTeam || !userTeam.name}
-                    icon="play"
-                    variant="primary"
-                    style={{ opacity: (!userTeam || !userTeam.name) ? 0.5 : 1 }}
+                <LobbyPlayerList
+                    activeTour={activeTour}
+                    currentUserId={user?.id || 0}
                 />
-            </View>
+
+                <View style={{ height: 100 }} />
+            </ScrollView>
+
+            <LobbyFooter
+                activeTour={activeTour}
+                user={user}
+                userTeam={userTeam}
+                onStartTour={startTour}
+                activeTourId={activeTourId}
+            />
 
             <InviteFriendsModal
                 visible={showInviteModal}
@@ -115,21 +85,3 @@ export default function PreTourLobbyScreen() {
         </ScreenWrapper>
     );
 }
-
-const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 16,
-        borderBottomWidth: 1,
-    },
-    headerTitle: { fontSize: 18, fontWeight: '700' },
-    closeButton: {},
-    content: { padding: 24, flex: 1 },
-    iconContainer: { alignItems: 'center', marginBottom: 32, marginTop: 20 },
-    title: { fontSize: 24, fontWeight: 'bold', marginBottom: 8, marginTop: 16 },
-    subtitle: { fontSize: 16, textAlign: 'center' },
-    // actionButton/Text styles removed as they are handled by AnimatedButton
-});

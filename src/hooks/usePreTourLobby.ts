@@ -1,4 +1,5 @@
-import { useCallback, useState } from 'react';
+import { supabase } from '@/utils/supabase';
+import { useCallback, useEffect, useState } from 'react';
 import { activeTourService } from '../services/activeTourService';
 
 export const usePreTourLobby = (activeTourId: number | null, user: any) => {
@@ -9,7 +10,7 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
     const loadLobbyDetails = useCallback(async () => {
         if (!activeTourId || !user) return;
         try {
-            const tour = await activeTourService.getActiveTourById(activeTourId);
+            const tour = await activeTourService.getActiveTourLobby(activeTourId);
             setActiveTour(tour);
 
             if (tour && tour.teams) {
@@ -21,9 +22,62 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
         }
     }, [activeTourId, user]);
 
+    // Initial Load & Realtime Subscription
+    useEffect(() => {
+        if (!activeTourId || !user) return;
+
+        loadLobbyDetails();
+
+        const channel = supabase.channel(`lobby_${activeTourId}`)
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'ActiveTour', filter: `id=eq.${activeTourId}` },
+                () => {
+                    console.log('Realtime: ActiveTour updated');
+                    loadLobbyDetails();
+                }
+            )
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'Team', filter: `activeTourId=eq.${activeTourId}` },
+                () => {
+                    console.log('Realtime: Team updated');
+                    loadLobbyDetails();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [activeTourId, user, loadLobbyDetails]);
+
+    const startTour = async () => {
+        if (!activeTourId || !user) return;
+        try {
+            const response = await fetch(`/api/active-tour/${activeTourId}/start`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: user.email })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                // Immediately refresh state
+                loadLobbyDetails();
+                return { success: true };
+            } else {
+                return { success: false, error: data.error };
+            }
+        } catch (error) {
+            console.error('Failed to start tour', error);
+            return { success: false, error: 'Network error' };
+        }
+    };
+
     return {
         activeTour,
         userTeam,
-        loadLobbyDetails
+        loadLobbyDetails,
+        startTour
     };
 };

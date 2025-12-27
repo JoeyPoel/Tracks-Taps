@@ -47,12 +47,12 @@ export const activeTourRepository = {
 
         const activeTourId = generateActiveTourId();
 
-        // 2. Create the ActiveTour and the initial Team
         const activeTour = await prisma.activeTour.create({
             data: {
                 id: activeTourId,
                 tourId,
-                status: SessionStatus.IN_PROGRESS,
+                userId, // Set the creator as the host
+                status: SessionStatus.WAITING,
                 teams: {
                     create: {
                         userId,
@@ -149,7 +149,8 @@ export const activeTourRepository = {
                     where: userId ? { userId } : undefined, // Scope to current user if provided
                     include: {
                         activeChallenges: true, // Optimized: Removed nested challenge include (redundant with Tour)
-                        pubGolfStops: true
+                        pubGolfStops: true,
+                        user: true
                     }
                 }
             }
@@ -176,7 +177,19 @@ export const activeTourRepository = {
         return await prisma.activeTour.findUnique({
             where: { id },
             include: {
-                teams: true // Fetch all teams, but NO nested heavy data
+                teams: {
+                    include: {
+                        user: true
+                    }
+                },
+                tour: {
+                    select: {
+                        title: true,
+                        _count: {
+                            select: { stops: true }
+                        }
+                    }
+                }
             }
         });
     },
