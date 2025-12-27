@@ -3,8 +3,8 @@ import { useExploreFilterSidebar } from '@/src/hooks/useExploreFilterSidebar';
 import { Difficulty } from '@/src/types/models';
 import { GENRES } from '@/src/utils/genres';
 import React from 'react';
-import { Animated, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon, StopIcon, XMarkIcon } from 'react-native-heroicons/outline';
+import { Animated, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { XMarkIcon } from 'react-native-heroicons/outline';
 import { AnimatedButton } from '../common/AnimatedButton';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 
@@ -13,42 +13,11 @@ interface FilterSidebarProps {
     onClose: () => void;
 }
 
-interface AccordionSectionProps {
-    title: string;
-    expanded: boolean;
-    onToggle: () => void;
-    children: React.ReactNode;
-    selectedValue?: string;
-}
-
-const AccordionSection: React.FC<AccordionSectionProps> = ({ title, expanded, onToggle, children, selectedValue }) => {
+const FilterSectionHeader = ({ title }: { title: string }) => {
     const { theme } = useTheme();
     return (
-        <View style={{ borderBottomWidth: 1, borderBottomColor: theme.borderPrimary }}>
-            <AnimatedPressable onPress={onToggle} style={styles.accordionHeader} interactionScale="subtle" haptic="selection">
-                <Text style={[styles.accordionTitle, { color: theme.textPrimary }]}>{title.toUpperCase()}</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    {selectedValue && (
-                        <Text style={[styles.optionText, { color: theme.textSecondary, marginRight: 8 }]}>
-                            {selectedValue !== 'All' ? selectedValue : 'All'}
-                        </Text>
-                    )}
-                    {expanded ?
-                        <ChevronUpIcon size={20} color={theme.textPrimary} /> :
-                        <ChevronDownIcon size={20} color={theme.textPrimary} />
-                    }
-                </View>
-            </AnimatedPressable>
-            {expanded && <View style={styles.accordionContent}>{children}</View>}
-        </View>
+        <Text style={[styles.sectionHeader, { color: theme.textSecondary }]}>{title.toUpperCase()}</Text>
     );
-};
-
-const SORT_LABELS: Record<string, string> = {
-    'createdAt': 'Newest',
-    'name': 'Name (A-Z)',
-    'distance': 'Distance (Low-High)',
-    'duration': 'Duration (Shortest)',
 };
 
 export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebarProps) {
@@ -56,30 +25,63 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
     const {
         slideAnim,
         localFilters,
-        expandedSections,
         handleClose,
         handleApply,
         handleClear,
-        toggleSection,
         updateFilter,
-        toggleMode,
         toggleGenre,
         SIDEBAR_WIDTH
     } = useExploreFilterSidebar(visible, onClose);
 
-    const ModeOption = ({ label, selected, onPress }: { label: string, selected: boolean, onPress: () => void }) => (
-        <AnimatedPressable style={styles.optionRow} onPress={onPress} interactionScale="subtle" haptic="light">
-            <Text style={[styles.optionText, { color: theme.textPrimary, fontWeight: selected ? 'bold' : 'normal' }]}>{label}</Text>
-            {selected ? <CheckIcon size={20} color={theme.primary} /> : <StopIcon size={20} color={theme.textPrimary} />}
-        </AnimatedPressable>
+    const FilterChip = ({ label, selected, onPress, icon }: any) => (
+        <TouchableOpacity
+            onPress={onPress}
+            activeOpacity={0.7}
+            style={[
+                styles.chip,
+                {
+                    backgroundColor: selected ? theme.primary : theme.bgPrimary, // Back to bgPrimary for cleaner contrast with border
+                    borderColor: selected ? theme.primary : theme.borderPrimary,
+                    borderWidth: 1, // Explicit border
+                }
+            ]}
+        >
+            {icon && <Text style={{ marginRight: 6 }}>{icon}</Text>}
+            <Text style={{
+                fontSize: 13,
+                fontWeight: '600',
+                color: selected ? '#FFF' : theme.textPrimary
+            }}>
+                {label}
+            </Text>
+        </TouchableOpacity>
     );
 
-    const RadioOption = ({ label, selected, onPress }: { label: string, selected: boolean, onPress: () => void }) => (
-        <AnimatedPressable style={styles.optionRow} onPress={onPress} interactionScale="subtle" haptic="light">
-            <Text style={[styles.optionText, { color: theme.textPrimary, fontWeight: selected ? 'bold' : 'normal' }]}>{label}</Text>
-            {selected && <CheckIcon size={20} color={theme.primary} />}
-        </AnimatedPressable>
-    );
+    const SortChip = ({ label, value, currentSort, currentOrder, expectedSort, expectedOrder, onPress }: any) => {
+        const isSelected = currentSort === expectedSort && (!expectedOrder || currentOrder === expectedOrder);
+        return (
+            <TouchableOpacity
+                onPress={onPress}
+                activeOpacity={0.7}
+                style={[
+                    styles.sortChip,
+                    {
+                        backgroundColor: isSelected ? theme.primary : theme.bgPrimary,
+                        borderColor: isSelected ? theme.primary : theme.borderPrimary,
+                        borderWidth: 1,
+                    }
+                ]}
+            >
+                <Text style={{
+                    fontSize: 13,
+                    fontWeight: '600',
+                    color: isSelected ? '#FFF' : theme.textPrimary
+                }}>
+                    {label}
+                </Text>
+            </TouchableOpacity>
+        );
+    };
 
     return (
         <Modal transparent visible={visible} onRequestClose={handleClose} animationType="none">
@@ -94,56 +96,133 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                         transform: [{ translateX: slideAnim }]
                     }
                 ]}>
-                    <View style={styles.header}>
+                    <View style={[styles.header, { borderBottomColor: theme.borderSecondary }]}>
                         <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>Filters</Text>
-                        <AnimatedPressable onPress={handleClose} interactionScale="subtle" haptic="light">
-                            <XMarkIcon size={24} color={theme.textPrimary} />
+                        <AnimatedPressable onPress={handleClose} interactionScale="subtle" haptic="light" style={[styles.closeButton, { backgroundColor: theme.bgTertiary }]}>
+                            <XMarkIcon size={20} color={theme.textPrimary} />
                         </AnimatedPressable>
                     </View>
 
-                    <ScrollView style={styles.content}>
-                        {/* LOCATION */}
-                        <AccordionSection
-                            title="Location"
-                            expanded={expandedSections.location}
-                            onToggle={() => toggleSection('location')}
-                            selectedValue={localFilters.location || 'All'}
-                        >
-                            <View style={{ paddingHorizontal: 20, paddingVertical: 10 }}>
-                                <TextInput
-                                    style={[styles.input, { borderColor: theme.borderPrimary, color: theme.textPrimary, backgroundColor: theme.bgPrimary }]}
-                                    placeholder="City name..."
-                                    placeholderTextColor={theme.textSecondary}
-                                    value={localFilters.location}
-                                    onChangeText={(text) => updateFilter('location', text)}
+                    <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
+
+                        {/* SORT BY */}
+                        <View style={styles.section}>
+                            <FilterSectionHeader title="Sort By" />
+                            <View style={styles.chipContainer}>
+                                <SortChip
+                                    label="Newest"
+                                    currentSort={localFilters.sortBy}
+                                    expectedSort="createdAt"
+                                    onPress={() => { updateFilter('sortBy', 'createdAt'); updateFilter('sortOrder', 'desc'); }}
+                                />
+                                <SortChip
+                                    label="Name (A-Z)"
+                                    currentSort={localFilters.sortBy}
+                                    currentOrder={localFilters.sortOrder}
+                                    expectedSort="name"
+                                    expectedOrder="asc"
+                                    onPress={() => { updateFilter('sortBy', 'name'); updateFilter('sortOrder', 'asc'); }}
+                                />
+                                <SortChip
+                                    label="Distance"
+                                    currentSort={localFilters.sortBy}
+                                    currentOrder={localFilters.sortOrder}
+                                    expectedSort="distance"
+                                    expectedOrder="asc"
+                                    onPress={() => { updateFilter('sortBy', 'distance'); updateFilter('sortOrder', 'asc'); }}
+                                />
+                                <SortChip
+                                    label="Duration"
+                                    currentSort={localFilters.sortBy}
+                                    currentOrder={localFilters.sortOrder}
+                                    expectedSort="duration"
+                                    expectedOrder="asc"
+                                    onPress={() => { updateFilter('sortBy', 'duration'); updateFilter('sortOrder', 'asc'); }}
                                 />
                             </View>
-                        </AccordionSection>
+                        </View>
 
-                        {/* DISTANCE */}
-                        <AccordionSection
-                            title="Distance (km)"
-                            expanded={expandedSections.distance}
-                            onToggle={() => toggleSection('distance')}
-                            selectedValue={localFilters.minDistance || localFilters.maxDistance ? 'Custom' : 'All'}
-                        >
-                            <View style={styles.rangeContainer}>
-                                <View style={styles.rangeInputWrapper}>
-                                    <Text style={[styles.label, { color: theme.textSecondary }]}>Min</Text>
+                        {/* DIFFICULTY */}
+                        <View style={styles.section}>
+                            <FilterSectionHeader title="Difficulty" />
+                            <View style={styles.chipContainer}>
+                                <FilterChip
+                                    label="Any"
+                                    selected={!localFilters.difficulty}
+                                    onPress={() => updateFilter('difficulty', undefined)}
+                                />
+                                <FilterChip
+                                    label="Easy"
+                                    selected={localFilters.difficulty === Difficulty.EASY}
+                                    onPress={() => updateFilter('difficulty', Difficulty.EASY)}
+                                />
+                                <FilterChip
+                                    label="Medium"
+                                    selected={localFilters.difficulty === Difficulty.MEDIUM}
+                                    onPress={() => updateFilter('difficulty', Difficulty.MEDIUM)}
+                                />
+                                <FilterChip
+                                    label="Hard"
+                                    selected={localFilters.difficulty === Difficulty.HARD}
+                                    onPress={() => updateFilter('difficulty', Difficulty.HARD)}
+                                />
+                            </View>
+                        </View>
+
+                        {/* LOCATION */}
+                        <View style={styles.section}>
+                            <FilterSectionHeader title="Location" />
+                            <TextInput
+                                style={[styles.input, {
+                                    color: theme.textPrimary,
+                                    backgroundColor: theme.bgPrimary, // Input bg to Primary
+                                    borderColor: theme.borderPrimary, // Explicit border
+                                    borderWidth: 1,
+                                }]}
+                                placeholder="City name..."
+                                placeholderTextColor={theme.textSecondary}
+                                value={localFilters.location}
+                                onChangeText={(text) => updateFilter('location', text)}
+                            />
+                        </View>
+
+                        {/* GENRE */}
+                        <View style={styles.section}>
+                            <FilterSectionHeader title="Genre" />
+                            <View style={styles.chipContainer}>
+                                {GENRES.map(genre => {
+                                    const Icon = genre.icon;
+                                    return (
+                                        <FilterChip
+                                            key={genre.id}
+                                            label={genre.label}
+                                            icon={<Icon size={14} color={localFilters.genres?.includes(genre.id) ? '#FFF' : theme.textPrimary} />}
+                                            selected={localFilters.genres?.includes(genre.id)}
+                                            onPress={() => toggleGenre(genre.id)}
+                                        />
+                                    );
+                                })}
+                            </View>
+                        </View>
+
+                        {/* DISTANCE & DURATION GRID */}
+                        <View style={styles.gridRow}>
+                            {/* DISTANCE */}
+                            <View style={[styles.gridItem, { marginRight: 8 }]}>
+                                <FilterSectionHeader title="Distance (km)" />
+                                <View style={[styles.groupedInputContainer, { backgroundColor: theme.bgPrimary, borderWidth: 1, borderColor: theme.borderPrimary }]}>
                                     <TextInput
-                                        style={[styles.input, { borderColor: theme.borderPrimary, color: theme.textPrimary, backgroundColor: theme.bgPrimary }]}
-                                        placeholder="0"
+                                        style={[styles.groupedInput, { color: theme.textPrimary }]}
+                                        placeholder="Min"
                                         placeholderTextColor={theme.textSecondary}
                                         keyboardType="numeric"
                                         value={localFilters.minDistance?.toString()}
                                         onChangeText={(text) => updateFilter('minDistance', text)}
                                     />
-                                </View>
-                                <View style={styles.rangeInputWrapper}>
-                                    <Text style={[styles.label, { color: theme.textSecondary }]}>Max</Text>
+                                    <View style={[styles.verticalDivider, { backgroundColor: theme.borderPrimary }]} />
                                     <TextInput
-                                        style={[styles.input, { borderColor: theme.borderPrimary, color: theme.textPrimary, backgroundColor: theme.bgPrimary }]}
-                                        placeholder="Any"
+                                        style={[styles.groupedInput, { color: theme.textPrimary }]}
+                                        placeholder="Max"
                                         placeholderTextColor={theme.textSecondary}
                                         keyboardType="numeric"
                                         value={localFilters.maxDistance?.toString()}
@@ -151,32 +230,23 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                                     />
                                 </View>
                             </View>
-                        </AccordionSection>
 
-                        {/* DURATION */}
-                        <AccordionSection
-                            title="Duration (min)"
-                            expanded={expandedSections.duration}
-                            selectedValue={localFilters.minDuration || localFilters.maxDuration ? 'Custom' : 'All'}
-                            onToggle={() => toggleSection('duration')}
-                        >
-                            <View style={styles.rangeContainer}>
-                                <View style={styles.rangeInputWrapper}>
-                                    <Text style={[styles.label, { color: theme.textSecondary }]}>Min</Text>
+                            {/* DURATION */}
+                            <View style={[styles.gridItem, { marginLeft: 8 }]}>
+                                <FilterSectionHeader title="Duration (min)" />
+                                <View style={[styles.groupedInputContainer, { backgroundColor: theme.bgPrimary, borderWidth: 1, borderColor: theme.borderPrimary }]}>
                                     <TextInput
-                                        style={[styles.input, { borderColor: theme.borderPrimary, color: theme.textPrimary, backgroundColor: theme.bgPrimary }]}
-                                        placeholder="0"
+                                        style={[styles.groupedInput, { color: theme.textPrimary }]}
+                                        placeholder="Min"
                                         placeholderTextColor={theme.textSecondary}
                                         keyboardType="numeric"
                                         value={localFilters.minDuration?.toString()}
                                         onChangeText={(text) => updateFilter('minDuration', text)}
                                     />
-                                </View>
-                                <View style={styles.rangeInputWrapper}>
-                                    <Text style={[styles.label, { color: theme.textSecondary }]}>Max</Text>
+                                    <View style={[styles.verticalDivider, { backgroundColor: theme.borderPrimary }]} />
                                     <TextInput
-                                        style={[styles.input, { borderColor: theme.borderPrimary, color: theme.textPrimary, backgroundColor: theme.bgPrimary }]}
-                                        placeholder="Any"
+                                        style={[styles.groupedInput, { color: theme.textPrimary }]}
+                                        placeholder="Max"
                                         placeholderTextColor={theme.textSecondary}
                                         keyboardType="numeric"
                                         value={localFilters.maxDuration?.toString()}
@@ -184,93 +254,21 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                                     />
                                 </View>
                             </View>
-                        </AccordionSection>
-
-                        {/* MODES */}
-                        <AccordionSection
-                            title="Modes"
-                            expanded={expandedSections.modes}
-                            onToggle={() => toggleSection('modes')}
-                            selectedValue={localFilters.modes?.length ? `${localFilters.modes.length} selected` : 'All'}
-                        >
-                            {['PUBGOLF'].map(mode => (
-                                <ModeOption
-                                    key={mode}
-                                    label={mode}
-                                    selected={localFilters.modes?.includes(mode) || false}
-                                    onPress={() => toggleMode(mode)}
-                                />
-                            ))}
-                        </AccordionSection>
-
-                        {/* GENRE */}
-                        <AccordionSection
-                            title="Genre"
-                            expanded={expandedSections.genre}
-                            onToggle={() => toggleSection('genre')}
-                            selectedValue={localFilters.genres?.length ? `${localFilters.genres.length} selected` : 'All'}
-                        >
-                            {GENRES.map(genre => (
-                                <AnimatedPressable
-                                    key={genre.id}
-                                    style={styles.optionRow}
-                                    onPress={() => toggleGenre(genre.id)}
-                                    interactionScale="subtle"
-                                    haptic="light"
-                                >
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                                        {(() => {
-                                            const Icon = genre.icon;
-                                            return <Icon size={20} color={theme.textPrimary} />;
-                                        })()}
-                                        <Text style={[styles.optionText, { color: theme.textPrimary, fontWeight: localFilters.genres?.includes(genre.id) ? 'bold' : 'normal' }]}>{genre.label}</Text>
-                                    </View>
-                                    {localFilters.genres?.includes(genre.id) ? <CheckIcon size={20} color={theme.primary} /> : <StopIcon size={20} color={theme.textPrimary} />}
-                                </AnimatedPressable>
-                            ))}
-                        </AccordionSection>
-
-                        {/* DIFFICULTY */}
-                        <AccordionSection
-                            title="Difficulty"
-                            expanded={expandedSections.difficulty}
-                            onToggle={() => toggleSection('difficulty')}
-                            selectedValue={localFilters.difficulty || 'All'}
-                        >
-                            <RadioOption label="All" selected={!localFilters.difficulty} onPress={() => updateFilter('difficulty', undefined)} />
-                            <RadioOption label="Easy" selected={localFilters.difficulty === Difficulty.EASY} onPress={() => updateFilter('difficulty', Difficulty.EASY)} />
-                            <RadioOption label="Medium" selected={localFilters.difficulty === Difficulty.MEDIUM} onPress={() => updateFilter('difficulty', Difficulty.MEDIUM)} />
-                            <RadioOption label="Hard" selected={localFilters.difficulty === Difficulty.HARD} onPress={() => updateFilter('difficulty', Difficulty.HARD)} />
-                        </AccordionSection>
-
-                        {/* SORTING */}
-                        <AccordionSection
-                            title="Sort By"
-                            expanded={expandedSections.sort}
-                            onToggle={() => toggleSection('sort')}
-                            selectedValue={localFilters.sortBy ? (SORT_LABELS[localFilters.sortBy] || localFilters.sortBy) : 'Default'}
-                        >
-                            <RadioOption label="Newest" selected={localFilters.sortBy === 'createdAt'} onPress={() => { updateFilter('sortBy', 'createdAt'); updateFilter('sortOrder', 'desc'); }} />
-                            <RadioOption label="Name (A-Z)" selected={localFilters.sortBy === 'name' && localFilters.sortOrder === 'asc'} onPress={() => { updateFilter('sortBy', 'name'); updateFilter('sortOrder', 'asc'); }} />
-                            <RadioOption label="Distance (Low-High)" selected={localFilters.sortBy === 'distance' && localFilters.sortOrder === 'asc'} onPress={() => { updateFilter('sortBy', 'distance'); updateFilter('sortOrder', 'asc'); }} />
-                            <RadioOption label="Duration (Shortest)" selected={localFilters.sortBy === 'duration' && localFilters.sortOrder === 'asc'} onPress={() => { updateFilter('sortBy', 'duration'); updateFilter('sortOrder', 'asc'); }} />
-                        </AccordionSection>
+                        </View>
 
                     </ScrollView>
 
-                    <View style={[styles.footer, { borderTopColor: theme.borderPrimary }]}>
+                    {/* Footer */}
+                    <View style={[styles.footer, { borderTopColor: theme.borderSecondary, backgroundColor: theme.bgSecondary }]}>
                         <AnimatedButton
                             title="Apply Filters"
                             onPress={handleApply}
                             style={styles.applyButton}
                         />
 
-                        <AnimatedButton
-                            title="Clear Filters"
-                            onPress={handleClear}
-                            variant="outline"
-                            style={styles.clearButton}
-                        />
+                        <TouchableOpacity onPress={handleClear} style={styles.resetLink}>
+                            <Text style={[styles.resetText, { color: theme.textSecondary }]}>Reset All Filters</Text>
+                        </TouchableOpacity>
                     </View>
                 </Animated.View>
             </View>
@@ -281,22 +279,114 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
 const styles = StyleSheet.create({
     overlay: { flex: 1, flexDirection: 'row' },
     backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
-    sidebar: { height: '100%', position: 'absolute', right: 0, top: 0, bottom: 0, shadowColor: "#000", shadowOffset: { width: -2, height: 0 }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5 },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 80 },
-    headerTitle: { fontSize: 18, fontWeight: 'bold' },
+    sidebar: {
+        height: '100%',
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        bottom: 0,
+        shadowColor: "#000",
+        shadowOffset: { width: -4, height: 0 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 10
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+        paddingTop: 60,
+        paddingBottom: 24,
+    },
+    headerTitle: { fontSize: 26, fontWeight: '800', letterSpacing: -0.5 },
+    closeButton: { padding: 8, borderRadius: 50 },
     content: { flex: 1 },
-    accordionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 15, paddingHorizontal: 20 },
-    accordionTitle: { fontSize: 14, fontWeight: '600' },
-    accordionContent: { paddingBottom: 10 },
-    optionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 20 },
-    optionText: { fontSize: 14 },
-    footer: { padding: 20, borderTopWidth: 1 },
-    applyButton: { padding: 10, alignItems: 'center', marginBottom: 10, borderRadius: 8 },
-    applyButtonText: { fontWeight: 'bold', fontSize: 16 },
-    clearButton: { padding: 10, alignItems: 'center', borderWidth: 1, borderRadius: 8 },
-    clearButtonText: { fontSize: 14, fontWeight: '600' },
-    rangeContainer: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 10 },
-    rangeInputWrapper: { flex: 1, marginHorizontal: 5 },
-    label: { marginBottom: 5, fontSize: 12 },
-    input: { borderWidth: 1, borderRadius: 8, padding: 10 },
+    section: {
+        paddingHorizontal: 24,
+        marginBottom: 24,
+    },
+    sectionHeader: {
+        fontSize: 11,
+        fontWeight: '700',
+        letterSpacing: 1.2,
+        marginBottom: 12,
+        opacity: 0.8,
+    },
+    chipContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+    },
+    chip: {
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 12, // Soft rounded rect (modern feel)
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    sortChip: {
+        paddingVertical: 10,
+        paddingHorizontal: 14,
+        borderRadius: 12,
+        marginBottom: 6,
+    },
+    gridRow: {
+        flexDirection: 'row',
+        paddingHorizontal: 24,
+        marginBottom: 24,
+    },
+    gridItem: {
+        flex: 1,
+    },
+    input: {
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        fontSize: 15,
+        fontWeight: '500',
+    },
+    groupedInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: 16,
+        overflow: 'hidden',
+    },
+    groupedInput: {
+        flex: 1,
+        paddingVertical: 14,
+        textAlign: 'center',
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    verticalDivider: {
+        width: 1,
+        height: '60%',
+    },
+    footer: {
+        padding: 24,
+        paddingBottom: 40,
+        borderTopWidth: 1,
+        gap: 16,
+        alignItems: 'center',
+    },
+    applyButton: {
+        width: '100%',
+        paddingVertical: 16,
+        alignItems: 'center',
+        borderRadius: 16,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    resetLink: {
+        padding: 8,
+    },
+    resetText: {
+        fontSize: 14,
+        fontWeight: '600',
+        textDecorationLine: 'underline',
+    }
 });

@@ -52,6 +52,7 @@ export const strings = {
     lowestRating: 'Lowest Rated',
     showMore: 'Show More',
     showLess: 'Show Less',
+    popularTours: 'Popular Tours',
     // Profile card keys
     level: 'Level',
     explorer: 'Explorer',
@@ -360,6 +361,7 @@ export const strings = {
     lowestRating: 'Menor valorado',
     showMore: 'Mostrar más',
     showLess: 'Mostrar menos',
+    popularTours: 'Tours Populares',
     // Profile card keys
     level: 'Nivel',
     explorer: 'Explorador',
@@ -590,6 +592,7 @@ export const strings = {
     lowestRating: 'Laagst gewaardeerd',
     showMore: 'Toon meer',
     showLess: 'Toon minder',
+    popularTours: 'Populaire Tours',
     // Profile card keys
     level: 'Niveau',
     explorer: 'Verkenner',
