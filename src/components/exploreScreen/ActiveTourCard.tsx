@@ -51,7 +51,7 @@ export default function ActiveTourCard({ title, imageUrl, progress, onResume }: 
           </View>
 
           <Text style={[styles.progressText, { color: theme.textSecondary }]}>
-            {progress * 100}% {t('completed')}
+            {Math.round(progress * 100)}% {t('completed')}
           </Text>
         </View>
 

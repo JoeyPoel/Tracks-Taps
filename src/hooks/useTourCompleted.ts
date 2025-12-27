@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useUserContext } from '../context/UserContext';
+import { feedbackService } from '../services/feedbackService';
 import { tourService } from '../services/tourService';
 import { useStore } from '../store/store';
 import { Team } from '../types/models';
@@ -107,6 +108,26 @@ export const useTourCompleted = (activeTourId: number) => {
         }
     };
 
+    const submitFeedback = async (rating: number, feedback: string) => {
+        if (!user || !activeTour?.tourId) return;
+
+        try {
+            await feedbackService.submitFeedback({
+                tourId: activeTour.tourId,
+                userId: user.id,
+                rating,
+                feedback,
+                source: 'TOUR_COMPLETION'
+            });
+
+            console.log('Feedback submitted successfully');
+        } catch (error) {
+            console.error('Failed to submit feedback', error);
+            // Optionally alert user or just fail silently since it's feedback
+        }
+    };
+
+
     const handleBackToHome = () => {
         router.navigate('/(tabs)/explore');
     };
@@ -120,6 +141,7 @@ export const useTourCompleted = (activeTourId: number) => {
         showReviewForm,
         setShowReviewForm,
         handleCreateReview,
+        submitFeedback,
         submittingReview,
         handleBackToHome,
         t

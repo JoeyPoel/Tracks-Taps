@@ -56,6 +56,8 @@ model User {
   activeTours ActiveTour[]
   playedTours UserPlayedTour[]
 
+  feedbacks Feedback[]
+
   // Friendships
   friendshipsInitiated Friendship[] @relation("FriendshipInitiated")
   friendshipsReceived  Friendship[] @relation("FriendshipReceived")
@@ -123,6 +125,7 @@ model Tour {
   reviews     Review[]
   activeTours ActiveTour[]
   playedTours UserPlayedTour[]
+  feedbacks   Feedback[]
 
   @@index([authorId])
 }
@@ -321,5 +324,21 @@ model UserAchievement {
   unlockedAt    DateTime    @default(now())
 
   @@unique([userId, achievementId])
+  @@index([userId])
+}
+
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  tourId    Int?
+  tour      Tour?    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  rating    Int
+  feedback  String?
+  source    String // e.g. "TOUR_COMPLETION", "PROFILE"
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([tourId])
   @@index([userId])
 }

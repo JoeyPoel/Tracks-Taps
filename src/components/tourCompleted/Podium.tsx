@@ -1,13 +1,118 @@
-import React from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import React, { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import Animated, {
+    useAnimatedStyle,
+    useSharedValue,
+    withSpring
+} from 'react-native-reanimated';
 import { useTheme } from '../../context/ThemeContext';
 import { Team } from '../../types/models';
 
 interface PodiumProps {
     teams: Team[];
+    visibleRanks?: number[]; // [1, 2, 3] to show all, [] to show none
 }
 
-export default function Podium({ teams }: PodiumProps) {
+const PodiumBar = ({
+    team,
+    place,
+    isVisible
+}: {
+    team: Team | null,
+    place: number,
+    isVisible: boolean
+}) => {
+    const { theme } = useTheme();
+    const height = useSharedValue(0);
+    const opacity = useSharedValue(0);
+
+    // Target heights for each place
+    const targetHeight = place === 1 ? 180 : place === 2 ? 140 : 110;
+
+    useEffect(() => {
+        if (isVisible) {
+            height.value = withSpring(targetHeight, { damping: 12, stiffness: 90 });
+            opacity.value = withSpring(1);
+        } else {
+            height.value = 0;
+            opacity.value = 0;
+        }
+    }, [isVisible]);
+
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            height: height.value,
+            opacity: opacity.value,
+        };
+    });
+
+    if (!team) return <View style={styles.emptyStep} />;
+
+    const displayName = team.name || team.user?.name || 'Unknown';
+    const teamColor = team.color || theme.primary;
+
+    // Helper for Hex to RGBA
+    const hexToRgba = (hex: string, alpha: number) => {
+        let c: any;
+        if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+            c = hex.substring(1).split('');
+            if (c.length == 3) {
+                c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+            }
+            c = '0x' + c.join('');
+            return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',' + alpha + ')';
+        }
+        return hex; // Fallback
+    };
+
+    const barColor = hexToRgba(teamColor, 0.25);
+    const borderColor = hexToRgba(teamColor, 0.6);
+
+    return (
+        <View style={styles.stepContainer}>
+            {/* Info floats above the bar */}
+            <Animated.View style={[styles.teamInfo, animatedStyle, { height: undefined, minHeight: 60, marginBottom: 8 }]}>
+                <Text style={[styles.teamName, { color: theme.textPrimary }]} numberOfLines={1}>
+                    {displayName}
+                </Text>
+                <View style={[styles.scoreBadge, { backgroundColor: theme.bgSecondary }]}>
+                    <Text style={[styles.score, { color: teamColor }]}>
+                        {team.score}
+                    </Text>
+                </View>
+            </Animated.View>
+
+            <Animated.View style={[
+                styles.bar,
+                animatedStyle,
+                {
+                    backgroundColor: barColor,
+                    borderColor: borderColor,
+                }
+            ]}>
+                {/* Crown for 1st place */}
+                {place === 1 && (
+                    <View style={styles.crownContainer}>
+                        <Ionicons name="trophy" size={32} color="#FFD700" />
+                    </View>
+                )}
+
+                {/* Rank Number */}
+                <Text style={[styles.rankNumber, { color: place === 1 ? '#FFD700' : theme.textSecondary }]}>
+                    {place}
+                </Text>
+
+                {/* Team Emoji Inside the Pillar */}
+                <View style={[styles.emojiContainer]}>
+                    <Text style={styles.emoji}>{team.emoji || '👤'}</Text>
+                </View>
+            </Animated.View>
+        </View>
+    );
+};
+
+export default function Podium({ teams, visibleRanks = [1, 2, 3] }: PodiumProps) {
     const { theme } = useTheme();
 
     const sortedTeams = [...teams].sort((a, b) => (b.score || 0) - (a.score || 0));
@@ -16,81 +121,12 @@ export default function Podium({ teams }: PodiumProps) {
     const second = sortedTeams.length > 1 ? sortedTeams[1] : null;
     const third = sortedTeams.length > 2 ? sortedTeams[2] : null;
 
-    const renderPodiumStep = (team: Team | null, place: number) => {
-        if (!team) return <View style={styles.emptyStep} />;
-
-        let barHeight = 100;
-
-        if (place === 1) {
-            barHeight = 160;
-        } else if (place === 2) {
-            barHeight = 130;
-        } else if (place === 3) {
-            barHeight = 100;
-        }
-
-        const displayName = team.name || team.user?.name;
-
-        // Use team color with opacity for the bar
-        // Need to parse hex to rgba or just opacity style if color is hex
-        // Assuming team.color is a hex string like #RRGGBB
-
-        // Simple hex to transparent helper
-        const hexToRgba = (hex: string, alpha: number) => {
-            let c: any;
-            if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
-                c = hex.substring(1).split('');
-                if (c.length == 3) {
-                    c = [c[0], c[0], c[1], c[1], c[2], c[2]];
-                }
-                c = '0x' + c.join('');
-                return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',' + alpha + ')';
-            }
-            return hex; // Fallback
-        }
-
-        const teamColor = team.color || theme.primary;
-        const barBackgroundColor = hexToRgba(teamColor, 0.3);
-
-        return (
-            <View style={styles.stepContainer}>
-
-                <View style={[styles.teamInfo, place === 1 && { marginBottom: 36 }]}>
-                    <Text style={[styles.teamName, { color: theme.textPrimary }]} numberOfLines={1}>
-                        {displayName}
-                    </Text>
-                    <Text style={[styles.score, { color: teamColor }]}>
-                        {team.score}
-                    </Text>
-                </View>
-
-                <View style={[styles.bar, { height: barHeight, backgroundColor: barBackgroundColor }]}>
-                    {/* Crown for 1st place */}
-                    {place === 1 && (
-                        <View style={styles.crownContainer}>
-                            <Text style={styles.crownEmoji}>{'👑'}</Text>
-                        </View>
-                    )}
-
-                    {/* Rank Number */}
-                    <Text style={[styles.rankNumber, { color: '#FFFFFF' }]}>{place}</Text>
-
-                    {/* Team Emoji Inside the Pillar */}
-                    <View style={styles.emojiContainer}>
-                        <Text style={styles.emoji}>{team.emoji || '👤'}</Text>
-                    </View>
-                </View>
-            </View>
-        );
-    };
-
     return (
         <View style={styles.container}>
-            <Text style={[styles.title, { color: theme.textPrimary }]}>Final Rankings</Text>
             <View style={styles.podiumWrapper}>
-                {renderPodiumStep(second, 2)}
-                {renderPodiumStep(first, 1)}
-                {renderPodiumStep(third, 3)}
+                <PodiumBar team={second} place={2} isVisible={visibleRanks.includes(2)} />
+                <PodiumBar team={first} place={1} isVisible={visibleRanks.includes(1)} />
+                <PodiumBar team={third} place={3} isVisible={visibleRanks.includes(3)} />
             </View>
         </View>
     );
@@ -99,13 +135,10 @@ export default function Podium({ teams }: PodiumProps) {
 const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
-        marginVertical: 24,
+        marginVertical: 10,
         width: '100%',
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 24,
+        height: 280, // Fixed height to prevent layout jumps
+        justifyContent: 'flex-end',
     },
     podiumWrapper: {
         flexDirection: 'row',
@@ -113,61 +146,68 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         gap: 12,
         width: '100%',
+        paddingHorizontal: 10,
     },
     stepContainer: {
         alignItems: 'center',
-        width: 90,
         flex: 1,
-        maxWidth: 110,
+        justifyContent: 'flex-end',
     },
     emptyStep: {
-        width: 90,
         flex: 1,
-        maxWidth: 110,
     },
     teamInfo: {
         alignItems: 'center',
-        marginBottom: 8,
         justifyContent: 'flex-end',
+        width: '100%',
     },
     teamName: {
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: 'bold',
         textAlign: 'center',
-        marginBottom: 2,
+        marginBottom: 4,
+    },
+    scoreBadge: {
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 8,
     },
     score: {
-        fontSize: 14,
-        fontWeight: 'bold',
+        fontSize: 12,
+        fontWeight: '800',
     },
     bar: {
         width: '100%',
-        borderTopLeftRadius: 16,
-        borderTopRightRadius: 16,
+        borderTopLeftRadius: 12,
+        borderTopRightRadius: 12,
+        borderWidth: 1,
+        borderBottomWidth: 0,
         alignItems: 'center',
-        paddingTop: 16,
-        paddingBottom: 16,
+        paddingTop: 12,
+        paddingBottom: 12,
         position: 'relative',
         justifyContent: 'space-between',
+        overflow: 'hidden',
     },
     rankNumber: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        zIndex: 2,
+        fontSize: 24,
+        fontWeight: '900',
+        opacity: 0.8,
     },
     crownContainer: {
         position: 'absolute',
-        top: -45,
+        top: -40,
         width: '100%',
         alignItems: 'center',
-    },
-    crownEmoji: {
-        fontSize: 32,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
     },
     emojiContainer: {
         opacity: 0.9,
     },
     emoji: {
-        fontSize: 32,
+        fontSize: 28,
     },
 });

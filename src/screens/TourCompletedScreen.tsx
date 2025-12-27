@@ -1,16 +1,20 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import React from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import * as StoreReview from 'expo-store-review';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import Confetti from '../components/active-tour/animations/Confetti';
 import { AnimatedButton } from '../components/common/AnimatedButton';
-import AppHeader from '../components/Header';
+import FeedbackCard from '../components/tourCompleted/FeedbackCard';
 import Podium from '../components/tourCompleted/Podium';
 import ReviewForm from '../components/tourCompleted/ReviewForm';
 import { useTheme } from '../context/ThemeContext';
 import { useTourCompleted } from '../hooks/useTourCompleted';
 
-export default function TourCompletedScreen({ activeTourId, celebrate = false }: { activeTourId: number, celebrate?: boolean }) {
+type RevealState = 'CALCULATING' | 'REVEAL_3' | 'REVEAL_2' | 'REVEAL_1' | 'CELEBRATE';
+
+export default function TourCompletedScreen({ activeTourId }: { activeTourId: number }) {
     const { theme } = useTheme();
 
     // Use custom hook for logic
@@ -22,15 +26,84 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
         showReviewForm,
         setShowReviewForm,
         handleCreateReview,
+
+        submitFeedback, // extracted from hook
         submittingReview,
         handleBackToHome,
         t
     } = useTourCompleted(activeTourId);
 
-    if (loading) {
+    const [revealState, setRevealState] = useState<RevealState>('CALCULATING');
+    const [rating, setRating] = useState(0); // For the "Rate App" interaction
+    const [showFeedbackInput, setShowFeedbackInput] = useState(false);
+    const [feedbackText, setFeedbackText] = useState('');
+    const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+
+    useEffect(() => {
+        // Reset feedback state when activeTourId changes
+        setRating(0);
+        setShowFeedbackInput(false);
+        setFeedbackText('');
+        setFeedbackSubmitted(false);
+        setRevealState('CALCULATING');
+    }, [activeTourId]);
+
+    useEffect(() => {
+        if (!loading && activeTeams.length > 0) {
+            // Start the reveal sequence
+            const sequence = async () => {
+                // Wait a bit for "calculating" suspense
+                await new Promise(r => setTimeout(r, 1500));
+
+                if (activeTeams.length >= 3) {
+                    setRevealState('REVEAL_3');
+                    await new Promise(r => setTimeout(r, 1000));
+                }
+
+                if (activeTeams.length >= 2) {
+                    setRevealState('REVEAL_2');
+                    await new Promise(r => setTimeout(r, 1000));
+                }
+
+                setRevealState('REVEAL_1');
+                await new Promise(r => setTimeout(r, 800));
+                setRevealState('CELEBRATE');
+            };
+            sequence();
+        }
+    }, [loading, activeTeams]); // Removed activeTeams dep from sequence start to avoid re-triggering? NO, actually we want to trigger ONLY if loading done.
+    // Ideally we'd separate the reset logic from the animation logic.
+
+
+    const handleRating = async (selectedRating: number) => {
+        setRating(selectedRating);
+        if (selectedRating >= 4) {
+            setShowFeedbackInput(false);
+            const isAvailable = await StoreReview.hasAction();
+            if (isAvailable) {
+                StoreReview.requestReview();
+            }
+        } else {
+            setShowFeedbackInput(true);
+        }
+    };
+
+    const handleSubmitFeedback = () => {
+        submitFeedback(rating, feedbackText);
+        setFeedbackSubmitted(true);
+        setTimeout(() => {
+            setShowFeedbackInput(false);
+        }, 2000);
+    };
+
+    if (loading || revealState === 'CALCULATING') {
+        const message = loading ? t('loading') : "Calculating results...";
         return (
-            <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}>
-                <ActivityIndicator size="large" color={theme.primary} />
+            <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={theme.primary} style={{ marginBottom: 20 }} />
+                    <Text style={[styles.calculatingText, { color: theme.textSecondary }]}>{message}</Text>
+                </View>
             </View>
         );
     }
@@ -47,85 +120,144 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
     const runnerUps = activeTeams.slice(3);
     const winnerName = winner?.name || winner?.user?.name || t('you');
 
+    // Determine which ranks to show based on state
+    const getVisibleRanks = () => {
+        switch (revealState) {
+            case 'REVEAL_3': return [3];
+            case 'REVEAL_2': return [3, 2];
+            case 'REVEAL_1': return [3, 2, 1];
+            case 'CELEBRATE': return [3, 2, 1];
+            default: return [];
+        }
+    };
+
     return (
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
-            <AppHeader title={t('tourCompleted')} showBackButton={true} onBackPress={handleBackToHome} />
-            {celebrate && <Confetti />}
-
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
-                {/* Header Section */}
+            {/* Subtle Gradient Background - Top Fade Only */}
+            {/* Subtle Gradient Background - Top Fade Only */}
+            <View style={[StyleSheet.absoluteFillObject, { height: '60%' }]}>
+                {/* 1. Base Layer: Blue -> Pink Horizontal Gradient */}
                 <LinearGradient
-                    colors={[theme.secondary, theme.primary]}
+                    colors={['#3B82F6', '#EC4899']} // Blue -> Pink
                     start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.headerGradient}
-                >
-                    <Text style={styles.tourTitle}>{activeTour.tour?.title}</Text>
-                </LinearGradient>
+                    end={{ x: 1, y: 0 }}
+                    style={StyleSheet.absoluteFillObject}
+                />
 
-                {/* Winner Card */}
-                {winner && (
-                    <View style={[styles.winnerCard, { backgroundColor: theme.bgSecondary, borderColor: theme.fixedTrophyGold }]}>
-                        <View style={styles.trophyIconContainer}>
-                            <Ionicons name="trophy-outline" size={60} color={theme.fixedTrophyGold} />
-                        </View>
-                        <Text style={[styles.winnerTeamName, { color: theme.textPrimary }]}>{winnerName}</Text>
+                {/* 2. Mask Layer: Fade to Background Color vertically */}
+                <LinearGradient
+                    colors={['transparent', theme.bgPrimary]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    style={StyleSheet.absoluteFillObject}
+                />
+            </View>
 
-                        <View style={[styles.winnerScoreBadge, { backgroundColor: theme.bgPrimary }]}>
-                            <Ionicons name="flash" size={16} color={theme.primary} style={{ marginRight: 4 }} />
-                            <Text style={[styles.winnerScoreText, { color: theme.primary }]}>{winner.score} {t('points')}</Text>
-                        </View>
-                    </View>
-                )}
+            {/* Confetti floats on top */}
+            {revealState === 'CELEBRATE' && <Confetti />}
 
-                {/* Podium */}
-                {activeTeams.length > 0 && (
-                    <Podium teams={podiumTeams} />
-                )}
-
-                {/* Runner Ups */}
-                {runnerUps.length > 0 && (
-                    <View style={styles.leaderboardList}>
-                        {runnerUps.map((team, index) => (
-                            <View key={team.id} style={[styles.leaderboardItem, { backgroundColor: theme.bgSecondary }]}>
-                                <Text style={[styles.rank, { color: theme.textSecondary }]}>{index + 4}</Text>
-                                <View style={styles.leaderboardInfo}>
-                                    <Text style={[styles.leaderboardName, { color: theme.textPrimary }]}>{team.name || team.user?.name}</Text>
-                                </View>
-                                <View style={styles.leaderboardScore}>
-                                    <Text style={[styles.leaderboardScoreText, { color: theme.success }]}>{team.score}</Text>
-                                    <Text style={[styles.leaderboardScoreLabel, { color: theme.textSecondary }]}>{t('pts')}</Text>
-                                </View>
-                            </View>
-                        ))}
-                    </View>
-                )}
-
-                <View style={styles.actionsContainer}>
-                    <AnimatedButton
-                        title={t('writeReview')}
-                        onPress={() => setShowReviewForm(true)}
-                        icon="star"
-                        variant="primary"
-                        style={{ marginBottom: 16 }}
-                    />
-
-                    <ReviewForm
-                        visible={showReviewForm}
-                        onClose={() => setShowReviewForm(false)}
-                        onSubmit={handleCreateReview}
-                        submitting={submittingReview}
-                        tourName={activeTour.tour?.title}
-                    />
-
-                    <AnimatedButton
-                        title={t('backToHome')}
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+            >
+                {/* Back Button (Floating) */}
+                <View style={[styles.topBar]}>
+                    <TouchableOpacity
                         onPress={handleBackToHome}
-                        icon="chevron-forward"
-                        variant="secondary"
-                    />
+                        style={[styles.backButton, { backgroundColor: 'rgba(0,0,0,0.2)' }]}
+                    >
+                        <Ionicons name="arrow-back" size={24} color="#FFF" />
+                    </TouchableOpacity>
+
+                    <Text style={styles.activeTourTitle}>{activeTour?.tour?.title}</Text>
+
+                    {/* Horizontal spacer for balance */}
+                    <View style={{ width: 40 }} />
                 </View>
+
+                {/* Hero Section: Winner & Podium */}
+                <View style={styles.heroSection}>
+                    <View style={styles.winnerHeaderContainer}>
+                        {revealState === 'CELEBRATE' && (
+                            <Animated.View entering={ZoomIn.springify().damping(12)} style={styles.winnerHeader}>
+                                <Text style={styles.winnerText}>
+                                    <Text style={{ fontSize: 18, fontWeight: '400', opacity: 0.9 }}>Winner: </Text>
+                                    {winnerName}
+                                </Text>
+                                <View style={[styles.winnerScorePill, { backgroundColor: theme.bgPrimary }]}>
+                                    <Ionicons name="flash" size={12} color={theme.primary} />
+                                    <Text style={[styles.winnerScoreText, { color: theme.primary }]}>
+                                        {winner?.score || 0} PTS
+                                    </Text>
+                                </View>
+                            </Animated.View>
+                        )}
+                    </View>
+
+                    <View style={styles.podiumContainer}>
+                        {activeTeams.length > 0 && (
+                            <Podium teams={podiumTeams} visibleRanks={getVisibleRanks()} />
+                        )}
+                    </View>
+                </View>
+
+                {/* Content below gradient (Runner ups, Rating, Actions) */}
+                <View style={styles.lowerContent}>
+
+                    {/* Rate App Card (Uber Style) */}
+                    {revealState === 'CELEBRATE' && (
+                        <FeedbackCard
+                            rating={rating}
+                            onRate={handleRating}
+                            feedback={feedbackText}
+                            onFeedbackChange={setFeedbackText}
+                            onSubmit={handleSubmitFeedback}
+                            submitted={feedbackSubmitted}
+                            showInput={showFeedbackInput && !feedbackSubmitted}
+                        />
+                    )}
+
+                    {/* Runner Ups List - Minimal Clean Design */}
+                    {revealState === 'CELEBRATE' && runnerUps.length > 0 && (
+                        <Animated.View entering={FadeInDown.delay(400).springify()} style={styles.runnerUpSection}>
+                            <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>Leaderboard</Text>
+                            {runnerUps.map((team, index) => (
+                                <View key={team.id} style={[styles.runnerUpRow, { borderColor: theme.borderPrimary }]}>
+                                    <Text style={[styles.runnerUpRank, { color: theme.textSecondary }]}>{index + 4}</Text>
+                                    <Text style={[styles.runnerUpName, { color: theme.textPrimary }]}>{team.name || team.user?.name}</Text>
+                                    <Text style={[styles.runnerUpScore, { color: theme.textPrimary }]}>{team.score} pts</Text>
+                                </View>
+                            ))}
+                        </Animated.View>
+                    )}
+
+                    {/* Actions Footer */}
+                    {revealState === 'CELEBRATE' && (
+                        <Animated.View entering={FadeInDown.delay(600).springify()} style={styles.footerActions}>
+                            <AnimatedButton
+                                title={t('writeReview')}
+                                onPress={() => setShowReviewForm(true)}
+                                variant="primary"
+                                style={styles.actionBtn}
+                            />
+
+                            <AnimatedButton
+                                title={t('backToHome')}
+                                onPress={handleBackToHome}
+                                variant="outline"
+                                style={{ marginTop: 8 }}
+                            />
+                        </Animated.View>
+                    )}
+                </View>
+
+                <ReviewForm
+                    visible={showReviewForm}
+                    onClose={() => setShowReviewForm(false)}
+                    onSubmit={handleCreateReview}
+                    submitting={submittingReview}
+                    tourName={activeTour.tour?.title}
+                />
 
             </ScrollView>
         </View>
@@ -136,121 +268,130 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    scrollContent: {
-        paddingBottom: 40,
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
         alignItems: 'center',
     },
-    headerGradient: {
-        width: '100%',
-        paddingTop: 10,
-        paddingBottom: 30,
-        alignItems: 'center',
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
-        marginBottom: -30, // Overlap with winner card
-        zIndex: 1,
-    },
-    tourTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: 'rgba(255, 255, 255, 0.8)',
-        paddingBottom: 10,
-    },
-    winnerCard: {
-        width: '85%',
-        borderRadius: 20,
-        borderWidth: 2,
-        padding: 24,
-        alignItems: 'center',
-        marginBottom: 32,
-        zIndex: 2,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 6,
-    },
-    trophyIconContainer: {
-        marginBottom: 12,
-    },
-    winnerTeamName: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        marginBottom: 16,
-        textAlign: 'center',
-    },
-    winnerScoreBadge: {
-        flexDirection: 'row',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 20,
-        alignItems: 'center',
-    },
-    winnerScoreText: {
+    calculatingText: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: '600',
     },
-    leaderboardList: {
-        width: '90%',
-        marginTop: 16,
-        marginBottom: 24,
+    scrollContent: {
+        flexGrow: 1,
+        paddingBottom: 40,
     },
-    leaderboardItem: {
-        borderRadius: 12,
-        padding: 16,
+    topBar: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingTop: 60, // Safe area
+        paddingBottom: 10,
+        zIndex: 10,
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    activeTourTitle: {
+        color: '#FFFFFF',
+        fontSize: 14,
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        opacity: 0.9,
+    },
+    heroSection: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 10,
+    },
+    winnerHeaderContainer: {
+        minHeight: 100, // Reserve height for the winner text so it pops in without shifting too much
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    winnerHeader: {
+        alignItems: 'center',
+    },
+    winnerText: {
+        fontSize: 32,
+        fontWeight: '800',
+        color: '#FFFFFF',
+        textAlign: 'center',
+        letterSpacing: 0.5,
         marginBottom: 8,
     },
-    rank: {
-        fontSize: 16,
-        fontWeight: 'bold',
+    winnerScorePill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 6,
+        borderRadius: 20,
+        gap: 6,
+    },
+    winnerScoreText: {
+        fontWeight: '800',
+        fontSize: 14,
+    },
+    podiumContainer: {
+        width: '100%',
+        paddingHorizontal: 10,
+    },
+    lowerContent: {
+        paddingTop: 10,
+        borderTopLeftRadius: 30, // Visual connection if needed
+        borderTopRightRadius: 30,
+    },
+
+    runnerUpSection: {
+        width: '100%',
+        paddingHorizontal: 24,
+        marginBottom: 20,
+    },
+    sectionTitle: {
+        fontSize: 12,
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        marginBottom: 10,
+    },
+    runnerUpRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+    },
+    runnerUpRank: {
         width: 30,
+        fontSize: 16,
+        fontWeight: 'bold',
     },
-    leaderboardInfo: {
+    runnerUpName: {
         flex: 1,
-    },
-    leaderboardName: {
         fontSize: 16,
         fontWeight: '600',
     },
-    leaderboardScore: {
-        alignItems: 'flex-end',
-    },
-    leaderboardScoreText: {
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-    leaderboardScoreLabel: {
-        fontSize: 10,
-    },
-    actionsContainer: {
-        width: '90%',
-        gap: 12,
-    },
-    writeReviewButton: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 18,
-        borderRadius: 12,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-    },
-    writeReviewText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    homeButton: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 18,
-        borderRadius: 12,
-    },
-    homeButtonText: {
-        fontSize: 16,
+    runnerUpScore: {
+        fontSize: 14,
         fontWeight: '600',
-        marginRight: 8,
+    },
+    footerActions: {
+        marginTop: 10,
+        paddingHorizontal: 24,
+        gap: 8,
+    },
+    actionBtn: {
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.20,
+        shadowRadius: 4,
+        elevation: 6,
     },
 });
