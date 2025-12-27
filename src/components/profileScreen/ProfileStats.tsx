@@ -1,7 +1,6 @@
 import { useLanguage } from '@/src/context/LanguageContext';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { MapPinIcon, PencilSquareIcon, UsersIcon } from 'react-native-heroicons/outline';
 import { useTheme } from '../../context/ThemeContext';
 
 interface ProfileStatsProps {
@@ -24,37 +23,38 @@ export default function ProfileStats({
     const { theme } = useTheme();
     const { t } = useLanguage();
 
+    const StatItem = ({ label, value, onPress }: any) => (
+        <TouchableOpacity
+            style={styles.statItem}
+            onPress={onPress}
+            activeOpacity={0.7}
+        >
+            <Text style={[styles.value, { color: theme.textPrimary }]}>{value}</Text>
+            <Text style={[styles.label, { color: theme.textSecondary }]}>{label}</Text>
+        </TouchableOpacity>
+    );
+
+    const Divider = () => <View style={[styles.divider, { backgroundColor: theme.borderSecondary }]} />;
+
     return (
-        <View style={styles.container}>
-            <TouchableOpacity
-                style={[styles.statCard, { backgroundColor: theme.bgSecondary }]}
+        <View style={[styles.container, { backgroundColor: theme.bgSecondary }]}>
+            <StatItem
+                value={toursDone}
+                label={t('toursDone') || 'Tours Done'}
                 onPress={onPressToursDone}
-                activeOpacity={0.7}
-            >
-                <MapPinIcon size={24} color={theme.secondary} style={styles.icon} />
-                <Text style={[styles.value, { color: theme.textPrimary }]}>{toursDone}</Text>
-                <Text style={[styles.label, { color: theme.textSecondary }]}>{t('toursDone')}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                style={[styles.statCard, { backgroundColor: theme.bgSecondary }]}
+            />
+            <Divider />
+            <StatItem
+                value={toursCreated}
+                label={t('toursCreated') || 'Created'}
                 onPress={onPressToursCreated}
-                activeOpacity={0.7}
-            >
-                <PencilSquareIcon size={24} color={theme.warning} style={styles.icon} />
-                <Text style={[styles.value, { color: theme.textPrimary }]}>{toursCreated}</Text>
-                <Text style={[styles.label, { color: theme.textSecondary }]}>{t('toursCreated')}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                style={[styles.statCard, { backgroundColor: theme.bgSecondary }]}
+            />
+            <Divider />
+            <StatItem
+                value={friends}
+                label={t('friends') || 'Friends'}
                 onPress={onPressFriends}
-                activeOpacity={0.7}
-            >
-                <UsersIcon size={24} color={theme.primary} style={styles.icon} />
-                <Text style={[styles.value, { color: theme.textPrimary }]}>{friends}</Text>
-                <Text style={[styles.label, { color: theme.textSecondary }]}>{t('friends')}</Text>
-            </TouchableOpacity>
+            />
         </View>
     );
 }
@@ -62,27 +62,26 @@ export default function ProfileStats({
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 24,
-        gap: 12,
-    },
-    statCard: {
-        flex: 1,
-        borderRadius: 16,
-        paddingVertical: 16,
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-evenly',
+        paddingVertical: 16,
+        borderRadius: 16,
     },
-    icon: {
-        marginBottom: 8,
+    statItem: {
+        alignItems: 'center',
+        paddingHorizontal: 16,
     },
     value: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
-        marginBottom: 4,
+        marginBottom: 2,
     },
     label: {
         fontSize: 12,
-        textAlign: 'center',
+        fontWeight: '500',
     },
+    divider: {
+        width: 1,
+        height: 24,
+    }
 });

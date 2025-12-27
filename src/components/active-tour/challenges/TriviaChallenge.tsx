@@ -12,6 +12,7 @@ interface TriviaChallengeProps {
     triviaSelected: { [key: number]: number };
     setTriviaSelected: React.Dispatch<React.SetStateAction<{ [key: number]: number }>>;
     onSubmit: (challenge: any) => void;
+    index?: number;
 }
 
 const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
@@ -20,7 +21,8 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
     isFailed,
     triviaSelected,
     setTriviaSelected,
-    onSubmit
+    onSubmit,
+    index
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
@@ -36,6 +38,7 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
             onPress={() => onSubmit(challenge)}
             actionLabel={isFailed ? (t('wrongAnswer') || "Wrong Answer") : isCompleted ? (t('completed') || "Completed") : (t('submitAnswer') || "Submit Answer")}
             disabled={isDone}
+            index={index}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
                 {challenge.content}

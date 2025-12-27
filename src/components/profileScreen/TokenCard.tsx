@@ -1,7 +1,7 @@
 import { useLanguage } from '@/src/context/LanguageContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, Text, View } from 'react-native';
-import { CircleStackIcon, ShoppingCartIcon, SparklesIcon, UserPlusIcon } from 'react-native-heroicons/outline';
+import { CircleStackIcon, PlusIcon } from 'react-native-heroicons/outline';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 
@@ -16,103 +16,78 @@ export default function TokenCard({ tokens, onBuyPress, onInvitePress }: TokenCa
     const { t } = useLanguage();
 
     return (
-        <View style={styles.container}>
-            <LinearGradient
-                colors={[theme.accent, theme.primary]} // Orange to Pink gradient
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.gradient}
+        <View style={[styles.container, { backgroundColor: theme.bgSecondary }]}>
+            <View style={styles.leftContent}>
+                {/* The "Jewel": Gradient Icon Background */}
+                <LinearGradient
+                    colors={[theme.accent, theme.primary]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.iconGradient}
+                >
+                    <CircleStackIcon size={20} color="#FFF" />
+                </LinearGradient>
+
+                <View>
+                    <Text style={[styles.balance, { color: theme.textPrimary }]}>{tokens} Tokens</Text>
+                    <Text style={[styles.label, { color: theme.textSecondary }]}>Available Balance</Text>
+                </View>
+            </View>
+
+            <AnimatedPressable
+                style={[styles.buyButton, { backgroundColor: theme.bgPrimary, borderWidth: 1, borderColor: theme.borderPrimary }]}
+                onPress={onBuyPress}
+                interactionScale="subtle"
             >
-                <View style={styles.header}>
-                    <View style={styles.iconContainer}>
-                        <CircleStackIcon size={32} color={theme.fixedWhite} />
-                    </View>
-                    <View style={styles.balanceContainer}>
-                        <Text style={styles.label}>{t('yourTokens')}</Text>
-                        <Text style={styles.balance}>{tokens}</Text>
-                    </View>
-                    <SparklesIcon size={32} color={theme.fixedWhite} style={styles.sparkleIcon} />
-                </View>
-
-                <View style={styles.actions}>
-                    <AnimatedPressable style={styles.button} onPress={onBuyPress} interactionScale="subtle" haptic="light">
-                        <ShoppingCartIcon size={20} color={theme.fixedWhite} style={styles.buttonIcon} />
-                        <Text style={styles.buttonText}>{t('buyTokens')}</Text>
-                    </AnimatedPressable>
-
-                    <AnimatedPressable style={styles.button} onPress={onInvitePress} interactionScale="subtle" haptic="light">
-                        <UserPlusIcon size={20} color={theme.fixedWhite} style={styles.buttonIcon} />
-                        <Text style={styles.buttonText}>{t('inviteFriends')}</Text>
-                    </AnimatedPressable>
-                </View>
-            </LinearGradient>
+                <PlusIcon size={16} color={theme.textPrimary} style={{ marginRight: 4 }} />
+                <Text style={[styles.buttonText, { color: theme.textPrimary }]}>{t('buyTokens') || 'Top Up'}</Text>
+            </AnimatedPressable>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: 16,
+        borderRadius: 16,
         marginTop: 16,
-        borderRadius: 20,
-        overflow: 'hidden',
     },
-    gradient: {
-        padding: 20,
-    },
-    header: {
+    leftContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 20,
-    },
-    iconContainer: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        backgroundColor: 'rgba(255,255,255,0.2)', // Keep semi-transparent white for contrast on gradient
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 16,
-    },
-    iconOverlay: {
-        position: 'absolute',
-        top: 14,
-        left: 14,
-    },
-    balanceContainer: {
-        flex: 1,
-    },
-    label: {
-        color: 'rgba(255,255,255,0.9)', // Keep semi-transparent white
-        fontSize: 14,
-        marginBottom: 4,
-    },
-    balance: {
-        color: '#FFFFFF', // Keep white
-        fontSize: 24,
-        fontWeight: 'bold',
-    },
-    sparkleIcon: {
-        opacity: 0.5,
-    },
-    actions: {
-        flexDirection: 'row',
         gap: 12,
     },
-    button: {
-        flex: 1,
+    iconGradient: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    balance: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    label: {
+        fontSize: 12,
+    },
+    buyButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'rgba(255,255,255,0.2)', // Keep semi-transparent white
-        paddingVertical: 12,
-        borderRadius: 12,
-    },
-    buttonIcon: {
-        marginRight: 8,
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 100,
     },
     buttonText: {
-        color: '#FFFFFF',
-        fontWeight: 'bold',
-        fontSize: 14,
-    },
+        fontSize: 13,
+        fontWeight: '600',
+    }
 });

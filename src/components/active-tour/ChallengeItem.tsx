@@ -15,7 +15,8 @@ interface ChallengeItemProps {
     setTriviaSelected: React.Dispatch<React.SetStateAction<{ [key: number]: number }>>;
     onClaimArrival: (challenge: any) => void;
     onSubmitTrivia: (challenge: any) => void;
-    onFail: (challenge: any) => void; // Add handler
+    onFail: (challenge: any) => void;
+    index: number;
 }
 
 const ChallengeItem: React.FC<ChallengeItemProps> = ({
@@ -26,7 +27,8 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
     setTriviaSelected,
     onClaimArrival,
     onSubmitTrivia,
-    onFail, // Destructure
+    onFail,
+    index
 }) => {
     const type = challenge.type.toLowerCase();
 
@@ -48,6 +50,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                     isCompleted={isCompleted}
                     isFailed={isFailed}
                     onComplete={handleComplete}
+                    index={index}
                 />
             );
         case 'trivia':
@@ -59,6 +62,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                     triviaSelected={triviaSelected}
                     setTriviaSelected={setTriviaSelected}
                     onSubmit={onSubmitTrivia}
+                    index={index}
                 />
             );
         case 'picture':
@@ -68,6 +72,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                     isCompleted={isCompleted}
                     isFailed={isFailed}
                     onComplete={handleComplete}
+                    index={index}
                 />
             );
         case 'true_false':
@@ -78,6 +83,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                     isFailed={isFailed}
                     onComplete={handleComplete}
                     onFail={handleFail}
+                    index={index}
                 />
             );
         case 'dare':
@@ -87,6 +93,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                     isCompleted={isCompleted}
                     isFailed={isFailed}
                     onComplete={handleComplete}
+                    index={index}
                 />
             );
         case 'riddle':
@@ -97,6 +104,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                     isFailed={isFailed}
                     onComplete={handleComplete}
                     onFail={handleFail}
+                    index={index}
                 />
             );
         default:

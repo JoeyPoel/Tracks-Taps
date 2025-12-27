@@ -10,13 +10,15 @@ interface PictureChallengeProps {
     isCompleted: boolean;
     isFailed: boolean;
     onComplete: (challenge: any) => void;
+    index?: number;
 }
 
 const PictureChallenge: React.FC<PictureChallengeProps> = ({
     challenge,
     isCompleted,
     isFailed,
-    onComplete
+    onComplete,
+    index
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
@@ -38,6 +40,7 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
             onPress={handlePress}
             actionLabel={t('takePhoto') || "Take Photo"}
             disabled={isDone}
+            index={index}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
                 {challenge.content}

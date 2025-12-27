@@ -1,12 +1,13 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, FlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { AdjustmentsHorizontalIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
+import { FlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { AdjustmentsHorizontalIcon, ListBulletIcon, MagnifyingGlassIcon, Squares2X2Icon } from 'react-native-heroicons/outline';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import ActiveTourCard from '../components/exploreScreen/ActiveTourCard';
 import ExploreFilterSidebar from '../components/exploreScreen/ExploreFilterSidebar';
 import TourCard from '../components/exploreScreen/TourCard';
+import TourSkeleton from '../components/exploreScreen/TourSkeleton';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
@@ -30,6 +31,7 @@ export default function ExploreScreen() {
   const [filterVisible, setFilterVisible] = useState(false);
   const [searchText, setSearchText] = useState(tourFilters.searchQuery || '');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const activeTour = activeTours.length > 0 ? activeTours[0] : null;
 
@@ -65,7 +67,7 @@ export default function ExploreScreen() {
   const listHeader = React.useMemo(() => (
     <View>
       {/* Header Title */}
-      <Animated.View entering={FadeInDown.duration(600).springify()} style={{ marginTop: 16 }}>
+      <Animated.View entering={FadeInDown.duration(600).springify()} style={styles.headerTop}>
         <Text style={[styles.screenTitle, { color: theme.textPrimary }]}>{t('explore') || 'Explore'}</Text>
         <Text style={[styles.screenSubtitle, { color: theme.textSecondary }]}>Find your next adventure</Text>
       </Animated.View>
@@ -76,7 +78,7 @@ export default function ExploreScreen() {
         <TextInput
           style={[styles.searchInput, { color: theme.textPrimary }]}
           placeholder="Where to next?"
-          placeholderTextColor={theme.textSecondary + '80'} // slightly more transparent
+          placeholderTextColor={theme.textSecondary + '80'}
           value={searchText}
           onChangeText={setSearchText}
           returnKeyType="search"
@@ -87,8 +89,20 @@ export default function ExploreScreen() {
             }
           }}
         />
+        {/* View Toggle */}
         <TouchableOpacity
-          style={[styles.filterButton, { backgroundColor: theme.bgPrimary }]}
+          style={[styles.iconButton, { backgroundColor: theme.bgPrimary }]}
+          onPress={() => setViewMode(prev => prev === 'list' ? 'grid' : 'list')}
+        >
+          {viewMode === 'list' ? (
+            <Squares2X2Icon size={20} color={theme.textPrimary} />
+          ) : (
+            <ListBulletIcon size={20} color={theme.textPrimary} />
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.iconButton, { backgroundColor: theme.bgPrimary, marginLeft: 8 }]}
           onPress={() => setFilterVisible(true)}
         >
           <AdjustmentsHorizontalIcon size={20} color={theme.textPrimary} />
@@ -116,7 +130,7 @@ export default function ExploreScreen() {
                   }
                 ]}
               >
-                <Text style={{ marginRight: 6 }}>{cat.icon}</Text>
+                <Text style={styles.categoryIcon}>{cat.icon}</Text>
                 <Text style={[
                   styles.categoryText,
                   { color: isSelected ? '#FFF' : theme.textPrimary }
@@ -137,7 +151,7 @@ export default function ExploreScreen() {
         const progress = Math.min(Math.max((currentStop - 1) / totalStops, 0), 1);
 
         return (
-          <View style={{ marginTop: 24 }}>
+          <View style={styles.activeTourSection}>
             <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>{t('currentAdventure') || 'Current Adventure'}</Text>
             <ActiveTourCard
               title={activeTour.tour?.title || ''}
@@ -149,69 +163,82 @@ export default function ExploreScreen() {
         );
       })()}
 
-      <View style={{ marginTop: 28, marginBottom: 12 }}>
+      <View style={styles.popularToursHeader}>
         <Text style={[styles.sectionTitle, { color: theme.textPrimary, marginBottom: 4 }]}>{t('popularTours') || 'Popular Tours'}</Text>
-        <Text style={{ fontSize: 14, color: theme.textSecondary, fontWeight: '500' }}>Curated adventures just for you</Text>
+        <Text style={[styles.popularToursSubtitle, { color: theme.textSecondary }]}>Curated adventures just for you</Text>
       </View>
     </View>
-  ), [activeTour, user?.id, router, searchText, theme, selectedCategory, t]);
+  ), [activeTour, user?.id, router, searchText, theme, selectedCategory, t, viewMode]);
 
   const renderContent = () => {
-    if (loading && !tours.length) {
-      return (
-        <View style={[styles.centered, { backgroundColor: theme.bgPrimary }]}>
-          <ActivityIndicator size="large" color={theme.primary} />
-        </View>
-      );
-    }
+    const isGrid = viewMode === 'grid';
+    const numColumns = isGrid ? 2 : 1;
 
-    if (error && !tours.length) {
-      return (
-        <View style={[styles.centered, { backgroundColor: theme.bgPrimary }]}>
-          <Text style={{ color: theme.textPrimary }}>Error loading tours: {error}</Text>
-        </View>
-      );
-    }
+    // Loading Skeletons Logic
+    const showSkeleton = loading && !tours.length;
+    const dataToRender = showSkeleton ? [1, 2, 3, 4, 5, 6] : tours;
 
     return (
       <FlatList
-        data={tours}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }: { item: Tour }) => (
-          <View style={{ marginBottom: 16 }}>
-            <TourCard
-              title={item.title}
-              author={item.author?.name || 'Unknown'}
-              imageUrl={item.imageUrl}
-              distance={`${item.distance} km`}
-              duration={`${item.duration} min`}
-              stops={item._count?.stops || 0}
-              rating={item.reviews && item.reviews.length > 0
-                ? item.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / item.reviews.length
-                : 0}
-              reviewCount={item.reviews?.length || 0}
-              points={item.points}
-              modes={item.modes}
-              difficulty={item.difficulty as any}
-              genre={(item as any).genre}
-              onPress={async () => {
-                fetchTourDetails(item.id, item);
-                router.push({ pathname: '/tour/[id]', params: { id: item.id } });
-              }}
-            />
-          </View>
-        )}
+        key={viewMode}
+        data={dataToRender as any}
+        keyExtractor={(item) => (typeof item === 'number' ? `skeleton-${item}` : item.id.toString())}
+        numColumns={numColumns}
+        columnWrapperStyle={isGrid ? { justifyContent: 'space-between', marginBottom: 16 } : undefined}
+        renderItem={({ item }) => {
+          if (showSkeleton) {
+            return (
+              <View style={[
+                !isGrid && { marginBottom: 12 },
+                isGrid && { width: '48%' }
+              ]}>
+                <TourSkeleton variant={isGrid ? 'grid' : 'hero'} />
+              </View>
+            );
+          }
+
+          const tourItem = item as unknown as Tour;
+          return (
+            <View style={[
+              !isGrid && { marginBottom: 12 }, // Reduced margin for list
+              isGrid && { width: '48%' } // Grid width
+            ]}>
+              <Animated.View entering={FadeInDown.duration(400)}>
+                <TourCard
+                  title={tourItem.title}
+                  author={tourItem.author?.name || 'Unknown'}
+                  imageUrl={tourItem.imageUrl}
+                  distance={`${tourItem.distance} km`}
+                  duration={`${tourItem.duration} min`}
+                  stops={tourItem._count?.stops || 0}
+                  rating={tourItem.reviews && tourItem.reviews.length > 0
+                    ? tourItem.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / tourItem.reviews.length
+                    : 0}
+                  reviewCount={tourItem.reviews?.length || 0}
+                  points={tourItem.points}
+                  modes={tourItem.modes}
+                  difficulty={tourItem.difficulty as any}
+                  genre={(tourItem as any).genre}
+                  variant={isGrid ? 'grid' : 'hero'}
+                  onPress={async () => {
+                    fetchTourDetails(tourItem.id, tourItem);
+                    router.push({ pathname: '/tour/[id]', params: { id: tourItem.id } });
+                  }}
+                />
+              </Animated.View>
+            </View>
+          );
+        }}
         ListHeaderComponent={listHeader}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         onEndReached={() => {
-          if (!loading && tours.length >= (tourFilters.limit || 20)) {
+          if (!loading && tours.length >= (tourFilters.limit || 20) && !showSkeleton) {
             setTourFilters({ ...tourFilters, page: (tourFilters.page || 1) + 1 });
           }
         }}
         onEndReachedThreshold={0.5}
-        // ListFooterComponent={loading ? <ActivityIndicator size="small" color={theme.primary} style={{ marginVertical: 20 }} /> : <View style={{ height: 100 }} />}
-        ListFooterComponent={<View style={{ height: 100 }} />} // Spacing for navbar
+        ListFooterComponent={<View style={{ height: 100 }} />}
       />
     );
   };
@@ -232,34 +259,50 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
+  },
+  headerTop: {
+    marginTop: 16,
+    marginBottom: 8,
   },
   screenTitle: {
     fontSize: 34,
-    fontWeight: 'bold',
+    fontWeight: '800', // Bolder title
     marginBottom: 4,
+    letterSpacing: -0.5,
   },
   screenSubtitle: {
     fontSize: 16,
     marginBottom: 24,
     opacity: 0.7,
+    fontWeight: '500',
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 14, // Slightly taller
     borderRadius: 24,
     marginBottom: 24,
-    // Soft Shadow
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
+    shadowOpacity: 0.08, // Subtle shadow
+    shadowRadius: 12,
+    elevation: 4,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
     padding: 0,
+    fontWeight: '500',
+  },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginLeft: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   filterButton: {
     padding: 8,
@@ -267,28 +310,51 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   categoryContainer: {
-    gap: 10,
+    gap: 12,
     paddingRight: 20,
+    paddingBottom: 8, // Avoid clipping shadows
   },
   categoryChip: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 100,
-    borderWidth: 1,
+    borderWidth: 1.5,
+  },
+  categoryIcon: {
+    marginRight: 8,
+    fontSize: 16,
   },
   categoryText: {
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: 14,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '800',
     marginBottom: 16,
+    letterSpacing: -0.3,
+  },
+  activeTourSection: {
+    marginTop: 32,
+    marginBottom: 8,
+  },
+  popularToursHeader: {
+    marginTop: 32,
+    marginBottom: 16,
+  },
+  popularToursSubtitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginTop: -12,
+    marginBottom: 16,
+    opacity: 0.7,
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingBottom: 100, // More bottom padding for FAB/Navigation
   }
 });
+
+

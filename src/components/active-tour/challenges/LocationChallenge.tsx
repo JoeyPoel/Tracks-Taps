@@ -9,13 +9,15 @@ interface LocationChallengeProps {
     isCompleted: boolean;
     isFailed: boolean;
     onComplete: (challenge: any) => void;
+    index?: number;
 }
 
 const LocationChallenge: React.FC<LocationChallengeProps> = ({
     challenge,
     isCompleted,
     isFailed,
-    onComplete
+    onComplete,
+    index
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
@@ -31,6 +33,7 @@ const LocationChallenge: React.FC<LocationChallengeProps> = ({
             onPress={() => onComplete(challenge)}
             actionLabel={t('claimPoints') || "Claim Points"}
             disabled={isDone}
+            index={index}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
                 {challenge.content}

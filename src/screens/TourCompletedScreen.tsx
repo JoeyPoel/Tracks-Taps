@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as StoreReview from 'expo-store-review';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import Confetti from '../components/active-tour/animations/Confetti';
 import { AnimatedButton } from '../components/common/AnimatedButton';
@@ -135,22 +135,21 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
             {/* Subtle Gradient Background - Top Fade Only */}
             {/* Subtle Gradient Background - Top Fade Only */}
-            <View style={[StyleSheet.absoluteFillObject, { height: '60%' }]}>
-                {/* 1. Base Layer: Blue -> Pink Horizontal Gradient */}
-                <LinearGradient
-                    colors={['#3B82F6', '#EC4899']} // Blue -> Pink
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={StyleSheet.absoluteFillObject}
-                />
-
-                {/* 2. Mask Layer: Fade to Background Color vertically */}
-                <LinearGradient
-                    colors={['transparent', theme.bgPrimary]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 0, y: 1 }}
-                    style={StyleSheet.absoluteFillObject}
-                />
+            {/* Tour Image Background */}
+            <View style={StyleSheet.absoluteFillObject}>
+                <ImageBackground
+                    source={{ uri: activeTour.tour?.imageUrl }}
+                    style={styles.backgroundImage}
+                    blurRadius={0} // Keep it crisp, or maybe optional slight blur
+                >
+                    <View style={styles.backgroundOverlay} />
+                    <LinearGradient
+                        colors={['transparent', 'rgba(0,0,0,0.8)', theme.bgPrimary]}
+                        start={{ x: 0, y: 0.3 }}
+                        end={{ x: 0, y: 1 }}
+                        style={StyleSheet.absoluteFillObject}
+                    />
+                </ImageBackground>
             </View>
 
             {/* Confetti floats on top */}
@@ -393,5 +392,14 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.20,
         shadowRadius: 4,
         elevation: 6,
+    },
+    backgroundImage: {
+        flex: 1,
+        width: '100%',
+        height: '100%',
+    },
+    backgroundOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.3)', // Basic darkening
     },
 });

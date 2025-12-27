@@ -102,7 +102,7 @@ export const useMapScreenLogic = () => {
         // Fetch route segments if stops exist
         if (tour.stops && tour.stops.length > 1) {
             // Sort stops first to be safe
-            const sortedStops = [...tour.stops].sort((a: any, b: any) => a.order - b.order);
+            const sortedStops = [...tour.stops].sort((a: any, b: any) => a.number - b.number);
 
             // Initial direct segments for immediate feedback
             const initialSegments = [];

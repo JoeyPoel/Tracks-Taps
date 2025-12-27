@@ -40,8 +40,8 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
             style={[
                 styles.chip,
                 {
-                    backgroundColor: selected ? theme.primary : theme.bgPrimary, // Back to bgPrimary for cleaner contrast with border
-                    borderColor: selected ? theme.primary : theme.borderPrimary,
+                    backgroundColor: selected ? theme.primary : theme.bgSecondary, // Swapped to bgSecondary
+                    borderColor: selected ? theme.primary : theme.borderSecondary, // Swapped border
                     borderWidth: 1, // Explicit border
                 }
             ]}
@@ -66,8 +66,8 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                 style={[
                     styles.sortChip,
                     {
-                        backgroundColor: isSelected ? theme.primary : theme.bgPrimary,
-                        borderColor: isSelected ? theme.primary : theme.borderPrimary,
+                        backgroundColor: isSelected ? theme.primary : theme.bgSecondary, // Swapped
+                        borderColor: isSelected ? theme.primary : theme.borderSecondary, // Swapped
                         borderWidth: 1,
                     }
                 ]}
@@ -92,7 +92,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                     styles.sidebar,
                     {
                         width: SIDEBAR_WIDTH,
-                        backgroundColor: theme.bgSecondary,
+                        backgroundColor: theme.bgPrimary, // Swapped to Primary
                         transform: [{ translateX: slideAnim }]
                     }
                 ]}>
@@ -175,8 +175,8 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                             <TextInput
                                 style={[styles.input, {
                                     color: theme.textPrimary,
-                                    backgroundColor: theme.bgPrimary, // Input bg to Primary
-                                    borderColor: theme.borderPrimary, // Explicit border
+                                    backgroundColor: theme.bgSecondary, // Swapped to Secondary
+                                    borderColor: theme.borderSecondary, // Swapped
                                     borderWidth: 1,
                                 }]}
                                 placeholder="City name..."
@@ -210,7 +210,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                             {/* DISTANCE */}
                             <View style={[styles.gridItem, { marginRight: 8 }]}>
                                 <FilterSectionHeader title="Distance (km)" />
-                                <View style={[styles.groupedInputContainer, { backgroundColor: theme.bgPrimary, borderWidth: 1, borderColor: theme.borderPrimary }]}>
+                                <View style={[styles.groupedInputContainer, { backgroundColor: theme.bgSecondary, borderWidth: 1, borderColor: theme.borderSecondary }]}>
                                     <TextInput
                                         style={[styles.groupedInput, { color: theme.textPrimary }]}
                                         placeholder="Min"
@@ -234,7 +234,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                             {/* DURATION */}
                             <View style={[styles.gridItem, { marginLeft: 8 }]}>
                                 <FilterSectionHeader title="Duration (min)" />
-                                <View style={[styles.groupedInputContainer, { backgroundColor: theme.bgPrimary, borderWidth: 1, borderColor: theme.borderPrimary }]}>
+                                <View style={[styles.groupedInputContainer, { backgroundColor: theme.bgSecondary, borderWidth: 1, borderColor: theme.borderSecondary }]}>
                                     <TextInput
                                         style={[styles.groupedInput, { color: theme.textPrimary }]}
                                         placeholder="Min"
@@ -259,7 +259,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                     </ScrollView>
 
                     {/* Footer */}
-                    <View style={[styles.footer, { borderTopColor: theme.borderSecondary, backgroundColor: theme.bgSecondary }]}>
+                    <View style={[styles.footer, { borderTopColor: theme.borderPrimary, backgroundColor: theme.bgPrimary }]}>
                         <AnimatedButton
                             title="Apply Filters"
                             onPress={handleApply}

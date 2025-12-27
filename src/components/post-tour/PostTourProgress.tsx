@@ -15,13 +15,19 @@ export default function PostTourProgress({ finishedCount, totalTeamCount, progre
     const { t } = useLanguage();
 
     return (
-        <View style={styles.progressContainer}>
-            <Text style={[styles.progressTitle, { color: theme.textPrimary }]}>{t('tourProgress')}</Text>
+        <View style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
+            <View style={styles.headerRow}>
+                <Text style={[styles.progressTitle, { color: theme.textPrimary }]}>{t('tourProgress')}</Text>
+                <View style={[styles.badge, { backgroundColor: theme.primary + '20' }]}>
+                    <Text style={[styles.badgeText, { color: theme.primary }]}>{Math.round(progressPercentage)}%</Text>
+                </View>
+            </View>
+
             <Text style={[styles.progressSubtitle, { color: theme.textSecondary }]}>
-                {t('teamsCompleted').replace('{0}', finishedCount.toString()).replace('{1}', totalTeamCount.toString())}
+                {finishedCount} of {totalTeamCount} teams finished
             </Text>
 
-            <View style={[styles.progressBarBackground, { backgroundColor: theme.bgSecondary }]}>
+            <View style={[styles.progressBarBackground, { backgroundColor: theme.bgPrimary }]}>
                 <LinearGradient
                     colors={[theme.secondary, theme.primary]}
                     start={{ x: 0, y: 0 }}
@@ -34,27 +40,48 @@ export default function PostTourProgress({ finishedCount, totalTeamCount, progre
 }
 
 const styles = StyleSheet.create({
-    progressContainer: {
+    card: {
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 24,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 3,
+    },
+    headerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 32,
+        marginBottom: 8,
     },
     progressTitle: {
         fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 4,
+        fontWeight: '700',
+    },
+    badge: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    badgeText: {
+        fontSize: 12,
+        fontWeight: '700',
     },
     progressSubtitle: {
         fontSize: 14,
         marginBottom: 16,
+        opacity: 0.8,
     },
     progressBarBackground: {
         width: '100%',
-        height: 8,
-        borderRadius: 4,
+        height: 12,
+        borderRadius: 6,
         overflow: 'hidden',
     },
     progressBarFill: {
         height: '100%',
-        borderRadius: 4,
+        borderRadius: 6,
     },
 });

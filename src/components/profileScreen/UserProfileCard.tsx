@@ -2,10 +2,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { PencilIcon } from 'react-native-heroicons/outline';
-import { GenericCard } from '../common/GenericCard';
-import { AnimatedPressable } from '../common/AnimatedPressable';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 
 interface UserProfileCardProps {
     name: string;
@@ -27,157 +26,114 @@ export default function UserProfileCard({
     const { theme } = useTheme();
     const { t } = useLanguage();
 
+    const progressPercent = Math.min((currentXP / maxXP) * 100, 100);
+
     return (
-        <GenericCard
-            style={styles.cardContainer}
-            variant="gradient"
-            gradientColors={[theme.bgSecondary, theme.bgTertiary]}
-            padding="none"
-        >
-            <View style={{ padding: 20 }}>
-                <View style={styles.contentContainer}>
-                    <View style={styles.avatarSection}>
-                        <View style={styles.avatarContainer}>
-                            <Image
-                                source={avatarUrl ? { uri: avatarUrl } : require('../../../assets/images/Mascott.png')}
-                                style={[styles.avatar, { borderColor: theme.borderPrimary }]}
-                            />
-                            {onEditPress && (
-                                <AnimatedPressable
-                                    style={[styles.editButton, { backgroundColor: theme.primary, borderColor: theme.bgSecondary }]}
-                                    onPress={onEditPress}
-                                    interactionScale="subtle"
-                                >
-                                    <PencilIcon size={14} color={theme.fixedWhite} />
-                                </AnimatedPressable>
-                            )}
-                        </View>
-                    </View>
+        <View style={styles.container}>
+            {/* Avatar Section */}
+            <View style={styles.avatarWrapper}>
+                <Image
+                    source={avatarUrl ? { uri: avatarUrl } : require('../../../assets/images/Mascott.png')}
+                    style={[styles.avatar, { borderColor: theme.bgSecondary }]}
+                />
 
-                    <View style={styles.infoSection}>
-                        <Text style={[styles.name, { color: theme.textPrimary }]}>{name}</Text>
+                {onEditPress && (
+                    <AnimatedPressable
+                        onPress={onEditPress}
+                        style={[styles.editButton, { backgroundColor: theme.primary, borderColor: theme.bgPrimary }]}
+                    >
+                        <PencilIcon size={14} color="#FFF" />
+                    </AnimatedPressable>
+                )}
+            </View>
 
-                        <View style={styles.levelRow}>
-                            <View style={[styles.levelBadge, { backgroundColor: theme.warning }]}>
-                                <Text style={[styles.levelText, { color: theme.fixedWhite }]}>{t('level')} {level}</Text>
-                            </View>
-                            <Text style={[styles.rankText, { color: theme.textSecondary }]}>{t('explorer')}</Text>
-                        </View>
+            {/* User Info */}
+            <View style={styles.infoCenter}>
+                <Text style={[styles.name, { color: theme.textPrimary }]}>{name}</Text>
 
-                        <View style={styles.progressSection}>
-                            <View style={styles.progressLabels}>
-                                <Text style={[styles.progressLabel, { color: theme.textSecondary }]}>{t('nextLevel')}</Text>
-                                <Text style={[styles.progressValue, { color: theme.textPrimary }]}>{currentXP} / {maxXP} XP</Text>
-                            </View>
-                            <View style={[styles.progressBarBg, { backgroundColor: theme.borderPrimary }]}>
-                                <LinearGradient
-                                    colors={[theme.fixedGradientFromLevel, theme.fixedGradientToLevel]}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 0 }}
-                                    style={[styles.progressBarFill, { width: `${(currentXP / maxXP) * 100}%` }]}
-                                />
-                            </View>
-                        </View>
-                    </View>
+                <View style={[styles.badgeContainer, { backgroundColor: theme.bgSecondary }]}>
+                    <Text style={[styles.badgeText, { color: theme.primary }]}>Reviewer Level {level}</Text>
                 </View>
             </View>
-        </GenericCard>
+
+            {/* XP Bar */}
+            <View style={styles.xpContainer}>
+                <View style={styles.xpTextRow}>
+                    <Text style={[styles.xpText, { color: theme.textSecondary }]}>{currentXP} / {maxXP} XP</Text>
+                </View>
+                <View style={[styles.track, { backgroundColor: theme.bgSecondary }]}>
+                    <LinearGradient
+                        colors={[theme.fixedGradientFromLevel, theme.fixedGradientToLevel]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={[styles.fill, { width: `${progressPercent}%` }]}
+                    />
+                </View>
+            </View>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    cardContainer: {
-        marginTop: 16,
-        marginBottom: 24,
-        borderRadius: 20,
-        overflow: 'hidden',
-    },
-    gradient: {
-        padding: 20,
-    },
-    contentContainer: {
-        flexDirection: 'row',
+    container: {
         alignItems: 'center',
+        paddingVertical: 20,
     },
-    avatarSection: {
-        marginRight: 20,
-    },
-    avatarContainer: {
+    avatarWrapper: {
+        marginBottom: 16,
         position: 'relative',
     },
     avatar: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        borderWidth: 2,
-    },
-    avatarPlaceholder: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 2,
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        borderWidth: 4,
     },
     editButton: {
         position: 'absolute',
-        bottom: 0,
         right: 0,
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 2,
+        bottom: 0,
+        padding: 6,
+        borderRadius: 20,
+        borderWidth: 3,
     },
-    infoSection: {
-        flex: 1,
+    infoCenter: {
+        alignItems: 'center',
+        marginBottom: 16,
     },
     name: {
-        fontSize: 22,
+        fontSize: 26,
         fontWeight: 'bold',
         marginBottom: 8,
     },
-    levelRow: {
-        flexDirection: 'row',
+    badgeContainer: {
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 100,
+    },
+    badgeText: {
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    xpContainer: {
+        width: '60%',
         alignItems: 'center',
-        marginBottom: 12,
-        gap: 8,
     },
-    levelBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-    },
-    levelText: {
-        fontSize: 12,
-        fontWeight: 'bold',
-    },
-    rankText: {
-        fontSize: 14,
-    },
-    progressSection: {
-        width: '100%',
-    },
-    progressLabels: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+    xpTextRow: {
         marginBottom: 6,
     },
-    progressLabel: {
+    xpText: {
         fontSize: 12,
+        fontWeight: '600',
     },
-    progressValue: {
-        fontSize: 12,
-        fontWeight: 'bold',
-    },
-    progressBarBg: {
-        height: 8,
-        borderRadius: 4,
+    track: {
+        width: '100%',
+        height: 6,
+        borderRadius: 3,
         overflow: 'hidden',
     },
-    progressBarFill: {
+    fill: {
         height: '100%',
-        borderRadius: 4,
-    },
+        borderRadius: 3,
+    }
 });

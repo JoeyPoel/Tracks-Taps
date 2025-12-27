@@ -42,7 +42,7 @@ const ChallengeSection: React.FC<ChallengeSectionProps> = ({
                     </Text>
                 </View>
             ) : (
-                stopChallenges.map((challenge: any) => {
+                stopChallenges.map((challenge: any, index: number) => {
                     const isFailed = failedChallenges.has(challenge.id);
                     const isCompleted = completedChallenges.has(challenge.id);
 
@@ -55,8 +55,9 @@ const ChallengeSection: React.FC<ChallengeSectionProps> = ({
                             triviaSelected={triviaSelected}
                             setTriviaSelected={setTriviaSelected}
                             onClaimArrival={handleChallengeComplete}
-                            onFail={handleChallengeFail} // Pass it down
+                            onFail={handleChallengeFail}
                             onSubmitTrivia={handleSubmitTrivia}
+                            index={index} // Pass index
                         />
                     )
                 })

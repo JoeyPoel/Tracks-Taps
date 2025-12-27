@@ -1,16 +1,19 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import AppHeader from '../components/Header';
 import PostTourFooter from '../components/post-tour/PostTourFooter';
 import PostTourHeader from '../components/post-tour/PostTourHeader';
 import PostTourProgress from '../components/post-tour/PostTourProgress';
 import PostTourTeamList from '../components/post-tour/PostTourTeamList';
+import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useWaitingLobby } from '../hooks/useWaitingLobby';
 
 export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: number }) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
     const router = useRouter();
 
     const {
@@ -23,12 +26,23 @@ export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: nu
     } = useWaitingLobby(activeTourId);
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
-            <AppHeader title={"Lobby"} showBackButton={true} onBackPress={() => router.replace('/')} />
-            <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={true}>
+            <View style={{ zIndex: 10, position: 'absolute', top: 0, left: 0, right: 0 }}>
+                <AppHeader
+                    title="Lobby"
+                    showBackButton={true}
+                    onBackPress={() => router.replace('/')}
+                />
+            </View>
+
+            <ScrollView
+                style={{ flex: 1 }}
+                contentContainerStyle={{ paddingBottom: 100 }}
+                showsVerticalScrollIndicator={false}
+            >
                 <PostTourHeader />
 
-                <View style={styles.mainContent}>
+                <View style={styles.contentContainer}>
                     <PostTourProgress
                         finishedCount={finishedCount}
                         totalTeamCount={totalTeamCount}
@@ -46,24 +60,13 @@ export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: nu
                     />
                 </View>
             </ScrollView>
-        </View >
+        </ScreenWrapper>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    scrollView: {
-        flex: 1,
-    },
-    scrollContent: {
-        paddingTop: 0,
-        paddingHorizontal: 0,
-        paddingBottom: 40,
-    },
-    mainContent: {
-        paddingTop: 24,
+    contentContainer: {
         paddingHorizontal: 20,
+        marginTop: 20,
     },
 });

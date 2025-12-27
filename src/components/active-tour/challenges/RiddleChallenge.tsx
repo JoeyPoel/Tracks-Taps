@@ -14,6 +14,7 @@ interface RiddleChallengeProps {
     isFailed: boolean;
     onComplete: (challenge: Challenge) => void;
     onFail: (challenge: Challenge) => void;
+    index?: number;
 }
 
 const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
@@ -21,7 +22,8 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
     isCompleted,
     isFailed,
     onComplete,
-    onFail
+    onFail,
+    index
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
@@ -52,6 +54,7 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
             onPress={handleSubmit}
             actionLabel={t('submitAnswer') || "Submit"}
             disabled={isDone || !answer.trim()}
+            index={index}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
                 {challenge.content}

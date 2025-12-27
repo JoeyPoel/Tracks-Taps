@@ -1,8 +1,8 @@
 import { getChallengeIconProps } from '@/src/utils/challengeIcons';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, StyleSheet, Text, View } from 'react-native';
 import {
     BoltIcon,
     CheckCircleIcon,
@@ -17,13 +17,14 @@ export type ChallengeType = 'location' | 'trivia' | 'camera' | 'picture' | 'true
 interface ActiveChallengeCardProps {
     title: string;
     points: number;
-    content?: never; // Deprecated, use children instead
+    content?: never;
     type: ChallengeType;
     isCompleted: boolean;
     isFailed: boolean;
     onPress: () => void;
     actionLabel: string;
     children?: React.ReactNode;
+    index?: number; // For staggered animation
 }
 
 export default function ActiveChallengeCard({
@@ -35,31 +36,49 @@ export default function ActiveChallengeCard({
     onPress,
     actionLabel,
     children,
-    disabled = false
-}: ActiveChallengeCardProps & { disabled?: boolean, isFailed?: boolean }) {
+    disabled = false,
+    index = 0
+}: ActiveChallengeCardProps & { disabled?: boolean, isFailed?: boolean, index?: number }) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
-    const getBackgroundColors = (): [string, string] => {
-        if (isCompleted) return [theme.challengeCorrectBackground, theme.challengeCorrectBackground];
-        if (isFailed) return [theme.challengeFailedBackground, theme.challengeFailedBackground];
-        return [theme.bgSecondary, theme.bgSecondary];
+    // Entrance Animation
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const translateY = useRef(new Animated.Value(30)).current;
+
+    useEffect(() => {
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 500,
+                delay: index * 100, // Stagger effect
+                useNativeDriver: true,
+            }),
+            Animated.timing(translateY, {
+                toValue: 0,
+                duration: 500,
+                delay: index * 100,
+                useNativeDriver: true,
+            }),
+        ]).start();
+    }, []);
+
+    const getBorderColors = (): [string, string] => {
+        if (isCompleted) return [theme.success, theme.success + '40'];
+        if (isFailed) return [theme.danger, theme.danger + '40'];
+        return [theme.primary, theme.secondary];
     };
 
-    const getBorderColor = (): string => {
-        if (isCompleted) return theme.challengeCorrectBorder;
-        if (isFailed) return theme.challengeFailedBorder;
-        return theme.borderPrimary;
+    const getBackgroundColors = (): [string, string] => {
+        if (isCompleted) return [theme.bgSuccess, theme.bgPrimary];
+        if (isFailed) return [theme.challengeFailedBackground, theme.bgPrimary];
+        return [theme.bgSecondary, theme.bgSecondary]; // Subtle light gradient
     };
 
     const getIconColor = (): string => {
         if (isCompleted) return theme.success;
         if (isFailed) return theme.danger;
-
         try {
-            // Need to convert type string to uppercase to match ChallengeType enum if needed
-            // But getChallengeIconProps expects ChallengeType enum values or compatible strings
-            // Casting type as any to bypass strict enum check if types don't perfectly align yet
             const challengeIconDetails = getChallengeIconProps(type.toUpperCase() as any, theme);
             return challengeIconDetails.color || theme.primary;
         } catch (e) {
@@ -77,128 +96,163 @@ export default function ActiveChallengeCard({
     };
 
     return (
-        <LinearGradient
-            colors={getBackgroundColors()}
-            style={[
-                styles.card,
-                { borderColor: getBorderColor() }
-            ]}
-        >
-            <View style={styles.cardHeader}>
-                <View style={styles.cardTitleRow}>
-                    {isCompleted ? (
-                        <CheckCircleIcon size={24} color={theme.success} />
-                    ) : isFailed ? (
-                        <XCircleIcon size={24} color={theme.danger} />
-                    ) : (
-                        <Ionicons name={getIconName()} size={24} color={getIconColor()} />
-                    )}
-                    <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>{title}</Text>
-                </View>
-                <View style={styles.pointsBadge}>
-                    <BoltIcon size={16} color={theme.gold} />
-                    <Text style={[styles.pointsText, { color: theme.gold }]}>{points}</Text>
-                </View>
-            </View>
-
-
-
-            {/* Always render children if provided, to show options even if completed/failed */}
-            {children}
-
-            {isCompleted ? (
-                <View style={styles.completedContainer}>
-                    <CheckCircleIcon size={24} color={theme.success} />
-                    <Text style={[styles.completedText, { color: theme.success }]}>{t('challengeCompleted')}</Text>
-                </View>
-            ) : isFailed ? (
-                <View style={styles.completedContainer}>
-                    <XCircleIcon size={24} color={theme.danger} />
-                    <Text style={[styles.completedText, { color: theme.danger }]}>{t('challengeFailed')}</Text>
-                </View>
-            ) : (
-
-                <AnimatedPressable
-                    style={
-                        [
-                            styles.button,
-                            { backgroundColor: theme.secondary },
-                            disabled && { backgroundColor: theme.textSecondary, opacity: 0.5 }
-                        ]
-                    }
-                    onPress={onPress}
-                    disabled={disabled}
-                    interactionScale="medium"
-                    haptic="light"
+        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY }] }}>
+            {/* Gradient Border Container */}
+            <LinearGradient
+                colors={getBorderColors()}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.borderContainer}
+            >
+                <LinearGradient
+                    colors={getBackgroundColors()}
+                    style={styles.innerCard}
                 >
-                    <Text style={[styles.buttonText, { color: theme.textOnSecondary }]}>{actionLabel}</Text>
-                </AnimatedPressable >
-            )
-            }
-        </LinearGradient >
+                    {/* Header */}
+                    <View style={styles.cardHeader}>
+                        <View style={styles.cardTitleRow}>
+                            <View style={[styles.iconContainer, { backgroundColor: isCompleted ? theme.success + '20' : isFailed ? theme.danger + '20' : theme.primary + '10' }]}>
+                                {isCompleted ? (
+                                    <CheckCircleIcon size={22} color={theme.success} />
+                                ) : isFailed ? (
+                                    <XCircleIcon size={22} color={theme.danger} />
+                                ) : (
+                                    <Ionicons name={getIconName()} size={22} color={getIconColor()} />
+                                )}
+                            </View>
+                            <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>{title}</Text>
+                        </View>
+                        <View style={[styles.pointsBadge, { backgroundColor: theme.gold + '20' }]}>
+                            <BoltIcon size={14} color={theme.gold} />
+                            <Text style={[styles.pointsText, { color: theme.gold }]}>{points}</Text>
+                        </View>
+                    </View>
+
+                    {/* Content */}
+                    <View style={styles.contentContainer}>
+                        {children}
+                    </View>
+
+                    {/* Footer Actions */}
+                    {isCompleted ? (
+                        <View style={[styles.statusContainer, { backgroundColor: theme.success + '10' }]}>
+                            <CheckCircleIcon size={20} color={theme.success} />
+                            <Text style={[styles.statusText, { color: theme.success }]}>{t('challengeCompleted')}</Text>
+                        </View>
+                    ) : isFailed ? (
+                        <View style={[styles.statusContainer, { backgroundColor: theme.danger + '10' }]}>
+                            <XCircleIcon size={20} color={theme.danger} />
+                            <Text style={[styles.statusText, { color: theme.danger }]}>{t('challengeFailed')}</Text>
+                        </View>
+                    ) : (
+                        <AnimatedPressable
+                            style={[
+                                styles.button,
+                                {
+                                    backgroundColor: theme.primary,
+                                    shadowColor: theme.primary
+                                },
+                                disabled && { backgroundColor: theme.bgDisabled, opacity: 0.8 }
+                            ]}
+                            onPress={onPress}
+                            disabled={disabled}
+                            interactionScale="medium"
+                            haptic="light"
+                        >
+                            <Text style={[styles.buttonText, { color: disabled ? theme.textDisabled : '#FFF' }]}>
+                                {actionLabel}
+                            </Text>
+                            {!disabled && <Ionicons name="arrow-forward" size={18} color="#FFF" />}
+                        </AnimatedPressable>
+                    )}
+                </LinearGradient>
+            </LinearGradient>
+        </Animated.View>
     );
 }
 
 const styles = StyleSheet.create({
-    card: {
-        borderRadius: 16,
-        padding: 16,
-        marginBottom: 24,
-        borderWidth: 1,
-        // Shadow for iOS
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+    borderContainer: {
+        borderRadius: 24,
+        padding: 2, // Width of border
+        marginBottom: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.1,
-        shadowRadius: 4,
-        // Elevation for Android
-        elevation: 3,
+        shadowRadius: 12,
+        elevation: 6,
+    },
+    innerCard: {
+        borderRadius: 22, // 24 - 2 padding
+        padding: 16,
+        minHeight: 120,
     },
     cardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: 16,
     },
     cardTitleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: 12,
+        flex: 1,
+    },
+    iconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     cardTitle: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
+        flex: 1,
     },
     pointsBadge: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
     },
     pointsText: {
-        fontWeight: 'bold',
-        fontSize: 16,
+        fontWeight: '800',
+        fontSize: 14,
     },
-
+    contentContainer: {
+        marginBottom: 16,
+    },
     button: {
-        paddingVertical: 12,
-        borderRadius: 8,
+        flexDirection: 'row',
+        paddingVertical: 14,
+        borderRadius: 16,
         alignItems: 'center',
-        marginTop: 8,
+        justifyContent: 'center',
+        gap: 8,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 6,
+        elevation: 3,
     },
     buttonText: {
-        fontWeight: 'bold',
-        fontSize: 16,
+        fontWeight: '700',
+        fontSize: 15,
+        letterSpacing: 0.3,
     },
-    completedContainer: {
+    statusContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 8,
-        padding: 8,
-        marginTop: 8,
+        borderRadius: 16,
+        padding: 12,
         gap: 8,
     },
-    completedText: {
-        fontSize: 16,
-        fontWeight: 'bold',
+    statusText: {
+        fontSize: 15,
+        fontWeight: '700',
     },
 });

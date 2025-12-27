@@ -28,36 +28,75 @@ export default function CustomTabBar({ tabs, activeIndex, onTabPress }: CustomTa
   const tabWidth = tabBarWidth / tabs.length;
 
   return (
-    <View style={[styles.tabBar, { borderBottomColor: theme.borderSecondary }]} onLayout={handleLayout}>
-      {tabs.map((tab, index) => (
-        <AnimatedPressable
-          key={tab}
-          style={styles.tab}
-          onPress={() => onTabPress(index)}
-          interactionScale="subtle"
-          haptic="selection"
-        >
-          <Text
-            style={{
-              color: activeIndex === index ? theme.primary : theme.textSecondary,
-              fontWeight: activeIndex === index ? '700' : '500',
-            }}
+    <View style={styles.tabBarContainer}>
+      <View style={[styles.tabBar, { backgroundColor: theme.bgSecondary }]}>
+        {/* Animated Pill Background */}
+        {tabBarWidth > 0 && (
+          <Animated.View
+            style={[
+              styles.indicator,
+              {
+                backgroundColor: theme.primary,
+                width: tabWidth - 8, // Subtract margin
+                transform: [{ translateX: slideAnim }]
+              }
+            ]}
+          />
+        )}
+
+        {tabs.map((tab, index) => (
+          <AnimatedPressable
+            key={tab}
+            style={styles.tab}
+            onPress={() => onTabPress(index)}
+            interactionScale="subtle"
+            haptic="light"
           >
-            {tab}
-          </Text>
-        </AnimatedPressable>
-      ))}
-      {tabBarWidth > 0 && (
-        <Animated.View
-          style={[styles.indicator, { backgroundColor: theme.primary, width: tabWidth, left: slideAnim }]}
-        />
-      )}
+            <Text
+              style={{
+                color: activeIndex === index ? '#FFF' : theme.textSecondary,
+                fontWeight: activeIndex === index ? '700' : '500',
+                fontSize: 13,
+                zIndex: 1, // Ensure text is above indicator
+              }}
+            >
+              {tab}
+            </Text>
+          </AnimatedPressable>
+        ))}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  tabBar: { flexDirection: 'row', borderBottomWidth: 1, position: 'relative' },
-  tab: { flex: 1, alignItems: 'center', paddingVertical: 12 },
-  indicator: { height: 3, position: 'absolute', bottom: 0 },
+  tabBarContainer: {
+    paddingVertical: 12,
+  },
+  tabBar: {
+    flexDirection: 'row',
+    borderRadius: 25,
+    padding: 4,
+    position: 'relative',
+    height: 48, // Fixed height for consistency
+  },
+  tab: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    zIndex: 2,
+  },
+  indicator: {
+    position: 'absolute',
+    top: 4,
+    left: 4, // Initial offset matching padding
+    bottom: 4,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
 });

@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Image, Modal, StyleSheet, Text, TextInput, View } from 'react-native';
+import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedButton } from '../common/AnimatedButton';
@@ -23,7 +24,6 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
     const [rating, setRating] = useState(0);
     const [content, setContent] = useState('');
     const [photos, setPhotos] = useState<string[]>([]);
-
     const [uploading, setUploading] = useState(false);
 
     const handlePress = () => {
@@ -70,37 +70,62 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
 
     return (
         <Modal
-            animationType="fade"
+            animationType="slide"
             transparent={true}
             visible={visible}
             onRequestClose={onClose}
         >
-            <View style={[styles.modalOverlay, { backgroundColor: theme.overlay }]}>
-                <View style={[styles.modalContent, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
-                    <AnimatedPressable style={styles.closeIcon} onPress={onClose} interactionScale="subtle" haptic="light">
-                        <Ionicons name="close" size={24} color={theme.textSecondary} />
-                    </AnimatedPressable>
+            <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
+                {/* Main Card */}
+                <Animated.View
+                    entering={ZoomIn.duration(300)}
+                    style={[styles.modalContent, { backgroundColor: theme.bgSecondary }]}
+                >
+                    {/* Header */}
+                    <View style={styles.header}>
+                        <View>
+                            <Text style={[styles.title, { color: theme.textPrimary }]}>{'rateExperience'}</Text>
+                            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+                                {tourName}
+                            </Text>
+                        </View>
+                        <AnimatedPressable onPress={onClose} interactionScale="subtle" style={styles.closeBtn}>
+                            <Ionicons name="close" size={24} color={theme.textSecondary} />
+                        </AnimatedPressable>
+                    </View>
 
-                    <Text style={[styles.title, { color: theme.textPrimary }]}>Rate Your Experience</Text>
-                    <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-                        How was "{tourName}"? Your feedback helps others!
-                    </Text>
-
+                    {/* Star Rating - Bigger & Centered */}
                     <View style={styles.starsContainer}>
-                        {[1, 2, 3, 4, 5].map((star) => (
-                            <AnimatedPressable key={star} onPress={() => setRating(star)} interactionScale="medium" haptic="selection">
-                                <Ionicons
-                                    name={star <= rating ? "star" : "star-outline"}
-                                    size={40}
-                                    color={theme.starColor}
-                                    style={{ marginHorizontal: 6 }}
-                                />
-                            </AnimatedPressable>
+                        {[1, 2, 3, 4, 5].map((star, index) => (
+                            <Animated.View
+                                key={star}
+                                entering={FadeInDown.delay(index * 50).springify()}
+                            >
+                                <AnimatedPressable onPress={() => setRating(star)} interactionScale="medium" haptic="selection">
+                                    <Ionicons
+                                        name={star <= rating ? "star" : "star-outline"}
+                                        size={42}
+                                        color={star <= rating ? theme.gold : theme.textTertiary}
+                                        style={{ marginHorizontal: 4 }}
+                                    />
+                                </AnimatedPressable>
+                            </Animated.View>
                         ))}
                     </View>
 
+                    {/* Rating Label (Optional feedback text based on stars) */}
+                    <View style={{ alignItems: 'center', marginBottom: 20, height: 20 }}>
+                        {rating > 0 && (
+                            <Text style={{ color: theme.primary, fontWeight: '600', fontSize: 14 }}>
+                                {rating === 5 ? "Amazing!" : rating === 4 ? "Good!" : rating === 3 ? "Okay" : "Not great"}
+                            </Text>
+                        )}
+                    </View>
+
+                    {/* Input Area */}
+                    <Text style={[styles.label, { color: theme.textSecondary }]}>{t('writeReview')}</Text>
                     <TextInput
-                        style={[styles.input, { backgroundColor: theme.bgInput, borderColor: theme.borderInput, color: theme.textPrimary }]}
+                        style={[styles.input, { backgroundColor: theme.bgInput, color: theme.textPrimary, borderColor: theme.borderInput }]}
                         placeholder={t('reviewPlaceholder')}
                         placeholderTextColor={theme.textTertiary}
                         multiline
@@ -110,48 +135,44 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                         textAlignVertical="top"
                     />
 
-                    <AnimatedPressable
-                        style={[styles.addPhotoButton, { backgroundColor: theme.bgTertiary, borderColor: theme.borderSecondary }]}
-                        onPress={handleAddPhoto}
-                        interactionScale="subtle"
-                        haptic="light"
-                        disabled={uploading || photos.length >= 5}
-                    >
-                        {uploading ? (
-                            <ActivityIndicator size="small" color={theme.textPrimary} style={{ marginRight: 8 }} />
-                        ) : (
-                            <Ionicons name="camera-outline" size={20} color={theme.textPrimary} style={{ marginRight: 8 }} />
-                        )}
-                        <Text style={[styles.addPhotoText, { color: theme.textPrimary }]}>
-                            {uploading ? t('uploading') : t('takePhoto')}
-                        </Text>
-                        <Text style={[styles.photoCount, { color: theme.textSecondary }]}>{photos.length}/5</Text>
-                    </AnimatedPressable>
+                    {/* Photo Upload Section */}
+                    <View style={styles.photoSection}>
+                        <AnimatedPressable
+                            style={[styles.addPhotoButton, { borderColor: theme.borderPrimary, backgroundColor: theme.bgPrimary }]}
+                            onPress={handleAddPhoto}
+                            disabled={uploading || photos.length >= 5}
+                            interactionScale="subtle"
+                        >
+                            {uploading ? (
+                                <ActivityIndicator size="small" color={theme.primary} />
+                            ) : (
+                                <Ionicons name="camera" size={20} color={theme.primary} />
+                            )}
+                            <Text style={[styles.addPhotoText, { color: theme.textPrimary }]}>
+                                {photos.length === 0 ? "Add Photos" : `${photos.length}/5`}
+                            </Text>
+                        </AnimatedPressable>
 
-                    <View style={styles.photoGrid}>
-                        {photos.map((uri, index) => (
-                            <View key={index} style={styles.photoItem}>
-                                <Image source={{ uri }} style={styles.photo} />
-                                <AnimatedPressable
-                                    style={[styles.deletePhotoBtn, { borderColor: theme.bgSecondary }]}
-                                    onPress={() => removePhoto(index)}
-                                    interactionScale="subtle"
-                                    haptic="warning"
-                                >
-                                    <Ionicons name="close" size={12} color="#fff" />
-                                </AnimatedPressable>
-                            </View>
-                        ))}
+                        <View style={styles.photoList}>
+                            {photos.map((uri, index) => (
+                                <Animated.View key={index} entering={FadeInDown.springify()}>
+                                    <View style={styles.photoItem}>
+                                        <Image source={{ uri }} style={styles.photo} />
+                                        <AnimatedPressable
+                                            style={[styles.deletePhotoBtn, { backgroundColor: theme.error }]}
+                                            onPress={() => removePhoto(index)}
+                                            haptic="light"
+                                        >
+                                            <Ionicons name="close" size={12} color="#fff" />
+                                        </AnimatedPressable>
+                                    </View>
+                                </Animated.View>
+                            ))}
+                        </View>
                     </View>
 
+                    {/* Footer Actions */}
                     <View style={styles.footer}>
-                        <AnimatedButton
-                            title={t('cancel')}
-                            onPress={onClose}
-                            variant="secondary"
-                            style={styles.cancelButton}
-                        />
-
                         <AnimatedButton
                             title={t('submitReview')}
                             onPress={handlePress}
@@ -159,9 +180,11 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                             loading={submitting}
                             disabled={rating === 0 || submitting}
                             style={styles.submitButton}
+                            icon="send"
                         />
                     </View>
-                </View>
+
+                </Animated.View>
             </View>
         </Modal>
     );
@@ -170,105 +193,109 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
 const styles = StyleSheet.create({
     modalOverlay: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'center', // Centered card
         alignItems: 'center',
-        padding: 24,
+        padding: 20,
     },
     modalContent: {
         width: '100%',
         maxWidth: 400,
-        borderRadius: 16,
-        borderWidth: 1,
+        borderRadius: 24,
         padding: 24,
-        position: 'relative',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.25,
+        shadowRadius: 20,
+        elevation: 10,
     },
-    closeIcon: {
-        position: 'absolute',
-        top: 16,
-        right: 16,
-        zIndex: 10,
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 20,
     },
     title: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: 'bold',
-        marginBottom: 8,
-        textAlign: 'left',
+        marginBottom: 4,
     },
     subtitle: {
         fontSize: 14,
-        marginBottom: 24,
-        lineHeight: 20,
-        textAlign: 'left',
+        fontWeight: '500',
+    },
+    closeBtn: {
+        padding: 4,
     },
     starsContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
-        marginBottom: 24,
+        marginBottom: 10,
+    },
+    label: {
+        fontSize: 14,
+        fontWeight: '600',
+        marginBottom: 8,
+        marginLeft: 4,
     },
     input: {
-        borderRadius: 12,
+        borderRadius: 16,
         padding: 16,
-        height: 120,
-        marginBottom: 16,
+        height: 110,
+        marginBottom: 20,
         borderWidth: 1,
         fontSize: 16,
+    },
+    photoSection: {
+        marginBottom: 24,
     },
     addPhotoButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 12,
-        borderRadius: 8,
-        alignSelf: 'flex-start',
-        marginBottom: 16,
+        justifyContent: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 12,
         borderWidth: 1,
+        borderStyle: 'dashed',
+        marginBottom: 12,
+        gap: 8,
     },
     addPhotoText: {
         fontWeight: '600',
-        marginRight: 8,
+        fontSize: 14,
     },
-    photoCount: {
-        fontSize: 12,
-    },
-    photoGrid: {
+    photoList: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
-        marginBottom: 24,
+        gap: 10,
     },
     photoItem: {
         position: 'relative',
-        width: 60,
-        height: 60,
+        width: 50,
+        height: 50,
     },
     photo: {
         width: '100%',
         height: '100%',
-        borderRadius: 8,
+        borderRadius: 10,
     },
     deletePhotoBtn: {
         position: 'absolute',
         top: -6,
         right: -6,
-        backgroundColor: '#FF4757',
-        borderRadius: 10,
-        width: 20,
-        height: 20,
+        width: 18,
+        height: 18,
+        borderRadius: 9,
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 2,
+        borderWidth: 1.5,
+        borderColor: '#FFF',
     },
     footer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        gap: 12,
-        marginTop: 16,
-    },
-    cancelButton: {
-        flex: 1,
-        height: 48,
+        marginTop: 8,
     },
     submitButton: {
-        flex: 1,
-        height: 48,
+        height: 56, // Taller button
+        borderRadius: 16,
     },
 });

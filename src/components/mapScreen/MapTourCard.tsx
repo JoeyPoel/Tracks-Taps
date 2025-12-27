@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
@@ -45,9 +46,12 @@ export default function MapTourCard({
                             <Text style={[styles.author, { color: theme.textSecondary }]}>{t('by')} {author}</Text>
                         </View>
                         {/* Genre Icon/Badge */}
-                        <View style={[styles.genreBadge, { backgroundColor: theme.bgTertiary }]}>
-                            <GenreIcon size={16} color={theme.textPrimary} />
-                        </View>
+                        <LinearGradient
+                            colors={[theme.accent + '20', theme.primary + '20']}
+                            style={styles.genreBadge}
+                        >
+                            <GenreIcon size={16} color={theme.primary} />
+                        </LinearGradient>
                     </View>
 
                     <View style={styles.statsRow}>
@@ -91,12 +95,14 @@ export default function MapTourCard({
 
 const styles = StyleSheet.create({
     card: {
-        borderRadius: 16,
+        borderRadius: 20, // More rounded
         overflow: 'hidden',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+        // Premium Soft Shadow
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.12,
+        shadowRadius: 12,
+        elevation: 6,
     },
     content: {
         padding: 16,

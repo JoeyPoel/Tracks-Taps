@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyIcon } from 'react-native-heroicons/outline';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AnimatedButton } from '../components/common/AnimatedButton';
@@ -28,17 +29,8 @@ export default function JoinTourScreen() {
     const insets = useSafeAreaInsets();
 
     return (
-        <ScreenWrapper animateEntry={false} includeTop={false} includeBottom={false}>
+        <ScreenWrapper animateEntry={false} includeTop={true} includeBottom={false}>
             <Stack.Screen options={{ headerShown: false }} />
-
-            {/* Header */}
-            <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-                <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: theme.bgSecondary }]}>
-                    <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
-                </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('joinTourButton')}</Text>
-                <View style={{ width: 40 }} />
-            </View>
 
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -46,58 +38,68 @@ export default function JoinTourScreen() {
             >
                 <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
-                    {/* Section 1: Manual Code Entry */}
-                    <Animated.View entering={FadeInUp.delay(100).springify()} style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
-                        <View style={[styles.iconBadge, { backgroundColor: theme.primary + '20' }]}>
-                            <Ionicons name="keypad" size={24} color={theme.primary} />
-                        </View>
-                        <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>{t('enterTourCode')}</Text>
-                        <Text style={[styles.sectionSubtitle, { color: theme.textSecondary }]}>{t('getItFromHost')}</Text>
+                    {/* New Header Style */}
+                    <Animated.View entering={FadeInDown.duration(600).springify()} style={[styles.headerContainer, { marginTop: 16 }]}>
+                        <Text style={[styles.screenTitle, { color: theme.textPrimary }]}>{t('joinTourButton')}</Text>
+                        <Text style={[styles.screenSubtitle, { color: theme.textSecondary }]}>{t('enterTourCode') || 'Enter the code to start your adventure'}</Text>
+                    </Animated.View>
 
+                    {/* Section 1: Manual Code Entry */}
+                    <Animated.View entering={FadeInUp.delay(100).springify()} style={[styles.cleanInputContainer, { backgroundColor: theme.bgSecondary }]}>
+                        <View style={styles.inputIcon}>
+                            <KeyIcon size={24} color={theme.primary} />
+                        </View>
                         <TextInput
                             style={[
                                 styles.input,
                                 {
-                                    borderColor: error ? theme.danger : theme.borderPrimary,
                                     color: theme.textPrimary,
-                                    backgroundColor: theme.bgPrimary
+                                    borderColor: error ? theme.danger : 'transparent',
                                 }
                             ]}
-                            placeholder="123 456"
-                            placeholderTextColor={theme.textSecondary}
+                            placeholder="000 000 000" // 9 digits
+                            placeholderTextColor={theme.textSecondary + '80'}
                             value={tourCode}
                             onChangeText={(text) => {
-                                setTourCode(text);
+                                const cleaned = text.replace(/\D/g, '');
+                                const limited = cleaned.slice(0, 9);
+                                const formatted = limited.replace(/(\d{3})(?=\d)/g, '$1 ');
+                                setTourCode(formatted);
                                 setError(null);
                             }}
                             keyboardType="number-pad"
-                            maxLength={9}
-                        />
-                        {error && <Text style={[styles.errorText, { color: theme.warning }]}>{error}</Text>}
-
-                        <AnimatedButton
-                            title={joining ? t('verifying') : t('joinTourButton')}
-                            onPress={handleJoinTour}
-                            loading={joining}
-                            disabled={joining || !tourCode}
-                            variant="primary"
-                            style={{ marginTop: 16, width: '100%' }}
+                            maxLength={11} // 9 digits + 2 spaces
+                            autoFocus={true}
                         />
                     </Animated.View>
+                    {error && <Text style={[styles.errorText, { color: theme.warning }]}>{error}</Text>}
+
+                    <AnimatedButton
+                        title={joining ? t('verifying') : t('joinTourButton')}
+                        onPress={handleJoinTour}
+                        loading={joining}
+                        disabled={joining || !tourCode}
+                        variant="primary"
+                        style={{ marginTop: 24, width: '100%' }}
+                    />
 
                     {/* Section 2: Pending Invites */}
                     {invites.length > 0 && (
-                        <Animated.View entering={FadeInUp.delay(200).springify()} style={{ marginTop: 24 }}>
-                            <Text style={[styles.sectionHeader, { color: theme.textSecondary }]}>PENDING INVITES</Text>
+                        <Animated.View entering={FadeInUp.delay(200).springify()} style={{ marginTop: 40 }}>
+                            <Text style={[styles.sectionHeader, { color: theme.textSecondary }]}>{t('pendingInvites') || 'PENDING INVITES'}</Text>
 
                             {invites.map((invite) => (
                                 <View key={invite.id} style={[styles.inviteCard, { backgroundColor: theme.bgSecondary }]}>
+                                    <View style={[styles.inviteIcon, { backgroundColor: theme.primary + '20' }]}>
+                                        <Text style={{ fontSize: 20 }}>🎫</Text>
+                                    </View>
+
                                     <View style={styles.inviteInfo}>
-                                        <Text style={[styles.inviteTourName, { color: theme.textPrimary }]}>
+                                        <Text style={[styles.inviteTourName, { color: theme.textPrimary }]} numberOfLines={1}>
                                             {invite.parsedData?.tourName || "Unknown Tour"}
                                         </Text>
-                                        <Text style={[styles.inviteFrom, { color: theme.textSecondary }]}>
-                                            Invited by {invite.parsedData?.inviterName || "a friend"}
+                                        <Text style={[styles.inviteFrom, { color: theme.textSecondary }]} numberOfLines={1}>
+                                            From {invite.parsedData?.inviterName || "a friend"}
                                         </Text>
                                     </View>
 
@@ -108,16 +110,16 @@ export default function JoinTourScreen() {
                                             <>
                                                 <TouchableOpacity
                                                     onPress={() => declineInvite(invite.id)}
-                                                    style={[styles.actionButton, { backgroundColor: theme.bgPrimary, marginRight: 8 }]}
+                                                    style={[styles.actionButton, { backgroundColor: theme.bgTertiary, marginRight: 8 }]}
                                                 >
-                                                    <Ionicons name="close" size={20} color={theme.textSecondary} />
+                                                    <Ionicons name="close" size={18} color={theme.textSecondary} />
                                                 </TouchableOpacity>
 
                                                 <TouchableOpacity
                                                     onPress={() => acceptInvite(invite.id)}
                                                     style={[styles.actionButton, { backgroundColor: theme.primary }]}
                                                 >
-                                                    <Ionicons name="checkmark" size={20} color="#FFF" />
+                                                    <Ionicons name="checkmark" size={18} color="#FFF" />
                                                 </TouchableOpacity>
                                             </>
                                         )}
@@ -127,13 +129,6 @@ export default function JoinTourScreen() {
                         </Animated.View>
                     )}
 
-                    {/* Section 3: Info (Simplified) */}
-                    <Animated.View entering={FadeInDown.delay(400)} style={{ marginTop: 32, alignItems: 'center' }}>
-                        <Text style={{ color: theme.textSecondary, fontSize: 13 }}>
-                            Ask your friend for the numeric code visible in their lobby.
-                        </Text>
-                    </Animated.View>
-
                 </ScrollView>
             </KeyboardAvoidingView>
         </ScreenWrapper>
@@ -141,98 +136,84 @@ export default function JoinTourScreen() {
 }
 
 const styles = StyleSheet.create({
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingBottom: 10,
-    },
-    iconButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+    backButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         justifyContent: 'center',
         alignItems: 'center',
+        marginBottom: 10,
     },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
+    headerContainer: {
+        marginBottom: 32,
     },
-    content: {
-        padding: 20,
-    },
-    card: {
-        borderRadius: 20,
-        padding: 24,
-        alignItems: 'center',
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-        elevation: 5,
-    },
-    iconBadge: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
+    screenTitle: {
+        fontSize: 34,
+        fontWeight: '800',
+        letterSpacing: -0.5,
         marginBottom: 8,
     },
-    sectionSubtitle: {
-        fontSize: 14,
-        marginBottom: 24,
-        textAlign: 'center',
+    screenSubtitle: {
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    content: {
+        paddingHorizontal: 20,
+        paddingBottom: 20,
+    },
+    cleanInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: 20,
+        paddingHorizontal: 20,
+        height: 80,
+    },
+    inputIcon: {
+        marginRight: 16,
     },
     input: {
-        width: '100%',
-        height: 60,
-        borderRadius: 12,
-        borderWidth: 1,
-        textAlign: 'center',
-        fontSize: 24,
+        flex: 1,
+        height: '100%',
+        fontSize: 28,
         fontWeight: 'bold',
-        letterSpacing: 2,
+        letterSpacing: 4,
     },
     errorText: {
-        marginTop: 8,
+        marginTop: 12,
         fontSize: 14,
-        alignSelf: 'flex-start',
+        marginLeft: 8,
     },
-
     // Invites
     sectionHeader: {
         fontSize: 12,
         fontWeight: 'bold',
-        marginBottom: 12,
+        marginBottom: 16,
         marginLeft: 4,
         letterSpacing: 1,
     },
     inviteCard: {
         flexDirection: 'row',
-        padding: 16,
+        padding: 12,
         borderRadius: 16,
         alignItems: 'center',
         marginBottom: 12,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
-        elevation: 2,
+    },
+    inviteIcon: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
     },
     inviteInfo: {
         flex: 1,
+        marginRight: 8,
     },
     inviteTourName: {
         fontSize: 16,
         fontWeight: 'bold',
-        marginBottom: 4,
+        marginBottom: 2,
     },
     inviteFrom: {
         fontSize: 13,
@@ -242,9 +223,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     actionButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',
     },

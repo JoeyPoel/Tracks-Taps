@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, ScrollView, StyleSheet, Text, View } from 'react-native';
 import ActiveTourHeader from '../components/active-tour/ActiveTourHeader';
 import ActiveTourMap from '../components/active-tour/ActiveTourMap';
 import Confetti from '../components/active-tour/animations/Confetti';
@@ -17,6 +17,38 @@ import { useUserContext } from '../context/UserContext';
 import { useActiveTour } from '../hooks/useActiveTour';
 import { LevelSystem } from '../utils/levelUtils';
 import { openMapApp } from '../utils/mapUtils';
+
+// Wrapper for smooth tab transitions
+const TabContentWrapper = ({ children }: { children: React.ReactNode }) => {
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const slideAnim = useRef(new Animated.Value(20)).current;
+
+    useEffect(() => {
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 300,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+            }),
+            Animated.timing(slideAnim, {
+                toValue: 0,
+                duration: 400,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+            })
+        ]).start();
+    }, []);
+
+    return (
+        <Animated.View style={{
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }]
+        }}>
+            {children}
+        </Animated.View>
+    );
+};
 
 function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user: any }) {
     const { theme } = useTheme();
@@ -117,13 +149,15 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                 }}
             />
 
-            <ScrollView contentContainerStyle={styles.scrollContent}>
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {currentStop && (
-                    <ActiveTourMap
-                        currentStop={currentStop}
-                        previousStop={activeTour.tour?.stops?.[currentStopIndex - 1]}
-                        onNavigate={openMaps}
-                    />
+                    <View style={styles.mapContainer}>
+                        <ActiveTourMap
+                            currentStop={currentStop}
+                            previousStop={activeTour.tour?.stops?.[currentStopIndex - 1]}
+                            onNavigate={openMaps}
+                        />
+                    </View>
                 )}
 
                 <CustomTabBar
@@ -132,45 +166,55 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                     onTabPress={setActiveTab}
                 />
 
-                {activeTab === TAB_INFO && (
-                    <StopInfoSection stop={currentStop} />
-                )}
+                <View style={styles.tabContentContainer}>
+                    {activeTab === TAB_INFO && (
+                        <TabContentWrapper key="info">
+                            <StopInfoSection stop={currentStop} />
+                        </TabContentWrapper>
+                    )}
 
-                {activeTab === TAB_STOP_CHALLENGES && (
-                    <ChallengeSection
-                        currentStop={currentStop}
-                        stopChallenges={stopChallenges}
-                        completedChallenges={completedChallenges}
-                        failedChallenges={failedChallenges}
-                        triviaSelected={triviaSelected}
-                        setTriviaSelected={setTriviaSelected}
-                        handleChallengeComplete={handleChallengeComplete}
-                        handleChallengeFail={handleChallengeFail}
-                        handleSubmitTrivia={handleSubmitTrivia}
-                    />
-                )}
+                    {activeTab === TAB_STOP_CHALLENGES && (
+                        <TabContentWrapper key="challenges">
+                            <ChallengeSection
+                                currentStop={currentStop}
+                                stopChallenges={stopChallenges}
+                                completedChallenges={completedChallenges}
+                                failedChallenges={failedChallenges}
+                                triviaSelected={triviaSelected}
+                                setTriviaSelected={setTriviaSelected}
+                                handleChallengeComplete={handleChallengeComplete}
+                                handleChallengeFail={handleChallengeFail}
+                                handleSubmitTrivia={handleSubmitTrivia}
+                            />
+                        </TabContentWrapper>
+                    )}
 
-                {activeTab === TAB_TOUR_CHALLENGES && (
-                    <TourChallengesSection
-                        challenges={tourWideChallenges}
-                        completedChallenges={completedChallenges}
-                        failedChallenges={failedChallenges}
-                        triviaSelected={triviaSelected}
-                        setTriviaSelected={setTriviaSelected}
-                        handleChallengeComplete={handleChallengeComplete}
-                        handleChallengeFail={handleChallengeFail}
-                        handleSubmitTrivia={handleSubmitTrivia}
-                    />
-                )}
+                    {activeTab === TAB_TOUR_CHALLENGES && (
+                        <TabContentWrapper key="tour-challenges">
+                            <TourChallengesSection
+                                challenges={tourWideChallenges}
+                                completedChallenges={completedChallenges}
+                                failedChallenges={failedChallenges}
+                                triviaSelected={triviaSelected}
+                                setTriviaSelected={setTriviaSelected}
+                                handleChallengeComplete={handleChallengeComplete}
+                                handleChallengeFail={handleChallengeFail}
+                                handleSubmitTrivia={handleSubmitTrivia}
+                            />
+                        </TabContentWrapper>
+                    )}
 
-                {activeTab === TAB_PUBGOLF && (
-                    <PubGolfSection
-                        activeTour={activeTour}
-                        pubGolfScores={pubGolfScores}
-                        currentStopId={currentStop?.id}
-                        handleSaveSips={handleSaveSips}
-                    />
-                )}
+                    {activeTab === TAB_PUBGOLF && (
+                        <TabContentWrapper key="pubgolf">
+                            <PubGolfSection
+                                activeTour={activeTour}
+                                pubGolfScores={pubGolfScores}
+                                currentStopId={currentStop?.id}
+                                handleSaveSips={handleSaveSips}
+                            />
+                        </TabContentWrapper>
+                    )}
+                </View>
 
                 <TourNavigation
                     currentStopIndex={currentStopIndex}
@@ -206,6 +250,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     );
 }
 
+// Wrap export default
 export default function ActiveTourScreen({ activeTourId }: { activeTourId: number }) {
     const { theme } = useTheme();
     const { t } = useLanguage();
@@ -222,12 +267,27 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
     return <ActiveTourContent activeTourId={activeTourId} user={user} />;
 }
 
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
     scrollContent: {
         paddingBottom: 40,
-        paddingHorizontal: 24,
+        paddingHorizontal: 20, // Slightly tighter padding for card look
     },
+    mapContainer: {
+        borderRadius: 24, // Consistent rounding
+        overflow: 'hidden',
+        marginVertical: 12,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 5,
+    },
+    tabContentContainer: {
+        minHeight: 200, // Prevent layout jumping
+        marginTop: 16,
+    }
 });

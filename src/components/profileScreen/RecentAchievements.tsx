@@ -1,6 +1,6 @@
 import { useLanguage } from '@/src/context/LanguageContext';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
     BoltIcon,
     FireIcon,
@@ -44,24 +44,31 @@ export default function RecentAchievements({ achievements }: RecentAchievementsP
         }
     };
 
+    if (!achievements || achievements.length === 0) return null;
+
     return (
         <View style={styles.container}>
-            <Text style={[styles.header, { color: theme.textPrimary }]}>{t('recentAchievements')}</Text>
+            <View style={styles.headerRow}>
+                <Text style={[styles.header, { color: theme.textSecondary }]}>{t('recentAchievements')?.toUpperCase() || 'RECENT ACHIEVEMENTS'}</Text>
+            </View>
 
-            {achievements.map((achievement) => {
-                const IconComponent = getIconComponent(achievement.icon);
-                return (
-                    <View key={achievement.id} style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
-                        <View style={[styles.iconContainer, { backgroundColor: achievement.color + '20' }]}>
-                            <IconComponent size={24} color={achievement.color} />
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 12 }}
+            >
+                {achievements.map((achievement) => {
+                    const IconComponent = getIconComponent(achievement.icon);
+                    return (
+                        <View key={achievement.id} style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
+                            <View style={[styles.iconContainer, { backgroundColor: achievement.color + '15' }]}>
+                                <IconComponent size={28} color={achievement.color} />
+                            </View>
+                            <Text style={[styles.title, { color: theme.textPrimary }]} numberOfLines={1}>{achievement.title}</Text>
                         </View>
-                        <View style={styles.textContainer}>
-                            <Text style={[styles.title, { color: theme.textPrimary }]}>{achievement.title}</Text>
-                            <Text style={[styles.description, { color: theme.textSecondary }]}>{achievement.description}</Text>
-                        </View>
-                    </View>
-                );
-            })}
+                    );
+                })}
+            </ScrollView>
         </View>
     );
 }
@@ -70,17 +77,22 @@ const styles = StyleSheet.create({
     container: {
         marginBottom: 24,
     },
-    header: {
-        fontSize: 18,
-        fontWeight: 'bold',
+    headerRow: {
         marginBottom: 12,
+        paddingLeft: 4,
+    },
+    header: {
+        fontSize: 12,
+        fontWeight: '700',
+        letterSpacing: 1,
     },
     card: {
-        flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: 12,
         borderRadius: 16,
-        marginBottom: 12,
+        width: 100,
+        height: 110,
+        justifyContent: 'center',
     },
     iconContainer: {
         width: 48,
@@ -88,17 +100,11 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 16,
-    },
-    textContainer: {
-        flex: 1,
+        marginBottom: 8,
     },
     title: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 4,
-    },
-    description: {
-        fontSize: 14,
+        fontSize: 12,
+        fontWeight: '600',
+        textAlign: 'center',
     },
 });

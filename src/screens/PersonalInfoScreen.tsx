@@ -4,6 +4,8 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useUserContext } from '@/src/context/UserContext';
 import { supabase } from '@/utils/supabase';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -15,10 +17,10 @@ import {
     StyleSheet,
     Text,
     TextInput,
-    TouchableOpacity,
     View
 } from 'react-native';
 import AppHeader from '../components/Header';
+import { AnimatedPressable } from '../components/common/AnimatedPressable';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 
 export default function PersonalInfoScreen() {
@@ -43,8 +45,6 @@ export default function PersonalInfoScreen() {
             setEmail(authUser.email || '');
         }
     }, [dbUser, authUser]);
-
-
 
     const handleSave = async () => {
         setLoading(true);
@@ -89,27 +89,41 @@ export default function PersonalInfoScreen() {
         }
     };
 
+    const renderSectionHeader = (title: string, icon: string) => (
+        <View style={styles.sectionHeader}>
+            <LinearGradient
+                colors={[theme.accent + '20', theme.primary + '20']}
+                style={styles.sectionIconContainer}
+            >
+                <Ionicons name={icon as any} size={18} color={theme.primary} />
+            </LinearGradient>
+            <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{title}</Text>
+        </View>
+    );
+
     if (!authUser) {
         return (
-            <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', padding: 24 }]}>
-                <Text style={[styles.title, { color: theme.textPrimary, textAlign: 'center' }]}>
-                    {t('loginRequired')}
-                </Text>
-                <Text style={[styles.message, { color: theme.textSecondary, textAlign: 'center', marginBottom: 24 }]}>
-                    {t('pleaseLoginToManageYourPersonalDetails')}
-                </Text>
-                <TouchableOpacity
-                    style={[styles.button, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push('/auth/login')}
-                >
-                    <Text style={styles.buttonText}>{t('login')}</Text>
-                </TouchableOpacity>
-            </View>
+            <ScreenWrapper>
+                <View style={[styles.centerContainer]}>
+                    <Text style={[styles.title, { color: theme.textPrimary }]}>
+                        {t('loginRequired')}
+                    </Text>
+                    <Text style={[styles.message, { color: theme.textSecondary }]}>
+                        {t('pleaseLoginToManageYourPersonalDetails')}
+                    </Text>
+                    <AnimatedPressable
+                        style={[styles.button, { backgroundColor: theme.primary }]}
+                        onPress={() => router.push('/auth/login')}
+                    >
+                        <Text style={styles.buttonText}>{t('login')}</Text>
+                    </AnimatedPressable>
+                </View>
+            </ScreenWrapper>
         );
     }
 
     return (
-        <ScreenWrapper animateEntry={false} includeTop={false} includeBottom={false}>
+        <ScreenWrapper>
             <Stack.Screen options={{ headerShown: false }} />
 
             <AppHeader
@@ -121,10 +135,10 @@ export default function PersonalInfoScreen() {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
-                <ScrollView contentContainerStyle={styles.content}>
+                <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
                     {/* Avatar Section */}
-                    <View style={styles.avatarContainer}>
+                    <View style={styles.avatarSection}>
                         <ImageUploader
                             label={t('profilePicture')}
                             initialImage={avatarUrl}
@@ -135,78 +149,87 @@ export default function PersonalInfoScreen() {
                         />
                     </View>
 
-                    {/* Name */}
-                    <View style={styles.formGroup}>
-                        <Text style={[styles.label, { color: theme.textSecondary }]}>{t('name')}</Text>
-                        <View style={[styles.inputWrapper, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
-                            <TextInput
-                                style={[styles.input, { color: theme.textPrimary }]}
-                                value={name}
-                                onChangeText={setName}
-                                placeholder={t('name')}
-                                placeholderTextColor={theme.textSecondary}
-                            />
+                    {/* Basic Info Section */}
+                    {renderSectionHeader(t('personalInfo'), 'person-outline')}
+                    <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
+                        <View style={styles.formGroup}>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('name')}</Text>
+                            <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderPrimary }]}>
+                                <Ionicons name="person-circle-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
+                                <TextInput
+                                    style={[styles.input, { color: theme.textPrimary }]}
+                                    value={name}
+                                    onChangeText={setName}
+                                    placeholder={t('name')}
+                                    placeholderTextColor={theme.textSecondary + '80'}
+                                />
+                            </View>
+                        </View>
+
+                        <View style={[styles.formGroup, { marginBottom: 0 }]}>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('email')}</Text>
+                            <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderPrimary }]}>
+                                <Ionicons name="mail-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
+                                <TextInput
+                                    style={[styles.input, { color: theme.textPrimary }]}
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    placeholder={t('email')}
+                                    placeholderTextColor={theme.textSecondary + '80'}
+                                    keyboardType="email-address"
+                                    autoCapitalize="none"
+                                />
+                            </View>
+                            <Text style={[styles.hint, { color: theme.textTertiary }]}>
+                                Changing email may require re-verification.
+                            </Text>
                         </View>
                     </View>
 
-                    {/* Email */}
-                    <View style={styles.formGroup}>
-                        <Text style={[styles.label, { color: theme.textSecondary }]}>{t('email')}</Text>
-                        <View style={[styles.inputWrapper, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
-                            <TextInput
-                                style={[styles.input, { color: theme.textPrimary }]}
-                                value={email}
-                                onChangeText={setEmail}
-                                placeholder={t('email')}
-                                placeholderTextColor={theme.textSecondary}
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                            />
+                    {/* Security Section */}
+                    {renderSectionHeader('Security', 'lock-closed-outline')}
+                    <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
+                        <View style={[styles.formGroup, { marginBottom: 0 }]}>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('password')}</Text>
+                            <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderPrimary }]}>
+                                <Ionicons name="key-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
+                                <TextInput
+                                    style={[styles.input, { color: theme.textPrimary }]}
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    placeholder="• • • • • • • •"
+                                    placeholderTextColor={theme.textSecondary + '80'}
+                                    secureTextEntry
+                                />
+                            </View>
+                            <Text style={[styles.hint, { color: theme.textTertiary }]}>
+                                Leave blank to keep current password.
+                            </Text>
                         </View>
-                        <Text style={[styles.hint, { color: theme.textSecondary }]}>
-                            Changing email may require re-verification.
-                        </Text>
                     </View>
 
-                    {/* Password */}
-                    <View style={styles.formGroup}>
-                        <Text style={[styles.label, { color: theme.textSecondary }]}>{t('password')}</Text>
-                        <View style={[styles.inputWrapper, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
-                            <TextInput
-                                style={[styles.input, { color: theme.textPrimary }]}
-                                value={password}
-                                onChangeText={setPassword}
-                                placeholder={t('password')}
-                                placeholderTextColor={theme.textSecondary}
-                                secureTextEntry
-                            />
-                        </View>
-                        <Text style={[styles.hint, { color: theme.textSecondary }]}>
-                            Leave blank to keep current password.
-                        </Text>
+                    {/* Actions */}
+                    <View style={styles.actionContainer}>
+                        <AnimatedPressable
+                            style={[styles.button, { backgroundColor: theme.primary }]}
+                            onPress={handleSave}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <Text style={styles.buttonText}>{t('saveChanges')}</Text>
+                            )}
+                        </AnimatedPressable>
+
+                        <AnimatedPressable
+                            style={[styles.logoutButton, { borderColor: theme.danger + '40', backgroundColor: theme.danger + '10' }]}
+                            onPress={handleLogout}
+                            disabled={loading}
+                        >
+                            <Text style={[styles.logoutText, { color: theme.danger }]}>{t('logout')}</Text>
+                        </AnimatedPressable>
                     </View>
-
-                    {/* Save Button */}
-                    <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.primary, marginTop: 20 }]}
-                        onPress={handleSave}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <ActivityIndicator color="#fff" />
-                        ) : (
-                            <Text style={styles.buttonText}>{t('saveChanges')}</Text>
-                        )}
-                    </TouchableOpacity>
-
-                    {/* Logout Button */}
-                    <TouchableOpacity
-                        style={[styles.logoutButton, { borderColor: theme.danger }]}
-                        onPress={handleLogout}
-                        disabled={loading}
-                    >
-                        <Text style={[styles.logoutText, { color: theme.danger }]}>{t('logout')}</Text>
-                    </TouchableOpacity>
 
                 </ScrollView>
             </KeyboardAvoidingView>
@@ -215,34 +238,60 @@ export default function PersonalInfoScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: {
+    centerContainer: {
         flex: 1,
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-    content: {
+        justifyContent: 'center',
+        alignItems: 'center',
         padding: 24,
     },
-    avatarContainer: {
+    content: {
+        padding: 20,
+        paddingBottom: 40,
+    },
+    sectionHeader: {
+        flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 32,
+        marginBottom: 12,
+        marginTop: 8,
     },
-    avatar: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        borderWidth: 2,
-        marginBottom: 16,
+    sectionIconContainer: {
+        width: 28,
+        height: 28,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 10,
     },
-    avatarInputContainer: {
-        width: '100%',
+    sectionTitle: {
+        fontSize: 14,
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    card: {
+        borderRadius: 20,
+        marginBottom: 24,
+        padding: 16,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 3,
+    },
+    avatarSection: {
+        alignItems: 'center',
+        marginBottom: 24,
     },
     title: {
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: 'bold',
+        marginBottom: 16,
+        textAlign: 'center',
+    },
+    message: {
+        fontSize: 16,
+        textAlign: 'center',
         marginBottom: 32,
+        lineHeight: 24,
     },
     formGroup: {
         marginBottom: 20,
@@ -270,18 +319,21 @@ const styles = StyleSheet.create({
     },
     hint: {
         fontSize: 12,
-        marginTop: 4,
+        marginTop: 6,
         marginLeft: 4,
     },
-    message: {
-        fontSize: 16,
-        lineHeight: 24,
+    actionContainer: {
+        marginTop: 8,
+        gap: 16,
     },
     button: {
         paddingVertical: 16,
-        borderRadius: 12,
+        borderRadius: 16,
         alignItems: 'center',
-        marginBottom: 16,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
     },
     buttonText: {
         color: '#fff',
@@ -289,11 +341,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     logoutButton: {
-        paddingVertical: 14,
-        borderRadius: 12,
+        paddingVertical: 16,
+        borderRadius: 16,
         alignItems: 'center',
         borderWidth: 1,
-        backgroundColor: 'transparent',
     },
     logoutText: {
         fontSize: 16,

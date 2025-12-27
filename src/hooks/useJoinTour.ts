@@ -19,7 +19,7 @@ export const useJoinTour = () => {
             return;
         }
 
-        let activeTourId = tourCode.trim();
+        let activeTourId = tourCode.replace(/\s/g, '');
         // Remove optional "TOUR-" prefix if present
         if (activeTourId.toUpperCase().startsWith('TOUR-')) {
             activeTourId = activeTourId.substring(5);

@@ -177,6 +177,7 @@ export const strings = {
     failedToCreateTeam: 'Failed to create team. Please try again.',
     loginRequired: 'Login Required',
     loading: 'Loading...',
+    pendingInvites: 'Pending Invites',
     // Join Tour keys
     joinTour: 'Join Tour',
     enterTourCode: 'Enter Tour Code',
@@ -431,6 +432,7 @@ export const strings = {
     drink: 'Bebida',
     loginRequired: 'Inicio de sesión obligatorio',
     loading: 'Cargando...',
+    pendingInvites: 'Invitaciones Pendientes',
     // Join Tour keys
     joinTour: 'Unirse al Tour',
     enterTourCode: 'Ingresar Código del Tour',
@@ -662,6 +664,7 @@ export const strings = {
     drink: 'Drankje',
     loginRequired: 'Inloggen vereist',
     loading: 'Laden...',
+    pendingInvites: 'In afwachting van uitnodigingen',
     // Join Tour keys
     joinTour: 'Doe mee aan Tour',
     enterTourCode: 'Voer Tourcode in',
