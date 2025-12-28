@@ -1,4 +1,5 @@
 import { AnimatedPressable } from '@/src/components/common/AnimatedPressable';
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { ChallengeType } from '@/src/types/models';
 import { getChallengeIconProps } from '@/src/utils/challengeIcons';
@@ -13,11 +14,12 @@ interface ChallengeTypeSelectorProps {
 
 export function ChallengeTypeSelector({ selectedType, onSelect }: ChallengeTypeSelectorProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     return (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.typeScroll}>
             {(Object.values(ChallengeType) as ChallengeType[]).map((tVal) => {
-                const { icon, label, color } = getChallengeIconProps(tVal, theme);
+                const { icon, label, color } = getChallengeIconProps(tVal, theme, t);
                 const isSelected = selectedType === tVal;
                 return (
                     <AnimatedPressable

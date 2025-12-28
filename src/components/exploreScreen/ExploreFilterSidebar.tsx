@@ -5,6 +5,7 @@ import { GENRES } from '@/src/utils/genres';
 import React from 'react';
 import { Animated, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { XMarkIcon } from 'react-native-heroicons/outline';
+import { useLanguage } from '../../context/LanguageContext';
 import { AnimatedButton } from '../common/AnimatedButton';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 
@@ -22,6 +23,7 @@ const FilterSectionHeader = ({ title }: { title: string }) => {
 
 export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebarProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
     const {
         slideAnim,
         localFilters,
@@ -97,7 +99,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                     }
                 ]}>
                     <View style={[styles.header, { borderBottomColor: theme.borderSecondary }]}>
-                        <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>Filters</Text>
+                        <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('filters')}</Text>
                         <AnimatedPressable onPress={handleClose} interactionScale="subtle" haptic="light" style={[styles.closeButton, { backgroundColor: theme.bgTertiary }]}>
                             <XMarkIcon size={20} color={theme.textPrimary} />
                         </AnimatedPressable>
@@ -107,16 +109,16 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
 
                         {/* SORT BY */}
                         <View style={styles.section}>
-                            <FilterSectionHeader title="Sort By" />
+                            <FilterSectionHeader title={t('sortBy')} />
                             <View style={styles.chipContainer}>
                                 <SortChip
-                                    label="Newest"
+                                    label={t('newest')}
                                     currentSort={localFilters.sortBy}
                                     expectedSort="createdAt"
                                     onPress={() => { updateFilter('sortBy', 'createdAt'); updateFilter('sortOrder', 'desc'); }}
                                 />
                                 <SortChip
-                                    label="Name (A-Z)"
+                                    label={t('nameAZ')}
                                     currentSort={localFilters.sortBy}
                                     currentOrder={localFilters.sortOrder}
                                     expectedSort="name"
@@ -124,7 +126,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                                     onPress={() => { updateFilter('sortBy', 'name'); updateFilter('sortOrder', 'asc'); }}
                                 />
                                 <SortChip
-                                    label="Distance"
+                                    label={t('distance')}
                                     currentSort={localFilters.sortBy}
                                     currentOrder={localFilters.sortOrder}
                                     expectedSort="distance"
@@ -132,7 +134,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                                     onPress={() => { updateFilter('sortBy', 'distance'); updateFilter('sortOrder', 'asc'); }}
                                 />
                                 <SortChip
-                                    label="Duration"
+                                    label={t('duration')}
                                     currentSort={localFilters.sortBy}
                                     currentOrder={localFilters.sortOrder}
                                     expectedSort="duration"
@@ -144,25 +146,25 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
 
                         {/* DIFFICULTY */}
                         <View style={styles.section}>
-                            <FilterSectionHeader title="Difficulty" />
+                            <FilterSectionHeader title={t('difficulty')} />
                             <View style={styles.chipContainer}>
                                 <FilterChip
-                                    label="Any"
+                                    label={t('any')}
                                     selected={!localFilters.difficulty}
                                     onPress={() => updateFilter('difficulty', undefined)}
                                 />
                                 <FilterChip
-                                    label="Easy"
+                                    label={t('easy')}
                                     selected={localFilters.difficulty === Difficulty.EASY}
                                     onPress={() => updateFilter('difficulty', Difficulty.EASY)}
                                 />
                                 <FilterChip
-                                    label="Medium"
+                                    label={t('medium')}
                                     selected={localFilters.difficulty === Difficulty.MEDIUM}
                                     onPress={() => updateFilter('difficulty', Difficulty.MEDIUM)}
                                 />
                                 <FilterChip
-                                    label="Hard"
+                                    label={t('hard')}
                                     selected={localFilters.difficulty === Difficulty.HARD}
                                     onPress={() => updateFilter('difficulty', Difficulty.HARD)}
                                 />
@@ -171,7 +173,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
 
                         {/* LOCATION */}
                         <View style={styles.section}>
-                            <FilterSectionHeader title="Location" />
+                            <FilterSectionHeader title={t('location')} />
                             <TextInput
                                 style={[styles.input, {
                                     color: theme.textPrimary,
@@ -179,7 +181,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                                     borderColor: theme.borderSecondary, // Swapped
                                     borderWidth: 1,
                                 }]}
-                                placeholder="City name..."
+                                placeholder={t('cityNamePlaceholder')}
                                 placeholderTextColor={theme.textSecondary}
                                 value={localFilters.location}
                                 onChangeText={(text) => updateFilter('location', text)}
@@ -188,14 +190,14 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
 
                         {/* GENRE */}
                         <View style={styles.section}>
-                            <FilterSectionHeader title="Genre" />
+                            <FilterSectionHeader title={t('genre')} />
                             <View style={styles.chipContainer}>
                                 {GENRES.map(genre => {
                                     const Icon = genre.icon;
                                     return (
                                         <FilterChip
                                             key={genre.id}
-                                            label={genre.label}
+                                            label={t(genre.id.toLowerCase() as any)}
                                             icon={<Icon size={14} color={localFilters.genres?.includes(genre.id) ? '#FFF' : theme.textPrimary} />}
                                             selected={localFilters.genres?.includes(genre.id)}
                                             onPress={() => toggleGenre(genre.id)}
@@ -209,11 +211,11 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                         <View style={styles.gridRow}>
                             {/* DISTANCE */}
                             <View style={[styles.gridItem, { marginRight: 8 }]}>
-                                <FilterSectionHeader title="Distance (km)" />
+                                <FilterSectionHeader title={`${t('distance')} (km)`} />
                                 <View style={[styles.groupedInputContainer, { backgroundColor: theme.bgSecondary, borderWidth: 1, borderColor: theme.borderSecondary }]}>
                                     <TextInput
                                         style={[styles.groupedInput, { color: theme.textPrimary }]}
-                                        placeholder="Min"
+                                        placeholder={t('minLabel')}
                                         placeholderTextColor={theme.textSecondary}
                                         keyboardType="numeric"
                                         value={localFilters.minDistance?.toString()}
@@ -222,7 +224,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                                     <View style={[styles.verticalDivider, { backgroundColor: theme.borderPrimary }]} />
                                     <TextInput
                                         style={[styles.groupedInput, { color: theme.textPrimary }]}
-                                        placeholder="Max"
+                                        placeholder={t('maxLabel')}
                                         placeholderTextColor={theme.textSecondary}
                                         keyboardType="numeric"
                                         value={localFilters.maxDistance?.toString()}
@@ -233,11 +235,11 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
 
                             {/* DURATION */}
                             <View style={[styles.gridItem, { marginLeft: 8 }]}>
-                                <FilterSectionHeader title="Duration (min)" />
+                                <FilterSectionHeader title={`${t('duration')} (min)`} />
                                 <View style={[styles.groupedInputContainer, { backgroundColor: theme.bgSecondary, borderWidth: 1, borderColor: theme.borderSecondary }]}>
                                     <TextInput
                                         style={[styles.groupedInput, { color: theme.textPrimary }]}
-                                        placeholder="Min"
+                                        placeholder={t('minLabel')}
                                         placeholderTextColor={theme.textSecondary}
                                         keyboardType="numeric"
                                         value={localFilters.minDuration?.toString()}
@@ -246,7 +248,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                                     <View style={[styles.verticalDivider, { backgroundColor: theme.borderPrimary }]} />
                                     <TextInput
                                         style={[styles.groupedInput, { color: theme.textPrimary }]}
-                                        placeholder="Max"
+                                        placeholder={t('maxLabel')}
                                         placeholderTextColor={theme.textSecondary}
                                         keyboardType="numeric"
                                         value={localFilters.maxDuration?.toString()}
@@ -261,13 +263,13 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                     {/* Footer */}
                     <View style={[styles.footer, { borderTopColor: theme.borderPrimary, backgroundColor: theme.bgPrimary }]}>
                         <AnimatedButton
-                            title="Apply Filters"
+                            title={t('applyFilters')}
                             onPress={handleApply}
                             style={styles.applyButton}
                         />
 
                         <TouchableOpacity onPress={handleClear} style={styles.resetLink}>
-                            <Text style={[styles.resetText, { color: theme.textSecondary }]}>Reset All Filters</Text>
+                            <Text style={[styles.resetText, { color: theme.textSecondary }]}>{t('resetAllFilters')}</Text>
                         </TouchableOpacity>
                     </View>
                 </Animated.View>

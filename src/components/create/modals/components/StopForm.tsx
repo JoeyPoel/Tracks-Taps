@@ -38,31 +38,31 @@ export function StopForm({
                         style={[styles.input, { backgroundColor: theme.bgSecondary, color: theme.textPrimary }]}
                         value={name}
                         onChangeText={setName}
-                        placeholder="Location Name"
+                        placeholder={t('stopName')}
                         placeholderTextColor={theme.textDisabled}
                     />
                 </View>
             </View>
 
             <View>
-                <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Short Description (List View)</Text>
+                <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>{t('shortDescription')}</Text>
                 <TextInput
                     style={[styles.input, { backgroundColor: theme.bgSecondary, color: theme.textPrimary }]}
                     value={description}
                     onChangeText={setDescription}
-                    placeholder="Brief summary..."
+                    placeholder={t('shortDescriptionPlaceholder')}
                     placeholderTextColor={theme.textDisabled}
                 />
             </View>
 
             <View>
-                <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Detailed Description (Full View)</Text>
+                <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>{t('detailedDescription')}</Text>
                 <TextInput
                     style={[styles.input, styles.textArea, { backgroundColor: theme.bgSecondary, color: theme.textPrimary }]}
                     value={detailedDescription}
                     onChangeText={setDetailedDescription}
                     multiline
-                    placeholder="Tell the full story..."
+                    placeholder={t('detailedDescriptionPlaceholder')}
                     placeholderTextColor={theme.textDisabled}
                 />
             </View>

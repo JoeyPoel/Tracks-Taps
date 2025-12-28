@@ -38,7 +38,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
         try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (status !== 'granted') {
-                Alert.alert('Permission needed', 'Sorry, we need camera roll permissions to make this work!');
+                Alert.alert(t('permissionNeeded'), t('cameraPermissionMsg'));
                 return;
             }
 
@@ -56,7 +56,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
             }
         } catch (error) {
             console.error("Upload error:", error);
-            Alert.alert("Upload Failed", "There was an error uploading your photo.");
+            Alert.alert(t('uploadFailed'), t('uploadErrorMsg'));
         } finally {
             setUploading(false);
         }
@@ -84,7 +84,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                     {/* Header */}
                     <View style={styles.header}>
                         <View>
-                            <Text style={[styles.title, { color: theme.textPrimary }]}>{'rateExperience'}</Text>
+                            <Text style={[styles.title, { color: theme.textPrimary }]}>{t('rateExperience')}</Text>
                             <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
                                 {tourName}
                             </Text>
@@ -117,7 +117,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                     <View style={{ alignItems: 'center', marginBottom: 20, height: 20 }}>
                         {rating > 0 && (
                             <Text style={{ color: theme.primary, fontWeight: '600', fontSize: 14 }}>
-                                {rating === 5 ? "Amazing!" : rating === 4 ? "Good!" : rating === 3 ? "Okay" : "Not great"}
+                                {rating === 5 ? t('amazing') : rating === 4 ? t('good') : rating === 3 ? t('okay') : t('notGreat')}
                             </Text>
                         )}
                     </View>
@@ -149,7 +149,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                                 <Ionicons name="camera" size={20} color={theme.primary} />
                             )}
                             <Text style={[styles.addPhotoText, { color: theme.textPrimary }]}>
-                                {photos.length === 0 ? "Add Photos" : `${photos.length}/5`}
+                                {photos.length === 0 ? t('addPhotos') : `${photos.length}/5`}
                             </Text>
                         </AnimatedPressable>
 

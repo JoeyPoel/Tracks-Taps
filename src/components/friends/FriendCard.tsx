@@ -1,4 +1,5 @@
 import { AnimatedPressable } from '@/src/components/common/AnimatedPressable';
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,6 +14,7 @@ interface FriendCardProps {
 export function FriendCard({ friend }: FriendCardProps) {
     const { theme } = useTheme();
     const router = useRouter();
+    const { t } = useLanguage();
 
     return (
         <AnimatedPressable
@@ -38,11 +40,11 @@ export function FriendCard({ friend }: FriendCardProps) {
                             style={styles.levelBadge}
                         >
                             <Ionicons name="trophy" size={10} color="#FFF" style={{ marginRight: 4 }} />
-                            <Text style={styles.levelText}>Lvl {friend.level}</Text>
+                            <Text style={styles.levelText}>{t('levelShort')} {friend.level}</Text>
                         </LinearGradient>
 
                         <View style={[styles.pointsBadge, { backgroundColor: theme.bgPrimary }]}>
-                            <Text style={[styles.pointsText, { color: theme.textSecondary }]}>{friend.xp || 0} XP</Text>
+                            <Text style={[styles.pointsText, { color: theme.textSecondary }]}>{friend.xp || 0} {t('xp')}</Text>
                         </View>
                     </View>
                 </View>

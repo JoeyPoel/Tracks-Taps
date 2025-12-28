@@ -27,7 +27,7 @@ export const TeamCard: React.FC<TeamCardProps> = ({ name, color, emoji }) => {
                         {name || t('yourTeamName')}
                     </Text>
                     <Text style={{ color: theme.textSecondary, fontSize: 14, fontWeight: '600' }}>
-                        {t('ready') || 'Ready to join!'}
+                        {t('ready') || t('readyToJoin')}
                     </Text>
                 </View>
             </View>

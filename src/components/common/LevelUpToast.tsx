@@ -1,3 +1,4 @@
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useUserContext } from '@/src/context/UserContext';
 import { LevelSystem } from '@/src/utils/levelUtils';
@@ -8,6 +9,7 @@ import { Animated, Platform, SafeAreaView, StyleSheet, Text, View } from 'react-
 export default function LevelUpToast() {
     const { user } = useUserContext();
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     // We need to track the previous level to detect changes
     const [currentLevel, setCurrentLevel] = useState<number>(1);
@@ -93,9 +95,9 @@ export default function LevelUpToast() {
                     <Ionicons name="trophy" size={24} color={theme.fixedWhite || '#FFF'} />
                 </View>
                 <View style={styles.textContainer}>
-                    <Text style={[styles.title, { color: theme.fixedWhite || '#FFF' }]}>Level Up!</Text>
+                    <Text style={[styles.title, { color: theme.fixedWhite || '#FFF' }]}>{t('levelUp')}</Text>
                     <Text style={[styles.message, { color: theme.fixedWhite || '#FFF' }]}>
-                        You reached Level {currentLevel}
+                        {t('youReachedLevel').replace('{0}', currentLevel.toString())}
                     </Text>
                 </View>
             </Animated.View>

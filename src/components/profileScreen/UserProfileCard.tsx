@@ -52,14 +52,14 @@ export default function UserProfileCard({
                 <Text style={[styles.name, { color: theme.textPrimary }]}>{name}</Text>
 
                 <View style={[styles.badgeContainer, { backgroundColor: theme.bgSecondary }]}>
-                    <Text style={[styles.badgeText, { color: theme.primary }]}>Reviewer Level {level}</Text>
+                    <Text style={[styles.badgeText, { color: theme.primary }]}>{t('reviewerLevel')} {level}</Text>
                 </View>
             </View>
 
             {/* XP Bar */}
             <View style={styles.xpContainer}>
                 <View style={styles.xpTextRow}>
-                    <Text style={[styles.xpText, { color: theme.textSecondary }]}>{currentXP} / {maxXP} XP</Text>
+                    <Text style={[styles.xpText, { color: theme.textSecondary }]}>{currentXP} / {maxXP} {t('xp')}</Text>
                 </View>
                 <View style={[styles.track, { backgroundColor: theme.bgSecondary }]}>
                     <LinearGradient

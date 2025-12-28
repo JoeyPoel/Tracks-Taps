@@ -4,6 +4,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { TeamCard } from '../../components/teamSetup/TeamCard';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
 interface LobbyMyTeamProps {
@@ -14,12 +15,13 @@ interface LobbyMyTeamProps {
 export const LobbyMyTeam: React.FC<LobbyMyTeamProps> = ({ userTeam, activeTourId }) => {
     const { theme } = useTheme();
     const router = useRouter();
+    const { t } = useLanguage();
 
     if (!userTeam) return null;
 
     return (
         <Animated.View entering={FadeInUp.delay(250).springify()} style={{ marginBottom: 24 }}>
-            <Text style={[styles.sectionLabel, { color: theme.textSecondary }]}>MY TEAM</Text>
+            <Text style={[styles.sectionLabel, { color: theme.textSecondary }]}>{t('myTeam')}</Text>
             <TouchableOpacity onPress={() => router.push({
                 pathname: '/team-setup',
                 params: {
@@ -37,7 +39,7 @@ export const LobbyMyTeam: React.FC<LobbyMyTeamProps> = ({ userTeam, activeTourId
                 />
                 <View style={styles.editBadge}>
                     <Ionicons name="pencil" size={12} color="#FFF" />
-                    <Text style={styles.editBadgeText}>EDIT</Text>
+                    <Text style={styles.editBadgeText}>{t('edit').toUpperCase()}</Text>
                 </View>
             </TouchableOpacity>
         </Animated.View>

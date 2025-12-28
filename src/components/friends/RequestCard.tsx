@@ -1,3 +1,4 @@
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -10,6 +11,7 @@ interface RequestCardProps {
 
 export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     return (
         <View style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
@@ -17,7 +19,7 @@ export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) 
                 <Image source={request.requester.avatarUrl ? { uri: request.requester.avatarUrl } : require('../../../assets/images/Mascott.png')} style={styles.avatar} />
                 <View style={styles.infoContainer}>
                     <Text style={[styles.name, { color: theme.textPrimary }]}>{request.requester.name}</Text>
-                    <Text style={[styles.subText, { color: theme.textSecondary }]}>Wants to be your friend</Text>
+                    <Text style={[styles.subText, { color: theme.textSecondary }]}>{t('wantsToBeFriend')}</Text>
                 </View>
             </View>
             <View style={styles.actionRow}>
@@ -29,7 +31,7 @@ export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) 
                     <View
                         style={[styles.actionButton, { backgroundColor: theme.primary }]}
                     >
-                        <Text style={styles.actionButtonText}>Accept</Text>
+                        <Text style={styles.actionButtonText}>{t('accept')}</Text>
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -46,7 +48,7 @@ export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) 
                     ]}
                     activeOpacity={0.8}
                 >
-                    <Text style={[styles.actionButtonText, { color: theme.textPrimary }]}>Decline</Text>
+                    <Text style={[styles.actionButtonText, { color: theme.textPrimary }]}>{t('decline')}</Text>
                 </TouchableOpacity>
             </View>
         </View>

@@ -33,14 +33,14 @@ const TourChallengesSection: React.FC<TourChallengesSectionProps> = ({
             <View style={styles.header}>
                 <Text style={[styles.title, { color: theme.textPrimary }]}>{t('tourWideChallenges')}</Text>
                 <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-                    Complete these anytime during the tour!
+                    {t('tourWideChallengesSubtitle')}
                 </Text>
             </View>
 
             {challenges.length === 0 ? (
                 <View style={[styles.noChallengesContainer, { backgroundColor: theme.bgTertiary }]}>
                     <Text style={[styles.noChallengesText, { color: theme.textSecondary }]}>
-                        No tour-wide challenges available.
+                        {t('noTourWideChallenges')}
                     </Text>
                 </View>
             ) : (
@@ -59,6 +59,7 @@ const TourChallengesSection: React.FC<TourChallengesSectionProps> = ({
                             onClaimArrival={handleChallengeComplete}
                             onFail={handleChallengeFail}
                             onSubmitTrivia={handleSubmitTrivia}
+                            index={0} // Default index since no staggering needed here
                         />
                     )
                 })

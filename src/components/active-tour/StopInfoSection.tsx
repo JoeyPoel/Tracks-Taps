@@ -11,6 +11,7 @@ interface StopInfoSectionProps {
 
 export default function StopInfoSection({ stop }: StopInfoSectionProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     if (!stop) return null;
 
@@ -60,7 +61,7 @@ export default function StopInfoSection({ stop }: StopInfoSectionProps) {
                 <View style={[styles.divider, { backgroundColor: theme.borderSecondary }]} />
 
                 <Text style={[styles.description, { color: theme.textSecondary }]}>
-                    {stop.detailedDescription || stop.description || "No detailed information available for this stop."}
+                    {stop.detailedDescription || stop.description || t('noStopDescription')}
                 </Text>
             </View>
         </View>

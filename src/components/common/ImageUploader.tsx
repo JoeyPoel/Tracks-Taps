@@ -1,3 +1,4 @@
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { uploadImage } from '@/src/services/imageService';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,6 +24,7 @@ export function ImageUploader({
     variant = 'standard'
 }: ImageUploaderProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
     const [image, setImage] = useState<string | null>(initialImage || null);
     const [uploading, setUploading] = useState(false);
 
@@ -32,7 +34,7 @@ export function ImageUploader({
         // Request permissions
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
-            Alert.alert('Permission needed', 'Sorry, we need camera roll permissions to make this work!');
+            Alert.alert(t('permissionNeeded'), t('cameraPermissionMsg'));
             return;
         }
 
@@ -56,7 +58,7 @@ export function ImageUploader({
             onUploadComplete(publicUrl);
             setImage(publicUrl);
         } catch (error) {
-            Alert.alert("Upload Failed", "There was an error uploading your image. Please try again.");
+            Alert.alert(t('uploadFailed'), t('uploadErrorMsg'));
             console.error(error);
         } finally {
             setUploading(false);
@@ -112,7 +114,7 @@ export function ImageUploader({
                     disabled={uploading}
                 >
                     <Ionicons name="pencil" size={16} color={theme.textPrimary} />
-                    <Text style={[styles.actionText, { color: theme.textPrimary }]}>Edit</Text>
+                    <Text style={[styles.actionText, { color: theme.textPrimary }]}>{t('edit')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.actionButton, { backgroundColor: theme.bgSecondary, borderColor: theme.error }]}
@@ -120,7 +122,7 @@ export function ImageUploader({
                     disabled={uploading}
                 >
                     <Ionicons name="trash-outline" size={16} color={theme.error} />
-                    <Text style={[styles.actionText, { color: theme.error }]}>Remove</Text>
+                    <Text style={[styles.actionText, { color: theme.error }]}>{t('remove')}</Text>
                 </TouchableOpacity>
             </View>
         </View>

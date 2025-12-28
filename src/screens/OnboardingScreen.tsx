@@ -1,4 +1,5 @@
 import OnboardingItem from '@/src/components/OnboardingItem';
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -9,44 +10,46 @@ import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 
-const slides = [
-    {
-        id: '1',
-        title: 'Find Your Quest',
-        description: 'Discover hidden gems and curated tours. Your next great adventure is just a tap away.',
-        icon: Map,
-        image: require('@/assets/images/onboarding/map.png'),
-    },
-    {
-        id: '2',
-        title: 'Level Up Your City',
-        description: 'Turn your city exploration into an RPG. Earn XP, unlock achievements, and dominate the leaderboard.',
-        icon: Trophy,
-        image: require('@/assets/images/onboarding/challengeComplete.png'),
-    },
-    {
-        id: '3',
-        title: 'Battle Your Squad',
-        description: 'Create a team, challenge your friends, and compete in real-time challenges for glory.',
-        icon: Swords,
-        image: require('@/assets/images/onboarding/trophy.png'),
-    },
-    {
-        id: '4',
-        title: 'The Pub Golf Legend',
-        description: 'Experience the ultimate Pub Golf mode. Track scores, hit pars, and become the legend of the night.',
-        icon: Beer,
-        image: require('@/assets/images/onboarding/pubgolf.png'),
-    },
-];
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 export default function OnboardingScreen() {
     const { theme } = useTheme();
     const router = useRouter();
+    const { t } = useLanguage();
     const [currentIndex, setCurrentIndex] = useState(0);
     const flatListRef = useRef<FlatList>(null);
+
+    const slides = [
+        {
+            id: '1',
+            title: t('onboardingTitle1'),
+            description: t('onboardingDesc1'),
+            icon: Map,
+            image: require('@/assets/images/onboarding/map.png'),
+        },
+        {
+            id: '2',
+            title: t('onboardingTitle2'),
+            description: t('onboardingDesc2'),
+            icon: Trophy,
+            image: require('@/assets/images/onboarding/challengeComplete.png'),
+        },
+        {
+            id: '3',
+            title: t('onboardingTitle3'),
+            description: t('onboardingDesc3'),
+            icon: Swords,
+            image: require('@/assets/images/onboarding/trophy.png'),
+        },
+        {
+            id: '4',
+            title: t('onboardingTitle4'),
+            description: t('onboardingDesc4'),
+            icon: Beer,
+            image: require('@/assets/images/onboarding/pubgolf.png'),
+        },
+    ];
 
     const isLastSlide = currentIndex === slides.length - 1;
 
@@ -118,7 +121,7 @@ export default function OnboardingScreen() {
                     {!isLastSlide && (
                         <Animated.View exiting={FadeOut} entering={FadeIn}>
                             <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
-                                <Text style={[styles.skipText, { color: theme.textSecondary }]}>Skip</Text>
+                                <Text style={[styles.skipText, { color: theme.textSecondary }]}>{t('skip')}</Text>
                             </TouchableOpacity>
                         </Animated.View>
                     )}
@@ -135,7 +138,7 @@ export default function OnboardingScreen() {
                             style={[styles.buttonText, { color: theme.primaryText }]} // Text on primary button usually contrast
                             numberOfLines={1}
                         >
-                            {isLastSlide ? "Start Playing" : "Next"}
+                            {isLastSlide ? t('startPlaying') : t('next')}
                         </Animated.Text>
                     </AnimatedTouchableOpacity>
                 </View>

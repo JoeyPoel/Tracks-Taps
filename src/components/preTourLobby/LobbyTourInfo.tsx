@@ -3,6 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
 interface LobbyTourInfoProps {
@@ -11,6 +12,7 @@ interface LobbyTourInfoProps {
 
 export const LobbyTourInfo: React.FC<LobbyTourInfoProps> = ({ activeTour }) => {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     return (
         <Animated.View entering={FadeInUp.delay(100).springify()} style={[styles.tourCard, { backgroundColor: theme.bgSecondary }]}>
@@ -23,10 +25,10 @@ export const LobbyTourInfo: React.FC<LobbyTourInfoProps> = ({ activeTour }) => {
                 </LinearGradient>
                 <View style={{ flex: 1 }}>
                     <Text style={[styles.tourTitle, { color: theme.textPrimary }]} numberOfLines={1}>
-                        {activeTour?.tour?.title || "Loading..."}
+                        {activeTour?.tour?.title || t('loading')}
                     </Text>
                     <Text style={[styles.tourSubtitle, { color: theme.textSecondary }]}>
-                        {activeTour?.tour?._count?.stops || 0} stops • 2.5 km
+                        {activeTour?.tour?._count?.stops || 0} {t('stops')} • 2.5 km
                     </Text>
                 </View>
             </View>

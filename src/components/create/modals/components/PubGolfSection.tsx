@@ -1,3 +1,4 @@
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
@@ -20,6 +21,7 @@ export function PubGolfSection({
     par, setPar
 }: PubGolfSectionProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     if (!isPubGolfEnabled) return null;
 
@@ -28,7 +30,7 @@ export function PubGolfSection({
             <View style={styles.rowBetween}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <Ionicons name="beer" size={20} color={theme.accent} />
-                    <Text style={[styles.sectionTitle, { color: theme.textPrimary, fontSize: 16 }]}>Pub Golf Stop?</Text>
+                    <Text style={[styles.sectionTitle, { color: theme.textPrimary, fontSize: 16 }]}>{t('isPubGolfStop')}</Text>
                 </View>
                 <Switch
                     value={isPubGolfStop}
@@ -40,23 +42,23 @@ export function PubGolfSection({
             {isPubGolfStop && (
                 <View style={[styles.row, { marginTop: 12 }]}>
                     <View style={{ flex: 2 }}>
-                        <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Drink</Text>
+                        <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>{t('drink')}</Text>
                         <TextInput
                             style={[styles.input, { backgroundColor: theme.bgPrimary, color: theme.textPrimary }]}
                             value={drink}
                             onChangeText={setDrink}
-                            placeholder="e.g. Pint of Lager"
+                            placeholder={t('drinkPlaceholder')}
                             placeholderTextColor={theme.textDisabled}
                         />
                     </View>
                     <View style={{ flex: 1 }}>
-                        <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Par (Sips)</Text>
+                        <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>{t('parSips')}</Text>
                         <TextInput
                             style={[styles.input, { backgroundColor: theme.bgPrimary, color: theme.textPrimary }]}
                             value={par}
                             onChangeText={setPar}
                             keyboardType="numeric"
-                            placeholder="3"
+                            placeholder={t('parPlaceholder')}
                             placeholderTextColor={theme.textDisabled}
                         />
                     </View>

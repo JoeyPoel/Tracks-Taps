@@ -24,7 +24,7 @@ export default function PostTourProgress({ finishedCount, totalTeamCount, progre
             </View>
 
             <Text style={[styles.progressSubtitle, { color: theme.textSecondary }]}>
-                {finishedCount} of {totalTeamCount} teams finished
+                {finishedCount} {t('of')} {totalTeamCount} {t('teamsFinishedCount')}
             </Text>
 
             <View style={[styles.progressBarBackground, { backgroundColor: theme.bgPrimary }]}>

@@ -1,3 +1,4 @@
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
@@ -25,6 +26,7 @@ export default function FeedbackCard({
     showInput
 }: FeedbackCardProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     return (
         <Animated.View
@@ -33,7 +35,7 @@ export default function FeedbackCard({
             style={[styles.rateAppCard, { backgroundColor: theme.bgSecondary }]}
         >
             <Text style={[styles.rateAppTitle, { color: theme.textPrimary }]}>
-                {submitted ? "Thanks for your feedback!" : "How was your experience?"}
+                {submitted ? t('thanksFeedback') : t('howWasExperience')}
             </Text>
 
             {!submitted && (
@@ -58,7 +60,7 @@ export default function FeedbackCard({
                     style={{ width: '100%', marginTop: 20 }}
                 >
                     <Text style={[styles.feedbackLabel, { color: theme.textSecondary }]}>
-                        What could we improve?
+                        {t('whatImprove')}
                     </Text>
                     <TextInput
                         style={[styles.feedbackInput, {
@@ -66,14 +68,14 @@ export default function FeedbackCard({
                             color: theme.textPrimary,
                             borderColor: theme.borderPrimary
                         }]}
-                        placeholder="Tell us what you didn't like..."
+                        placeholder={t('feedbackPlaceholder')}
                         placeholderTextColor={theme.textSecondary}
                         value={feedback}
                         onChangeText={onFeedbackChange}
                         multiline
                     />
                     <AnimatedButton
-                        title="Submit Feedback"
+                        title={t('submitFeedback')}
                         onPress={onSubmit}
                         size="small"
                         style={{ marginTop: 12, width: '100%' }}

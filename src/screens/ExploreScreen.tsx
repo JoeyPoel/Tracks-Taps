@@ -69,7 +69,7 @@ export default function ExploreScreen() {
       {/* Header Title */}
       <Animated.View entering={FadeInDown.duration(600).springify()} style={styles.headerTop}>
         <Text style={[styles.screenTitle, { color: theme.textPrimary }]}>{t('explore') || 'Explore'}</Text>
-        <Text style={[styles.screenSubtitle, { color: theme.textSecondary }]}>Find your next adventure</Text>
+        <Text style={[styles.screenSubtitle, { color: theme.textSecondary }]}>{t('findYourNextAdventure')}</Text>
       </Animated.View>
 
       {/* Search Bar */}
@@ -77,7 +77,7 @@ export default function ExploreScreen() {
         <MagnifyingGlassIcon size={20} color={theme.textSecondary} style={{ marginRight: 12 }} />
         <TextInput
           style={[styles.searchInput, { color: theme.textPrimary }]}
-          placeholder="Where to next?"
+          placeholder={t('whereToNext')}
           placeholderTextColor={theme.textSecondary + '80'}
           value={searchText}
           onChangeText={setSearchText}
@@ -165,7 +165,7 @@ export default function ExploreScreen() {
 
       <View style={styles.popularToursHeader}>
         <Text style={[styles.sectionTitle, { color: theme.textPrimary, marginBottom: 4 }]}>{t('popularTours') || 'Popular Tours'}</Text>
-        <Text style={[styles.popularToursSubtitle, { color: theme.textSecondary }]}>Curated adventures just for you</Text>
+        <Text style={[styles.popularToursSubtitle, { color: theme.textSecondary }]}>{t('curatedAdventures')}</Text>
       </View>
     </View>
   ), [activeTour, user?.id, router, searchText, theme, selectedCategory, t, viewMode]);
@@ -206,7 +206,7 @@ export default function ExploreScreen() {
               <Animated.View entering={FadeInDown.duration(400)}>
                 <TourCard
                   title={tourItem.title}
-                  author={tourItem.author?.name || 'Unknown'}
+                  author={tourItem.author?.name || t('unknown')}
                   imageUrl={tourItem.imageUrl}
                   distance={`${tourItem.distance} km`}
                   duration={`${tourItem.duration} min`}

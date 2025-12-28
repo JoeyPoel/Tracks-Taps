@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, View } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 import DareChallenge from './challenges/DareChallenge';
 import LocationChallenge from './challenges/LocationChallenge';
 import PictureChallenge from './challenges/PictureChallenge';
@@ -30,6 +31,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
     onFail,
     index
 }) => {
+    const { t } = useLanguage(); // Added hook
     const type = challenge.type.toLowerCase();
 
     // Helper handlers
@@ -110,7 +112,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
         default:
             return (
                 <View>
-                    <Text>Unknown Challenge Type: {type}</Text>
+                    <Text>{t('unknownChallengeType')} {type}</Text>
                 </View>
             );
     }

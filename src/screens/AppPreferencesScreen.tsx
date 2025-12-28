@@ -46,13 +46,13 @@ export default function AppPreferencesScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Appearance Section */}
-        {renderSectionHeader('Appearance', 'color-palette-outline')}
+        {renderSectionHeader(t('appearance'), 'color-palette-outline')}
         <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
           <View style={[styles.row, styles.lastRow]}>
             <View style={styles.rowInfo}>
               <Text style={[styles.rowTitle, { color: theme.textPrimary }]}>{t('darkMode')}</Text>
               <Text style={[styles.rowSubtitle, { color: theme.textSecondary }]}>
-                {mode === 'dark' ? 'Easy on the eyes' : 'Bright and clear'}
+                {mode === 'dark' ? t('easyOnTheEyes') : t('brightAndClear')}
               </Text>
             </View>
             <Switch

@@ -6,6 +6,7 @@ import Animated, {
     useSharedValue,
     withSpring
 } from 'react-native-reanimated';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Team } from '../../types/models';
 
@@ -24,6 +25,7 @@ const PodiumBar = ({
     isVisible: boolean
 }) => {
     const { theme } = useTheme();
+    const { t } = useLanguage();
     const height = useSharedValue(0);
     const opacity = useSharedValue(0);
 
@@ -49,7 +51,7 @@ const PodiumBar = ({
 
     if (!team) return <View style={styles.emptyStep} />;
 
-    const displayName = team.name || team.user?.name || 'Unknown';
+    const displayName = team.name || team.user?.name || t('unknown');
     const teamColor = team.color || theme.primary;
 
     // Helper for Hex to RGBA

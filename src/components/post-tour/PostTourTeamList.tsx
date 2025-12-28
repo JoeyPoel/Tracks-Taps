@@ -19,14 +19,14 @@ export default function PostTourTeamList({ teams, userTeamId }: PostTourTeamList
     if (otherTeams.length === 0) {
         return (
             <View style={styles.emptyContainer}>
-                <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{"No other teams"}</Text>
+                <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{t('noOtherTeams')}</Text>
             </View>
         );
     }
 
     return (
         <View style={styles.teamList}>
-            <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>{"other teams"}</Text>
+            <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>{t('otherTeams')}</Text>
 
             {otherTeams.map((team, index) => {
                 const isFinished = !!team.finishedAt;
@@ -46,7 +46,7 @@ export default function PostTourTeamList({ teams, userTeamId }: PostTourTeamList
                         <View style={styles.teamInfo}>
                             <Text style={[styles.teamName, { color: theme.textPrimary }]}>{team.name}</Text>
                             <Text style={[styles.teamStatusText, { color: isFinished ? theme.success : theme.textSecondary }]}>
-                                {isFinished ? t('finished') : "walking"}...
+                                {isFinished ? t('finished') : t('walking')}...
                             </Text>
                         </View>
 
@@ -55,12 +55,12 @@ export default function PostTourTeamList({ teams, userTeamId }: PostTourTeamList
                             {isFinished ? (
                                 <View style={[styles.statusBadge, { backgroundColor: theme.success + '20' }]}>
                                     <Ionicons name="flag" size={14} color={theme.success} />
-                                    <Text style={[styles.statusText, { color: theme.success }]}>Done</Text>
+                                    <Text style={[styles.statusText, { color: theme.success }]}>{t('done')}</Text>
                                 </View>
                             ) : (
                                 <View style={[styles.statusBadge, { backgroundColor: theme.warning + '20' }]}>
                                     <ActivityIndicator size="small" color={theme.warning} style={{ transform: [{ scale: 0.7 }] }} />
-                                    <Text style={[styles.statusText, { color: theme.warning }]}>Active</Text>
+                                    <Text style={[styles.statusText, { color: theme.warning }]}>{t('active')}</Text>
                                 </View>
                             )}
                         </View>

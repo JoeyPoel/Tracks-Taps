@@ -29,8 +29,8 @@ export default function TokenCard({ tokens, onBuyPress, onInvitePress }: TokenCa
                 </LinearGradient>
 
                 <View>
-                    <Text style={[styles.balance, { color: theme.textPrimary }]}>{tokens} Tokens</Text>
-                    <Text style={[styles.label, { color: theme.textSecondary }]}>Available Balance</Text>
+                    <Text style={[styles.balance, { color: theme.textPrimary }]}>{tokens} {t('tokens')}</Text>
+                    <Text style={[styles.label, { color: theme.textSecondary }]}>{t('availableBalance')}</Text>
                 </View>
             </View>
 
@@ -40,7 +40,7 @@ export default function TokenCard({ tokens, onBuyPress, onInvitePress }: TokenCa
                 interactionScale="subtle"
             >
                 <PlusIcon size={16} color={theme.textPrimary} style={{ marginRight: 4 }} />
-                <Text style={[styles.buttonText, { color: theme.textPrimary }]}>{t('buyTokens') || 'Top Up'}</Text>
+                <Text style={[styles.buttonText, { color: theme.textPrimary }]}>{t('topUp')}</Text>
             </AnimatedPressable>
         </View>
     );

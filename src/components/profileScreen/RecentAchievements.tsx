@@ -49,7 +49,7 @@ export default function RecentAchievements({ achievements }: RecentAchievementsP
     return (
         <View style={styles.container}>
             <View style={styles.headerRow}>
-                <Text style={[styles.header, { color: theme.textSecondary }]}>{t('recentAchievements')?.toUpperCase() || 'RECENT ACHIEVEMENTS'}</Text>
+                <Text style={[styles.header, { color: theme.textSecondary }]}>{t('recentAchievements')?.toUpperCase()}</Text>
             </View>
 
             <ScrollView

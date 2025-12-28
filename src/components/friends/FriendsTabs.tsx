@@ -1,3 +1,4 @@
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -10,6 +11,7 @@ interface FriendsTabsProps {
 
 export function FriendsTabs({ activeTab, onTabChange, requestCount }: FriendsTabsProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     return (
         <View style={styles.tabsWrapper}>
@@ -19,7 +21,7 @@ export function FriendsTabs({ activeTab, onTabChange, requestCount }: FriendsTab
                     onPress={() => onTabChange('friends')}
                 >
                     <Text style={[styles.tabText, { color: activeTab === 'friends' ? theme.primary : theme.textSecondary }]}>
-                        Friends
+                        {t('friends')}
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -28,7 +30,7 @@ export function FriendsTabs({ activeTab, onTabChange, requestCount }: FriendsTab
                 >
 
                     <Text style={[styles.tabText, { color: activeTab === 'requests' ? theme.primary : theme.textSecondary }]}>
-                        Requests
+                        {t('requests')}
                     </Text>
                 </TouchableOpacity>
             </View>

@@ -1,3 +1,4 @@
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,6 +13,7 @@ interface SelectableFriendCardProps {
 
 export function SelectableFriendCard({ friend, isSelected, onToggle }: SelectableFriendCardProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     return (
         <TouchableOpacity
@@ -34,7 +36,7 @@ export function SelectableFriendCard({ friend, isSelected, onToggle }: Selectabl
             <Image source={friend.avatarUrl ? { uri: friend.avatarUrl } : require('../../../assets/images/Mascott.png')} style={styles.avatar} />
             <View style={{ flex: 1 }}>
                 <Text style={[styles.name, { color: theme.textPrimary }]}>{friend.name}</Text>
-                <Text style={[styles.subText, { color: theme.textSecondary }]}>Lvl {friend.level}</Text>
+                <Text style={[styles.subText, { color: theme.textSecondary }]}>{t('levelShort')} {friend.level}</Text>
             </View>
             <View style={[
                 styles.checkbox,

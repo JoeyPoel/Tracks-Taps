@@ -40,19 +40,19 @@ export default function ProfileStats({
         <View style={[styles.container, { backgroundColor: theme.bgSecondary }]}>
             <StatItem
                 value={toursDone}
-                label={t('toursDone') || 'Tours Done'}
+                label={t('toursDone')}
                 onPress={onPressToursDone}
             />
             <Divider />
             <StatItem
                 value={toursCreated}
-                label={t('toursCreated') || 'Created'}
+                label={t('toursCreated')}
                 onPress={onPressToursCreated}
             />
             <Divider />
             <StatItem
                 value={friends}
-                label={t('friends') || 'Friends'}
+                label={t('friends')}
                 onPress={onPressFriends}
             />
         </View>

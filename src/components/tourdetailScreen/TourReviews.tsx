@@ -117,7 +117,7 @@ export default function TourReviews({ reviews, averageRating, totalReviews }: To
                     <Text style={[styles.title, { color: theme.textPrimary }]}>{t('reviews') || "Reviews"}</Text>
                     <View style={styles.ratingRow}>
                         <Text style={[styles.averageRating, { color: theme.textPrimary }]}>
-                            {averageRating ? averageRating.toFixed(1) : "New"}
+                            {averageRating ? averageRating.toFixed(1) : t('new')}
                         </Text>
                         <View style={styles.starsRow}>
                             {renderStars(Math.round(averageRating || 0), 16)}
@@ -192,7 +192,7 @@ export default function TourReviews({ reviews, averageRating, totalReviews }: To
 
                     {reviews.length === 0 && (
                         <Text style={{ textAlign: 'center', color: theme.textSecondary, marginTop: 12 }}>
-                            No reviews yet.
+                            {t('noReviewsYet')}
                         </Text>
                     )}
                 </View>

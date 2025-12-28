@@ -19,17 +19,17 @@ export function GeneralChallengeInput({ title, setTitle, content, setContent, hi
     const { t } = useLanguage();
 
     const getQuestionLabel = () => {
-        if (type === ChallengeType.RIDDLE) return "The Riddle";
-        if (type === ChallengeType.DARE) return "The Dare";
-        if (type === ChallengeType.PICTURE) return "What to photograph?";
-        if (type === ChallengeType.LOCATION) return "Where exactly?";
+        if (type === ChallengeType.RIDDLE) return t('challengeQuestionRiddle');
+        if (type === ChallengeType.DARE) return t('challengeQuestionDare');
+        if (type === ChallengeType.PICTURE) return t('challengeQuestionPicture');
+        if (type === ChallengeType.LOCATION) return t('challengeQuestionLocation');
         return t('challengeQuestion');
     };
 
     const getPlaceholder = () => {
-        if (type === ChallengeType.PICTURE) return "e.g. Take a selfie with the statue...";
-        if (type === ChallengeType.LOCATION) return "e.g. Stand in the center of the square...";
-        return "Describe the challenge...";
+        if (type === ChallengeType.PICTURE) return t('challengePlaceholderPicture');
+        if (type === ChallengeType.LOCATION) return t('challengePlaceholderLocation');
+        return t('challengePlaceholderDefault');
     };
 
     return (
@@ -40,7 +40,7 @@ export function GeneralChallengeInput({ title, setTitle, content, setContent, hi
                     style={[styles.input, { backgroundColor: theme.bgSecondary, color: theme.textPrimary }]}
                     value={title}
                     onChangeText={setTitle}
-                    placeholder="e.g. Find the Hidden Door"
+                    placeholder={t('challengeTitlePlaceholder')}
                     placeholderTextColor={theme.textDisabled}
                 />
             </View>
@@ -58,12 +58,12 @@ export function GeneralChallengeInput({ title, setTitle, content, setContent, hi
             </View>
 
             <View style={styles.inputGroup}>
-                <Text style={[styles.label, { color: theme.textSecondary }]}>Hint (Optional)</Text>
+                <Text style={[styles.label, { color: theme.textSecondary }]}>{t('hintOptional')}</Text>
                 <TextInput
                     style={[styles.input, { backgroundColor: theme.bgSecondary, color: theme.textPrimary }]}
                     value={hint}
                     onChangeText={setHint}
-                    placeholder="Help them out..."
+                    placeholder={t('hintPlaceholder')}
                     placeholderTextColor={theme.textDisabled}
                 />
             </View>

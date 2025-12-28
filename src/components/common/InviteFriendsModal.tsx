@@ -1,11 +1,11 @@
 import { AnimatedButton } from '@/src/components/common/AnimatedButton';
 import { SelectableFriendCard } from '@/src/components/friends/SelectableFriendCard';
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useFriends } from '@/src/hooks/useFriends';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { AppModal } from './AppModal';
 
 interface InviteFriendsModalProps {
     visible: boolean;
@@ -15,6 +15,7 @@ interface InviteFriendsModalProps {
 
 export default function InviteFriendsModal({ visible, onClose, activeTourId }: InviteFriendsModalProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
     const { friends, loadFriends, inviteFriendsToLobby, loading, actionLoading } = useFriends();
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
@@ -54,8 +55,8 @@ export default function InviteFriendsModal({ visible, onClose, activeTourId }: I
                 <View style={[styles.modalContent, { backgroundColor: theme.bgPrimary }]}>
                     <View style={styles.header}>
                         <View style={styles.headerTextContainer}>
-                            <Text style={[styles.title, { color: theme.textPrimary }]}>Invite Friends</Text>
-                            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>Select friends to join your lobby</Text>
+                            <Text style={[styles.title, { color: theme.textPrimary }]}>{t('inviteFriends')}</Text>
+                            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>{t('selectFriendsLobby')}</Text>
                         </View>
                         <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: theme.bgSecondary }]}>
                             <Ionicons name="close" size={24} color={theme.textPrimary} />
@@ -76,7 +77,7 @@ export default function InviteFriendsModal({ visible, onClose, activeTourId }: I
                                 <View style={styles.emptyState}>
                                     <Ionicons name="people-outline" size={48} color={theme.textSecondary + '50'} />
                                     <Text style={{ color: theme.textSecondary, textAlign: 'center', marginTop: 12 }}>
-                                        No friends found. Add some friends first!
+                                        {t('noFriendsFound')}
                                     </Text>
                                 </View>
                             }
@@ -85,7 +86,7 @@ export default function InviteFriendsModal({ visible, onClose, activeTourId }: I
 
                     <View style={[styles.footer, { borderTopColor: theme.bgSecondary }]}>
                         <AnimatedButton
-                            title={actionLoading ? "Sending Invites..." : `Invite Selected (${selectedIds.length})`}
+                            title={actionLoading ? t('sendingInvites') : `${t('inviteSelected')} (${selectedIds.length})`}
                             onPress={handleInvite}
                             disabled={selectedIds.length === 0 || actionLoading}
                             variant="primary"

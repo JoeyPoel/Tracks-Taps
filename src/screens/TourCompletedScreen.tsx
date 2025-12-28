@@ -97,7 +97,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
     };
 
     if (loading || revealState === 'CALCULATING') {
-        const message = loading ? t('loading') : "Calculating results...";
+        const message = loading ? t('loading') : t('calculatingResults');
         return (
             <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
                 <View style={styles.loadingContainer}>
@@ -180,7 +180,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                         {revealState === 'CELEBRATE' && (
                             <Animated.View entering={ZoomIn.springify().damping(12)} style={styles.winnerHeader}>
                                 <Text style={styles.winnerText}>
-                                    <Text style={{ fontSize: 18, fontWeight: '400', opacity: 0.9 }}>Winner: </Text>
+                                    <Text style={{ fontSize: 18, fontWeight: '400', opacity: 0.9 }}>{t('winner')} </Text>
                                     {winnerName}
                                 </Text>
                                 <View style={[styles.winnerScorePill, { backgroundColor: theme.bgPrimary }]}>
@@ -219,7 +219,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                     {/* Runner Ups List - Minimal Clean Design */}
                     {revealState === 'CELEBRATE' && runnerUps.length > 0 && (
                         <Animated.View entering={FadeInDown.delay(400).springify()} style={styles.runnerUpSection}>
-                            <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>Leaderboard</Text>
+                            <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('leaderboard')}</Text>
                             {runnerUps.map((team, index) => (
                                 <View key={team.id} style={[styles.runnerUpRow, { borderColor: theme.borderPrimary }]}>
                                     <Text style={[styles.runnerUpRank, { color: theme.textSecondary }]}>{index + 4}</Text>

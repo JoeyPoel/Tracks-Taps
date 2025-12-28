@@ -8,9 +8,12 @@ interface LobbyHeaderProps {
     onInvitePress: () => void;
 }
 
+import { useLanguage } from '../../context/LanguageContext';
+
 export const LobbyHeader: React.FC<LobbyHeaderProps> = ({ onInvitePress }) => {
     const { theme } = useTheme();
     const router = useRouter();
+    const { t } = useLanguage();
 
     return (
         <View style={styles.header}>
@@ -20,7 +23,7 @@ export const LobbyHeader: React.FC<LobbyHeaderProps> = ({ onInvitePress }) => {
             >
                 <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
             </TouchableOpacity>
-            <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>Lobby</Text>
+            <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('lobby')}</Text>
             <TouchableOpacity
                 onPress={onInvitePress}
                 style={[styles.iconButton, { backgroundColor: theme.primary + '15' }]}

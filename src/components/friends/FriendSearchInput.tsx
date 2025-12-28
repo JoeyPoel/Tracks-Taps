@@ -1,3 +1,4 @@
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
@@ -11,13 +12,14 @@ interface FriendSearchInputProps {
 
 export function FriendSearchInput({ value, onChangeText, onSend }: FriendSearchInputProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     return (
         <View style={[styles.searchContainer, { backgroundColor: theme.bgSecondary }]}>
             <Ionicons name="search" size={20} color={theme.textSecondary} style={{ marginRight: 8 }} />
             <TextInput
                 style={[styles.input, { color: theme.textPrimary }]}
-                placeholder="Add friend by email..."
+                placeholder={t('addFriendPlaceholder')}
                 placeholderTextColor={theme.textSecondary}
                 value={value}
                 onChangeText={onChangeText}

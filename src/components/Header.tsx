@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ArrowLeftIcon } from 'react-native-heroicons/outline';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { AnimatedPressable } from './common/AnimatedPressable';
 
@@ -24,19 +25,20 @@ export default function AppHeader({
   const pathname = usePathname();
   const router = useRouter();
   const { theme } = useTheme();
+  const { t } = useLanguage();
 
   // Determine title based on pathname
   let title = titleProp || 'Tracks&Taps';
 
   if (!titleProp) {
-    if (pathname.includes('/map')) title = 'Map';
-    else if (pathname.includes('/profile')) title = 'Profile';
-    else if (pathname.includes('/preferences')) title = 'App Preferences';
-    else if (pathname.includes('/join')) title = 'Join Tour';
-    else if (pathname === '/' || pathname.includes('/explore')) title = 'Explore';
+    if (pathname.includes('/map')) title = t('map');
+    else if (pathname.includes('/profile')) title = t('profile');
+    else if (pathname.includes('/preferences')) title = t('appPreferences');
+    else if (pathname.includes('/join')) title = t('joinTour');
+    else if (pathname === '/' || pathname.includes('/explore')) title = t('explore');
   }
 
-  const isExplore = title === 'Explore';
+  const isExplore = title === t('explore');
 
   const handleBackPress = () => {
     if (onBackPress) {

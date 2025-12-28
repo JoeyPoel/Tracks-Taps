@@ -5,6 +5,7 @@ import React from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { AnimatedButton } from '../../components/common/AnimatedButton';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
 interface LobbyFooterProps {
@@ -18,6 +19,7 @@ interface LobbyFooterProps {
 export const LobbyFooter: React.FC<LobbyFooterProps> = ({ activeTour, user, userTeam, onStartTour, activeTourId }) => {
     const { theme } = useTheme();
     const router = useRouter();
+    const { t } = useLanguage();
 
     const isHost = activeTour?.userId === user?.id;
 
@@ -26,10 +28,10 @@ export const LobbyFooter: React.FC<LobbyFooterProps> = ({ activeTour, user, user
             {isHost ? (
                 <View>
                     <Text style={[styles.hostNote, { color: theme.textSecondary }]}>
-                        {!userTeam?.name ? "Set up your team to start!" : "Everyone in? Let's go!"}
+                        {!userTeam?.name ? t('setupTeamToStart') : t('everyoneIn')}
                     </Text>
                     <AnimatedButton
-                        title={!userTeam?.name ? "Setup Team First" : "Start Tour"}
+                        title={!userTeam?.name ? t('setupTeamFirst') : t('startTour')}
                         onPress={() => {
                             if (!userTeam?.name) {
                                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -52,14 +54,14 @@ export const LobbyFooter: React.FC<LobbyFooterProps> = ({ activeTour, user, user
                         variant={!userTeam?.name ? "secondary" : "primary"}
                         style={{ width: '100%', shadowColor: theme.primary, shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }}
                     />
-                </View>
+                </View >
             ) : (
                 <View style={styles.waitingContainer}>
                     <ActivityIndicator size="small" color={theme.primary} />
-                    <Text style={[styles.waitingText, { color: theme.textPrimary }]}>Waiting for host to start...</Text>
+                    <Text style={[styles.waitingText, { color: theme.textPrimary }]}>{t('waitingForHost')}</Text>
                 </View>
             )}
-        </Animated.View>
+        </Animated.View >
     );
 };
 

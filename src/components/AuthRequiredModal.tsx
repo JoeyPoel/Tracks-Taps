@@ -2,6 +2,7 @@ import { useRouter, useSegments } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Modal, StyleSheet, Text, View } from 'react-native';
 import { LockClosedIcon, XMarkIcon } from 'react-native-heroicons/outline';
+import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { authEvents } from '../utils/authEvents';
 import { AnimatedButton } from './common/AnimatedButton';
@@ -12,6 +13,7 @@ export default function AuthRequiredModal() {
     const router = useRouter();
     const segments = useSegments();
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     useEffect(() => {
         if (segments[0] === 'auth') {
@@ -62,22 +64,22 @@ export default function AuthRequiredModal() {
                     </View>
 
                     <Text style={[styles.title, { color: theme.textPrimary }]}>
-                        Authentication Required
+                        {t('authRequired')}
                     </Text>
                     <Text style={[styles.description, { color: theme.textSecondary }]}>
-                        You need to be logged in to access this feature. Please sign in or create an account to continue.
+                        {t('authRequiredDesc')}
                     </Text>
 
                     <View style={styles.buttonContainer}>
                         <AnimatedButton
-                            title="Log In"
+                            title={t('login') || "Log In"}
                             onPress={handleLogin}
                             variant="primary"
                             style={styles.fullWidthButton}
                         />
 
                         <AnimatedButton
-                            title="Create Account"
+                            title={t('createAccount') || "Create Account"}
                             onPress={handleRegister}
                             variant="outline"
                             style={styles.fullWidthButton}

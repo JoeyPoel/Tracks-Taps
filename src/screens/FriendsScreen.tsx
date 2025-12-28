@@ -5,6 +5,7 @@ import { FriendSearchInput } from '@/src/components/friends/FriendSearchInput';
 import { FriendsTabs } from '@/src/components/friends/FriendsTabs';
 import { RequestCard } from '@/src/components/friends/RequestCard';
 import AppHeader from '@/src/components/Header';
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useFriends } from '@/src/hooks/useFriends';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +16,7 @@ import { FlatList, StyleSheet, Text, View } from 'react-native';
 export default function FriendsScreen() {
     const { theme } = useTheme();
     const router = useRouter();
+    const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState<'friends' | 'requests'>('friends');
     const [searchEmail, setSearchEmail] = useState('');
 
@@ -58,7 +60,7 @@ export default function FriendsScreen() {
     return (
         <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} withScrollView={false} includeTop={false} animateEntry={false}>
             <Stack.Screen options={{ headerShown: false }} />
-            <AppHeader showBackButton title="Social Hub" />
+            <AppHeader showBackButton title={t('socialHub')} />
 
             <View style={styles.container}>
                 <View style={{ paddingHorizontal: 20, paddingBottom: 10 }}>
@@ -91,12 +93,12 @@ export default function FriendsScreen() {
                                 <Ionicons name={activeTab === 'friends' ? "people" : "mail-unread"} size={32} color={theme.primary} />
                             </View>
                             <Text style={[styles.emptyTitle, { color: theme.textPrimary }]}>
-                                {activeTab === 'friends' ? 'No friends yet' : 'No requests'}
+                                {activeTab === 'friends' ? t('noFriendsYet') : t('noRequests')}
                             </Text>
                             <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
                                 {activeTab === 'friends'
-                                    ? 'Search for people by email to add them to your crew!'
-                                    : 'You have no pending friend requests at the moment.'}
+                                    ? t('searchFriendsText')
+                                    : t('noRequestsText')}
                             </Text>
                         </View>
                     }

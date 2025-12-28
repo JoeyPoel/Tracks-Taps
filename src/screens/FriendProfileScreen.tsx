@@ -1,6 +1,7 @@
 import { AnimatedPressable } from '@/src/components/common/AnimatedPressable';
 import { ScreenWrapper } from '@/src/components/common/ScreenWrapper';
 import UserProfileCard from '@/src/components/profileScreen/UserProfileCard';
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { userService } from '@/src/services/userService';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +14,7 @@ import { ActivityIndicator, ImageBackground, ScrollView, StyleSheet, Text, View 
 export default function FriendProfileScreen() {
     const { theme } = useTheme();
     const router = useRouter();
+    const { t } = useLanguage();
     const { userId } = useLocalSearchParams();
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -47,7 +49,7 @@ export default function FriendProfileScreen() {
     if (!user) {
         return (
             <ScreenWrapper style={{ backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ color: theme.textPrimary }}>User not found</Text>
+                <Text style={{ color: theme.textPrimary }}>{t('userNotFound')}</Text>
             </ScreenWrapper>
         );
     }
@@ -85,7 +87,7 @@ export default function FriendProfileScreen() {
                 {/* Profile Card lifted up */}
                 <View style={[styles.cardWrapper, { backgroundColor: theme.bgSecondary }]}>
                     <UserProfileCard
-                        name={user.name || 'Unknown'}
+                        name={user.name || t('unknown')}
                         level={user.level}
                         currentXP={user.currentLevelXp}
                         maxXP={user.nextLevelXpStart}
@@ -96,24 +98,24 @@ export default function FriendProfileScreen() {
                     <View style={styles.statsRow}>
                         <View style={styles.statItem}>
                             <Text style={[styles.statVal, { color: theme.textPrimary }]}>{user?.playedTours?.length || 0}</Text>
-                            <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Tours</Text>
+                            <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{t('tours')}</Text>
                         </View>
                         <View style={styles.divider} />
                         <View style={styles.statItem}>
                             <Text style={[styles.statVal, { color: theme.textPrimary }]}>{user?.createdTours?.length || 0}</Text>
-                            <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Created</Text>
+                            <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{t('created')}</Text>
                         </View>
                         <View style={styles.divider} />
                         <View style={styles.statItem}>
                             <Text style={[styles.statVal, { color: theme.textPrimary }]}>{user?.friends?.length || 0}</Text>
-                            <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Friends</Text>
+                            <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{t('friends')}</Text>
                         </View>
                     </View>
                 </View>
 
                 {/* Recent Activity Section */}
                 <View style={[styles.activitySection, { backgroundColor: theme.bgSecondary }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Recent Activity</Text>
+                    <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>{t('recentAchievements') || 'Recent Activity'}</Text>
 
                     {recentActivity.map((item, index) => (
                         <View key={item.id} style={[styles.activityItem, index < recentActivity.length - 1 && styles.borderBottom, { borderColor: theme.borderPrimary }]}>

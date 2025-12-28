@@ -181,13 +181,13 @@ export default function PersonalInfoScreen() {
                                 />
                             </View>
                             <Text style={[styles.hint, { color: theme.textTertiary }]}>
-                                Changing email may require re-verification.
+                                {t('emailChangeNotice')}
                             </Text>
                         </View>
                     </View>
 
                     {/* Security Section */}
-                    {renderSectionHeader('Security', 'lock-closed-outline')}
+                    {renderSectionHeader(t('security'), 'lock-closed-outline')}
                     <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
                         <View style={[styles.formGroup, { marginBottom: 0 }]}>
                             <Text style={[styles.label, { color: theme.textSecondary }]}>{t('password')}</Text>
@@ -203,7 +203,7 @@ export default function PersonalInfoScreen() {
                                 />
                             </View>
                             <Text style={[styles.hint, { color: theme.textTertiary }]}>
-                                Leave blank to keep current password.
+                                {t('passwordHint')}
                             </Text>
                         </View>
                     </View>

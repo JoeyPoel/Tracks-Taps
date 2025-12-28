@@ -27,7 +27,7 @@ export default function StepInfo({ draft, updateDraft }: StepInfoProps) {
 
             <View style={styles.form}>
                 <View>
-                    <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>Genre</Text>
+                    <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('genre')}</Text>
                     <ScrollView
                         ref={scrollViewRef}
                         horizontal
