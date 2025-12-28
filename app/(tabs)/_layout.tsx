@@ -17,20 +17,17 @@ import {
     UserIcon as UserSolid,
 } from 'react-native-heroicons/solid';
 
+import { TabBar } from '@/src/components/navigation/TabBar';
+
 export default function TabLayout() {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
     return (
         <Tabs
+            tabBar={props => <TabBar {...props} />}
             screenOptions={{
                 headerShown: false,
-                tabBarActiveTintColor: theme.primary,
-                tabBarInactiveTintColor: theme.textSecondary,
-                tabBarStyle: {
-                    backgroundColor: theme.bgPrimary,
-                    borderTopColor: theme.borderSecondary,
-                },
             }}
         >
             <Tabs.Screen
