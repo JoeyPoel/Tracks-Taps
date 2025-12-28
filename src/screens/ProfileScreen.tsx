@@ -69,11 +69,11 @@ export default function ProfileScreen() {
   );
 
   return (
-    <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} includeBottom={false}>
+    <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} includeBottom={false} animateEntry={false}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         {/* Hero Card */}
-        <Animated.View entering={FadeInDown.delay(100).duration(600).springify()}>
+        <Animated.View entering={FadeInDown.duration(500)} style={{ marginTop: 8 }}>
           <UserProfileCard
             name={user?.name || 'Guest'}
             level={progress.level}
@@ -85,7 +85,7 @@ export default function ProfileScreen() {
         </Animated.View>
 
         {/* Horizontal Stats or Tokens */}
-        <Animated.View entering={FadeInDown.delay(200).duration(600).springify()} style={{ marginTop: 8 }}>
+        <Animated.View entering={FadeInDown.delay(100).duration(500)} style={{ marginTop: 8 }}>
           <View style={{ flexDirection: 'row', gap: 12 }}>
             {/* We can put small stats here if needed, or keeping the horizontal stats component */}
           </View>
@@ -100,7 +100,7 @@ export default function ProfileScreen() {
           />
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.delay(300).duration(600).springify()} style={{ marginTop: 24 }}>
+        <Animated.View entering={FadeInDown.delay(200).duration(500)} style={{ marginTop: 24 }}>
           <TokenCard
             tokens={user?.tokens || 0}
             onBuyPress={() => setShowBuyTokens(true)}
@@ -108,12 +108,12 @@ export default function ProfileScreen() {
           />
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.delay(400).duration(600).springify()} style={{ marginTop: 24 }}>
+        <Animated.View entering={FadeInDown.delay(300).duration(500)} style={{ marginTop: 24 }}>
           <RecentAchievements achievements={achievements} />
         </Animated.View>
 
         {/* Grouped Settings Section */}
-        <Animated.View entering={FadeInDown.delay(500).duration(600).springify()} style={{ marginTop: 32 }}>
+        <Animated.View entering={FadeInDown.delay(400).duration(500)} style={{ marginTop: 32 }}>
           <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('manageAccount')?.toUpperCase() || 'MANAGE ACCOUNT'}</Text>
 
           <View style={[styles.settingsGroup, { backgroundColor: theme.bgSecondary }]}>
