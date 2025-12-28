@@ -69,7 +69,7 @@ export default function ProfileScreen() {
   );
 
   return (
-    <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} includeBottom={true}>
+    <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} includeBottom={false}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         {/* Hero Card */}
@@ -113,7 +113,7 @@ export default function ProfileScreen() {
         </Animated.View>
 
         {/* Grouped Settings Section */}
-        <Animated.View entering={FadeInDown.delay(500).duration(600).springify()} style={{ marginTop: 32, marginBottom: 40 }}>
+        <Animated.View entering={FadeInDown.delay(500).duration(600).springify()} style={{ marginTop: 32 }}>
           <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('manageAccount')?.toUpperCase() || 'MANAGE ACCOUNT'}</Text>
 
           <View style={[styles.settingsGroup, { backgroundColor: theme.bgSecondary }]}>
@@ -159,7 +159,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingBottom: 120, // Standardized
   },
   headerContainer: {
     marginTop: 16,

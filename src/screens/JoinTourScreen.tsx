@@ -41,8 +41,8 @@ export default function JoinTourScreen() {
                     {/* New Header Style */}
                     <Animated.View entering={FadeInDown.duration(600).springify()} style={[styles.headerContainer, { marginTop: 16, marginBottom: 48 }]}>
                         <Text style={[styles.screenTitle, { color: theme.textPrimary }]}>{t('joinTourButton')}</Text>
-                        <Text style={[styles.screenSubtitle, { color: theme.textSecondary }]}>
-                            {t('askCaptainForCode') || 'Ask your team captain for the unique request code'}
+                        <Text style={{ fontSize: 16, color: theme.textSecondary, marginTop: 4 }}>
+                            {t('askCaptainForCode') || 'Enter your tour code to begin the adventure'}
                         </Text>
                     </Animated.View>
 
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     },
     content: {
         paddingHorizontal: 20,
-        paddingBottom: 20,
+        paddingBottom: 120, // Standardized
     },
     cleanInputContainer: {
         flexDirection: 'row',

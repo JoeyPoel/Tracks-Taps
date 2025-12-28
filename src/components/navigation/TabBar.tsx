@@ -2,15 +2,14 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import Animated, {
-    FadeIn,
     useAnimatedStyle,
     useSharedValue,
-    withSpring
+    withSpring,
+    withTiming
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LAYOUT } from '../../constants/layout';
 import { useTheme } from '../../context/ThemeContext';
 
 export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
@@ -20,19 +19,36 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     // Correctly filter out hidden tabs based on options.href or tabBarStyle display
     const visibleRoutes = state.routes.filter(route => {
         const { options } = descriptors[route.key];
-        // expo-router specific: hiding via href: null usually removes from state, but if not:
-        // check if 'href' is null in options (needs type assertion or check)
-        // Also check if tabBarButton is null
-
-        // In some router versions, options.href might not be directly available on descriptor types,
-        // but it's passed in options.
         const isHidden = (options as any).href === null;
         const hasIcon = options.tabBarIcon !== undefined;
         return !isHidden && hasIcon;
     });
 
+    const isTabBarVisible = visibleRoutes.find(route => state.index === state.routes.indexOf(route));
+
+    // Animation Logic
+    const translateY = useSharedValue(0);
+
+    useEffect(() => {
+        if (isTabBarVisible) {
+            translateY.value = withTiming(0, { duration: 300 });
+        } else {
+            // Hide by sliding down: Height + Spacing + extra buffer. 80 + 40 + 50 = 170
+            translateY.value = withSpring(170, { damping: 15, stiffness: 100 });
+        }
+    }, [isTabBarVisible]);
+
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateY: translateY.value }],
+        };
+    });
+
+    // Don't render if it's completely hidden/off-screen (optional optimization, but keep rendered for animation)
+    // We can rely on translation to move it out.
+
     return (
-        <View style={[styles.container, { paddingBottom: LAYOUT.BOTTOM_TAB_SPACING }]}>
+        <Animated.View style={[styles.container, { paddingBottom: 40 }, animatedStyle]}>
             <BlurView
                 intensity={80}
                 tint={mode === 'dark' ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight'}
@@ -73,7 +89,7 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                     );
                 })}
             </BlurView>
-        </View>
+        </Animated.View>
     );
 }
 
@@ -81,7 +97,11 @@ const TabItem = ({ isFocused, options, onPress, theme }: any) => {
     const scale = useSharedValue(1);
 
     useEffect(() => {
-        scale.value = withSpring(isFocused ? 1.2 : 1, { damping: 12 });
+        if (isFocused) {
+            scale.value = withSpring(1.2, { damping: 12 });
+        } else {
+            scale.value = withTiming(1, { duration: 200 });
+        }
     }, [isFocused]);
 
     const animatedIconStyle = useAnimatedStyle(() => {
@@ -103,14 +123,6 @@ const TabItem = ({ isFocused, options, onPress, theme }: any) => {
             <Animated.View style={[styles.iconContainer, animatedIconStyle]}>
                 {/* Clean, no Bubble. Just Icon. */}
                 {Icon && <Icon color={iconColor} size={24} focused={isFocused} />}
-
-                {/* Subtle active dot indicator below icon */}
-                {isFocused && (
-                    <Animated.View
-                        entering={FadeIn}
-                        style={[styles.activeDot, { backgroundColor: theme.primary }]}
-                    />
-                )}
             </Animated.View>
         </TouchableOpacity>
     );
@@ -155,12 +167,5 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: 40,
         height: 40,
-    },
-    activeDot: {
-        position: 'absolute',
-        bottom: -6,
-        width: 4,
-        height: 4,
-        borderRadius: 2,
     }
 });

@@ -8,7 +8,6 @@ export default function MapTab() {
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.bgPrimary }}>
-            <AppHeader />
             <MapScreen />
         </View>
     );

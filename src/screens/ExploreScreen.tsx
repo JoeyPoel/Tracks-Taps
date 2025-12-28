@@ -240,7 +240,6 @@ export default function ExploreScreen() {
           }
         }}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={<View style={{ height: 100 }} />}
       />
     );
   };
@@ -355,7 +354,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 100, // More bottom padding for FAB/Navigation
+    paddingBottom: 110, 
   }
 });
 

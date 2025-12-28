@@ -92,8 +92,6 @@ export default function CreateTourWizard() {
                             loading={isSubmitting}
                         />
                     </View>
-
-                    <View style={{ height: 40 }} />
                 </ScrollView>
             </KeyboardAvoidingView>
         </ScreenWrapper>
@@ -128,10 +126,10 @@ const styles = StyleSheet.create({
     content: {
         paddingHorizontal: 24,
         paddingTop: 10,
+        paddingBottom: 120, // Standardized spacing for tab bar
         flexGrow: 1,
     },
     inlineFooter: {
         marginTop: 40,
-        marginBottom: 20,
     },
 });
