@@ -3,6 +3,7 @@ import { getStopIcon } from '@/src/utils/stopIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
 interface StopInfoSectionProps {

@@ -1,8 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { ImageBackground, StyleSheet, Text, View } from 'react-native';
-import { ClockIcon, MapIcon } from 'react-native-heroicons/outline';
-import { BoltIcon as BoltIconSolid, StarIcon as StarIconSolid } from 'react-native-heroicons/solid';
+import { BoltIcon as BoltIconSolid, ClockIcon, MapIcon, StarIcon as StarIconSolid } from 'react-native-heroicons/solid';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { getGenreIcon } from '../../utils/genres';
@@ -22,7 +21,7 @@ interface TourCardProps {
   genre?: string;
   difficulty?: string;
   onPress?: () => void;
-  variant?: 'hero' | 'grid';
+  variant?: 'hero' | 'grid' | 'map';
 }
 
 export default function TourCard({
@@ -45,7 +44,10 @@ export default function TourCard({
   const { t } = useLanguage();
 
   const isGrid = variant === 'grid';
-  const cardHeight = isGrid ? 240 : 320;
+  const isMap = variant === 'map';
+
+  // Map cards are shorter, Grid cards even shorter
+  const cardHeight = isMap ? 220 : (isGrid ? 240 : 320);
 
   return (
     <AnimatedPressable

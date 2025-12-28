@@ -2,10 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { Shimmer } from '../common/Shimmer';
 
 const { width, height } = Dimensions.get('window');
 
@@ -54,14 +55,22 @@ export default function TourGallery({ images }: TourGalleryProps) {
         );
     }
 
-    // If no images but still within grace period, show loading skeleton (or minimal loader)
+    // If no images but still within grace period, show loading skeleton
     if ((!images || images.length === 0) && !showEmpty) {
         return (
             <View style={styles.container}>
                 <Text style={[styles.title, { color: theme.textPrimary }]}>{t('gallery') || "Gallery"}</Text>
-                <View style={{ paddingHorizontal: 20, height: 140, justifyContent: 'center', alignItems: 'center' }}>
-                    <ActivityIndicator color={theme.primary} />
-                </View>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollContent}
+                >
+                    {[1, 2, 3].map((key) => (
+                        <View key={key} style={styles.imageWrapper}>
+                            <Shimmer width={140} height={140} borderRadius={16} />
+                        </View>
+                    ))}
+                </ScrollView>
             </View>
         );
     }

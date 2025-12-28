@@ -39,9 +39,11 @@ export default function JoinTourScreen() {
                 <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
                     {/* New Header Style */}
-                    <Animated.View entering={FadeInDown.duration(600).springify()} style={[styles.headerContainer, { marginTop: 16 }]}>
+                    <Animated.View entering={FadeInDown.duration(600).springify()} style={[styles.headerContainer, { marginTop: 16, marginBottom: 48 }]}>
                         <Text style={[styles.screenTitle, { color: theme.textPrimary }]}>{t('joinTourButton')}</Text>
-                        <Text style={[styles.screenSubtitle, { color: theme.textSecondary }]}>{t('enterTourCode') || 'Enter the code to start your adventure'}</Text>
+                        <Text style={[styles.screenSubtitle, { color: theme.textSecondary }]}>
+                            {t('askCaptainForCode') || 'Ask your team captain for the unique request code'}
+                        </Text>
                     </Animated.View>
 
                     {/* Section 1: Manual Code Entry */}

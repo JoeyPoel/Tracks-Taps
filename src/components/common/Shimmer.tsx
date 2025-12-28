@@ -1,103 +1,62 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect } from 'react';
-import { Dimensions, StyleProp, StyleSheet, View, ViewStyle, DimensionValue } from 'react-native';
+import { Dimensions, StyleSheet, View } from 'react-native';
 import Animated, {
     Easing,
-    interpolate,
     useAnimatedStyle,
     useSharedValue,
     withRepeat,
-    withTiming,
+    withTiming
 } from 'react-native-reanimated';
+import { useTheme } from '../../context/ThemeContext';
 
-const { width } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface ShimmerProps {
-    /**
-     * Width of the shimmer block.
-     */
-    width?: DimensionValue;
-
-    /**
-     * Height of the shimmer block.
-     */
-    height?: DimensionValue;
-
-    /**
-     * Border radius for the shimmer block.
-     */
+    style?: any;
+    width?: number | string;
+    height?: number;
     borderRadius?: number;
-
-    /**
-     * Container style.
-     */
-    style?: StyleProp<ViewStyle>;
-
-    /**
-     * Base color of the skeleton (e.g., #E0E0E0).
-     */
-    baseColor?: string;
-
-    /**
-     * Highlight color of the shimmer (e.g., #F5F5F5).
-     */
-    highlightColor?: string;
 }
 
-const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
-
-/**
- * A reusable Shimmer component for loading states (Skeleton UI).
- */
-export const Shimmer: React.FC<ShimmerProps> = ({
-    width = '100%',
-    height = 20,
-    borderRadius = 4,
-    style,
-    baseColor = '#E1E9EE',
-    highlightColor = '#F2F8FC',
-}) => {
-    const translateX = useSharedValue(-100);
+export const Shimmer = ({ style, width, height, borderRadius }: ShimmerProps) => {
+    const { theme } = useTheme();
+    const translateX = useSharedValue(-SCREEN_WIDTH);
 
     useEffect(() => {
         translateX.value = withRepeat(
-            withTiming(100, {
-                duration: 1000,
-                easing: Easing.linear,
+            withTiming(SCREEN_WIDTH, {
+                duration: 1500,
+                easing: Easing.inOut(Easing.ease),
             }),
-            -1, // Infinite loop
-            false // No reverse
+            -1,
+            false
         );
     }, []);
 
-    const animatedStyle = useAnimatedStyle(() => {
-        // Determine the translation distance based on screen width or specific width
-        // Simply translating from -100% to 100% of the component's width is usually sufficient
+    const rStyle = useAnimatedStyle(() => {
         return {
-            transform: [{ translateX: interpolate(translateX.value, [-100, 100], [-300, 300]) }], // Rough estimation for movement
+            transform: [{ translateX: translateX.value }],
         };
     });
 
     return (
-        <View
-            style={[
-                styles.container,
-                { width, height, borderRadius, backgroundColor: baseColor, overflow: 'hidden' },
-                style,
-            ]}
-        >
-            <AnimatedLinearGradient
-                colors={[baseColor, highlightColor, baseColor]}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={[StyleSheet.absoluteFill, animatedStyle]}
-            />
+        <View style={[styles.shimmerContainer, { width, height, borderRadius, backgroundColor: 'rgba(255,255,255,0.05)' }, style]}>
+            <Animated.View style={[StyleSheet.absoluteFill, rStyle]}>
+                <LinearGradient
+                    colors={['transparent', 'rgba(255,255,255,0.1)', 'transparent']}
+                    start={{ x: 0, y: 0.5 }}
+                    end={{ x: 1, y: 0.5 }}
+                    style={StyleSheet.absoluteFill}
+                />
+            </Animated.View>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        // Base layout
+    shimmerContainer: {
+        overflow: 'hidden',
+        position: 'relative',
     },
 });

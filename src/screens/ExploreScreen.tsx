@@ -175,7 +175,9 @@ export default function ExploreScreen() {
     const numColumns = isGrid ? 2 : 1;
 
     // Loading Skeletons Logic
-    const showSkeleton = loading && !tours.length;
+    // Show skeleton if loading OR if we have no tours and no error (initial state)
+    // allowing "ghosts" to be there from the start
+    const showSkeleton = (loading || !tours.length) && !error;
     const dataToRender = showSkeleton ? [1, 2, 3, 4, 5, 6] : tours;
 
     return (
@@ -347,8 +349,8 @@ const styles = StyleSheet.create({
   popularToursSubtitle: {
     fontSize: 14,
     fontWeight: '500',
-    marginTop: -12,
-    marginBottom: 16,
+    marginTop: 0,
+    marginBottom: 4,
     opacity: 0.7,
   },
   scrollContent: {

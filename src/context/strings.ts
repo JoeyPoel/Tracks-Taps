@@ -127,6 +127,7 @@ export const strings = {
     tokens: 'Tokens',
     pubgolf: 'Pub Golf',
     info: 'Info',
+    noStopDescription: 'No detailed description available for this stop.',
     // Pub Golf specific
     par: 'Par',
     sipsTaken: 'Sips taken:',
@@ -563,6 +564,7 @@ export const strings = {
     tokens: 'Fichas',
     pubgolf: 'Pub Golf',
     info: 'Info',
+    noStopDescription: 'No hay información detallada disponible para esta parada.',
     // Pub Golf specific
     par: 'Par',
     sipsTaken: 'Sorbos tomados:',
@@ -694,7 +696,6 @@ export const strings = {
     yourTeam: 'Tu Equipo',
     viewResults: 'Ver Resultados',
     autoResults: 'Los resultados se mostrarán automáticamente cuando todos terminen',
-    noStopDescription: 'No hay información detallada disponible para esta parada.',
     tourWideChallengesSubtitle: '¡Completa estos en cualquier momento durante el tour!',
     noTourWideChallenges: 'No hay desafíos de tour disponibles.',
     unknownChallengeType: 'Tipo de desafío desconocido:',
@@ -907,6 +908,7 @@ export const strings = {
     tokens: 'Tokens',
     pubgolf: 'Pub Golf',
     info: 'Info',
+    noStopDescription: 'Geen gedetailleerde informatie beschikbaar voor deze stop.',
     // Pub Golf specific
     par: 'Par',
     sipsTaken: 'Slokken genomen:',
@@ -1038,7 +1040,6 @@ export const strings = {
     yourTeam: 'Jouw Team',
     viewResults: 'Bekijk Resultaten',
     autoResults: 'Resultaten verschijnen automatisch als iedereen klaar is',
-    noStopDescription: 'Geen gedetailleerde informatie beschikbaar voor deze stop.',
     tourWideChallengesSubtitle: 'Voltooi deze op elk moment tijdens de tour!',
     noTourWideChallenges: 'Geen tourbrede uitdagingen beschikbaar.',
     unknownChallengeType: 'Onbekend uitdagingstype:',

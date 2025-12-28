@@ -6,7 +6,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AnimatedPressable } from '../components/common/AnimatedPressable';
-import MapTourCard from '../components/mapScreen/MapTourCard';
+import TourCard from '../components/exploreScreen/TourCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useMapScreenLogic } from '../hooks/useMapScreenLogic';
@@ -138,25 +138,22 @@ export default function MapScreen() {
         <AnimatedPressable
           style={[
             styles.backButton,
-            {
-              top: insets.top + 16,
-              backgroundColor: theme.bgSecondary,
-              shadowColor: theme.shadowColor
-            }
+            { top: insets.top + 16 }
           ]}
           onPress={handleBack}
           interactionScale="subtle"
         >
-          <Ionicons name="arrow-back" size={24} color={theme.primary} />
-          <Text style={[styles.backText, { color: theme.primary }]}>{t('backToAllTours')}</Text>
+          <Ionicons name="arrow-back" size={20} color="#FFF" />
+          <Text style={styles.backText}>{t('backToAllTours')}</Text>
         </AnimatedPressable>
       )}
 
       {selectedTour && (
         <View style={[styles.tourInfo, { bottom: insets.bottom + 20 }]}>
-          <MapTourCard
+          <TourCard
             title={selectedTour.title}
             author={(selectedTour as any).author?.name || 'Tracks & Taps'}
+            imageUrl={selectedTour.imageUrl}
             distance={`${(selectedTour as any).distance} km`}
             duration={`${(selectedTour as any).duration} min`}
             stops={(selectedTour as any).stops?.length || 0}
@@ -166,6 +163,7 @@ export default function MapScreen() {
             reviewCount={selectedTour.reviews?.length || 0}
             points={(selectedTour as any).points || 0}
             genre={(selectedTour as any).genre || 'Adventure'}
+            variant="map"
             onPress={() => {
               router.push(`/tour/${selectedTour.id}`);
             }}
@@ -189,20 +187,18 @@ const styles = StyleSheet.create({
     left: 24,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 12, // Slightly taller
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 25,
     gap: 8,
-    // Premium Soft Shadow
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Premium opacity
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   backText: {
-    fontWeight: 'bold',
-    fontSize: 16,
+    fontWeight: '600',
+    fontSize: 14,
+    color: '#FFFFFF', // White text
   },
   tourInfo: {
     position: 'absolute',

@@ -1,11 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import { FlagIcon } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AnimatedPressable } from '../components/common/AnimatedPressable';
-import MapTourCard from '../components/mapScreen/MapTourCard';
+import TourCard from '../components/exploreScreen/TourCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useMapScreenLogic } from '../hooks/useMapScreenLogic';
@@ -63,12 +65,21 @@ export default function MapScreen() {
                 title={tour.title}
                 description={t('clickToViewRoute')}
                 onPress={() => handleTourSelect(tour)}
+                tracksViewChanges={false}
               >
-                <View style={[styles.markerContainer, { backgroundColor: theme.primary, borderColor: 'white' }]}>
-                  {(() => {
-                    const GenreIcon = getGenreIcon(tour.genre || 'Adventure');
-                    return <GenreIcon size={20} color="white" />;
-                  })()}
+                <View style={styles.markerShadowContainer}>
+                  <LinearGradient
+                    colors={[theme.primary, theme.secondary]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.premiumMarker}
+                  >
+                    {(() => {
+                      const GenreIcon = getGenreIcon(tour.genre || 'Adventure');
+                      return <GenreIcon size={18} color="white" />;
+                    })()}
+                  </LinearGradient>
+                  <View style={[styles.markerTail, { borderTopColor: '#FFF' }]} />
                 </View>
               </Marker>
             );
@@ -84,10 +95,30 @@ export default function MapScreen() {
                 }}
                 title={`${stop.number}. ${stop.name}`}
                 description={stop.description}
+                tracksViewChanges={false}
               >
-                <View style={[styles.markerContainer, { backgroundColor: stop.number === 1 ? theme.primary : theme.bgSecondary }]}>
-                  {getStopIcon(stop.type, 20, stop.number === 1 ? 'white' : theme.textPrimary)}
-                </View>
+                {stop.number === 1 ? (
+                  // START STOP: Premium Gradient Pin
+                  <View style={styles.markerShadowContainer}>
+                    <LinearGradient
+                      colors={[theme.primary, theme.secondary]}
+                      style={styles.premiumMarker}
+                    >
+                      <FlagIcon size={20} color="white" />
+                    </LinearGradient>
+                    <View style={[styles.markerTail, { borderTopColor: '#FFF' }]} />
+                  </View>
+                ) : (
+                  // REGULAR STOP: Glassmorphism Bubble
+                  <View style={[styles.stopMarker, { backgroundColor: theme.bgPrimary, borderColor: theme.borderSecondary }]}>
+                    <View style={[styles.stopIconContainer, { backgroundColor: 'transparent' }]}>
+                      {getStopIcon(stop.type, 16, theme.textPrimary)}
+                    </View>
+                    <View style={[styles.stopNumberBadge, { backgroundColor: theme.primary }]}>
+                      <Text style={styles.stopNumberText}>{stop.number}</Text>
+                    </View>
+                  </View>
+                )}
               </Marker>
             ))}
 
@@ -96,8 +127,8 @@ export default function MapScreen() {
                 key={index}
                 coordinates={segment.coords}
                 strokeColor={theme.primary}
-                strokeWidth={3}
-                lineDashPattern={segment.type === 'DIRECT' ? [5, 5] : undefined}
+                strokeWidth={4}
+                lineDashPattern={segment.type === 'DIRECT' ? [8, 8] : undefined}
               />
             ))}
           </>
@@ -108,25 +139,22 @@ export default function MapScreen() {
         <AnimatedPressable
           style={[
             styles.backButton,
-            {
-              top: insets.top + 16,
-              backgroundColor: theme.bgSecondary,
-              shadowColor: theme.shadowColor
-            }
+            { top: insets.top + 16 }
           ]}
           onPress={handleBack}
           interactionScale="subtle"
         >
-          <Ionicons name="arrow-back" size={24} color={theme.primary} />
-          <Text style={[styles.backText, { color: theme.primary }]}>{t('backToAllTours')}</Text>
+          <Ionicons name="arrow-back" size={20} color="#FFF" />
+          <Text style={styles.backText}>{t('backToAllTours')}</Text>
         </AnimatedPressable>
       )}
 
       {selectedTour && (
         <View style={[styles.tourInfo, { bottom: insets.bottom + 20 }]}>
-          <MapTourCard
+          <TourCard
             title={selectedTour.title}
             author={(selectedTour as any).author?.name || 'Tracks & Taps'}
+            imageUrl={selectedTour.imageUrl}
             distance={`${(selectedTour as any).distance} km`}
             duration={`${(selectedTour as any).duration} min`}
             stops={(selectedTour as any).stops?.length || 0}
@@ -136,6 +164,7 @@ export default function MapScreen() {
             reviewCount={selectedTour.reviews?.length || 0}
             points={(selectedTour as any).points || 0}
             genre={(selectedTour as any).genre || 'Adventure'}
+            variant="map"
             onPress={() => {
               router.push(`/tour/${selectedTour.id}`);
             }}
@@ -159,18 +188,18 @@ const styles = StyleSheet.create({
     left: 24,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 25,
     gap: 8,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Premium opacity
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   backText: {
-    fontWeight: 'bold',
-    fontSize: 16,
+    fontWeight: '600',
+    fontSize: 14,
+    color: '#FFFFFF', // White text
   },
   tourInfo: {
     position: 'absolute',
@@ -187,17 +216,73 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  markerContainer: {
-    padding: 6,
-    borderRadius: 20,
+  markerShadowContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 6,
+  },
+  premiumMarker: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 2,
-    borderColor: 'white',
+    borderColor: '#FFF',
+  },
+  markerTail: {
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderTopWidth: 8,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    transform: [{ translateY: -2 }], // Overlap slightly
+  },
+  stopMarker: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
-    elevation: 3,
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4,
+    borderWidth: 2,
+  },
+  stopIconContainer: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  stopNumberBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 1.5,
+    borderColor: 'white',
+  },
+  stopNumberText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+  }
 });
