@@ -3,7 +3,7 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import { TourDraft } from '@/src/hooks/useCreateTour';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ReviewCard } from '../common/ReviewCard';
+import { EditableTourCard } from '../common/EditableTourCard';
 
 interface StepReviewProps {
     draft: TourDraft;
@@ -19,7 +19,7 @@ export default function StepReview({ draft, updateDraft }: StepReviewProps) {
                 title={t('stepReviewTitle')}
                 subtitle={t('stepReviewSubtitle')}
             />
-            <ReviewCard draft={draft} updateDraft={updateDraft} />
+            <EditableTourCard draft={draft} updateDraft={updateDraft} />
         </View>
     );
 }

@@ -28,6 +28,12 @@ export function ImageUploader({
     const [image, setImage] = useState<string | null>(initialImage || null);
     const [uploading, setUploading] = useState(false);
 
+    React.useEffect(() => {
+        if (initialImage) {
+            setImage(initialImage);
+        }
+    }, [initialImage]);
+
     const isAvatar = variant === 'avatar';
 
     const pickImage = async () => {

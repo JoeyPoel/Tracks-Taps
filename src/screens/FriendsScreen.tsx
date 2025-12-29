@@ -63,23 +63,21 @@ export default function FriendsScreen() {
             <AppHeader showBackButton title={t('socialHub')} />
 
             <View style={styles.container}>
-                <View style={{ paddingHorizontal: 20, paddingBottom: 10 }}>
+                <View style={styles.headerSection}>
                     <FriendsTabs
                         activeTab={activeTab}
                         onTabChange={setActiveTab}
                         requestCount={requests.length}
                     />
-                </View>
 
-                {activeTab === 'friends' && (
-                    <View style={styles.searchSection}>
+                    {activeTab === 'friends' && (
                         <FriendSearchInput
                             value={searchEmail}
                             onChangeText={setSearchEmail}
                             onSend={handleSend}
                         />
-                    </View>
-                )}
+                    )}
+                </View>
 
                 <FlatList
                     data={activeTab === 'friends' ? friends : requests}
@@ -112,14 +110,15 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    searchSection: {
+    headerSection: {
         paddingHorizontal: 20,
-        paddingBottom: 16,
+        marginBottom: 8,
+        gap: 12,
     },
     listContent: {
         paddingHorizontal: 20,
         paddingBottom: 40,
-        gap: 12,
+        gap: 0, // Cards handle their own spacing/border
     },
     emptyState: {
         alignItems: 'center',

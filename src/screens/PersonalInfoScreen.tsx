@@ -1,3 +1,4 @@
+import { FormInput } from '@/src/components/common/FormInput';
 import { ImageUploader } from '@/src/components/common/ImageUploader';
 import { useAuth } from '@/src/context/AuthContext';
 import { useLanguage } from '@/src/context/LanguageContext';
@@ -45,6 +46,7 @@ export default function PersonalInfoScreen() {
             setEmail(authUser.email || '');
         }
     }, [dbUser, authUser]);
+
 
     const handleSave = async () => {
         setLoading(true);
@@ -123,7 +125,7 @@ export default function PersonalInfoScreen() {
     }
 
     return (
-        <ScreenWrapper>
+        <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={false}>
             <Stack.Screen options={{ headerShown: false }} />
 
             <AppHeader
@@ -153,36 +155,25 @@ export default function PersonalInfoScreen() {
                     {renderSectionHeader(t('personalInfo'), 'person-outline')}
                     <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('name')}</Text>
-                            <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderPrimary }]}>
-                                <Ionicons name="person-circle-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
-                                <TextInput
-                                    style={[styles.input, { color: theme.textPrimary }]}
-                                    value={name}
-                                    onChangeText={setName}
-                                    placeholder={t('name')}
-                                    placeholderTextColor={theme.textSecondary + '80'}
-                                />
-                            </View>
+                            <FormInput
+                                label={t('name')}
+                                value={name}
+                                onChange={setName}
+                                placeholder={t('name')}
+                                maxLength={50}
+                            />
                         </View>
 
                         <View style={[styles.formGroup, { marginBottom: 0 }]}>
-                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('email')}</Text>
-                            <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderPrimary }]}>
-                                <Ionicons name="mail-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
-                                <TextInput
-                                    style={[styles.input, { color: theme.textPrimary }]}
-                                    value={email}
-                                    onChangeText={setEmail}
-                                    placeholder={t('email')}
-                                    placeholderTextColor={theme.textSecondary + '80'}
-                                    keyboardType="email-address"
-                                    autoCapitalize="none"
-                                />
-                            </View>
-                            <Text style={[styles.hint, { color: theme.textTertiary }]}>
-                                {t('emailChangeNotice')}
-                            </Text>
+                            <FormInput
+                                label={t('email')}
+                                value={email}
+                                onChange={setEmail}
+                                placeholder={t('email')}
+                                keyboardType="email-address"
+                                maxLength={254}
+                                description={t('emailChangeNotice')}
+                            />
                         </View>
                     </View>
 
@@ -200,6 +191,7 @@ export default function PersonalInfoScreen() {
                                     placeholder="• • • • • • • •"
                                     placeholderTextColor={theme.textSecondary + '80'}
                                     secureTextEntry
+                                    maxLength={100}
                                 />
                             </View>
                             <Text style={[styles.hint, { color: theme.textTertiary }]}>

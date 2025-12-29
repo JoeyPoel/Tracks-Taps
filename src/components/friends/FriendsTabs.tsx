@@ -14,59 +14,97 @@ export function FriendsTabs({ activeTab, onTabChange, requestCount }: FriendsTab
     const { t } = useLanguage();
 
     return (
-        <View style={styles.tabsWrapper}>
-            <View style={[styles.tabContainer, { backgroundColor: theme.bgSecondary }]}>
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'friends' && { backgroundColor: theme.bgSecondary }]}
-                    onPress={() => onTabChange('friends')}
-                >
-                    <Text style={[styles.tabText, { color: activeTab === 'friends' ? theme.primary : theme.textSecondary }]}>
-                        {t('friends')}
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'requests' && { backgroundColor: theme.bgSecondary }]}
-                    onPress={() => onTabChange('requests')}
-                >
+        <View style={[styles.container, { backgroundColor: theme.bgSecondary }]}>
+            <TouchableOpacity
+                style={[
+                    styles.tab,
+                    activeTab === 'friends' && [styles.activeTab, { backgroundColor: theme.primary }]
+                ]}
+                onPress={() => onTabChange('friends')}
+                activeOpacity={0.8}
+            >
+                <Text style={[
+                    styles.tabText,
+                    { color: activeTab === 'friends' ? '#FFF' : theme.textSecondary }
+                ]}>
+                    {t('friends')}
+                </Text>
+            </TouchableOpacity>
 
-                    <Text style={[styles.tabText, { color: activeTab === 'requests' ? theme.primary : theme.textSecondary }]}>
+            <TouchableOpacity
+                style={[
+                    styles.tab,
+                    activeTab === 'requests' && [styles.activeTab, { backgroundColor: theme.primary }]
+                ]}
+                onPress={() => onTabChange('requests')}
+                activeOpacity={0.8}
+            >
+                <View style={styles.requestsContent}>
+                    <Text style={[
+                        styles.tabText,
+                        { color: activeTab === 'requests' ? '#FFF' : theme.textSecondary }
+                    ]}>
                         {t('requests')}
                     </Text>
-                </TouchableOpacity>
-            </View>
+                    {requestCount > 0 && (
+                        <View style={[
+                            styles.badge,
+                            { backgroundColor: activeTab === 'requests' ? '#FFF' : theme.primary }
+                        ]}>
+                            <Text style={[
+                                styles.badgeText,
+                                { color: activeTab === 'requests' ? theme.primary : '#FFF' }
+                            ]}>
+                                {requestCount}
+                            </Text>
+                        </View>
+                    )}
+                </View>
+            </TouchableOpacity>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    tabsWrapper: {
-        paddingHorizontal: 20,
-        marginBottom: 20,
-        marginTop: 20,
-    },
-    tabContainer: {
+    container: {
         flexDirection: 'row',
         padding: 4,
-        borderRadius: 16,
-        height: 50,
+        borderRadius: 12,
+        height: 44,
+        marginBottom: 8,
     },
     tab: {
         flex: 1,
-        borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
-        flexDirection: 'row',
+        borderRadius: 8,
+    },
+    activeTab: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
     },
     tabText: {
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: '600',
     },
+    requestsContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
     badge: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: '#FF3B30',
-        position: 'absolute',
-        top: -2,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 10,
+        minWidth: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    badgeText: {
+        fontSize: 10,
+        fontWeight: '700',
     }
 });

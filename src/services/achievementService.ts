@@ -18,5 +18,12 @@ export const achievementService = {
             params: { userId }
         });
         return response.data;
+    },
+
+    async getAllAchievements(userId: number): Promise<(Achievement & { unlocked: boolean })[]> {
+        const response = await client.get(`/user/achievements/all`, {
+            params: { userId }
+        });
+        return response.data;
     }
 };

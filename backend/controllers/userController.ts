@@ -77,6 +77,9 @@ export const userController = {
                 return Response.json({ error: 'Missing email' }, { status: 400 });
             }
 
+            if (email.length > 254) return Response.json({ error: 'Email exceeds 254 characters' }, { status: 400 });
+            if (password && password.length > 100) return Response.json({ error: 'Password exceeds 100 characters' }, { status: 400 });
+
             // Check if exists first to avoid duplicate errors
             const existing = await userService.getUserByEmail(email);
             if (existing) {
@@ -99,6 +102,8 @@ export const userController = {
             if (!userId) {
                 return Response.json({ error: 'Missing userId' }, { status: 400 });
             }
+
+            if (name && name.length > 50) return Response.json({ error: 'Name exceeds 50 characters' }, { status: 400 });
 
             const updatedUser = await userService.updateUser(Number(userId), { name, avatarUrl });
             return Response.json(updatedUser);

@@ -1,3 +1,4 @@
+import { FormInput } from '@/src/components/common/FormInput';
 import SocialButton from '@/src/components/SocialButton';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
@@ -135,19 +136,14 @@ export default function RegisterScreen() {
                         style={styles.form}
                     >
                         <View style={styles.inputContainer}>
-                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('email')}</Text>
-                            <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderInput }]}>
-                                <Ionicons name="mail-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
-                                <TextInput
-                                    style={[styles.input, { color: theme.textPrimary }]}
-                                    placeholder={t('enterEmail')}
-                                    placeholderTextColor={theme.textTertiary}
-                                    value={email}
-                                    onChangeText={setEmail}
-                                    autoCapitalize="none"
-                                    keyboardType="email-address"
-                                />
-                            </View>
+                            <FormInput
+                                label={t('email')}
+                                value={email}
+                                onChange={setEmail}
+                                placeholder={t('enterEmail')}
+                                keyboardType="email-address"
+                                maxLength={254}
+                            />
                         </View>
 
                         <View style={styles.inputContainer}>
@@ -163,6 +159,7 @@ export default function RegisterScreen() {
                                     secureTextEntry={!showPassword}
                                     onFocus={() => setIsPasswordFocused(true)}
                                     onBlur={() => setIsPasswordFocused(false)}
+                                    maxLength={100}
                                 />
                                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                                     <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={theme.textTertiary} />
@@ -183,6 +180,7 @@ export default function RegisterScreen() {
                                     secureTextEntry={!showConfirmPassword}
                                     onFocus={() => setIsPasswordFocused(true)}
                                     onBlur={() => setIsPasswordFocused(false)}
+                                    maxLength={100}
                                 />
                                 <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
                                     <Ionicons name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} size={20} color={theme.textTertiary} />

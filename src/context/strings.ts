@@ -1,6 +1,10 @@
 // src/i18n/strings.ts
 export const strings = {
   en: {
+    modes: 'Modes',
+    editDistance: 'Edit Distance',
+    editDuration: 'Edit Duration',
+    editTransportMode: 'Edit Transport Mode',
     profile: 'Profile',
     manageAccount: 'Manage your account',
     personalInfo: 'Personal Information',
@@ -10,6 +14,10 @@ export const strings = {
     faq: 'Frequently Asked Questions',
     darkMode: 'Dark Mode',
     language: 'Language',
+    achievements: 'Achievements',
+    totalProgress: 'Total Progress',
+    unlocked: 'Unlocked',
+    seeAll: 'See all',
     currentAdventure: 'YOUR CURRENT ADVENTURE',
     completed: 'Completed',
     resumeTour: 'Resume Tour',
@@ -317,7 +325,8 @@ export const strings = {
     brightAndClear: 'Bright and clear',
     easyOnTheEyes: 'Easy on the eyes',
     notifications: 'Notifications',
-    availableBalance: 'Available Balance',
+    noAchievementsYet: 'No achievements yet',
+    // SettingslableBalance: 'Available Balance',
     pushNotifications: 'Push Notifications',
     emailUpdates: 'Email Updates',
     version: 'Version',

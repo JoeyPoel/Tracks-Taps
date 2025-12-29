@@ -28,7 +28,9 @@ async function main() {
 
     // Clean up existing data
     await prisma.userPlayedTour.deleteMany();
-    await prisma.notification.deleteMany();
+    await prisma.userPlayedTour.deleteMany();
+    // Notification model deleted
+    await prisma.friendship.deleteMany();
     await prisma.friendship.deleteMany();
     await prisma.pubGolfStop.deleteMany();
     await prisma.activeChallenge.deleteMany();
@@ -40,6 +42,9 @@ async function main() {
     await prisma.tour.deleteMany();
     await prisma.userAchievement.deleteMany();
     await prisma.achievement.deleteMany();
+
+    // Reset sequences if needed (optional for postgres usually, but good practice in some envs)
+
     await prisma.user.deleteMany();
 
     // 1. Create Users
@@ -768,6 +773,80 @@ async function main() {
 
     await createStopsAndChallenges(bcnTapasTour.id, bcnTapasStops);
     await createReviews(bcnTapasTour.id);
+
+
+    // --- SEED ACHIEVEMENTS ---
+    console.log('Seeding achievements...');
+    const achievementsData = [
+        {
+            title: 'First Steps',
+            description: 'Complete your first tour',
+            icon: 'flag',
+            color: '#4CAF50',
+            criteria: 'TOUR_COMPLETION',
+            target: 1,
+            xpReward: 100
+        },
+        {
+            title: 'Social Butterfly',
+            description: 'Add 3 friends',
+            icon: 'people',
+            color: '#2196F3',
+            criteria: 'FRIEND_ADD',
+            target: 3,
+            xpReward: 150
+        },
+        {
+            title: 'Explorer',
+            description: 'Complete 5 tours',
+            icon: 'map',
+            color: '#FF9800',
+            criteria: 'TOUR_COMPLETION',
+            target: 5,
+            xpReward: 500
+        },
+        {
+            title: 'On Fire',
+            description: 'Maintain a 3-day streak',
+            icon: 'flame',
+            color: '#F44336',
+            criteria: 'STREAK',
+            target: 3,
+            xpReward: 300
+        },
+        {
+            title: 'Global Citizen',
+            description: 'Complete tours in 3 different countries',
+            icon: 'globe',
+            color: '#9C27B0',
+            criteria: 'country_count',
+            target: 3,
+            xpReward: 1000
+        }
+    ];
+
+    for (const ach of achievementsData) {
+        await prisma.achievement.create({ data: ach });
+    }
+
+    // Grant some achievements to users
+    const firstSteps = await prisma.achievement.findFirst({ where: { title: 'First Steps' } });
+    const socialButterfly = await prisma.achievement.findFirst({ where: { title: 'Social Butterfly' } });
+
+    if (firstSteps) {
+        await prisma.userAchievement.create({
+            data: { userId: joey.id, achievementId: firstSteps.id }
+        });
+        await prisma.userAchievement.create({
+            data: { userId: bob.id, achievementId: firstSteps.id }
+        });
+    }
+
+    if (socialButterfly) {
+        await prisma.userAchievement.create({
+            data: { userId: joey.id, achievementId: socialButterfly.id }
+        });
+    }
 
 
     // --- TOUR 4: Warsaw: Phoenix City ---

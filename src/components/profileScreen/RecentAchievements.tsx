@@ -24,9 +24,10 @@ interface Achievement {
 
 interface RecentAchievementsProps {
     achievements: Achievement[];
+    onSeeAll?: () => void;
 }
 
-export default function RecentAchievements({ achievements }: RecentAchievementsProps) {
+export default function RecentAchievements({ achievements, onSeeAll }: RecentAchievementsProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
@@ -44,12 +45,18 @@ export default function RecentAchievements({ achievements }: RecentAchievementsP
         }
     };
 
-    if (!achievements || achievements.length === 0) return null;
+    // Removed early return to always show the header and "See All" link
+    // if (!achievements || achievements.length === 0) return null;
 
     return (
         <View style={styles.container}>
             <View style={styles.headerRow}>
                 <Text style={[styles.header, { color: theme.textSecondary }]}>{t('recentAchievements')?.toUpperCase()}</Text>
+                {onSeeAll && (
+                    <Text onPress={onSeeAll} style={[styles.seeAll, { color: theme.primary }]}>
+                        {t('seeAll')}
+                    </Text>
+                )}
             </View>
 
             <ScrollView
@@ -57,17 +64,21 @@ export default function RecentAchievements({ achievements }: RecentAchievementsP
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ gap: 12 }}
             >
-                {achievements.map((achievement) => {
-                    const IconComponent = getIconComponent(achievement.icon);
-                    return (
-                        <View key={achievement.id} style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
-                            <View style={[styles.iconContainer, { backgroundColor: achievement.color + '15' }]}>
-                                <IconComponent size={28} color={achievement.color} />
+                {achievements && achievements.length > 0 ? (
+                    achievements.map((achievement) => {
+                        const IconComponent = getIconComponent(achievement.icon);
+                        return (
+                            <View key={achievement.id} style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
+                                <View style={[styles.iconContainer, { backgroundColor: achievement.color + '15' }]}>
+                                    <IconComponent size={28} color={achievement.color} />
+                                </View>
+                                <Text style={[styles.title, { color: theme.textPrimary }]} numberOfLines={1}>{achievement.title}</Text>
                             </View>
-                            <Text style={[styles.title, { color: theme.textPrimary }]} numberOfLines={1}>{achievement.title}</Text>
-                        </View>
-                    );
-                })}
+                        );
+                    })
+                ) : (
+                    <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{t('noAchievementsYet') || 'No achievements yet'}</Text>
+                )}
             </ScrollView>
         </View>
     );
@@ -80,11 +91,19 @@ const styles = StyleSheet.create({
     headerRow: {
         marginBottom: 12,
         paddingLeft: 4,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingRight: 4,
     },
     header: {
         fontSize: 12,
         fontWeight: '700',
         letterSpacing: 1,
+    },
+    seeAll: {
+        fontSize: 14,
+        fontWeight: '600',
     },
     card: {
         alignItems: 'center',
@@ -98,13 +117,19 @@ const styles = StyleSheet.create({
         width: 48,
         height: 48,
         borderRadius: 24,
-        justifyContent: 'center',
         alignItems: 'center',
+        justifyContent: 'center',
         marginBottom: 8,
     },
     title: {
         fontSize: 12,
-        fontWeight: '600',
+        fontWeight: '500',
         textAlign: 'center',
+        width: '100%',
+    },
+    emptyText: {
+        fontSize: 14,
+        fontStyle: 'italic',
+        marginLeft: 4,
     },
 });

@@ -15,7 +15,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 interface ShimmerProps {
     style?: any;
     width?: number | string;
-    height?: number;
+    height?: number | string;
     borderRadius?: number;
 }
 

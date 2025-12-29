@@ -98,8 +98,6 @@ export default function TabLayout() {
             <Tabs.Screen name="tour-waiting-lobby/[id]" options={{ href: null }} />
             <Tabs.Screen name="tour-completed/[id]" options={{ href: null }} />
             <Tabs.Screen name="personal-info" options={{ href: null }} />
-            <Tabs.Screen name="friends" options={{ href: null }} />
-            <Tabs.Screen name="friend-profile" options={{ href: null }} />
 
         </Tabs>
     );

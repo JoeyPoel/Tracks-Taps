@@ -15,18 +15,18 @@ export function FriendSearchInput({ value, onChangeText, onSend }: FriendSearchI
     const { t } = useLanguage();
 
     return (
-        <View style={[styles.searchContainer, { backgroundColor: theme.bgSecondary }]}>
-            <Ionicons name="search" size={20} color={theme.textSecondary} style={{ marginRight: 8 }} />
+        <View style={[styles.container, { backgroundColor: theme.bgSecondary }]}>
+            <Ionicons name="search" size={18} color={theme.textTertiary} />
             <TextInput
                 style={[styles.input, { color: theme.textPrimary }]}
                 placeholder={t('addFriendPlaceholder')}
-                placeholderTextColor={theme.textSecondary}
+                placeholderTextColor={theme.textTertiary}
                 value={value}
                 onChangeText={onChangeText}
             />
             {value.length > 0 && (
-                <TouchableOpacity onPress={onSend}>
-                    <Ionicons name="add-circle" size={28} color={theme.primary} />
+                <TouchableOpacity onPress={onSend} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                    <Ionicons name="arrow-forward-circle" size={24} color={theme.primary} />
                 </TouchableOpacity>
             )}
         </View>
@@ -34,23 +34,17 @@ export function FriendSearchInput({ value, onChangeText, onSend }: FriendSearchI
 }
 
 const styles = StyleSheet.create({
-    searchContainer: {
+    container: {
         flexDirection: 'row',
-        padding: 16,
-        borderRadius: 20,
         alignItems: 'center',
-        marginBottom: 20,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 2,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderRadius: 16,
+        gap: 12,
     },
     input: {
         flex: 1,
-        fontSize: 16,
-        marginRight: 8,
-        letterSpacing: 0.5,
-        paddingVertical: 4,
+        fontSize: 15,
+        fontWeight: '500',
     },
 });

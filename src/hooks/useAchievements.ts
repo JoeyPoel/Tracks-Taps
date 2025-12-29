@@ -24,10 +24,21 @@ export const useAchievements = () => {
         }
     }, [user?.id]);
 
+    const loadAllAchievements = useCallback(async () => {
+        if (!user?.id) return [];
+        try {
+            return await achievementService.getAllAchievements(user.id);
+        } catch (err) {
+            console.error('Failed to load all achievements:', err);
+            return [];
+        }
+    }, [user?.id]);
+
     return {
         achievements,
         loading,
         error,
         loadAchievements,
+        loadAllAchievements
     };
 };

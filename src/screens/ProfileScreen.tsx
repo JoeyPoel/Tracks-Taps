@@ -96,7 +96,7 @@ export default function ProfileScreen() {
             friends={friends.length}
             onPressToursDone={() => console.log('Navigate to tours done')}
             onPressToursCreated={() => console.log('Navigate to created tours')}
-            onPressFriends={() => router.push('/(tabs)/friends')}
+            onPressFriends={() => router.push('/friends')}
           />
         </Animated.View>
 
@@ -109,7 +109,10 @@ export default function ProfileScreen() {
         </Animated.View>
 
         <Animated.View entering={FadeInDown.delay(300).duration(500)} style={{ marginTop: 24 }}>
-          <RecentAchievements achievements={achievements} />
+          <RecentAchievements
+            achievements={achievements}
+            onSeeAll={() => router.push('/profile/achievements')}
+          />
         </Animated.View>
 
         {/* Grouped Settings Section */}

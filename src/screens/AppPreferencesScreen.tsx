@@ -33,7 +33,7 @@ export default function AppPreferencesScreen() {
   );
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={false}>
       <Stack.Screen options={{ headerShown: false }} />
       <AppHeader
         showBackButton
