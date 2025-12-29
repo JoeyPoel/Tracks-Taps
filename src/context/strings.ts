@@ -84,6 +84,13 @@ export const strings = {
     totalPoints: 'Total Points',
     friends: 'Friends',
     recentAchievements: 'Recent Achievements',
+    savedTrips: 'Saved Trips',
+    mySavedTrips: 'My Saved Trips',
+    saveToTrip: 'Save to Trip',
+    saved: 'Saved',
+    createTripList: 'Create Trip List',
+    enterTripListName: 'Enter list name',
+    noSavedTrips: 'No saved trips yet',
     // Active Tour keys
     createTour: 'Create Tour',
     createTourSubtitle: 'Design your own adventure',
@@ -96,6 +103,8 @@ export const strings = {
     tourLocation: 'Location',
     tourImage: 'Image URL',
     difficulty: 'Difficulty',
+    selectDifficulty: 'Select Difficulty',
+    selectGenre: 'Select Genre',
     selectGameModes: 'Select Game Modes',
     addStop: 'Add Stop',
     editStop: 'Edit Stop',
@@ -422,6 +431,7 @@ export const strings = {
 
     // Create Flow - True/False
     correctAnswerTrue: "Correct Answer is TRUE?",
+    confirmLocation: "Confirm Location",
 
     // Explore Screen & Filters
     filters: "Filters",
@@ -559,7 +569,18 @@ export const strings = {
     totalPoints: 'Puntos Totales',
     friends: 'Amigos',
     recentAchievements: 'Logros Recientes',
+    savedTrips: 'Viajes Guardados',
+    mySavedTrips: 'Mis Viajes',
+    saveToTrip: 'Guardar en Viaje',
+    saved: 'Guardado',
+    createTripList: 'Crear Lista de Viaje',
+    enterTripListName: 'Nombre de la lista',
+    noSavedTrips: 'Aún no hay viajes guardados',
     // Active Tour keys
+    difficulty: 'Dificultad',
+    selectDifficulty: 'Seleccionar Dificultad',
+    selectGenre: 'Seleccionar Género',
+    selectGameModes: 'Seleccionar Modos de Juego',
     loadingTour: 'Cargando tour...',
     tourNotFound: 'Tour no encontrado',
     challenges: 'Desafíos',
@@ -963,6 +984,10 @@ export const strings = {
     friends: 'Vrienden',
     recentAchievements: 'Recente Prestaties',
     // Active Tour keys
+    difficulty: 'Moeilijkheidsgraad',
+    selectDifficulty: 'Selecteer Moeilijkheidsgraad',
+    selectGenre: 'Selecteer Genre',
+    selectGameModes: 'Selecteer Spelmodi',
     loadingTour: 'Tour laden...',
     tourNotFound: 'Tour niet gevonden',
     challenges: 'Uitdagingen',

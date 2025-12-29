@@ -12,9 +12,11 @@ interface AppModalProps {
     children: React.ReactNode;
     subtitle?: string;
     headerRight?: React.ReactNode;
+    height?: number | string;
+    modalStyle?: any;
 }
 
-export function AppModal({ visible, onClose, title, icon, children, subtitle, headerRight }: AppModalProps) {
+export function AppModal({ visible, onClose, title, icon, children, subtitle, headerRight, height, modalStyle }: AppModalProps) {
     const { theme } = useTheme();
     const slideAnim = React.useRef(new Animated.Value(Dimensions.get('window').height)).current;
 
@@ -22,6 +24,7 @@ export function AppModal({ visible, onClose, title, icon, children, subtitle, he
         if (visible) {
             Animated.spring(slideAnim, {
                 toValue: 0,
+                // @ts-ignore
                 useNativeDriver: true,
                 damping: 20,
                 stiffness: 90,
@@ -35,6 +38,7 @@ export function AppModal({ visible, onClose, title, icon, children, subtitle, he
         Animated.timing(slideAnim, {
             toValue: Dimensions.get('window').height,
             duration: 250,
+            // @ts-ignore
             useNativeDriver: true,
         }).start(() => {
             onClose();
@@ -54,8 +58,10 @@ export function AppModal({ visible, onClose, title, icon, children, subtitle, he
                         styles.modalContent,
                         {
                             backgroundColor: theme.bgPrimary,
-                            transform: [{ translateY: slideAnim }]
-                        }
+                            transform: [{ translateY: slideAnim }],
+                            ...(height ? { height } : { maxHeight: '90%' }),
+                            ...modalStyle
+                        },
                     ]}
                 >
                     <View style={styles.header}>
@@ -94,7 +100,6 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         padding: 24,
-        maxHeight: '90%',
     },
     header: {
         flexDirection: 'row',

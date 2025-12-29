@@ -6,6 +6,7 @@ import {
   Cog6ToothIcon,
   DocumentTextIcon,
   EnvelopeIcon,
+  HeartIcon,
   QuestionMarkCircleIcon,
   UserIcon
 } from 'react-native-heroicons/outline';
@@ -124,6 +125,11 @@ export default function ProfileScreen() {
               icon={<UserIcon size={22} color={theme.primary} />}
               title={t('personalInfo')}
               onPress={() => router.push('/profile/personal-info')}
+            />
+            <SettingsRow
+              icon={<HeartIcon size={22} color={theme.primary} />}
+              title={t('savedTrips') || 'Saved Trips'}
+              onPress={() => router.push('/saved-trips' as any)}
             />
             <SettingsRow
               icon={<Cog6ToothIcon size={22} color={theme.primary} />}

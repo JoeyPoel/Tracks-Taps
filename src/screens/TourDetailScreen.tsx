@@ -4,16 +4,18 @@ import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { AnimatedButton } from '../components/common/AnimatedButton';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
+import AddToSavedTripsModal from '../components/saved-trips/AddToSavedTripsModal';
 import TourGallery from '../components/tourdetailScreen/TourGallery';
 import TourReviews from '../components/tourdetailScreen/TourReviews';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useSavedTrips } from '../hooks/useSavedTrips';
 import { useStartTour } from '../hooks/useStartTour';
 import { useTourDetails } from '../hooks/useTourDetails';
 
@@ -22,6 +24,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { t } = useLanguage();
   const { user } = useAuth();
   const router = useRouter();
+  const [showSavedTripModal, setShowSavedTripModal] = useState(false);
 
   const {
     tour,
@@ -33,6 +36,12 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   } = useTourDetails(tourId);
 
   const { startTour, loadingMode } = useStartTour(tourId, tour?.authorId);
+  const { lists, loadLists, checkIsSaved, createList, addTourToList, removeTourFromList } = useSavedTrips();
+  const isSaved = checkIsSaved(tourId);
+
+  React.useEffect(() => {
+    loadLists();
+  }, [tourId, loadLists]);
 
   // Collect all images from reviews for the gallery
   const allReviewImages = React.useMemo(() => {
@@ -107,6 +116,18 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           >
             <Ionicons name="map" size={24} color={theme.textPrimary} />
             <Text style={[styles.mapFabText, { color: theme.textPrimary }]}>Map</Text>
+          </TouchableOpacity>
+
+          {/* Saved Trip Button */}
+          <TouchableOpacity
+            onPress={() => setShowSavedTripModal(true)}
+            style={[styles.savedTripFab, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
+          >
+            <Ionicons
+              name={isSaved ? "heart" : "heart-outline"}
+              size={24}
+              color={isSaved ? theme.primary : theme.textPrimary}
+            />
           </TouchableOpacity>
         </View>
 
@@ -194,9 +215,31 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
         </View>
       </Animated.View>
 
+      <AddToSavedTripsModal
+        visible={showSavedTripModal}
+        onClose={() => setShowSavedTripModal(false)}
+        tourId={tourId}
+        lists={lists}
+        onCreateList={createList}
+        onAddTour={addTourToList}
+        onRemoveTour={removeTourFromList}
+      />
     </ScreenWrapper>
   );
 }
+/*
+      <AddToSavedTripsModal 
+        visible={showSavedTripModal} 
+        onClose={() => setShowSavedTripModal(false)}
+        tourId={tourId}
+      />
+*/
+// Modal needs to be inside the wrapper but maybe outside the scroll/footer 
+// Actually sticking it at the end of return before closing wrapper is fine.
+
+/* We also need to add the button in the hero section. 
+   I will do a multi_replace for this to be cleaner.
+*/
 
 // Mini Component for Stats
 const StatCard = ({ icon, label, value, theme, delay }: any) => (
@@ -364,6 +407,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 12,
     elevation: 6,
+  },
+  savedTripFab: {
+    position: 'absolute',
+    top: 60,
+    right: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
+    zIndex: 20, // ensure it's above hero image
   },
   mapFabText: {
     fontWeight: 'bold',
