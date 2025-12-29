@@ -9,18 +9,20 @@ export const achievementService = {
                     userId,
                     achievementId: achievement.id
                 }
-            }
+            },
+            include: { achievement: true }
         });
 
-        if (existing) return null;
+        if (existing) return existing.achievement;
 
         console.log(`Unlocking achievement '${achievement.title}' for user ${userId}`);
-        
+
         const unlocked = await prisma.userAchievement.create({
             data: {
                 userId,
                 achievementId: achievement.id
-            }
+            },
+            include: { achievement: true }
         });
 
         // Award XP
@@ -31,7 +33,16 @@ export const achievementService = {
             });
         }
 
-        return unlocked;
+        return unlocked.achievement;
+    },
+
+    async unlockByCriteria(userId: number, criteria: string) {
+        const achievement = await prisma.achievement.findFirst({
+            where: { criteria } // In our seed/schema, generic criteria is just the code string
+        });
+
+        if (!achievement) return null;
+        return this.unlockAchievement(userId, achievement);
     },
 
     async checkTourCompletion(userId: number) {
@@ -95,7 +106,7 @@ export const achievementService = {
 
         // Check Hole in One (sips == 1)
         const holeInOnes = team.pubGolfStops.filter(s => s.sips === 1).length;
-        
+
         if (holeInOnes > 0) {
             const hioAch = await prisma.achievement.findFirst({ where: { criteria: 'PUBGOLF_HOLE_IN_ONE' } });
             if (hioAch) await this.unlockAchievement(userId, hioAch);

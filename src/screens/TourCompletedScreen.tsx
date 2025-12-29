@@ -10,12 +10,16 @@ import FeedbackCard from '../components/tourCompleted/FeedbackCard';
 import Podium from '../components/tourCompleted/Podium';
 import ReviewForm from '../components/tourCompleted/ReviewForm';
 import { useTheme } from '../context/ThemeContext';
+import { useToast } from '../context/ToastContext';
+import { useAchievements } from '../hooks/useAchievements';
 import { useTourCompleted } from '../hooks/useTourCompleted';
 
 type RevealState = 'CALCULATING' | 'REVEAL_3' | 'REVEAL_2' | 'REVEAL_1' | 'CELEBRATE';
 
 export default function TourCompletedScreen({ activeTourId, celebrate = false }: { activeTourId: number; celebrate?: boolean }) {
     const { theme } = useTheme();
+    const { unlockAchievement } = useAchievements();
+    const { showToast } = useToast();
 
     // Use custom hook for logic
     const {
@@ -68,6 +72,17 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                 setRevealState('REVEAL_1');
                 await new Promise(r => setTimeout(r, 800));
                 setRevealState('CELEBRATE');
+
+                // Unlock Achievement: First Tour
+                const achievement = await unlockAchievement('first-tour');
+                if (achievement) {
+                    showToast({
+                        title: achievement.title,
+                        message: achievement.description,
+                        emoji: '🚀',
+                        backgroundColor: achievement.color
+                    });
+                }
             };
             sequence();
         }

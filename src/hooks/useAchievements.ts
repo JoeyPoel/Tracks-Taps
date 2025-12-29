@@ -34,11 +34,27 @@ export const useAchievements = () => {
         }
     }, [user?.id]);
 
+    const unlockAchievement = useCallback(async (code: string) => {
+        if (!user?.id) return;
+
+        try {
+            const achievement = await achievementService.unlockAchievement(user.id, code);
+            if (achievement) {
+                // Return details for toast to be handled by caller or handle here if we pass toast context
+                return achievement;
+            }
+        } catch (err) {
+            console.error('Failed to unlock achievement:', err);
+        }
+        return null;
+    }, [user?.id]);
+
     return {
         achievements,
         loading,
         error,
         loadAchievements,
-        loadAllAchievements
+        loadAllAchievements,
+        unlockAchievement
     };
 };

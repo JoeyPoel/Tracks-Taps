@@ -1,6 +1,8 @@
 import { friendService } from '@/src/services/friendsService';
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
+import { useToast } from '../context/ToastContext';
+import { useAchievements } from './useAchievements';
 
 export function useFriends() {
     const [friends, setFriends] = useState<any[]>([]);
@@ -32,6 +34,12 @@ export function useFriends() {
         }
     }, []);
 
+    // Hooks
+    const { unlockAchievement } = useAchievements();
+    const { showToast } = useToast();
+
+    // ... existing load functions ...
+
     const sendFriendRequest = async (email: string) => {
         if (!email) return;
         setActionLoading(true);
@@ -54,6 +62,17 @@ export function useFriends() {
             await loadRequests();
             if (action === 'ACCEPT') {
                 await loadFriends();
+
+                // Unlock Achievement: Social Butterfly
+                const achievement = await unlockAchievement('social-butterfly');
+                if (achievement) {
+                    showToast({
+                        title: achievement.title,
+                        message: achievement.description,
+                        emoji: achievement.icon === 'people' ? '🦋' : '🏆', // Fallback or mapping
+                        backgroundColor: achievement.color
+                    });
+                }
             }
         } catch (error: any) {
             console.error('Error responding to request:', error);

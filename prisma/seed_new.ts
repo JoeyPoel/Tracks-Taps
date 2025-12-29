@@ -782,46 +782,61 @@ async function main() {
             title: 'First Steps',
             description: 'Complete your first tour',
             icon: 'flag',
+            emoji: '🏁',
             color: '#4CAF50',
-            criteria: 'TOUR_COMPLETION',
+            criteria: 'first-tour',
             target: 1,
             xpReward: 100
         },
         {
             title: 'Social Butterfly',
-            description: 'Add 3 friends',
+            description: 'Connect with a friend',
             icon: 'people',
+            emoji: '🦋',
             color: '#2196F3',
-            criteria: 'FRIEND_ADD',
-            target: 3,
+            criteria: 'social-butterfly',
+            target: 1,
             xpReward: 150
+        },
+        {
+            title: 'Creator',
+            description: 'Create your first tour',
+            icon: 'map',
+            emoji: '🎨',
+            color: '#9C27B0',
+            criteria: 'creator',
+            target: 1,
+            xpReward: 300
         },
         {
             title: 'Explorer',
             description: 'Complete 5 tours',
             icon: 'map',
+            emoji: '🧭',
             color: '#FF9800',
             criteria: 'TOUR_COMPLETION',
             target: 5,
             xpReward: 500
         },
         {
-            title: 'On Fire',
-            description: 'Maintain a 3-day streak',
-            icon: 'flame',
-            color: '#F44336',
-            criteria: 'STREAK',
-            target: 3,
-            xpReward: 300
+            title: 'Hole in One',
+            description: 'Finish a Pub Golf stop in 1 sip',
+            icon: 'beer',
+            emoji: '🍺',
+            color: '#795548',
+            criteria: 'PUBGOLF_HOLE_IN_ONE',
+            target: 1,
+            xpReward: 50
         },
         {
-            title: 'Global Citizen',
-            description: 'Complete tours in 3 different countries',
-            icon: 'globe',
-            color: '#9C27B0',
-            criteria: 'country_count',
+            title: 'Pub Golf Champion',
+            description: 'Get 3 Hole in Ones in a single game',
+            icon: 'trophy',
+            emoji: '🏆',
+            color: '#FFD700',
+            criteria: 'PUBGOLF_STREAK',
             target: 3,
-            xpReward: 1000
+            xpReward: 200
         }
     ];
 

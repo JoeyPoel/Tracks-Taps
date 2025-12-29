@@ -1,5 +1,7 @@
 
 import { useLanguage } from '@/src/context/LanguageContext';
+import { useToast } from '@/src/context/ToastContext';
+import { useAchievements } from '@/src/hooks/useAchievements';
 import { tourService } from '@/src/services/tourService';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -10,6 +12,8 @@ export function useTourSubmission(user: any) {
     const { t } = useLanguage();
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { unlockAchievement } = useAchievements();
+    const { showToast } = useToast();
 
     const submitTour = async (tourDraft: TourDraft) => {
         if (!user) {
@@ -42,6 +46,17 @@ export function useTourSubmission(user: any) {
             };
 
             const createdTour = await tourService.createTour(payload);
+
+            // Unlock Achievement: Creator
+            const achievement = await unlockAchievement('creator');
+            if (achievement) {
+                showToast({
+                    title: achievement.title,
+                    message: achievement.description,
+                    emoji: '🎨',
+                    backgroundColor: achievement.color
+                });
+            }
 
             Alert.alert(t('tourCreatedSuccess'), t('playForFree'), [
                 {

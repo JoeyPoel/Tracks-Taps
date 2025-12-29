@@ -327,14 +327,15 @@ model UserPlayedTour {
 }
 
 model Achievement {
-  id          Int    @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   title       String
   description String
   icon        String // 'trophy', 'map', 'flame', etc.
-  color       String @default("#FFC107") // hex color
+  emoji       String? @default("🏆") // New field for toast display
+  color       String  @default("#FFC107") // hex color
   criteria    String // 'TOUR_COMPLETION', 'FRIEND_ADD', 'STREAK', etc.
-  target      Int    @default(1)
-  xpReward    Int    @default(0)
+  target      Int     @default(1)
+  xpReward    Int     @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

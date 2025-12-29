@@ -25,5 +25,22 @@ export const achievementService = {
             params: { userId }
         });
         return response.data;
+    },
+
+    async unlockAchievement(userId: number, code: string): Promise<Achievement | null> {
+        try {
+            const response = await client.post(`/user/achievements/unlock`, {
+                userId,
+                code
+            });
+            // Assuming backend returns the achievement object if unlocked, or null/status if already unlocked
+            return response.data;
+        } catch (error) {
+            console.error('Error unlocking achievement:', error);
+            // Return null or rethrow depending on desired behavior.
+            // If already unlocked, backend might return 400 or specific code.
+            // For now, let's return null on failure to unlock.
+            return null;
+        }
     }
 };

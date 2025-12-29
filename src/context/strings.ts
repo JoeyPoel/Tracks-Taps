@@ -148,6 +148,8 @@ export const strings = {
     enterCodeInstruction: "Enter the code shared by your team captain to join the tour.",
     orAcceptInvite: "OR ACCEPT INVITE",
     invitedBy: "Invited by",
+    levelUp: "Level Up!",
+    youReachedLevel: "You reached level {0}!",
     next: 'Next',
     tokens: 'Tokens',
     pubgolf: 'Pub Golf',

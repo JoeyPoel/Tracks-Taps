@@ -1,7 +1,7 @@
 import AuthRequiredModal from '@/src/components/AuthRequiredModal';
-import LevelUpToast from '@/src/components/common/LevelUpToast';
 import ThemedStatusBar from '@/src/components/ThemedStatusBar';
 import { useAuth } from '@/src/context/AuthContext';
+import { useLevelUpListener } from '@/src/hooks/useLevelUpListener';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
@@ -13,6 +13,9 @@ export function MainLayout() {
 
     const [isReady, setIsReady] = useState(false);
     const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+
+    // Listen for level ups
+    useLevelUpListener();
 
     useEffect(() => {
         // Check onboarding status
@@ -69,7 +72,6 @@ export function MainLayout() {
             </Stack>
             <ThemedStatusBar />
             <AuthRequiredModal />
-            <LevelUpToast />
         </>
     );
 }
