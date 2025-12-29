@@ -55,22 +55,14 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
     const startTour = async () => {
         if (!activeTourId || !user) return;
         try {
-            const response = await fetch(`/api/active-tour/${activeTourId}/start`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: user.email })
-            });
-            const data = await response.json();
-            if (response.ok) {
-                // Immediately refresh state
-                loadLobbyDetails();
-                return { success: true };
-            } else {
-                return { success: false, error: data.error };
-            }
-        } catch (error) {
+            await activeTourService.startGame(activeTourId);
+            // WebSocket will handle the redirect via activeTour.status change
+            // But we reload to be sure
+            loadLobbyDetails();
+            return { success: true };
+        } catch (error: any) {
             console.error('Failed to start tour', error);
-            return { success: false, error: 'Network error' };
+            return { success: false, error: error.message || 'Network error' };
         }
     };
 

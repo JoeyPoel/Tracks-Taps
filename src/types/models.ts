@@ -13,6 +13,13 @@ export enum Difficulty {
     HARD = 'HARD'
 }
 
+export enum TourType {
+    QUICK_TRIP = 'QUICK_TRIP',
+    DAY_TRIP = 'DAY_TRIP',
+    MULTI_DAY = 'MULTI_DAY',
+    EXPEDITION = 'EXPEDITION'
+}
+
 export enum ChallengeType {
     LOCATION = 'LOCATION',
     TRIVIA = 'TRIVIA',
@@ -65,6 +72,7 @@ export interface Tour {
     points: number;
     modes: string[];
     difficulty: Difficulty | string;
+    type: TourType | string; // New field
     genre: string; // New field
     createdAt: Date;
     updatedAt: Date;

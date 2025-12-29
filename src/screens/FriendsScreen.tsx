@@ -4,7 +4,6 @@ import { FriendCard } from '@/src/components/friends/FriendCard';
 import { FriendSearchInput } from '@/src/components/friends/FriendSearchInput';
 import { FriendsTabs } from '@/src/components/friends/FriendsTabs';
 import { RequestCard } from '@/src/components/friends/RequestCard';
-import AppHeader from '@/src/components/Header';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useFriends } from '@/src/hooks/useFriends';
@@ -12,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { ScreenHeader } from '../components/common/ScreenHeader';
 
 export default function FriendsScreen() {
     const { theme } = useTheme();
@@ -60,7 +60,10 @@ export default function FriendsScreen() {
     return (
         <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} withScrollView={false} includeTop={false} animateEntry={false} withBottomTabs={true}>
             <Stack.Screen options={{ headerShown: false }} />
-            <AppHeader showBackButton title={t('socialHub')} />
+            <ScreenHeader
+                showBackButton
+                title={activeTab === 'friends' ? t('friends') : t('requests')}
+            />
 
             <View style={styles.container}>
                 <View style={styles.headerSection}>

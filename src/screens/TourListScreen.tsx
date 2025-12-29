@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import TourCard from '../components/exploreScreen/TourCard';
-import AppHeader from '../components/Header';
+import TourSkeleton from '../components/exploreScreen/TourSkeleton';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
@@ -49,11 +50,15 @@ export default function TourListScreen() {
 
     return (
         <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={false}>
-            <AppHeader showBackButton title={title || (type === 'done' ? t('toursDone') : t('toursCreated'))} />
+            <ScreenHeader showBackButton title={title || (type === 'done' ? t('toursDone') : t('toursCreated'))} />
 
             {loading ? (
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
+                <View style={styles.listContent}>
+                    {[1, 2, 3, 4].map((i) => (
+                        <View key={i} style={{ marginBottom: 16 }}>
+                            <TourSkeleton />
+                        </View>
+                    ))}
                 </View>
             ) : (
                 <FlatList
@@ -72,7 +77,7 @@ export default function TourListScreen() {
                                 points={item.points || 0}
                                 modes={item.modes || []}
                                 genre={item.genre}
-                                difficulty={item.difficulty}
+                                tourType={item.type}
                                 onPress={() => router.push(`/tour/${item.id}`)}
                             />
                         </View>

@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React from 'react';
@@ -138,13 +137,19 @@ export default function MapScreen() {
         <TouchableOpacity
           style={[
             styles.backButton,
-            { top: insets.top + 16 }
+            {
+              top: insets.top + 16,
+              backgroundColor: theme.primary, // "Just pink"
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+              elevation: 6,
+            }
           ]}
           onPress={handleBack}
         >
-          <BlurView intensity={30} tint="dark" style={styles.backButtonBlur}>
-            <Ionicons name="arrow-back" size={24} color="#FFF" />
-          </BlurView>
+          <Ionicons name="arrow-back" size={24} color="#FFF" />
         </TouchableOpacity>
       )}
 
@@ -163,6 +168,7 @@ export default function MapScreen() {
             reviewCount={selectedTour.reviews?.length || 0}
             points={(selectedTour as any).points || 0}
             genre={(selectedTour as any).genre || 'Adventure'}
+            tourType={(selectedTour as any).type}
             variant="map"
             onPress={() => {
               router.push(`/tour/${selectedTour.id}`);
@@ -186,15 +192,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 24,
     borderRadius: 22,
-    overflow: 'hidden',
-  },
-  backButtonBlur: {
+    // overflow: 'hidden', // Removed to allow shadow
     width: 44,
     height: 44,
-    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  // backButtonBlur removed
   tourInfo: {
     position: 'absolute',
     left: 24,

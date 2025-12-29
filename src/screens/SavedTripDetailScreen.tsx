@@ -120,7 +120,7 @@ export default function SavedTripDetailScreen() {
                                 points={item.points || 0}
                                 modes={item.modes || []}
                                 genre={item.genre}
-                                difficulty={item.difficulty as any}
+                                tourType={item.type}
                                 onPress={() => router.push(`/tour/${item.id}`)}
                             />
                             <TouchableOpacity

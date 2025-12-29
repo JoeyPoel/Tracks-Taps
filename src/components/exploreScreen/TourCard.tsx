@@ -5,6 +5,7 @@ import { BoltIcon as BoltIconSolid, ClockIcon, MapIcon, StarIcon as StarIconSoli
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { getGenreIcon } from '../../utils/genres';
+import { getTourTypeLabel } from '../../utils/tourUtils';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 
 interface TourCardProps {
@@ -19,7 +20,7 @@ interface TourCardProps {
   points: number;
   modes?: string[];
   genre?: string;
-  difficulty?: string;
+  tourType?: string;
   onPress?: () => void;
   variant?: 'hero' | 'grid' | 'map';
 }
@@ -36,7 +37,7 @@ export default function TourCard({
   points,
   modes = [],
   genre,
-  difficulty,
+  tourType,
   onPress,
   variant = 'hero',
 }: TourCardProps) {
@@ -79,9 +80,9 @@ export default function TourCard({
                     <Text style={styles.badgeText}>{genre}</Text>
                   </View>
                 )}
-                {difficulty && (
+                {tourType && (
                   <View style={[styles.badge, styles.blurBadge]}>
-                    <Text style={styles.badgeText}>{difficulty}</Text>
+                    <Text style={styles.badgeText}>{getTourTypeLabel(tourType)}</Text>
                   </View>
                 )}
               </View>

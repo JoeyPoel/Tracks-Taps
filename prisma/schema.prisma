@@ -29,6 +29,13 @@ enum Difficulty {
   HARD
 }
 
+enum TourType {
+  QUICK_TRIP
+  DAY_TRIP
+  MULTI_DAY
+  EXPEDITION
+}
+
 enum SessionStatus {
   WAITING
   IN_PROGRESS
@@ -127,6 +134,7 @@ model Tour {
   points      Int
   modes       String[] // PostgreSQL array for modes
   difficulty  Difficulty
+  type        TourType   @default(QUICK_TRIP) // New field: Tour Duration Type
   genre       String     @default("Adventure") // New field: Genre
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt

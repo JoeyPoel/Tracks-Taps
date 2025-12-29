@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react';
+import { TourType } from '../../types/models';
 import { useTourCalculations } from './useTourCalculations';
 
 export type TourDraft = {
@@ -16,6 +17,7 @@ export type TourDraft = {
     genre: string;
     startLat?: number;
     startLng?: number;
+    type: TourType | string; // New field
 };
 
 const INITIAL_DRAFT: TourDraft = {
@@ -32,6 +34,7 @@ const INITIAL_DRAFT: TourDraft = {
     points: 0,
     startLat: undefined,
     startLng: undefined,
+    type: TourType.QUICK_TRIP, // Default
 };
 
 export function useTourDraft() {

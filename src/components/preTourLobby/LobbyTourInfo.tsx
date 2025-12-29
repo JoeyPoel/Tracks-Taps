@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -14,24 +15,49 @@ export const LobbyTourInfo: React.FC<LobbyTourInfoProps> = ({ activeTour }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
+    const imageUrl = activeTour?.tour?.imageUrl;
+
     return (
         <Animated.View entering={FadeInUp.delay(100).springify()} style={[styles.tourCard, { backgroundColor: theme.bgSecondary }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <LinearGradient
-                    colors={[theme.primary + '40', theme.primary + '10']}
-                    style={styles.tourIconBadge}
-                >
-                    <Ionicons name="map" size={24} color={theme.primary} />
-                </LinearGradient>
-                <View style={{ flex: 1 }}>
-                    <Text style={[styles.tourTitle, { color: theme.textPrimary }]} numberOfLines={1}>
-                        {activeTour?.tour?.title || t('loading')}
-                    </Text>
-                    <Text style={[styles.tourSubtitle, { color: theme.textSecondary }]}>
-                        {activeTour?.tour?._count?.stops || 0} {t('stops')} • 2.5 km
-                    </Text>
+            {imageUrl ? (
+                <View style={styles.imageContainer}>
+                    <Image
+                        source={{ uri: imageUrl }}
+                        style={styles.tourImage}
+                        contentFit="cover"
+                        transition={200}
+                    />
+                    <LinearGradient
+                        colors={['transparent', 'rgba(0,0,0,0.8)']}
+                        style={styles.imageOverlay}
+                    />
+                    <View style={styles.imageContent}>
+                        <Text style={[styles.tourTitle, { color: '#FFF' }]} numberOfLines={1}>
+                            {activeTour?.tour?.title || t('loading')}
+                        </Text>
+                        <Text style={[styles.tourSubtitle, { color: '#E0E0E0' }]}>
+                            {activeTour?.tour?._count?.stops || 0} {t('stops')} • {activeTour?.tour?.distance || 0} km
+                        </Text>
+                    </View>
                 </View>
-            </View>
+            ) : (
+                <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16 }}>
+                    <LinearGradient
+                        colors={[theme.primary + '40', theme.primary + '10']}
+                        style={styles.tourIconBadge}
+                    >
+                        <Ionicons name="map" size={24} color={theme.primary} />
+                    </LinearGradient>
+                    <View style={{ flex: 1 }}>
+                        <Text style={[styles.tourTitle, { color: theme.textPrimary }]} numberOfLines={1}>
+                            {activeTour?.tour?.title || t('loading')}
+                        </Text>
+                        <Text style={[styles.tourSubtitle, { color: theme.textSecondary }]}>
+                            {activeTour?.tour?._count?.stops || 0} {t('stops')} • {activeTour?.tour?.distance || 0} km
+                        </Text>
+                    </View>
+                </View>
+            )}
         </Animated.View>
     );
 };
@@ -39,7 +65,6 @@ export const LobbyTourInfo: React.FC<LobbyTourInfoProps> = ({ activeTour }) => {
 const styles = StyleSheet.create({
     tourCard: {
         borderRadius: 20,
-        padding: 16,
         marginBottom: 24,
         // Soft Styling
         shadowColor: "#000",
@@ -47,6 +72,21 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.05,
         shadowRadius: 12,
         elevation: 3,
+        overflow: 'hidden',
+    },
+    imageContainer: {
+        height: 200,
+        width: '100%',
+        justifyContent: 'flex-end',
+    },
+    tourImage: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    imageOverlay: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    imageContent: {
+        padding: 16,
     },
     tourIconBadge: {
         width: 48,

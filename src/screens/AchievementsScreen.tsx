@@ -1,5 +1,5 @@
+import { ScreenHeader } from '@/src/components/common/ScreenHeader';
 import { ScreenWrapper } from '@/src/components/common/ScreenWrapper';
-import AppHeader from '@/src/components/Header';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useUserContext } from '@/src/context/UserContext';
@@ -19,6 +19,7 @@ import {
     TrophyIcon,
     UserGroupIcon
 } from 'react-native-heroicons/solid';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function AchievementsScreen() {
     const { theme } = useTheme();
@@ -60,8 +61,12 @@ export default function AchievementsScreen() {
 
     if (loading) {
         return (
-            <ScreenWrapper style={{ backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color={theme.primary} />
+            <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={false}>
+                <Stack.Screen options={{ headerShown: false }} />
+                <ScreenHeader showBackButton title={t('achievements')} />
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size="large" color={theme.primary} />
+                </View>
             </ScreenWrapper>
         );
     }
@@ -69,31 +74,33 @@ export default function AchievementsScreen() {
     return (
         <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={false}>
             <Stack.Screen options={{ headerShown: false }} />
-            <AppHeader showBackButton title={t('achievements')} />
+            <ScreenHeader showBackButton title={t('achievements')} />
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
                 {/* Progress Card */}
-                <LinearGradient
-                    colors={[theme.primary, theme.secondary]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.progressCard}
-                >
-                    <View style={styles.progressRow}>
-                        <View>
-                            <Text style={styles.progressLabel}>{t('totalProgress')}</Text>
-                            <Text style={styles.progressValue}>{unlockedCount}/{totalCount} {t('unlocked')}</Text>
+                <Animated.View entering={FadeInDown.duration(500)}>
+                    <LinearGradient
+                        colors={[theme.primary, theme.secondary]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.progressCard}
+                    >
+                        <View style={styles.progressRow}>
+                            <View>
+                                <Text style={styles.progressLabel}>{t('totalProgress')}</Text>
+                                <Text style={styles.progressValue}>{unlockedCount}/{totalCount} {t('unlocked')}</Text>
+                            </View>
+                            <TrophyIcon size={48} color="#FFF" style={{ opacity: 0.8 }} />
                         </View>
-                        <TrophyIcon size={48} color="#FFF" style={{ opacity: 0.8 }} />
-                    </View>
-                    <View style={styles.progressBarBg}>
-                        <View style={[styles.progressBarFill, { width: `${progressPercent}%`, backgroundColor: theme.warning }]} />
-                    </View>
-                </LinearGradient>
+                        <View style={styles.progressBarBg}>
+                            <View style={[styles.progressBarFill, { width: `${progressPercent}%`, backgroundColor: theme.warning }]} />
+                        </View>
+                    </LinearGradient>
+                </Animated.View>
 
                 {/* Grid */}
-                <View style={styles.grid}>
+                <Animated.View entering={FadeInDown.delay(200).duration(500)} style={styles.grid}>
                     {allAchievements.map((achievement) => {
                         const IconComponent = getIconComponent(achievement.icon);
                         const isUnlocked = achievement.unlocked;
@@ -130,7 +137,7 @@ export default function AchievementsScreen() {
                             </View>
                         );
                     })}
-                </View>
+                </Animated.View>
             </ScrollView>
         </ScreenWrapper>
     );

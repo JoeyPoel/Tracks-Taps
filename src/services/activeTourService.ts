@@ -11,6 +11,11 @@ export const activeTourService = {
         return response.data;
     },
 
+    async startGame(activeTourId: number) {
+        const response = await client.post(`/active-tour/${activeTourId}/start`, {});
+        return response.data;
+    },
+
     async joinActiveTour(activeTourId: number, userId: number, teamName?: string, teamColor?: string, teamEmoji?: string) {
         const response = await client.post('/active-tour/join', { activeTourId, userId, teamName, teamColor, teamEmoji });
         return response.data;

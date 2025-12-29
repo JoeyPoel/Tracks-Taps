@@ -4,7 +4,9 @@ import { WizardStepHeader } from '@/src/components/create/common/WizardStepHeade
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { TourDraft } from '@/src/hooks/useCreateTour';
+import { TourType } from '@/src/types/models';
 import { GENRES } from '@/src/utils/genres';
+import { getTourTypeLabel } from '@/src/utils/tourUtils';
 import React, { useRef } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -55,6 +57,40 @@ export default function StepInfo({ draft, updateDraft }: StepInfoProps) {
                                         { color: isSelected ? '#FFF' : theme.textSecondary }
                                     ]}>
                                         {genre.label}
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </ScrollView>
+                </View>
+
+                {/* Tour Type Selection */}
+                <View>
+                    <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('tourType')}</Text>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ gap: 10, paddingVertical: 4 }}
+                    >
+                        {Object.values(TourType).map((type) => {
+                            const isSelected = draft.type === type;
+                            return (
+                                <TouchableOpacity
+                                    key={type}
+                                    style={[
+                                        styles.genreChip,
+                                        {
+                                            backgroundColor: isSelected ? theme.primary : theme.bgTertiary,
+                                            borderColor: isSelected ? theme.primary : theme.borderPrimary
+                                        }
+                                    ]}
+                                    onPress={() => updateDraft('type', type)}
+                                >
+                                    <Text style={[
+                                        styles.genreLabel,
+                                        { color: isSelected ? '#FFF' : theme.textSecondary }
+                                    ]}>
+                                        {getTourTypeLabel(type)}
                                     </Text>
                                 </TouchableOpacity>
                             );

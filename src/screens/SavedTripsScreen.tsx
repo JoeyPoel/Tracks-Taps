@@ -89,6 +89,7 @@ export default function SavedTripsScreen() {
             <ScreenHeader
                 title={t('savedTrips')}
                 subtitle="Your personal collections"
+                showBackButton={true}
             />
 
             <FlatList

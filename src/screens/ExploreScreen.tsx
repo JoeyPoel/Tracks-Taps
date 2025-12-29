@@ -71,7 +71,7 @@ export default function ExploreScreen() {
       <ScreenHeader
         title={t('explore') || 'Explore'}
         subtitle={t('findYourNextAdventure')}
-        style={styles.headerTop}
+        style={[styles.headerTop, { paddingHorizontal: 0 }]}
       />
 
       {/* Search Bar */}
@@ -221,7 +221,7 @@ export default function ExploreScreen() {
                   reviewCount={tourItem.reviews?.length || 0}
                   points={tourItem.points}
                   modes={tourItem.modes}
-                  difficulty={tourItem.difficulty as any}
+                  tourType={tourItem.type}
                   genre={(tourItem as any).genre}
                   variant={isGrid ? 'grid' : 'hero'}
                   onPress={async () => {
@@ -247,7 +247,7 @@ export default function ExploreScreen() {
   };
 
   return (
-    <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} includeBottom={false}>
+    <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} includeBottom={false}>
       {renderContent()}
       <ExploreFilterSidebar
         visible={filterVisible}

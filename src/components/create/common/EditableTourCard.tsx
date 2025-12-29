@@ -1,6 +1,7 @@
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { getGenreIcon } from '@/src/utils/genres';
+import { getTourTypeLabel } from '@/src/utils/tourUtils';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -125,6 +126,15 @@ export function EditableTourCard({
                                     <View style={styles.dropdownCaret} />
                                 </TouchableOpacity>
 
+
+
+                                {/* Tour Type Badge (Display Only) */}
+                                {draft.type && (
+                                    <View style={[styles.badge, styles.blurBadge]}>
+                                        <Text style={styles.badgeText}>{getTourTypeLabel(draft.type)}</Text>
+                                    </View>
+                                )}
+
                                 <TouchableOpacity
                                     onPress={() => setPickerType('difficulty')}
                                     style={[styles.badge, styles.blurBadge]}
@@ -195,11 +205,12 @@ export function EditableTourCard({
                         </View>
                     </LinearGradient>
                 </ImageBackground>
-            </AnimatedPressable>
+            </AnimatedPressable >
 
             {/* Pickers */}
-            <SelectionModal
-                visible={pickerType === 'genre'}
+            < SelectionModal
+                visible={pickerType === 'genre'
+                }
                 onClose={() => setPickerType(null)}
                 title={t('selectGenre')}
                 options={GENRES.map((g: any) => ({ label: g.label, value: g.id, icon: g.icon, color: g.color }))}
