@@ -104,6 +104,9 @@ export const lightTheme = {
   bgSecondaryColor: '#FFFFFF',
   bgAccentColor: '#FFFBEB', // Amber-50
 
+  navBarBackground: 'rgba(240, 249, 255, 0.6)', // Slight blue tint (AliceBlue-ish)
+  navBarBorder: 'rgba(255,255,255,0.5)',
+
   pubGolfInput: '#CBD5E1', // Slate-300
 };
 
@@ -204,6 +207,9 @@ export const darkTheme = {
   bgPrimaryColor: '#2e1b2bff',
   bgSecondaryColor: '#1a2f42ff',
   bgAccentColor: '#4D4426',
+
+  navBarBackground: 'rgba(15, 23, 42, 0.7)', // Matches bgPrimary (Slate-900)
+  navBarBorder: 'rgba(30, 41, 59, 0.5)', // Slate-800 border
 
   pubGolfInput: '#334155', // Slate-700 (Swapped from Light Mode)
 };

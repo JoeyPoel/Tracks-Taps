@@ -1,5 +1,5 @@
+import { FormInput } from '@/src/components/common/FormInput';
 import { ImageUploader } from '@/src/components/common/ImageUploader';
-import { WizardInput } from '@/src/components/create/common/WizardInput';
 import { WizardStepHeader } from '@/src/components/create/common/WizardStepHeader';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
@@ -62,27 +62,29 @@ export default function StepInfo({ draft, updateDraft }: StepInfoProps) {
                     </ScrollView>
                 </View>
 
-                <WizardInput
+                <FormInput
                     label={t('tourTitle')}
-                    // ... rest of the form ...
                     value={draft.title}
                     onChange={(text) => updateDraft('title', text)}
                     placeholder={t('titlePlaceholder')}
+                    maxLength={50}
                 />
 
-                <WizardInput
+                <FormInput
                     label={t('tourLocation')}
                     value={draft.location}
                     onChange={(text) => updateDraft('location', text)}
                     placeholder={t('locationPlaceholder')}
+                    maxLength={50}
                 />
 
-                <WizardInput
+                <FormInput
                     label={t('tourDescription')}
                     value={draft.description}
                     onChange={(text) => updateDraft('description', text)}
                     placeholder={t('descPlaceholder')}
                     multiline
+                    maxLength={500}
                 />
 
                 <ImageUploader

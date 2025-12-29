@@ -4,7 +4,7 @@ import { useStore } from '../store/store';
 import { TourFilters } from '../types/filters';
 
 const { width } = Dimensions.get('window');
-const SIDEBAR_WIDTH = width * 0.75;
+const SIDEBAR_WIDTH = Math.min(width * 0.7, 300);
 
 export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) => {
     const slideAnim = useRef(new Animated.Value(width)).current; // Start off-screen

@@ -16,7 +16,6 @@ import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 import { useActiveTour } from '../hooks/useActiveTour';
 import { LevelSystem } from '../utils/levelUtils';
-import { openMapApp } from '../utils/mapUtils';
 
 // Wrapper for smooth tab transitions
 const TabContentWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -126,10 +125,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const TAB_TOUR_CHALLENGES = hasTourChallenges ? 2 : -1;
     const TAB_PUBGOLF = hasPubGolf ? (hasTourChallenges ? 3 : 2) : -1;
 
-    const openMaps = async () => {
-        if (!currentStop) return;
-        await openMapApp(currentStop.latitude, currentStop.longitude, currentStop.name);
-    };
+
 
     const progress = LevelSystem.getProgress(user?.xp || 0);
 
@@ -145,7 +141,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                 tokens={points}
                 onClose={() => {
                     router.dismissAll();
-                    router.replace({ pathname: '/tour/[id]', params: { id: activeTour.tourId } });
+                    router.replace('/(tabs)/explore');
                 }}
             />
 
@@ -155,7 +151,6 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                         <ActiveTourMap
                             currentStop={currentStop}
                             previousStop={activeTour.tour?.stops?.[currentStopIndex - 1]}
-                            onNavigate={openMaps}
                         />
                     </View>
                 )}

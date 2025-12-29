@@ -149,7 +149,7 @@ export default function MapScreen() {
       )}
 
       {selectedTour && (
-        <View style={[styles.tourInfo, { bottom: insets.bottom + 20 }]}>
+        <View style={[styles.tourInfo, { bottom: 120 }]}>
           <TourCard
             title={selectedTour.title}
             author={(selectedTour as any).author?.name || 'Tracks & Taps'}

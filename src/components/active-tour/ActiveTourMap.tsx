@@ -1,7 +1,10 @@
+import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { PaperAirplaneIcon } from 'react-native-heroicons/outline';
+import { Modal, StyleSheet, Text, View } from 'react-native';
+import { ArrowsPointingOutIcon } from 'react-native-heroicons/outline';
+import { ArrowLeftIcon } from 'react-native-heroicons/solid';
 import MapView, { LatLng, Marker, Polyline } from 'react-native-maps';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { routingService } from '../../services/routingService';
@@ -20,19 +23,27 @@ interface StopLocation {
 interface ActiveTourMapProps {
     currentStop: StopLocation;
     previousStop?: StopLocation;
-    onNavigate: () => void;
 }
 
-export default function ActiveTourMap({ currentStop, previousStop, onNavigate }: ActiveTourMapProps) {
+export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourMapProps) {
     const { theme, mode } = useTheme();
     const { t } = useLanguage();
-    const [route, setRoute] = useState<{ coords: LatLng[], type: 'WALKING' | 'DIRECT' } | null>(null);
-    const mapRef = useRef<MapView>(null);
+    const insets = useSafeAreaInsets();
 
+    const [isFullScreen, setIsFullScreen] = useState(false);
+    const [previewRoute, setPreviewRoute] = useState<{ coords: LatLng[], type: 'WALKING' | 'DIRECT' } | null>(null);
+    const [navigationRoute, setNavigationRoute] = useState<{ coords: LatLng[], type: 'WALKING' | 'DIRECT' } | null>(null);
+    const [userLocation, setUserLocation] = useState<LatLng | null>(null);
+    const [permissionStatus, setPermissionStatus] = useState<Location.PermissionStatus | null>(null);
+
+    const mapRef = useRef<MapView>(null);
+    const fullScreenMapRef = useRef<MapView>(null);
+
+    // Initial Preview Route (Stop A -> Stop B)
     useEffect(() => {
         if (previousStop) {
-            // Initial straight line (immediate feedback)
-            setRoute({
+            // Initial straight line
+            setPreviewRoute({
                 coords: [
                     { latitude: previousStop.latitude, longitude: previousStop.longitude },
                     { latitude: currentStop.latitude, longitude: currentStop.longitude }
@@ -40,17 +51,14 @@ export default function ActiveTourMap({ currentStop, previousStop, onNavigate }:
                 type: 'DIRECT'
             });
 
-            // Fetch walking route in background
             const fetchRoute = async () => {
                 const start = { latitude: previousStop.latitude, longitude: previousStop.longitude };
                 const end = { latitude: currentStop.latitude, longitude: currentStop.longitude };
-
                 const result = await routingService.getWalkingRoute(start, end);
-                setRoute(result);
+                setPreviewRoute(result);
             };
             fetchRoute();
 
-            // Zoom to fit both markers
             setTimeout(() => {
                 mapRef.current?.fitToCoordinates([
                     { latitude: previousStop.latitude, longitude: previousStop.longitude },
@@ -61,9 +69,7 @@ export default function ActiveTourMap({ currentStop, previousStop, onNavigate }:
                 });
             }, 100);
         } else {
-            setRoute(null);
-
-            // Center on current stop if no previous stop
+            setPreviewRoute(null);
             mapRef.current?.animateToRegion({
                 latitude: currentStop.latitude,
                 longitude: currentStop.longitude,
@@ -73,66 +79,185 @@ export default function ActiveTourMap({ currentStop, previousStop, onNavigate }:
         }
     }, [previousStop?.id, currentStop.id]);
 
-    return (
-        <View style={styles.container}>
-            <MapView
-                ref={mapRef}
-                style={styles.map}
-                userInterfaceStyle={mode}
-                showsUserLocation={true}
-                showsMyLocationButton={false}
-                initialRegion={{
-                    latitude: currentStop.latitude,
-                    longitude: currentStop.longitude,
-                    latitudeDelta: 0.02,
-                    longitudeDelta: 0.02,
-                }}
-            >
-                {/* The Current Stop Marker */}
-                <Marker
-                    coordinate={{ latitude: currentStop.latitude, longitude: currentStop.longitude }}
-                    title={currentStop.name}
-                    pinColor={theme.primary}
-                >
-                    <View style={[styles.markerContainer, { backgroundColor: theme.bgSecondary }]}>
-                        {getStopIcon(currentStop.type, 20, theme.textPrimary)}
-                    </View>
-                </Marker>
+    // Full Screen Logic: Get User Location & Route (User -> Stop B)
+    useEffect(() => {
+        let subscription: Location.LocationSubscription | null = null;
 
-                {/* The Previous Stop Marker (if present) */}
-                {previousStop && (
+        const startNavigation = async () => {
+            if (!isFullScreen) return;
+
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            setPermissionStatus(status);
+
+            if (status !== 'granted') {
+                return;
+            }
+
+            const location = await Location.getCurrentPositionAsync({});
+            const userLatLng = { latitude: location.coords.latitude, longitude: location.coords.longitude };
+            setUserLocation(userLatLng);
+
+            // Initial fetch of walking route from User -> Destination
+            const result = await routingService.getWalkingRoute(userLatLng, { latitude: currentStop.latitude, longitude: currentStop.longitude });
+            setNavigationRoute(result);
+
+            // Fit to show user and destination
+            setTimeout(() => {
+                fullScreenMapRef.current?.fitToCoordinates([
+                    userLatLng,
+                    { latitude: currentStop.latitude, longitude: currentStop.longitude }
+                ], {
+                    edgePadding: { top: 100, right: 50, bottom: 100, left: 50 },
+                    animated: true
+                });
+            }, 500);
+
+            // Subscribe to updates
+            subscription = await Location.watchPositionAsync(
+                { accuracy: Location.Accuracy.High, timeInterval: 5000, distanceInterval: 10 },
+                async (newLoc) => {
+                    const newLatLng = { latitude: newLoc.coords.latitude, longitude: newLoc.coords.longitude };
+                    setUserLocation(newLatLng);
+                    // Optionally update route here if significantly moved, checking distance...
+                    // For now, keep the route static or re-fetch if needed.
+                }
+            );
+        };
+
+        if (isFullScreen) {
+            startNavigation();
+        }
+
+        return () => {
+            if (subscription) {
+                subscription.remove();
+            }
+        };
+    }, [isFullScreen, currentStop.id]);
+
+
+    return (
+        <>
+            {/* Small Preview Map */}
+            <View style={styles.container}>
+                <MapView
+                    ref={mapRef}
+                    style={styles.map}
+                    userInterfaceStyle={mode}
+                    scrollEnabled={false}
+                    zoomEnabled={false}
+                    rotateEnabled={false}
+                    pitchEnabled={false}
+                    initialRegion={{
+                        latitude: currentStop.latitude,
+                        longitude: currentStop.longitude,
+                        latitudeDelta: 0.02,
+                        longitudeDelta: 0.02,
+                    }}
+                >
                     <Marker
-                        coordinate={{ latitude: previousStop.latitude, longitude: previousStop.longitude }}
-                        title={previousStop.name}
-                        opacity={0.6}
+                        coordinate={{ latitude: currentStop.latitude, longitude: currentStop.longitude }}
+                        title={currentStop.name}
                     >
-                        <View style={[styles.markerContainer, { backgroundColor: theme.bgSecondary, opacity: 0.8 }]}>
-                            {getStopIcon(previousStop.type || 'Viewpoint', 20, theme.textSecondary)}
+                        <View style={[styles.markerContainer, { backgroundColor: theme.bgSecondary }]}>
+                            {getStopIcon(currentStop.type, 20, theme.textPrimary)}
                         </View>
                     </Marker>
-                )}
 
-                {/* The Route Line */}
-                {route && route.coords.length > 0 && (
-                    <Polyline
-                        coordinates={route.coords}
-                        strokeColor={theme.primary}
-                        strokeWidth={3}
-                        lineDashPattern={route.type === 'DIRECT' ? [5, 5] : undefined}
-                    />
-                )}
-            </MapView>
+                    {previousStop && (
+                        <Marker
+                            coordinate={{ latitude: previousStop.latitude, longitude: previousStop.longitude }}
+                            title={previousStop.name}
+                            opacity={0.6}
+                        >
+                            <View style={[styles.markerContainer, { backgroundColor: theme.bgSecondary, opacity: 0.8 }]}>
+                                {getStopIcon(previousStop.type || 'Viewpoint', 20, theme.textSecondary)}
+                            </View>
+                        </Marker>
+                    )}
 
-            <AnimatedPressable
-                style={[styles.navigateButton, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
-                onPress={onNavigate}
-                interactionScale="subtle"
-                haptic="selection"
+                    {previewRoute && previewRoute.coords.length > 0 && (
+                        <Polyline
+                            coordinates={previewRoute.coords}
+                            strokeColor={theme.primary}
+                            strokeWidth={3}
+                            lineDashPattern={previewRoute.type === 'DIRECT' ? [5, 5] : undefined}
+                        />
+                    )}
+                </MapView>
+
+                {/* Expand Button - White Background */}
+                <AnimatedPressable
+                    style={[styles.expandButton, { backgroundColor: theme.bgPrimary, shadowColor: theme.shadowColor }]}
+                    onPress={() => setIsFullScreen(true)}
+                    interactionScale="subtle"
+                    haptic="selection"
+                >
+                    <ArrowsPointingOutIcon size={20} color={theme.textPrimary} />
+                </AnimatedPressable>
+            </View>
+
+            {/* Full Screen Modal */}
+            <Modal
+                visible={isFullScreen}
+                animationType="slide"
+                presentationStyle="fullScreen"
+                onRequestClose={() => setIsFullScreen(false)}
             >
-                <PaperAirplaneIcon size={20} color={theme.primary} />
-                <Text style={[styles.navigateText, { color: theme.primary }]}>{t('navigate')}</Text>
-            </AnimatedPressable>
-        </View>
+                <View style={[styles.fullScreenContainer, { backgroundColor: theme.bgPrimary }]}>
+                    <MapView
+                        ref={fullScreenMapRef}
+                        style={styles.fullScreenMap}
+                        userInterfaceStyle={mode}
+                        showsUserLocation={true}
+                        showsMyLocationButton={true}
+                        initialRegion={{
+                            latitude: currentStop.latitude,
+                            longitude: currentStop.longitude,
+                            latitudeDelta: 0.02,
+                            longitudeDelta: 0.02,
+                        }}
+                    >
+                        {/* Destination Marker */}
+                        <Marker
+                            coordinate={{ latitude: currentStop.latitude, longitude: currentStop.longitude }}
+                            title={currentStop.name}
+                        >
+                            <View style={[styles.markerContainer, { backgroundColor: theme.bgSecondary, transform: [{ scale: 1.2 }] }]}>
+                                {getStopIcon(currentStop.type, 24, theme.textPrimary)}
+                            </View>
+                        </Marker>
+
+                        {/* Navigation Route from User -> Destination */}
+                        {navigationRoute && navigationRoute.coords.length > 0 && (
+                            <Polyline
+                                coordinates={navigationRoute.coords}
+                                strokeColor={theme.primary}
+                                strokeWidth={4}
+                                lineDashPattern={navigationRoute.type === 'DIRECT' ? [5, 5] : undefined}
+                            />
+                        )}
+                    </MapView>
+
+                    {/* Top Bar / Back Button */}
+                    <View style={[styles.topBar, { top: insets.top + 10 }]}>
+                        <AnimatedPressable
+                            style={[styles.backButton, {
+                                backgroundColor: mode === 'dark' ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                                shadowColor: theme.shadowColor
+                            }]}
+                            onPress={() => setIsFullScreen(false)}
+                            interactionScale="subtle"
+                            haptic="light"
+                        >
+                            <ArrowLeftIcon size={20} color={theme.textPrimary} />
+                            <Text style={[styles.backText, { color: theme.textPrimary }]}>{t('backToActiveTour')}</Text>
+                        </AnimatedPressable>
+                    </View>
+
+                </View>
+            </Modal>
+        </>
     );
 }
 
@@ -148,23 +273,23 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
-    navigateButton: {
+    expandButton: {
         position: 'absolute',
-        bottom: 16,
-        right: 16,
-        flexDirection: 'row',
+        bottom: 12,
+        right: 12,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 8,
-        gap: 8,
+        justifyContent: 'center',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+        shadowOpacity: 0.15,
+        shadowRadius: 3,
+        elevation: 3,
     },
-    navigateText: {
+    expandText: {
         fontWeight: 'bold',
+        fontSize: 14,
     },
     markerContainer: {
         padding: 6,
@@ -179,4 +304,50 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    // Full Screen Styles
+    fullScreenContainer: {
+        flex: 1,
+    },
+    fullScreenMap: {
+        width: '100%',
+        height: '100%',
+    },
+    topBar: {
+        position: 'absolute',
+        left: 20,
+    },
+    backButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 25,
+        gap: 8,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 4,
+    },
+    backText: {
+        fontWeight: '600',
+        fontSize: 16,
+    },
+    externalNavButton: {
+        position: 'absolute',
+        right: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 30,
+        gap: 8,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 6,
+    },
+    externalNavText: {
+        fontWeight: 'bold',
+        fontSize: 16,
+    }
 });

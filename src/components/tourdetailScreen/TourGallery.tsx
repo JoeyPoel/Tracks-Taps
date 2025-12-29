@@ -2,13 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
-import { Dimensions, FlatList, Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Shimmer } from '../common/Shimmer';
-
-const { width, height } = Dimensions.get('window');
 
 interface TourGalleryProps {
     images: string[];
@@ -17,6 +15,7 @@ interface TourGalleryProps {
 export default function TourGallery({ images }: TourGalleryProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const { width: windowWidth, height: windowHeight } = useWindowDimensions();
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
     const [showEmpty, setShowEmpty] = useState(false);
 
@@ -130,17 +129,25 @@ export default function TourGallery({ images }: TourGalleryProps) {
                             pagingEnabled
                             initialScrollIndex={selectedIndex}
                             getItemLayout={(_, index) => ({
-                                length: width,
-                                offset: width * index,
+                                length: windowWidth,
+                                offset: windowWidth * index,
                                 index,
                             })}
                             showsHorizontalScrollIndicator={false}
                             keyExtractor={(item, index) => `${item}-${index}`}
                             renderItem={({ item }) => (
-                                <View style={styles.fullScreenImageContainer}>
+                                <View style={{
+                                    width: windowWidth,
+                                    height: windowHeight,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
                                     <Image
                                         source={{ uri: item }}
-                                        style={styles.fullScreenImage}
+                                        style={{
+                                            width: windowWidth,
+                                            height: windowHeight,
+                                        }}
                                         contentFit="contain"
                                     />
                                 </View>
@@ -219,15 +226,5 @@ const styles = StyleSheet.create({
         padding: 8,
         backgroundColor: 'rgba(0,0,0,0.5)',
         borderRadius: 20,
-    },
-    fullScreenImageContainer: {
-        width: width,
-        height: height,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    fullScreenImage: {
-        width: width,
-        height: height,
     },
 });

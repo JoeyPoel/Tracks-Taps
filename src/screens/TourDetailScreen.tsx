@@ -67,7 +67,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
       {/* Back Button Overlay */}
       <TouchableOpacity
         onPress={() => router.back()}
-        style={[styles.backButton, { backgroundColor: theme.bgPrimary + '80' }]}
+        style={[styles.backButton, { backgroundColor: theme.bgPrimary + 'E6' }]}
       >
         <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
       </TouchableOpacity>
@@ -100,9 +100,9 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           {/* View on Map FAB */}
           <TouchableOpacity
             onPress={() => router.push({ pathname: '/(tabs)/map', params: { tourId: tour.id } })}
-            style={[styles.mapFab, { backgroundColor: theme.bgPrimary, shadowColor: theme.primary }]}
+            style={[styles.mapFab, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
           >
-            <Ionicons name="map" size={24} color={theme.primary} />
+            <Ionicons name="map" size={24} color={theme.textPrimary} />
             <Text style={[styles.mapFabText, { color: theme.textPrimary }]}>Map</Text>
           </TouchableOpacity>
         </View>
@@ -165,7 +165,8 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             disabled={loadingMode !== null}
             variant="secondary"
             icon="person"
-            style={{ flex: 1, shadowOpacity: 0 }}
+            style={{ flex: 1, shadowOpacity: 0, backgroundColor: theme.bgTertiary }}
+            textStyle={{ color: theme.textPrimary }}
           />
           <AnimatedButton
             title="With Friends"
@@ -176,7 +177,16 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             disabled={loadingMode !== null}
             variant="primary"
             icon="people"
-            style={{ flex: 1.5, shadowColor: theme.primary, shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }}
+            gradient={true}
+            gradientColors={[theme.secondary, theme.primary]}
+            style={{
+              flex: 1.5,
+              shadowColor: theme.primary,
+              shadowOpacity: 0.4,
+              shadowRadius: 12,
+              shadowOffset: { width: 0, height: 6 },
+              borderWidth: 0 // Remove any borders
+            }}
           />
         </View>
       </Animated.View>

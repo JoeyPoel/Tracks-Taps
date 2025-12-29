@@ -119,6 +119,35 @@ export const tourController = {
                 return Response.json({ error: 'Missing required fields (title, location)' }, { status: 400 });
             }
 
+            // Length Validation
+            if (data.title.length > 50) return Response.json({ error: 'Title must be 50 characters or less' }, { status: 400 });
+            if (data.location.length > 50) return Response.json({ error: 'Location must be 50 characters or less' }, { status: 400 });
+            if (data.description && data.description.length > 500) return Response.json({ error: 'Description must be 500 characters or less' }, { status: 400 });
+
+            if (Array.isArray(data.stops)) {
+                for (const stop of data.stops) {
+                    if (stop.name && stop.name.length > 50) return Response.json({ error: `Stop name "${stop.name}" exceeds 50 characters` }, { status: 400 });
+                    if (stop.description && stop.description.length > 100) return Response.json({ error: `Stop short description exceeds 100 characters` }, { status: 400 });
+                    if (stop.detailedDescription && stop.detailedDescription.length > 1000) return Response.json({ error: `Stop detailed description exceeds 1000 characters` }, { status: 400 });
+
+                    if (Array.isArray(stop.challenges)) {
+                        for (const challenge of stop.challenges) {
+                            if (challenge.title && challenge.title.length > 50) return Response.json({ error: `Challenge title "${challenge.title}" exceeds 50 characters` }, { status: 400 });
+                            if (challenge.content && challenge.content.length > 250) return Response.json({ error: `Challenge question/content exceeds 250 characters` }, { status: 400 });
+                            if (challenge.hint && challenge.hint.length > 100) return Response.json({ error: `Challenge hint exceeds 100 characters` }, { status: 400 });
+                        }
+                    }
+                }
+            }
+
+            if (Array.isArray(data.challenges)) {
+                for (const challenge of data.challenges) {
+                    if (challenge.title && challenge.title.length > 50) return Response.json({ error: `Global Challenge title "${challenge.title}" exceeds 50 characters` }, { status: 400 });
+                    if (challenge.content && challenge.content.length > 250) return Response.json({ error: `Global Challenge question/content exceeds 250 characters` }, { status: 400 });
+                    if (challenge.hint && challenge.hint.length > 100) return Response.json({ error: `Global Challenge hint exceeds 100 characters` }, { status: 400 });
+                }
+            }
+
             // Transform data to fit Prisma Create Input
             const tourData: Prisma.TourCreateInput = {
                 title: data.title,

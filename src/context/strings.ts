@@ -116,6 +116,8 @@ export const strings = {
     challengeCompleted: 'Challenge Completed!',
     challengeFailed: 'Challenge Failed',
     navigate: 'Navigate',
+    expandMap: 'Expand Map',
+    backToActiveTour: 'Back to Active Tour',
     wrongAnswer: 'Wrong Answer',
     claimPoints: 'Claim Points',
     submitAnswer: 'Submit Answer',

@@ -1,10 +1,11 @@
+import { FormInput } from '@/src/components/common/FormInput';
 import { ImageUploader } from '@/src/components/common/ImageUploader';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { StopType } from '@/src/types/models';
 import { getStopIcon } from '@/src/utils/stopIcons';
 import React from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface StopFormProps {
     name: string;
@@ -33,37 +34,34 @@ export function StopForm({
         <View style={styles.container}>
             <View style={styles.row}>
                 <View style={{ flex: 1 }}>
-                    <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>{t('stopName')}</Text>
-                    <TextInput
-                        style={[styles.input, { backgroundColor: theme.bgSecondary, color: theme.textPrimary }]}
+                    <FormInput
+                        label={t('stopName')}
                         value={name}
-                        onChangeText={setName}
+                        onChange={setName}
                         placeholder={t('stopName')}
-                        placeholderTextColor={theme.textDisabled}
+                        maxLength={50}
                     />
                 </View>
             </View>
 
             <View>
-                <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>{t('shortDescription')}</Text>
-                <TextInput
-                    style={[styles.input, { backgroundColor: theme.bgSecondary, color: theme.textPrimary }]}
+                <FormInput
+                    label={t('shortDescription')}
                     value={description}
-                    onChangeText={setDescription}
+                    onChange={setDescription}
                     placeholder={t('shortDescriptionPlaceholder')}
-                    placeholderTextColor={theme.textDisabled}
+                    maxLength={100}
                 />
             </View>
 
             <View>
-                <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>{t('detailedDescription')}</Text>
-                <TextInput
-                    style={[styles.input, styles.textArea, { backgroundColor: theme.bgSecondary, color: theme.textPrimary }]}
+                <FormInput
+                    label={t('detailedDescription')}
                     value={detailedDescription}
-                    onChangeText={setDetailedDescription}
+                    onChange={setDetailedDescription}
                     multiline
                     placeholder={t('detailedDescriptionPlaceholder')}
-                    placeholderTextColor={theme.textDisabled}
+                    maxLength={1000}
                 />
             </View>
 

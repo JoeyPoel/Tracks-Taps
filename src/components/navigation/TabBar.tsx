@@ -55,8 +55,8 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                 style={[
                     styles.glassContainer,
                     {
-                        borderColor: mode === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.4)',
-                        backgroundColor: mode === 'dark' ? 'rgba(20,20,30,0.5)' : 'rgba(255,255,255,0.35)', // Lower opacity for glass
+                        borderColor: theme.navBarBorder,
+                        backgroundColor: theme.navBarBackground,
                         shadowColor: theme.shadowColor
                     }
                 ]}

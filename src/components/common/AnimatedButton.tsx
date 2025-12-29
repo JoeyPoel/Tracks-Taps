@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { ActivityIndicator, StyleSheet, Text, TextStyle, View, ViewStyle } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
@@ -15,6 +16,8 @@ interface AnimatedButtonProps {
     disabled?: boolean;
     style?: ViewStyle;
     textStyle?: TextStyle;
+    gradient?: boolean;
+    gradientColors?: readonly [string, string, ...string[]];
 }
 
 export const AnimatedButton: React.FC<AnimatedButtonProps> = ({
@@ -27,15 +30,18 @@ export const AnimatedButton: React.FC<AnimatedButtonProps> = ({
     disabled = false,
     style,
     textStyle,
+    gradient = false,
+    gradientColors,
 }) => {
     const { theme } = useTheme();
 
     const getBackgroundColor = () => {
+        if (gradient) return 'transparent'; // Handled by LinearGradient
         switch (variant) {
             case 'secondary': return theme.secondary;
             case 'outline': return 'transparent';
             case 'danger': return theme.danger || '#ff4444';
-            default: return theme.primary; // Gradient handled separately for primary usually
+            default: return theme.primary;
         }
     };
 
@@ -78,24 +84,34 @@ export const AnimatedButton: React.FC<AnimatedButtonProps> = ({
         </View>
     );
 
-    return (
+    const buttonContent = (
         <AnimatedPressable
             onPress={handlePress}
             disabled={disabled || loading}
             interactionScale="medium"
-            haptic="none" // Handled manually for conditional logic
+            haptic="none"
             style={[
                 styles.container,
                 variant === 'outline' && { borderWidth: 1, borderColor: theme.borderPrimary },
                 { backgroundColor: getBackgroundColor() },
                 disabled && { opacity: 0.6 },
                 style,
-                { borderRadius: 12, overflow: 'hidden' }
+                { borderRadius: 12, overflow: 'hidden' } // Ensure border radius clips gradient
             ]}
         >
+            {gradient && gradientColors ? (
+                <LinearGradient
+                    colors={gradientColors}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={StyleSheet.absoluteFill}
+                />
+            ) : null}
             {renderContent()}
         </AnimatedPressable>
     );
+
+    return buttonContent;
 };
 
 const styles = StyleSheet.create({
@@ -109,6 +125,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingHorizontal: 20,
         width: '100%',
+        zIndex: 1, // Ensure content sits above gradient
     },
     text: {
         fontWeight: '600',
