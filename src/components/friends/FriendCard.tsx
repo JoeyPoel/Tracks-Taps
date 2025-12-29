@@ -18,7 +18,7 @@ export function FriendCard({ friend }: FriendCardProps) {
     return (
         <AnimatedPressable
             style={[styles.container]}
-            onPress={() => router.push({ pathname: '/friend-profile', params: { userId: friend.id } })}
+            onPress={() => router.push({ pathname: '/profile/friend-profile', params: { userId: friend.id } })}
             interactionScale="subtle"
         >
             <Image

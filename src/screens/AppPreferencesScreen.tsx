@@ -3,8 +3,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Stack } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
-import AppHeader from '../components/Header';
 import { AnimatedPressable } from '../components/common/AnimatedPressable';
+import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -33,9 +33,9 @@ export default function AppPreferencesScreen() {
   );
 
   return (
-    <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={false}>
+    <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={false} withBottomTabs={true}>
       <Stack.Screen options={{ headerShown: false }} />
-      <AppHeader
+      <ScreenHeader
         showBackButton
         title={t('appPreferences')}
       />
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingBottom: 40,
+    paddingBottom: 120,
   },
   sectionHeader: {
     flexDirection: 'row',

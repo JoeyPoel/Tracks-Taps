@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     scrollContent: {
         paddingHorizontal: 20,
         paddingTop: 220, // Push content down to reveal key parts of image
-        paddingBottom: 40,
+        paddingBottom: 120,
     },
     profileSection: {
         gap: 20,

@@ -139,7 +139,7 @@ export default function AchievementsScreen() {
 const styles = StyleSheet.create({
     content: {
         paddingHorizontal: 20,
-        paddingBottom: 40,
+        paddingBottom: 120,
         paddingTop: 20,
     },
     progressCard: {

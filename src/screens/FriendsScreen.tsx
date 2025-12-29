@@ -58,7 +58,7 @@ export default function FriendsScreen() {
     );
 
     return (
-        <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} withScrollView={false} includeTop={false} animateEntry={false}>
+        <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} withScrollView={false} includeTop={false} animateEntry={false} withBottomTabs={true}>
             <Stack.Screen options={{ headerShown: false }} />
             <AppHeader showBackButton title={t('socialHub')} />
 
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     },
     listContent: {
         paddingHorizontal: 20,
-        paddingBottom: 40,
+        paddingBottom: 120,
         gap: 0, // Cards handle their own spacing/border
     },
     emptyState: {

@@ -95,9 +95,9 @@ export default function ProfileScreen() {
             toursDone={user?.playedTours?.length || 0}
             toursCreated={user?.createdTours?.length || 0}
             friends={friends.length}
-            onPressToursDone={() => console.log('Navigate to tours done')}
-            onPressToursCreated={() => console.log('Navigate to created tours')}
-            onPressFriends={() => router.push('/friends')}
+            onPressToursDone={() => router.push({ pathname: '/profile/tours-done', params: { type: 'done', title: t('toursDone') } })}
+            onPressToursCreated={() => router.push({ pathname: '/profile/tours-created', params: { type: 'created', title: t('toursCreated') } })}
+            onPressFriends={() => router.push('/profile/friends')}
           />
         </Animated.View>
 
@@ -129,7 +129,7 @@ export default function ProfileScreen() {
             <SettingsRow
               icon={<HeartIcon size={22} color={theme.primary} />}
               title={t('savedTrips') || 'Saved Trips'}
-              onPress={() => router.push('/saved-trips' as any)}
+              onPress={() => router.push('/profile/saved-trips' as any)}
             />
             <SettingsRow
               icon={<Cog6ToothIcon size={22} color={theme.primary} />}

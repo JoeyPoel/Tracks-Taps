@@ -128,6 +128,7 @@ export const strings = {
     fillAllFields: 'Please fill in all required fields',
     loadingTour: 'Loading tour...',
     tourNotFound: 'Tour not found',
+    noToursFound: 'No tours found',
     challenges: 'Challenges',
     noChallengesAtStop: 'No challenges at this stop. Enjoy the view!',
     challengeCompleted: 'Challenge Completed!',
@@ -583,6 +584,7 @@ export const strings = {
     selectGameModes: 'Seleccionar Modos de Juego',
     loadingTour: 'Cargando tour...',
     tourNotFound: 'Tour no encontrado',
+    noToursFound: 'No se encontraron tours',
     challenges: 'Desafíos',
     noChallengesAtStop: 'No hay desafíos en esta parada. ¡Disfruta la vista!',
     challengeCompleted: '¡Desafío Completado!',
@@ -1313,5 +1315,6 @@ export const strings = {
     romance: "Romantiek",
     art: "Kunst & Muziek",
     photography: "Fotografie",
+    noToursFound: "Geen tours gevonden",
   },
 };

@@ -68,6 +68,8 @@ export default function SavedTripDetailScreen() {
             style={{ backgroundColor: theme.bgPrimary }}
             includeTop={false}
             includeBottom={false}
+            animateEntry={false}
+            withBottomTabs={true}
         >
             {/* Custom Header */}
             <View style={[styles.header, { backgroundColor: theme.bgPrimary, borderBottomColor: theme.bgSecondary }]}>
@@ -183,7 +185,7 @@ const styles = StyleSheet.create({
     },
     listContent: {
         padding: 20,
-        paddingBottom: 40,
+        paddingBottom: 120,
         gap: 24,
     },
     cardContainer: {

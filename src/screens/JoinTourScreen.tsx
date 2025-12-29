@@ -3,9 +3,10 @@ import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { KeyIcon } from 'react-native-heroicons/outline';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AnimatedButton } from '../components/common/AnimatedButton';
+import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -39,12 +40,11 @@ export default function JoinTourScreen() {
                 <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
                     {/* New Header Style */}
-                    <Animated.View entering={FadeInDown.duration(600).springify()} style={[styles.headerContainer, { marginTop: 16, marginBottom: 48 }]}>
-                        <Text style={[styles.screenTitle, { color: theme.textPrimary }]}>{t('joinTourButton')}</Text>
-                        <Text style={{ fontSize: 16, color: theme.textSecondary, marginTop: 4 }}>
-                            {t('askCaptainForCode') || 'Enter your tour code to begin the adventure'}
-                        </Text>
-                    </Animated.View>
+                    <ScreenHeader
+                        title={t('joinTourButton')}
+                        subtitle={t('askCaptainForCode') || 'Enter your tour code to begin the adventure'}
+                        style={{ marginTop: 16, marginBottom: 48 }}
+                    />
 
                     {/* Section 1: Manual Code Entry */}
                     <Animated.View entering={FadeInUp.delay(100).springify()} style={[styles.cleanInputContainer, { backgroundColor: theme.bgSecondary }]}>
@@ -148,16 +148,6 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         marginBottom: 32,
-    },
-    screenTitle: {
-        fontSize: 34,
-        fontWeight: '800',
-        letterSpacing: -0.5,
-        marginBottom: 8,
-    },
-    screenSubtitle: {
-        fontSize: 16,
-        fontWeight: '500',
     },
     content: {
         paddingHorizontal: 20,

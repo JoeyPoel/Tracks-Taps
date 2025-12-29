@@ -4,7 +4,8 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React, { useCallback } from 'react';
 import { Dimensions, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { FadeInDown, FadeInRight, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
+import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -34,7 +35,7 @@ export default function SavedTripsScreen() {
             <Animated.View entering={FadeInDown.delay(index * 100).springify()}>
                 <TouchableOpacity
                     style={[styles.card, { backgroundColor: theme.bgSecondary }]}
-                    onPress={() => router.push(`/saved-trips/${item.id}` as any)}
+                    onPress={() => router.push(`/profile/saved-trips/${item.id}` as any)}
                     activeOpacity={0.9}
                 >
                     <View style={styles.imageContainer}>
@@ -83,21 +84,12 @@ export default function SavedTripsScreen() {
             includeTop={true}
             includeBottom={false}
             withBottomTabs={true}
+            animateEntry={false}
         >
-            <View style={styles.header}>
-                <Animated.Text
-                    entering={FadeInRight.delay(200).springify()}
-                    style={[styles.headerTitle, { color: theme.textPrimary }]}
-                >
-                    {t('savedTrips')}
-                </Animated.Text>
-                <Animated.Text
-                    entering={FadeInRight.delay(300).springify()}
-                    style={[styles.headerSubtitle, { color: theme.textSecondary }]}
-                >
-                    Your personal collections
-                </Animated.Text>
-            </View>
+            <ScreenHeader
+                title={t('savedTrips')}
+                subtitle="Your personal collections"
+            />
 
             <FlatList
                 data={lists}
@@ -126,24 +118,9 @@ export default function SavedTripsScreen() {
 }
 
 const styles = StyleSheet.create({
-    header: {
-        paddingHorizontal: 24,
-        marginBottom: 20,
-        marginTop: 10,
-    },
-    headerTitle: {
-        fontSize: 34,
-        fontWeight: '800',
-        letterSpacing: -0.5,
-        marginBottom: 4,
-    },
-    headerSubtitle: {
-        fontSize: 16,
-        fontWeight: '500',
-    },
     listContent: {
         paddingHorizontal: 20,
-        paddingBottom: 40,
+        paddingBottom: 120,
         gap: 20,
     },
     card: {

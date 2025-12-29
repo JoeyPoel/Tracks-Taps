@@ -3,6 +3,7 @@ import React, { useCallback, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { AdjustmentsHorizontalIcon, ListBulletIcon, MagnifyingGlassIcon, Squares2X2Icon } from 'react-native-heroicons/outline';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import ActiveTourCard from '../components/exploreScreen/ActiveTourCard';
 import ExploreFilterSidebar from '../components/exploreScreen/ExploreFilterSidebar';
@@ -67,10 +68,11 @@ export default function ExploreScreen() {
   const listHeader = React.useMemo(() => (
     <View>
       {/* Header Title */}
-      <Animated.View entering={FadeInDown.duration(600).springify()} style={styles.headerTop}>
-        <Text style={[styles.screenTitle, { color: theme.textPrimary }]}>{t('explore') || 'Explore'}</Text>
-        <Text style={[styles.screenSubtitle, { color: theme.textSecondary }]}>{t('findYourNextAdventure')}</Text>
-      </Animated.View>
+      <ScreenHeader
+        title={t('explore') || 'Explore'}
+        subtitle={t('findYourNextAdventure')}
+        style={styles.headerTop}
+      />
 
       {/* Search Bar */}
       <Animated.View entering={FadeInDown.delay(100).duration(600).springify()} style={[styles.searchContainer, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
@@ -266,18 +268,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 8,
   },
-  screenTitle: {
-    fontSize: 34,
-    fontWeight: '800', // Bolder title
-    marginBottom: 4,
-    letterSpacing: -0.5,
-  },
-  screenSubtitle: {
-    fontSize: 16,
-    marginBottom: 24,
-    opacity: 0.7,
-    fontWeight: '500',
-  },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -354,7 +344,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 110, 
+    paddingBottom: 110,
   }
 });
 

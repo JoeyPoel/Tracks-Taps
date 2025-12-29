@@ -20,8 +20,8 @@ import {
     TextInput,
     View
 } from 'react-native';
-import AppHeader from '../components/Header';
 import { AnimatedPressable } from '../components/common/AnimatedPressable';
+import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 
 export default function PersonalInfoScreen() {
@@ -125,10 +125,10 @@ export default function PersonalInfoScreen() {
     }
 
     return (
-        <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={false}>
+        <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={false} withBottomTabs={true}>
             <Stack.Screen options={{ headerShown: false }} />
 
-            <AppHeader
+            <ScreenHeader
                 showBackButton
                 title={t('personalInfo')}
             />
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     },
     content: {
         padding: 20,
-        paddingBottom: 40,
+        paddingBottom: 120,
     },
     sectionHeader: {
         flexDirection: 'row',
