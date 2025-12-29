@@ -12,9 +12,12 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
 
+import { useStore } from '../../store/store';
+
 export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     const { theme, mode } = useTheme();
     const insets = useSafeAreaInsets();
+    const { isTabBarVisible: isGlobalVisible } = useStore();
 
     // Correctly filter out hidden tabs based on options.href or tabBarStyle display
     const visibleRoutes = state.routes.filter(route => {
@@ -24,19 +27,20 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
         return !isHidden && hasIcon;
     });
 
-    const isTabBarVisible = visibleRoutes.find(route => state.index === state.routes.indexOf(route));
+    const isRouteVisible = visibleRoutes.find(route => state.index === state.routes.indexOf(route));
+    const shouldShow = isRouteVisible && isGlobalVisible;
 
     // Animation Logic
     const translateY = useSharedValue(0);
 
     useEffect(() => {
-        if (isTabBarVisible) {
+        if (shouldShow) {
             translateY.value = withTiming(0, { duration: 300 });
         } else {
             // Hide by sliding down: Height + Spacing + extra buffer. 80 + 40 + 50 = 170
             translateY.value = withSpring(170, { damping: 15, stiffness: 100 });
         }
-    }, [isTabBarVisible]);
+    }, [shouldShow]);
 
     const animatedStyle = useAnimatedStyle(() => {
         return {

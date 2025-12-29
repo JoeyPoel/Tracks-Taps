@@ -71,6 +71,7 @@ export interface Tour {
     authorId: number;
     author?: {
         name: string;
+        avatarUrl?: string;
     };
     stops?: Stop[];
     challenges?: Challenge[];
@@ -190,5 +191,6 @@ export interface TourDetail extends Tour {
     challenges: Challenge[];
     author: {
         name: string;
+        avatarUrl?: string;
     };
 }

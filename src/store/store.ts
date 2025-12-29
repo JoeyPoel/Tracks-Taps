@@ -39,7 +39,11 @@ interface StoreState {
     finishTour: (activeTourId: number, userId: number) => Promise<boolean>;
     abandonTour: (activeTourId: number, userId: number) => Promise<void>;
 
-    // User Slice
+    // --- UI/Global Slice ---
+    isTabBarVisible: boolean;
+    setTabBarVisible: (visible: boolean) => void;
+
+    // --- User Slice ---
     user: User | null;
     loadingUser: boolean;
     errorUser: string | null;
@@ -51,6 +55,10 @@ interface StoreState {
 }
 
 export const useStore = create<StoreState>((set, get) => ({
+    // --- UI/Global Slice ---
+    isTabBarVisible: true,
+    setTabBarVisible: (visible: boolean) => set({ isTabBarVisible: visible }),
+
     // --- Tours Slice ---
     tours: [],
     tourFilters: {},

@@ -1,8 +1,10 @@
 import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState } from 'react';
-import { Modal, StyleSheet, Text, View } from 'react-native';
+import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ArrowsPointingOutIcon } from 'react-native-heroicons/outline';
-import { ArrowLeftIcon } from 'react-native-heroicons/solid';
+// import { ArrowLeftIcon } from 'react-native-heroicons/solid'; // Removed unused icon
+import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import MapView, { LatLng, Marker, Polyline } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '../../context/LanguageContext';
@@ -241,18 +243,14 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
 
                     {/* Top Bar / Back Button */}
                     <View style={[styles.topBar, { top: insets.top + 10 }]}>
-                        <AnimatedPressable
-                            style={[styles.backButton, {
-                                backgroundColor: mode === 'dark' ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)',
-                                shadowColor: theme.shadowColor
-                            }]}
+                        <TouchableOpacity
                             onPress={() => setIsFullScreen(false)}
-                            interactionScale="subtle"
-                            haptic="light"
+                            style={styles.backButton}
                         >
-                            <ArrowLeftIcon size={20} color={theme.textPrimary} />
-                            <Text style={[styles.backText, { color: theme.textPrimary }]}>{t('backToActiveTour')}</Text>
-                        </AnimatedPressable>
+                            <BlurView intensity={30} tint="dark" style={styles.backButtonBlur}>
+                                <Ionicons name="arrow-back" size={24} color="#FFF" />
+                            </BlurView>
+                        </TouchableOpacity>
                     </View>
 
                 </View>
@@ -317,20 +315,15 @@ const styles = StyleSheet.create({
         left: 20,
     },
     backButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 25,
-        gap: 8,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.15,
-        shadowRadius: 4,
-        elevation: 4,
+        borderRadius: 22,
+        overflow: 'hidden',
     },
-    backText: {
-        fontWeight: '600',
-        fontSize: 16,
+    backButtonBlur: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     externalNavButton: {
         position: 'absolute',

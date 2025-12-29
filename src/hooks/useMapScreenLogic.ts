@@ -1,6 +1,5 @@
-import * as Location from 'expo-location';
-import { useLocalSearchParams } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import MapView from 'react-native-maps';
 import { routingService } from '../services/routingService';
 import { tourService } from '../services/tourService';
@@ -8,12 +7,15 @@ import { Tour } from '../types/models';
 import { useMapFit } from './useMapFit';
 import { useMapTours } from './useMapTour';
 
+import { useStore } from '../store/store';
+
 export const useMapScreenLogic = () => {
     const mapRef = useRef<MapView>(null);
     const handleRegionChangeTimeout = useRef<any>(null);
     const lastRegion = useRef<any>(null);
     const regionRef = useRef<any>(null);
     const { tourId } = useLocalSearchParams();
+    const { setTabBarVisible } = useStore();
 
     const { tours, loading, refetch } = useMapTours();
     const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
@@ -90,6 +92,23 @@ export const useMapScreenLogic = () => {
         })();
     }, [tourId]);
 
+    // Handle Tab Bar Visibility on Focus/Blur
+    useFocusEffect(
+        useCallback(() => {
+            // When screen gains focus
+            if (selectedTour) {
+                setTabBarVisible(false);
+            } else {
+                setTabBarVisible(true);
+            }
+
+            return () => {
+                // When screen loses focus
+                setTabBarVisible(true);
+            };
+        }, [selectedTour, setTabBarVisible])
+    );
+
     useMapFit(mapRef, tours, selectedTour);
 
     const handleTourSelect = async (tour: Tour) => {
@@ -98,6 +117,7 @@ export const useMapScreenLogic = () => {
             lastRegion.current = regionRef.current;
         }
         setSelectedTour(tour);
+        setTabBarVisible(false); // Hide tab bar
 
         // Fetch route segments if stops exist
         if (tour.stops && tour.stops.length > 1) {
@@ -131,6 +151,7 @@ export const useMapScreenLogic = () => {
     const handleBack = () => {
         setSelectedTour(null);
         setRouteSegments([]);
+        setTabBarVisible(true); // Show tab bar
         // Restore the previous region
         if (lastRegion.current && mapRef.current) {
             // Small delay to allow state update to process

@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -67,9 +68,11 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
       {/* Back Button Overlay */}
       <TouchableOpacity
         onPress={() => router.back()}
-        style={[styles.backButton, { backgroundColor: theme.bgPrimary + 'E6' }]}
+        style={styles.backButton}
       >
-        <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
+        <BlurView intensity={30} tint="dark" style={styles.backButtonBlur}>
+          <Ionicons name="arrow-back" size={24} color="#FFF" />
+        </BlurView>
       </TouchableOpacity>
 
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
@@ -215,11 +218,17 @@ const styles = StyleSheet.create({
     top: 50,
     left: 20,
     zIndex: 10,
+    borderRadius: 22,
+    overflow: 'hidden',
+    // Removed width/height/justify/align/bg from here as they are handled by BlurView or container
+  },
+  backButtonBlur: {
     width: 44,
     height: 44,
     borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
   },
   heroContainer: {
     height: 400,

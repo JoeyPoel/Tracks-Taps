@@ -326,7 +326,7 @@ export const strings = {
     easyOnTheEyes: 'Easy on the eyes',
     notifications: 'Notifications',
     noAchievementsYet: 'No achievements yet',
-    // SettingslableBalance: 'Available Balance',
+    availableBalance: 'Available Balance',
     pushNotifications: 'Push Notifications',
     emailUpdates: 'Email Updates',
     version: 'Version',
@@ -827,6 +827,64 @@ export const strings = {
     sendingInvites: 'Enviando...',
     selectFriendsLobby: 'Selecciona amigos para tu lobby',
     noFriendsFound: 'No se encontraron amigos.',
+    noAchievementsYet: 'Aún no hay logros',
+
+
+
+    // Explore Screen & Filters
+    filters: "Filtros",
+    nameAZ: "Nombre (A-Z)",
+    any: "Cualquiera",
+    easy: "Fácil",
+    medium: "Medio",
+    hard: "Difícil",
+    cityNamePlaceholder: "Nombre de la ciudad...",
+    minLabel: "Mín",
+    maxLabel: "Máx",
+    applyFilters: "Aplicar Filtros",
+    resetAllFilters: "Restablecer Filtros",
+    inProgressBadge: "En Progreso",
+    levelShort: "Nvl",
+    addFriendPlaceholder: "Añadir amigo por correo...",
+    requests: "Solicitudes",
+    wantsToBeFriend: "Quiere ser tu amigo",
+    accept: "Aceptar",
+    decline: "Rechazar",
+
+    teamsFinishedCount: "equipos terminaron",
+    of: "de",
+    noOtherTeams: "No hay otros equipos",
+    otherTeams: "Otros Equipos",
+    walking: "Caminando",
+    done: "Hecho",
+    active: "Activo",
+    setupTeamToStart: "¡Configura tu equipo para empezar!",
+    everyoneIn: "¿Todos listos? ¡Vamos!",
+    setupTeamFirst: "Configura el Equipo Primero",
+    waitingForHost: "Esperando al anfitrión...",
+    waitingForJoin: "Esperando a otros...",
+    host: "ANFITRIÓN",
+    myTeam: "MI EQUIPO",
+
+    // Profile Unique Keys
+    reviewerLevel: "Nivel de Reseñador",
+    topUp: "Recargar",
+    readyToJoin: "¡Listo para unirse!",
+
+    // Tour Detail & Feedback Unique Keys
+    noReviewsYet: "Aún no hay reseñas.",
+    thanksFeedback: "¡Gracias por tus comentarios!",
+    howWasExperience: "¿Cómo fue tu experiencia?",
+    whatImprove: "¿Qué podríamos mejorar?",
+    feedbackPlaceholder: "Cuéntanos qué no te gustó...",
+    submitFeedback: "Enviar Comentarios",
+
+    // Genres
+    nightlife: "Vida Nocturna",
+    foodie: "Comida y Bebida",
+    romance: "Romance",
+    art: "Arte y Música",
+    photography: "Fotografía",
   },
   nl: {
     profile: 'Profiel',
@@ -1172,5 +1230,63 @@ export const strings = {
     sendingInvites: 'Verzenden...',
     selectFriendsLobby: 'Selecteer vrienden voor je lobby',
     noFriendsFound: 'Geen vrienden gevonden.',
+    noAchievementsYet: 'Nog geen prestaties',
+
+
+
+    // Explore Screen & Filters
+    filters: "Filters",
+    nameAZ: "Naam (A-Z)",
+    any: "Alle",
+    easy: "Makkelijk",
+    medium: "Gemiddeld",
+    hard: "Moeilijk",
+    cityNamePlaceholder: "Stadsnaam...",
+    minLabel: "Min",
+    maxLabel: "Max",
+    applyFilters: "Filters Toepassen",
+    resetAllFilters: "Reset Filters",
+    inProgressBadge: "Bezig",
+    levelShort: "Niv",
+    addFriendPlaceholder: "Vriend toevoegen via e-mail...",
+    requests: "Verzoeken",
+    wantsToBeFriend: "Wil vrienden worden",
+    accept: "Accepteren",
+    decline: "Weigeren",
+
+    teamsFinishedCount: "teams klaar",
+    of: "van",
+    noOtherTeams: "Geen andere teams",
+    otherTeams: "Andere Teams",
+    walking: "Lopen",
+    done: "Klaar",
+    active: "Actief",
+    setupTeamToStart: "Stel je team in om te starten!",
+    everyoneIn: "Iedereen erbij? Laten we gaan!",
+    setupTeamFirst: "Eerst Team Instellen",
+    waitingForHost: "Wachten op host...",
+    waitingForJoin: "Wachten op anderen...",
+    host: "HOST",
+    myTeam: "MIJN TEAM",
+
+    // Profile Unique Keys
+    reviewerLevel: "Recensent Niveau",
+    topUp: "Opwaarderen",
+    readyToJoin: "Klaar om mee te doen!",
+
+    // Tour Detail & Feedback Unique Keys
+    noReviewsYet: "Nog geen beoordelingen.",
+    thanksFeedback: "Bedankt voor je feedback!",
+    howWasExperience: "Hoe was je ervaring?",
+    whatImprove: "Wat kunnen we verbeteren?",
+    feedbackPlaceholder: "Vertel ons wat je niet leuk vond...",
+    submitFeedback: "Feedback Versturen",
+
+    // Genres
+    nightlife: "Nachtleven",
+    foodie: "Eten & Drinken",
+    romance: "Romantiek",
+    art: "Kunst & Muziek",
+    photography: "Fotografie",
   },
 };

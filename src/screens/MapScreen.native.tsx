@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { FlagIcon } from 'lucide-react-native';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
+import Animated, { SlideInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AnimatedPressable } from '../components/common/AnimatedPressable';
 import TourCard from '../components/exploreScreen/TourCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -136,21 +137,25 @@ export default function MapScreen() {
       </MapView>
 
       {selectedTour && (
-        <AnimatedPressable
+        <TouchableOpacity
           style={[
             styles.backButton,
             { top: insets.top + 16 }
           ]}
           onPress={handleBack}
-          interactionScale="subtle"
         >
-          <Ionicons name="arrow-back" size={20} color="#FFF" />
-          <Text style={styles.backText}>{t('backToAllTours')}</Text>
-        </AnimatedPressable>
+          <BlurView intensity={30} tint="dark" style={styles.backButtonBlur}>
+            <Ionicons name="arrow-back" size={24} color="#FFF" />
+          </BlurView>
+        </TouchableOpacity>
       )}
 
+
       {selectedTour && (
-        <View style={[styles.tourInfo, { bottom: insets.bottom + 20 }]}>
+        <Animated.View
+          entering={SlideInDown.delay(100).duration(600)}
+          style={[styles.tourInfo, { bottom: insets.bottom + 20 }]}
+        >
           <TourCard
             title={selectedTour.title}
             author={(selectedTour as any).author?.name || 'Tracks & Taps'}
@@ -169,7 +174,7 @@ export default function MapScreen() {
               router.push(`/tour/${selectedTour.id}`);
             }}
           />
-        </View>
+        </Animated.View>
       )}
     </View>
   );
@@ -186,20 +191,15 @@ const styles = StyleSheet.create({
   backButton: {
     position: 'absolute',
     left: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 25,
-    gap: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Premium opacity
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 22,
+    overflow: 'hidden',
   },
-  backText: {
-    fontWeight: '600',
-    fontSize: 14,
-    color: '#FFFFFF', // White text
+  backButtonBlur: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   tourInfo: {
     position: 'absolute',
