@@ -2,9 +2,10 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { TrophyIcon } from 'react-native-heroicons/solid';
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import { TextComponent } from '../common/TextComponent'; // Added import
 
 interface AchievementProgressCardProps {
     unlockedCount: number;
@@ -32,8 +33,8 @@ export const AchievementProgressCard = ({ unlockedCount, totalCount, loading }: 
             >
                 <View style={styles.progressRow}>
                     <View>
-                        <Text style={styles.progressLabel}>{t('totalProgress')}</Text>
-                        <Text style={styles.progressValue}>{unlockedCount}/{totalCount} {t('unlocked')}</Text>
+                        <TextComponent style={styles.progressLabel} color="rgba(255,255,255,0.8)" bold variant="label">{t('totalProgress')}</TextComponent>
+                        <TextComponent style={styles.progressValue} color="#FFF" bold variant="h1">{unlockedCount}/{totalCount} {t('unlocked')}</TextComponent>
                     </View>
                     <TrophyIcon size={48} color="#FFF" style={{ opacity: 0.8 }} />
                 </View>
@@ -76,15 +77,10 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     progressLabel: {
-        color: 'rgba(255,255,255,0.8)',
-        fontSize: 14,
-        fontWeight: '600',
         marginBottom: 4,
     },
     progressValue: {
-        color: '#FFF',
         fontSize: 24,
-        fontWeight: '800',
     },
     progressBarBg: {
         height: 8,

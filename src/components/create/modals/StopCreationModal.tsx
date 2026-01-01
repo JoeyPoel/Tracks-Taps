@@ -1,9 +1,10 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useStopForm } from '@/src/hooks/create/useStopForm';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { PubGolfSection } from './components/PubGolfSection';
 import { StopForm } from './components/StopForm';
 import { StopMapPicker } from './components/StopMapPicker';
@@ -30,9 +31,9 @@ export default function StopCreationModal({ visible, onClose, onSave, modes = []
 
                 {/* Header */}
                 <View style={styles.header}>
-                    <Text style={[styles.title, { backgroundColor: theme.bgSecondary, color: theme.textPrimary }]}>
+                    <TextComponent style={[styles.title, { backgroundColor: theme.bgSecondary }]} color={theme.textPrimary} bold variant="h2">
                         {initialData ? t('editStop') : t('addStop')}
-                    </Text>
+                    </TextComponent>
                     <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: theme.bgTertiary }]}>
                         <Ionicons name="close" size={20} color={theme.textPrimary} />
                     </TouchableOpacity>
@@ -74,10 +75,9 @@ export default function StopCreationModal({ visible, onClose, onSave, modes = []
                         ]}
                         onPress={handleSave}
                     >
-                        <Text style={[
-                            styles.saveButtonText,
-                            { color: 'white' }
-                        ]}>{t('confirmLocation')}</Text>
+                        <TextComponent style={styles.saveButtonText} color="white" bold variant="h3">
+                            {t('confirmLocation')}
+                        </TextComponent>
                     </TouchableOpacity>
                 </View>
 

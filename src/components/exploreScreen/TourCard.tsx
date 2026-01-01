@@ -1,10 +1,12 @@
 
-import { StyleSheet, Text, View } from 'react-native';
+
+import { StyleSheet, View } from 'react-native';
 import { BoltIcon as BoltIconSolid, ClockIcon, MapIcon, StarIcon as StarIconSolid } from 'react-native-heroicons/solid';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { getGenreIcon } from '../../utils/genres';
 import { getTourTypeLabel } from '../../utils/tourUtils';
+import { TextComponent } from '../common/TextComponent';
 import { TourCardBase } from './TourCardBase';
 
 interface TourCardProps {
@@ -61,12 +63,12 @@ export default function TourCard({
                   const GenreIcon = getGenreIcon(genre);
                   return <GenreIcon size={12} color="#FFF" />;
                 })()}
-                <Text style={styles.badgeText}>{genre}</Text>
+                <TextComponent style={styles.badgeText} variant="caption" bold>{genre}</TextComponent>
               </View>
             )}
             {tourType && (
               <View style={[styles.badge, styles.blurBadge]}>
-                <Text style={styles.badgeText}>{getTourTypeLabel(tourType)}</Text>
+                <TextComponent style={styles.badgeText} variant="caption" bold>{getTourTypeLabel(tourType)}</TextComponent>
               </View>
             )}
           </View>
@@ -75,20 +77,23 @@ export default function TourCard({
         {/* If grid, push rating to right, if hero, it's already right */}
         <View style={[styles.ratingBadge, styles.blurBadge, isGrid && { marginLeft: 'auto' }]}>
           <StarIconSolid size={10} color={theme.gold} />
-          <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
+          <TextComponent style={styles.ratingText} variant="caption" bold>{rating.toFixed(1)}</TextComponent>
         </View>
       </View>
 
       {/* Bottom Section */}
       <View style={styles.bottomContent}>
         <View style={styles.titleContainer}>
-          <Text
+          <TextComponent
             style={[styles.title, isGrid && styles.gridTitle]}
+            variant={isGrid ? 'h3' : 'h2'}
+            bold
+            color="#FFF"
             numberOfLines={2}
           >
             {title}
-          </Text>
-          {!isGrid && <Text style={styles.author}>{t('by')} {author}</Text>}
+          </TextComponent>
+          {!isGrid && <TextComponent style={styles.author} variant="label" color='rgba(255, 255, 255, 0.9)'>{t('by')} {author}</TextComponent>}
         </View>
 
         {!isGrid && <View style={styles.separator} />}
@@ -98,25 +103,27 @@ export default function TourCard({
             <View style={styles.statGroup}>
               <View style={styles.statItem}>
                 <MapIcon size={14} color="#E0E0E0" />
-                <Text style={styles.statText}>{distance}</Text>
+                <TextComponent style={styles.statText} variant="caption" bold>{distance}</TextComponent>
               </View>
               <View style={styles.dotSeparator} />
               <View style={styles.statItem}>
                 <ClockIcon size={14} color="#E0E0E0" />
-                <Text style={styles.statText}>{duration}</Text>
+                <TextComponent style={styles.statText} variant="caption" bold>{duration}</TextComponent>
               </View>
             </View>
           ) : (
             <View style={styles.gridStatGroup}>
-              <Text style={styles.miniStatText}>{distance}</Text>
-              <Text style={styles.miniStatText}>•</Text>
-              <Text style={styles.miniStatText}>{duration}</Text>
+              <TextComponent style={styles.miniStatText} variant="caption">{distance}</TextComponent>
+              <TextComponent style={styles.miniStatText} variant="caption">•</TextComponent>
+              <TextComponent style={styles.miniStatText} variant="caption">{duration}</TextComponent>
             </View>
           )}
 
           <View style={[styles.pointsContainer, isGrid && styles.gridPointsContainer]}>
             <BoltIconSolid size={isGrid ? 10 : 16} color={theme.gold} />
-            <Text style={[styles.pointsText, { color: theme.gold, fontSize: isGrid ? 11 : 14 }]}>{points}</Text>
+            <TextComponent style={[styles.pointsText, { color: theme.gold, fontSize: isGrid ? 11 : 14 }]} bold>
+              {points}
+            </TextComponent>
           </View>
         </View>
       </View>
@@ -150,8 +157,6 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: '#FFF',
-    fontSize: 12,
-    fontWeight: '700',
     letterSpacing: 0.3,
   },
   ratingBadge: {
@@ -164,8 +169,6 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     color: '#FFF',
-    fontSize: 12,
-    fontWeight: '800',
   },
   bottomContent: {
     gap: 8,
@@ -174,22 +177,18 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#FFF',
+    fontSize: 24, // Fallback/Basic
     letterSpacing: -0.5,
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
   gridTitle: {
-    fontSize: 18, // Smaller for grid
+    fontSize: 18, // Fallback/Basic
     lineHeight: 22,
   },
   author: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontWeight: '500',
+    // handled by component
   },
   separator: {
     height: 1,
@@ -214,13 +213,9 @@ const styles = StyleSheet.create({
   },
   statText: {
     color: '#E0E0E0',
-    fontSize: 13,
-    fontWeight: '600',
   },
   miniStatText: {
     color: '#E0E0E0',
-    fontSize: 12,
-    fontWeight: '500',
   },
   dotSeparator: {
     width: 3,
@@ -241,7 +236,6 @@ const styles = StyleSheet.create({
   },
   pointsText: {
     fontWeight: '800',
-    fontSize: 14,
   },
   gridStatsRow: {
     flexDirection: 'row',

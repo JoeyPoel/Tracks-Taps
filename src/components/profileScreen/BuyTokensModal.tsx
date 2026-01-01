@@ -1,6 +1,7 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { CircleStackIcon, GiftIcon } from 'react-native-heroicons/outline';
 import client from '../../api/apiClient';
 import { useTheme } from '../../context/ThemeContext';
@@ -85,34 +86,34 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                         >
                             {pkg.popular && (
                                 <View style={[styles.popularBadge, { backgroundColor: theme.danger }]}>
-                                    <Text style={[styles.popularText, { color: theme.fixedWhite }]}>{t('mostPopular')}</Text>
+                                    <TextComponent style={styles.popularText} color={theme.fixedWhite} bold variant="caption">{t('mostPopular')}</TextComponent>
                                 </View>
                             )}
 
                             <View style={styles.packageInfo}>
                                 <View style={styles.tokenRow}>
                                     <CircleStackIcon size={20} color={theme.accent} />
-                                    <Text style={[styles.tokenAmount, { color: theme.textPrimary }]}>
+                                    <TextComponent style={styles.tokenAmount} color={theme.textPrimary} bold variant="h3">
                                         {pkg.tokens} {t('tokens')}
-                                    </Text>
+                                    </TextComponent>
                                     {pkg.bonus > 0 && (
                                         <View style={[styles.bonusBadge, { backgroundColor: theme.success }]}>
-                                            <Text style={[styles.bonusText, { color: theme.fixedWhite }]}>+{pkg.bonus} {t('bonus')}</Text>
+                                            <TextComponent style={styles.bonusText} color={theme.fixedWhite} bold variant="caption">+{pkg.bonus} {t('bonus')}</TextComponent>
                                         </View>
                                     )}
                                 </View>
-                                <Text style={[styles.totalTokens, { color: theme.textSecondary }]}>
+                                <TextComponent style={styles.totalTokens} color={theme.textSecondary} variant="caption">
                                     {t('total')}: {totalTokens} {t('tokensLower')}
-                                </Text>
+                                </TextComponent>
                             </View>
 
                             <View style={styles.priceInfo}>
-                                <Text style={[styles.price, { color: pkg.popular ? theme.danger : theme.textPrimary }]}>
+                                <TextComponent style={styles.price} color={pkg.popular ? theme.danger : theme.textPrimary} bold variant="h3">
                                     €{pkg.price}
-                                </Text>
-                                <Text style={[styles.pricePerToken, { color: theme.textSecondary }]}>
+                                </TextComponent>
+                                <TextComponent style={styles.pricePerToken} color={theme.textSecondary} variant="caption">
                                     €{pricePerToken}/token
-                                </Text>
+                                </TextComponent>
                             </View>
                         </AnimatedPressable>
                     );
@@ -123,10 +124,10 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                 <View style={styles.footerContent}>
                     <GiftIcon size={24} color={theme.primary} />
                     <View style={styles.footerTextContainer}>
-                        <Text style={[styles.footerTitle, { color: theme.textPrimary }]}>{t('earnFreeTokens')}</Text>
-                        <Text style={[styles.footerDescription, { color: theme.primary }]}>
+                        <TextComponent style={styles.footerTitle} color={theme.textPrimary} bold variant="body">{t('earnFreeTokens')}</TextComponent>
+                        <TextComponent style={styles.footerDescription} color={theme.primary} variant="caption">
                             {t('inviteFriendsDescription')}
-                        </Text>
+                        </TextComponent>
                     </View>
                 </View>
             </View>

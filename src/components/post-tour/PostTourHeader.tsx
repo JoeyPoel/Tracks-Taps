@@ -1,8 +1,9 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 export default function PostTourHeader() {
     const { theme } = useTheme();
@@ -17,12 +18,12 @@ export default function PostTourHeader() {
                 style={styles.headerGradient}
             >
                 <View style={styles.content}>
-                    <Text style={[styles.headerTitle, { color: theme.fixedWhite }]}>
+                    <TextComponent style={styles.headerTitle} color={theme.fixedWhite} bold>
                         {t('greatJobTitle')}
-                    </Text>
-                    <Text style={[styles.headerSubtitle, { color: 'rgba(255,255,255,0.9)' }]}>
+                    </TextComponent>
+                    <TextComponent style={styles.headerSubtitle} color="rgba(255,255,255,0.9)">
                         {t('waitingForTeams')}
-                    </Text>
+                    </TextComponent>
                 </View>
 
                 {/* Decorative circles */}

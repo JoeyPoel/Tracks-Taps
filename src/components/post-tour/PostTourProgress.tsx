@@ -1,8 +1,9 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 interface PostTourProgressProps {
     finishedCount: number;
@@ -17,15 +18,19 @@ export default function PostTourProgress({ finishedCount, totalTeamCount, progre
     return (
         <View style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
             <View style={styles.headerRow}>
-                <Text style={[styles.progressTitle, { color: theme.textPrimary }]}>{t('tourProgress')}</Text>
+                <TextComponent style={styles.progressTitle} color={theme.textPrimary} bold variant="h3">
+                    {t('tourProgress')}
+                </TextComponent>
                 <View style={[styles.badge, { backgroundColor: theme.primary + '20' }]}>
-                    <Text style={[styles.badgeText, { color: theme.primary }]}>{Math.round(progressPercentage)}%</Text>
+                    <TextComponent style={styles.badgeText} color={theme.primary} bold variant="caption">
+                        {Math.round(progressPercentage)}%
+                    </TextComponent>
                 </View>
             </View>
 
-            <Text style={[styles.progressSubtitle, { color: theme.textSecondary }]}>
+            <TextComponent style={styles.progressSubtitle} color={theme.textSecondary} variant="body">
                 {finishedCount} {t('of')} {totalTeamCount} {t('teamsFinishedCount')}
-            </Text>
+            </TextComponent>
 
             <View style={[styles.progressBarBackground, { backgroundColor: theme.bgPrimary }]}>
                 <LinearGradient

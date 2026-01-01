@@ -1,5 +1,6 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { GenericCard } from '../common/GenericCard';
@@ -21,14 +22,14 @@ export const TeamCard: React.FC<TeamCardProps> = ({ name, color, emoji }) => {
             padding="medium"
         >
             <View style={styles.teamHeader}>
-                <Text style={{ fontSize: 32, marginRight: 16 }}>{emoji}</Text>
+                <TextComponent style={{ fontSize: 32, marginRight: 16 }}>{emoji}</TextComponent>
                 <View>
-                    <Text style={[styles.name, { color: theme.textPrimary, fontSize: 18, fontWeight: 'bold' }]}>
+                    <TextComponent style={styles.name} color={theme.textPrimary} size={18} bold variant="body">
                         {name || t('yourTeamName')}
-                    </Text>
-                    <Text style={{ color: theme.textSecondary, fontSize: 14, fontWeight: '600' }}>
+                    </TextComponent>
+                    <TextComponent style={{ fontSize: 14 }} color={theme.textSecondary} bold variant="caption">
                         {t('ready') || t('readyToJoin')}
-                    </Text>
+                    </TextComponent>
                 </View>
             </View>
         </GenericCard>

@@ -1,5 +1,6 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, LayoutChangeEvent, StyleSheet, Text, View } from 'react-native';
+import { Animated, LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { AnimatedPressable } from './common/AnimatedPressable';
 
@@ -52,16 +53,16 @@ export default function CustomTabBar({ tabs, activeIndex, onTabPress }: CustomTa
             interactionScale="subtle"
             haptic="light"
           >
-            <Text
+            <TextComponent
               style={{
-                color: activeIndex === index ? '#FFF' : theme.textSecondary,
-                fontWeight: activeIndex === index ? '700' : '500',
-                fontSize: 13,
                 zIndex: 1, // Ensure text is above indicator
               }}
+              color={activeIndex === index ? '#FFF' : theme.textSecondary}
+              bold={activeIndex === index}
+              variant="caption"
             >
               {tab}
-            </Text>
+            </TextComponent>
           </AnimatedPressable>
         ))}
       </View>

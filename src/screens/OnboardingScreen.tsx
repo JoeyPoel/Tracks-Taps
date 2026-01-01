@@ -1,11 +1,12 @@
 import OnboardingItem from '@/src/components/OnboardingItem';
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { Beer, Map, Swords, Trophy } from 'lucide-react-native';
 import React, { useRef, useState } from 'react';
-import { Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
@@ -121,7 +122,7 @@ export default function OnboardingScreen() {
                     {!isLastSlide && (
                         <Animated.View exiting={FadeOut} entering={FadeIn}>
                             <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
-                                <Text style={[styles.skipText, { color: theme.textSecondary }]}>{t('skip')}</Text>
+                                <TextComponent style={styles.skipText} color={theme.textSecondary} bold variant="body">{t('skip')}</TextComponent>
                             </TouchableOpacity>
                         </Animated.View>
                     )}
@@ -131,15 +132,15 @@ export default function OnboardingScreen() {
                         style={[styles.animatedButton, buttonStyle]}
                         layout={Layout.springify()}
                     >
-                        <Animated.Text
+                        <Animated.View
                             key={isLastSlide ? "start" : "next"}
                             entering={FadeIn.duration(300)}
                             exiting={FadeOut.duration(300)}
-                            style={[styles.buttonText, { color: theme.primaryText }]} // Text on primary button usually contrast
-                            numberOfLines={1}
                         >
-                            {isLastSlide ? t('startPlaying') : t('next')}
-                        </Animated.Text>
+                            <TextComponent style={styles.buttonText} color={theme.primaryText} bold variant="h3" numberOfLines={1}>
+                                {isLastSlide ? t('startPlaying') : t('next')}
+                            </TextComponent>
+                        </Animated.View>
                     </AnimatedTouchableOpacity>
                 </View>
             </View>

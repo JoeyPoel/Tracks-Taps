@@ -1,8 +1,9 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { AnimatedPressable } from '../components/common/AnimatedPressable';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
@@ -28,7 +29,7 @@ export default function AppPreferencesScreen() {
       >
         <Ionicons name={icon as any} size={18} color={theme.primary} />
       </LinearGradient>
-      <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{title}</Text>
+      <TextComponent style={styles.sectionTitle} color={theme.textSecondary} bold variant="caption">{title}</TextComponent>
     </View>
   );
 
@@ -50,10 +51,10 @@ export default function AppPreferencesScreen() {
         <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
           <View style={[styles.row, styles.lastRow]}>
             <View style={styles.rowInfo}>
-              <Text style={[styles.rowTitle, { color: theme.textPrimary }]}>{t('darkMode')}</Text>
-              <Text style={[styles.rowSubtitle, { color: theme.textSecondary }]}>
+              <TextComponent style={styles.rowTitle} color={theme.textPrimary} bold variant="body">{t('darkMode')}</TextComponent>
+              <TextComponent style={styles.rowSubtitle} color={theme.textSecondary} variant="caption">
                 {mode === 'dark' ? t('easyOnTheEyes') : t('brightAndClear')}
-              </Text>
+              </TextComponent>
             </View>
             <Switch
               value={theme === darkTheme}
@@ -84,17 +85,15 @@ export default function AppPreferencesScreen() {
                     }
                   ]}
                 >
-                  <Text style={{ fontSize: 24, marginBottom: 4 }}>{lang.flag}</Text>
-                  <Text style={[
-                    styles.languageLabel,
-                    {
-                      color: isActive ? theme.primary : theme.textPrimary,
-                      fontWeight: isActive ? 'bold' : 'normal'
-                    }
-                  ]}
+                  <TextComponent style={{ fontSize: 24, marginBottom: 4 }}>{lang.flag}</TextComponent>
+                  <TextComponent
+                    style={styles.languageLabel}
+                    color={isActive ? theme.primary : theme.textPrimary}
+                    bold={isActive}
+                    variant="body"
                   >
                     {lang.label}
-                  </Text>
+                  </TextComponent>
                   {isActive && (
                     <View style={[styles.activeBadge, { backgroundColor: theme.primary }]}>
                       <Ionicons name="checkmark" size={10} color="#FFF" />
@@ -111,7 +110,7 @@ export default function AppPreferencesScreen() {
         <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
           <View style={[styles.row, { borderBottomColor: theme.borderSecondary, borderBottomWidth: 1 }]}>
             <View style={styles.rowInfo}>
-              <Text style={[styles.rowTitle, { color: theme.textPrimary }]}>Push Notifications</Text>
+              <TextComponent style={styles.rowTitle} color={theme.textPrimary} bold variant="body">Push Notifications</TextComponent>
             </View>
             <Switch
               value={true}
@@ -122,7 +121,7 @@ export default function AppPreferencesScreen() {
           </View>
           <View style={[styles.row, styles.lastRow]}>
             <View style={styles.rowInfo}>
-              <Text style={[styles.rowTitle, { color: theme.textPrimary }]}>Email Updates</Text>
+              <TextComponent style={styles.rowTitle} color={theme.textPrimary} bold variant="body">Email Updates</TextComponent>
             </View>
             <Switch
               value={false}
@@ -133,9 +132,9 @@ export default function AppPreferencesScreen() {
           </View>
         </View>
 
-        <Text style={[styles.versionText, { color: theme.textTertiary }]}>
+        <TextComponent style={styles.versionText} color={theme.textTertiary} variant="caption" center>
           Version 1.0.0
-        </Text>
+        </TextComponent>
 
       </ScrollView>
     </ScreenWrapper>

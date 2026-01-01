@@ -1,6 +1,7 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import React, { useEffect } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -46,11 +47,11 @@ export default function RecentAchievements({ achievements, loading, onSeeAll }: 
     return (
         <View style={styles.container}>
             <View style={styles.headerRow}>
-                <Text style={[styles.header, { color: theme.textSecondary }]}>{t('recentAchievements')?.toUpperCase()}</Text>
+                <TextComponent style={styles.header} color={theme.textSecondary} bold variant="caption">{t('recentAchievements')?.toUpperCase()}</TextComponent>
                 {onSeeAll && (
-                    <Text onPress={onSeeAll} style={[styles.seeAll, { color: theme.primary }]}>
+                    <TextComponent onPress={onSeeAll} style={styles.seeAll} color={theme.primary} bold variant="body">
                         {t('seeAll')}
-                    </Text>
+                    </TextComponent>
                 )}
             </View>
 
@@ -77,15 +78,15 @@ export default function RecentAchievements({ achievements, loading, onSeeAll }: 
                                 <View style={[styles.iconContainer, { backgroundColor: achievement.color + '15' }]}>
                                     <AchievementIcon icon={achievement.icon} size={28} color={achievement.color} solid={false} />
                                 </View>
-                                <Text style={[styles.title, { color: theme.textPrimary }]} numberOfLines={1}>{achievement.title}</Text>
+                                <TextComponent style={styles.title} color={theme.textPrimary} variant="caption" numberOfLines={1}>{achievement.title}</TextComponent>
                             </Animated.View>
                         );
                     })
                 ) : (
-                    <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{t('noAchievementsYet') || 'No achievements yet'}</Text>
+                    <TextComponent style={styles.emptyText} color={theme.textSecondary} variant="body">{t('noAchievementsYet') || 'No achievements yet'}</TextComponent>
                 )}
             </ScrollView>
-        </View>
+        </View >
     );
 }
 
@@ -137,3 +138,5 @@ const styles = StyleSheet.create({
         marginLeft: 4,
     },
 });
+
+

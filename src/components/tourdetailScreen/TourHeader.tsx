@@ -1,6 +1,7 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -33,13 +34,13 @@ export default function TourHeader({ title, author, imageUrl, genre, onMapPress 
                         {genre && GenreIcon && (
                             <View style={[styles.genreBadge, { backgroundColor: theme.bgSecondary }]}>
                                 <GenreIcon size={14} color={theme.fixedWhite} />
-                                <Text style={styles.genreText}>{genre}</Text>
+                                <TextComponent style={styles.genreText} color="#FFF" bold variant="caption">{genre}</TextComponent>
                             </View>
                         )}
-                        <Text style={[styles.title, { color: theme.fixedWhite }]}>{title}</Text>
-                        <Text style={[styles.author, { color: theme.fixedWhite }]}>
+                        <TextComponent style={styles.title} color={theme.fixedWhite} bold variant="h1">{title}</TextComponent>
+                        <TextComponent style={styles.author} color={theme.fixedWhite} variant="body">
                             {t('createdBy')} {author}
-                        </Text>
+                        </TextComponent>
                     </View>
 
                     {onMapPress && (

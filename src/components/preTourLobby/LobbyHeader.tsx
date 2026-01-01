@@ -1,7 +1,8 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 
 interface LobbyHeaderProps {
@@ -23,7 +24,9 @@ export const LobbyHeader: React.FC<LobbyHeaderProps> = ({ onInvitePress }) => {
             >
                 <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
             </TouchableOpacity>
-            <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('lobby')}</Text>
+            <TextComponent style={styles.headerTitle} color={theme.textPrimary} bold variant="h2">
+                {t('lobby')}
+            </TextComponent>
             <TouchableOpacity
                 onPress={onInvitePress}
                 style={[styles.iconButton, { backgroundColor: theme.primary + '15' }]}

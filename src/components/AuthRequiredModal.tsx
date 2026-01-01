@@ -1,6 +1,7 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useRouter, useSegments } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { LockClosedIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -57,9 +58,9 @@ export default function AuthRequiredModal() {
                 </View>
             }
         >
-            <Text style={[styles.description, { color: theme.textSecondary }]}>
+            <TextComponent style={styles.description} color={theme.textSecondary} variant="body">
                 {t('authRequiredDesc')}
-            </Text>
+            </TextComponent>
 
             <View style={styles.buttonContainer}>
                 <AnimatedButton

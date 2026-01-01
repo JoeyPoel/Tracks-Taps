@@ -1,5 +1,6 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { TEAM_EMOJIS } from '../../utils/teamUtils';
@@ -16,7 +17,7 @@ export const EmojiSelector: React.FC<EmojiSelectorProps> = ({ selectedEmoji, onS
 
     return (
         <View style={styles.container}>
-            <Text style={[styles.label, { color: theme.textPrimary }]}>{t('teamEmoji')}</Text>
+            <TextComponent style={styles.label} color={theme.textPrimary} bold variant="h3">{t('teamEmoji')}</TextComponent>
             <View style={styles.grid}>
                 {TEAM_EMOJIS.map(emoji => (
                     <AnimatedPressable
@@ -30,7 +31,7 @@ export const EmojiSelector: React.FC<EmojiSelectorProps> = ({ selectedEmoji, onS
                         interactionScale="subtle"
                         haptic="selection"
                     >
-                        <Text style={{ fontSize: 24 }}>{emoji}</Text>
+                        <TextComponent style={{ fontSize: 24 }}>{emoji}</TextComponent>
                     </AnimatedPressable>
                 ))}
             </View>

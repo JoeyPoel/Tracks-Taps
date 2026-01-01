@@ -1,5 +1,6 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ChevronRightIcon } from 'react-native-heroicons/outline';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -34,7 +35,7 @@ export const SettingsItem: React.FC<SettingsItemProps> = ({
         >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 {icon}
-                <Text style={[styles.settingsLabel, { color: theme.textPrimary }]}>{title}</Text>
+                <TextComponent style={styles.settingsLabel} color={theme.textPrimary} bold variant="body">{title}</TextComponent>
             </View>
 
             {rightElement || <ChevronRightIcon size={20} color={theme.textSecondary} />}

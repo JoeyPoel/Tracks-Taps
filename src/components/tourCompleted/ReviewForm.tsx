@@ -1,8 +1,9 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { uploadImage } from '@/src/services/imageService';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Image, Modal, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Modal, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -84,10 +85,10 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                     {/* Header */}
                     <View style={styles.header}>
                         <View>
-                            <Text style={[styles.title, { color: theme.textPrimary }]}>{t('rateExperience')}</Text>
-                            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+                            <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">{t('rateExperience')}</TextComponent>
+                            <TextComponent style={styles.subtitle} color={theme.textSecondary} variant="body">
                                 {tourName}
-                            </Text>
+                            </TextComponent>
                         </View>
                         <AnimatedPressable onPress={onClose} interactionScale="subtle" style={styles.closeBtn}>
                             <Ionicons name="close" size={24} color={theme.textSecondary} />
@@ -116,14 +117,14 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                     {/* Rating Label (Optional feedback text based on stars) */}
                     <View style={{ alignItems: 'center', marginBottom: 20, height: 20 }}>
                         {rating > 0 && (
-                            <Text style={{ color: theme.primary, fontWeight: '600', fontSize: 14 }}>
+                            <TextComponent style={{ fontSize: 14 }} color={theme.primary} bold variant="body">
                                 {rating === 5 ? t('amazing') : rating === 4 ? t('good') : rating === 3 ? t('okay') : t('notGreat')}
-                            </Text>
+                            </TextComponent>
                         )}
                     </View>
 
                     {/* Input Area */}
-                    <Text style={[styles.label, { color: theme.textSecondary }]}>{t('writeReview')}</Text>
+                    <TextComponent style={styles.label} color={theme.textSecondary} bold variant="caption">{t('writeReview')}</TextComponent>
                     <TextInput
                         style={[styles.input, { backgroundColor: theme.bgInput, color: theme.textPrimary, borderColor: theme.borderInput }]}
                         placeholder={t('reviewPlaceholder')}
@@ -148,9 +149,9 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                             ) : (
                                 <Ionicons name="camera" size={20} color={theme.primary} />
                             )}
-                            <Text style={[styles.addPhotoText, { color: theme.textPrimary }]}>
+                            <TextComponent style={styles.addPhotoText} color={theme.textPrimary} bold variant="caption">
                                 {photos.length === 0 ? t('addPhotos') : `${photos.length}/5`}
-                            </Text>
+                            </TextComponent>
                         </AnimatedPressable>
 
                         <View style={styles.photoList}>

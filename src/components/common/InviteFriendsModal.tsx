@@ -1,12 +1,13 @@
 import { AnimatedButton } from '@/src/components/common/AnimatedButton';
 import { AppModal } from '@/src/components/common/AppModal';
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { SelectableFriendCard } from '@/src/components/friends/SelectableFriendCard';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useFriends } from '@/src/hooks/useFriends';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 
 interface InviteFriendsModalProps {
     visible: boolean;
@@ -73,9 +74,9 @@ export default function InviteFriendsModal({ visible, onClose, activeTourId }: I
                         ListEmptyComponent={
                             <View style={styles.emptyState}>
                                 <Ionicons name="people-outline" size={48} color={theme.textSecondary + '50'} />
-                                <Text style={{ color: theme.textSecondary, textAlign: 'center', marginTop: 12 }}>
+                                <TextComponent style={{ marginTop: 12 }} color={theme.textSecondary} center variant="body">
                                     {t('noFriendsFound')}
-                                </Text>
+                                </TextComponent>
                             </View>
                         }
                     />

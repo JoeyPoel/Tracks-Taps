@@ -1,8 +1,9 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { TourDraft } from '@/src/hooks/useCreateTour';
 import React from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { ClockIcon, MapIcon, MapPinIcon } from 'react-native-heroicons/outline';
 
 interface Props {
@@ -25,7 +26,9 @@ export function ReviewCardStats({ draft, updateDraft }: Props) {
                     keyboardType="numeric"
                     style={[styles.statInput, { color: theme.textSecondary }]}
                 />
-                <Text style={[styles.statText, { color: theme.textSecondary, marginLeft: 2 }]}>{t('km')}</Text>
+                <TextComponent style={[styles.statText, { marginLeft: 2 }]} color={theme.textSecondary} variant="body">
+                    {t('km')}
+                </TextComponent>
             </View>
 
             {/* Duration */}
@@ -37,13 +40,17 @@ export function ReviewCardStats({ draft, updateDraft }: Props) {
                     keyboardType="numeric"
                     style={[styles.statInput, { color: theme.textSecondary }]}
                 />
-                <Text style={[styles.statText, { color: theme.textSecondary, marginLeft: 2 }]}>{t('min')}</Text>
+                <TextComponent style={[styles.statText, { marginLeft: 2 }]} color={theme.textSecondary} variant="body">
+                    {t('min')}
+                </TextComponent>
             </View>
 
             {/* Stops */}
             <View style={styles.statItem}>
                 <MapPinIcon size={16} color={theme.textSecondary} />
-                <Text style={[styles.statText, { color: theme.textSecondary }]}>{draft.stops.length} {t('stops')}</Text>
+                <TextComponent style={styles.statText} color={theme.textSecondary} variant="body">
+                    {draft.stops.length} {t('stops')}
+                </TextComponent>
             </View>
         </View>
     );

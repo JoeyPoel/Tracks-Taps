@@ -2,7 +2,7 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 interface RequestCardProps {
     request: any;
@@ -11,6 +11,7 @@ interface RequestCardProps {
 }
 
 import { GenericCard } from '@/src/components/common/GenericCard';
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 
 export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) {
     const { theme } = useTheme();
@@ -24,8 +25,12 @@ export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) 
                     style={styles.avatar}
                 />
                 <View style={styles.textContainer}>
-                    <Text style={[styles.name, { color: theme.textPrimary }]}>{request.requester.name}</Text>
-                    <Text style={[styles.subText, { color: theme.textSecondary }]}>{t('wantsToBeFriend')}</Text>
+                    <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">
+                        {request.requester.name}
+                    </TextComponent>
+                    <TextComponent style={styles.subText} color={theme.textSecondary} variant="caption">
+                        {t('wantsToBeFriend')}
+                    </TextComponent>
                 </View>
             </View>
 

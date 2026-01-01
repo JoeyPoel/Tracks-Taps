@@ -1,5 +1,6 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { CheckIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -17,7 +18,7 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({ selectedColor, onS
 
     return (
         <View style={styles.container}>
-            <Text style={[styles.label, { color: theme.textPrimary }]}>{t('teamColor')}</Text>
+            <TextComponent style={styles.label} color={theme.textPrimary} bold variant="h3">{t('teamColor')}</TextComponent>
             <View style={styles.grid}>
                 {TEAM_COLORS.map(color => (
                     <AnimatedPressable

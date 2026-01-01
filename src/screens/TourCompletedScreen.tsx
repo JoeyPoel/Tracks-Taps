@@ -1,8 +1,9 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as StoreReview from 'expo-store-review';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ImageBackground, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import Confetti from '../components/active-tour/animations/Confetti';
 import { AnimatedButton } from '../components/common/AnimatedButton';
@@ -137,7 +138,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
             <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={theme.primary} style={{ marginBottom: 20 }} />
-                    <Text style={[styles.calculatingText, { color: theme.textSecondary }]}>{message}</Text>
+                    <TextComponent style={styles.calculatingText} color={theme.textSecondary} variant="body" center>{message}</TextComponent>
                 </View>
             </View>
         );
@@ -146,7 +147,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
     if (!activeTour) {
         return (
             <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}>
-                <Text style={{ color: theme.textPrimary }}>{t('tourNotFound')}</Text>
+                <TextComponent color={theme.textPrimary} variant="body">{t('tourNotFound')}</TextComponent>
             </View>
         );
     }
@@ -203,7 +204,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                         <Ionicons name="arrow-back" size={24} color="#FFF" />
                     </TouchableOpacity>
 
-                    <Text style={styles.activeTourTitle}>{activeTour?.tour?.title}</Text>
+                    <TextComponent style={styles.activeTourTitle} color="#FFFFFF" bold variant="caption">{activeTour?.tour?.title}</TextComponent>
 
                     {/* Horizontal spacer for balance */}
                     <View style={{ width: 40 }} />
@@ -214,15 +215,15 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                     <View style={styles.winnerHeaderContainer}>
                         {revealState === 'CELEBRATE' && (
                             <Animated.View entering={ZoomIn.springify().damping(12)} style={styles.winnerHeader}>
-                                <Text style={styles.winnerText}>
-                                    <Text style={{ fontSize: 18, fontWeight: '400', opacity: 0.9 }}>{t('winner')} </Text>
+                                <TextComponent style={styles.winnerText} color="#FFFFFF" bold variant="h1" center>
+                                    <TextComponent style={{ fontSize: 18, opacity: 0.9 }} color="#FFFFFF" variant="body">{t('winner')} </TextComponent>
                                     {winnerName}
-                                </Text>
+                                </TextComponent>
                                 <View style={[styles.winnerScorePill, { backgroundColor: theme.bgPrimary }]}>
                                     <Ionicons name="flash" size={12} color={theme.primary} />
-                                    <Text style={[styles.winnerScoreText, { color: theme.primary }]}>
+                                    <TextComponent style={styles.winnerScoreText} color={theme.primary} bold variant="caption">
                                         {winner?.score || 0} PTS
-                                    </Text>
+                                    </TextComponent>
                                 </View>
                             </Animated.View>
                         )}
@@ -254,12 +255,12 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                     {/* Runner Ups List - Minimal Clean Design */}
                     {revealState === 'CELEBRATE' && runnerUps.length > 0 && (
                         <Animated.View entering={FadeInDown.delay(400).springify()} style={styles.runnerUpSection}>
-                            <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('leaderboard')}</Text>
+                            <TextComponent style={styles.sectionTitle} color={theme.textSecondary} bold variant="caption">{t('leaderboard')}</TextComponent>
                             {runnerUps.map((team, index) => (
                                 <View key={team.id} style={[styles.runnerUpRow, { borderColor: theme.borderPrimary }]}>
-                                    <Text style={[styles.runnerUpRank, { color: theme.textSecondary }]}>{index + 4}</Text>
-                                    <Text style={[styles.runnerUpName, { color: theme.textPrimary }]}>{team.name || team.user?.name}</Text>
-                                    <Text style={[styles.runnerUpScore, { color: theme.textPrimary }]}>{team.score} pts</Text>
+                                    <TextComponent style={styles.runnerUpRank} color={theme.textSecondary} bold variant="body">{index + 4}</TextComponent>
+                                    <TextComponent style={styles.runnerUpName} color={theme.textPrimary} bold variant="body">{team.name || team.user?.name}</TextComponent>
+                                    <TextComponent style={styles.runnerUpScore} color={theme.textPrimary} bold variant="body">{team.score} pts</TextComponent>
                                 </View>
                             ))}
                         </Animated.View>

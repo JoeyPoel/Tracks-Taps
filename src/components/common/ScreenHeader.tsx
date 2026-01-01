@@ -5,6 +5,7 @@ import { StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-
 import Animated, { FadeInRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
+import { TextComponent } from './TextComponent'; // Added import
 
 interface ScreenHeaderProps {
     title: string;
@@ -50,21 +51,28 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
                 )}
 
                 <View style={styles.textContainer}>
-                    <Animated.Text
-                        entering={FadeInRight.delay(200).springify()}
-                        style={[styles.headerTitle, { color: theme.textPrimary }]}
-                        numberOfLines={1}
-                        adjustsFontSizeToFit
-                    >
-                        {title}
-                    </Animated.Text>
-                    {subtitle && (
-                        <Animated.Text
-                            entering={FadeInRight.delay(300).springify()}
-                            style={[styles.headerSubtitle, { color: theme.textSecondary }]}
+                    <Animated.View entering={FadeInRight.delay(200).springify()}>
+                        <TextComponent
+                            style={styles.headerTitle}
+                            color={theme.textPrimary}
+                            bold
+                            variant="h1" // Approx 34 is h1
+                            numberOfLines={1}
+                            adjustsFontSizeToFit
                         >
-                            {subtitle}
-                        </Animated.Text>
+                            {title}
+                        </TextComponent>
+                    </Animated.View>
+                    {subtitle && (
+                        <Animated.View entering={FadeInRight.delay(300).springify()}>
+                            <TextComponent
+                                style={styles.headerSubtitle}
+                                color={theme.textSecondary}
+                                variant="body" // Approx 16 is body
+                            >
+                                {subtitle}
+                            </TextComponent>
+                        </Animated.View>
                     )}
                 </View>
             </View>
@@ -101,14 +109,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     headerTitle: {
-        fontSize: 34,
-        fontWeight: '800',
-        letterSpacing: -0.5,
         marginBottom: 4,
     },
     headerSubtitle: {
-        fontSize: 16,
-        fontWeight: '500',
+        // handled by TextComponent default or override
     },
     rightElement: {
         marginLeft: 16,

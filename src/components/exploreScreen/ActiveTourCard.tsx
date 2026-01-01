@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { TextComponent } from '../common/TextComponent'; // Added import
 import { TourCardBase } from './TourCardBase';
 
 interface ActiveTourCardProps {
@@ -23,20 +24,22 @@ export default function ActiveTourCard({ title, imageUrl, progress, onResume }: 
         {/* Badge */}
         <View style={[styles.badge, { backgroundColor: theme.primary }]}>
           <Ionicons name="play" size={12} color="#FFF" style={{ marginRight: 4 }} />
-          <Text style={styles.badgeText}>{t('inProgressBadge')}</Text>
+          <TextComponent style={styles.badgeText} variant="caption" bold color="#FFF">
+            {t('inProgressBadge')}
+          </TextComponent>
         </View>
 
-        <Text style={styles.title} numberOfLines={2}>
+        <TextComponent style={styles.title} variant="h3" color="#FFF" bold numberOfLines={2}>
           {title}
-        </Text>
+        </TextComponent>
 
         <View style={styles.progressRow}>
           <View style={[styles.progressBar, { backgroundColor: 'rgba(255,255,255,0.3)' }]}>
             <View style={[styles.progressFill, { width: `${progress * 100}%`, backgroundColor: theme.primary }]} />
           </View>
-          <Text style={styles.progressText}>
+          <TextComponent style={styles.progressText} variant="label" bold color="#FFF">
             {Math.round(progress * 100)}%
-          </Text>
+          </TextComponent>
         </View>
       </View>
     </TourCardBase>
@@ -57,15 +60,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   badgeText: {
-    color: '#FFF',
-    fontSize: 12,
-    fontWeight: '700',
     textTransform: 'uppercase',
   },
   title: {
     fontSize: 22,
-    fontWeight: '800',
-    color: '#FFF',
     marginBottom: 12,
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowOffset: { width: 0, height: 2 },
@@ -87,8 +85,5 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   progressText: {
-    color: '#FFF',
-    fontSize: 14,
-    fontWeight: '600',
   }
 });

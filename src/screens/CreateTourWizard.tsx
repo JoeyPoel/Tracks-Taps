@@ -1,7 +1,8 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -62,12 +63,12 @@ export default function CreateTourWizard() {
                 <TouchableOpacity onPress={handleBack} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
                 </TouchableOpacity>
-                <Text style={[styles.title, { color: theme.textPrimary }]}>
+                <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h3">
                     {currentStep === 0 && t('stepInfo')}
                     {currentStep === 1 && t('stepGamemodes')}
                     {currentStep === 2 && t('stepStops')}
                     {currentStep === 3 && t('stepReview')}
-                </Text>
+                </TextComponent>
                 <View style={{ width: 40 }} />
             </View>
 

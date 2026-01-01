@@ -1,7 +1,8 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { MapPinIcon, TicketIcon, UserGroupIcon } from 'react-native-heroicons/solid'; // Changed imports
 import Animated, { FadeInDown, FadeInUp, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import { AnimatedButton } from '../components/common/AnimatedButton';
@@ -79,12 +80,12 @@ export default function JoinTourScreen() {
                             </Animated.View>
                         </View>
 
-                        <Text style={[styles.heroTitle, { color: theme.textPrimary }]}>
+                        <TextComponent style={styles.heroTitle} color={theme.textPrimary} bold variant="h1" center>
                             {t('readyForAdventure') || "Ready for Adventure?"}
-                        </Text>
-                        <Text style={[styles.heroSubtitle, { color: theme.textSecondary }]}>
+                        </TextComponent>
+                        <TextComponent style={styles.heroSubtitle} color={theme.textSecondary} variant="body" center>
                             {t('enterCodeInstruction') || "Enter the code shared by your team captain to join the tour."}
-                        </Text>
+                        </TextComponent>
                     </Animated.View>
 
                     {/* Code Input */}
@@ -118,21 +119,24 @@ export default function JoinTourScreen() {
 
                             {/* Visual Placeholder if empty */}
                             {!tourCode && (
-                                <Text style={[styles.placeholderText, { color: theme.textTertiary }]}>
+
+                                <TextComponent style={[styles.placeholderText, { opacity: 0.3 }]} color={theme.textTertiary} bold variant="h1">
                                     000 000 000
-                                </Text>
+                                </TextComponent>
                             )}
                             {/* Real Text Overlay */}
-                            <Text style={[styles.inputText, { color: theme.textPrimary }]}>
+                            <TextComponent style={styles.inputText} color={theme.textPrimary} bold variant="h1">
                                 {tourCode}
-                            </Text>
+                            </TextComponent>
 
                         </View>
 
                         {error && (
-                            <Animated.Text entering={FadeInUp} style={[styles.errorText, { color: theme.danger }]}>
-                                {error}
-                            </Animated.Text>
+                            <Animated.View entering={FadeInUp}>
+                                <TextComponent style={styles.errorText} color={theme.danger} bold variant="caption">
+                                    {error}
+                                </TextComponent>
+                            </Animated.View>
                         )}
                     </Animated.View>
 
@@ -150,9 +154,9 @@ export default function JoinTourScreen() {
                         <Animated.View entering={FadeInUp.delay(300).springify()} style={{ marginTop: 48, width: '100%' }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
                                 <View style={{ height: 1, flex: 1, backgroundColor: theme.borderSecondary }} />
-                                <Text style={[styles.sectionDividerText, { color: theme.textSecondary, backgroundColor: theme.bgPrimary }]}>
+                                <TextComponent style={[styles.sectionDividerText, { backgroundColor: theme.bgPrimary }]} color={theme.textSecondary} bold variant="caption">
                                     {t('orAcceptInvite') || "OR ACCEPT INVITE"}
-                                </Text>
+                                </TextComponent>
                                 <View style={{ height: 1, flex: 1, backgroundColor: theme.borderSecondary }} />
                             </View>
 
@@ -163,12 +167,12 @@ export default function JoinTourScreen() {
                                     </View>
 
                                     <View style={styles.inviteInfo}>
-                                        <Text style={[styles.inviteTourName, { color: theme.textPrimary }]} numberOfLines={1}>
+                                        <TextComponent style={styles.inviteTourName} color={theme.textPrimary} bold variant="body" numberOfLines={1}>
                                             {invite.parsedData?.tourName || "Unknown Tour"}
-                                        </Text>
-                                        <Text style={[styles.inviteFrom, { color: theme.textSecondary }]} numberOfLines={1}>
+                                        </TextComponent>
+                                        <TextComponent style={styles.inviteFrom} color={theme.textSecondary} variant="caption" numberOfLines={1}>
                                             {t('invitedBy') || "Invited by"} {invite.parsedData?.inviterName || "a friend"}
-                                        </Text>
+                                        </TextComponent>
                                     </View>
 
                                     <View style={styles.inviteActions}>

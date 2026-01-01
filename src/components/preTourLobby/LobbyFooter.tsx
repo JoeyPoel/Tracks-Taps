@@ -1,8 +1,9 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { AnimatedButton } from '../../components/common/AnimatedButton';
 import { useLanguage } from '../../context/LanguageContext';
@@ -27,9 +28,9 @@ export const LobbyFooter: React.FC<LobbyFooterProps> = ({ activeTour, user, user
         <Animated.View entering={FadeInDown.delay(400)} style={[styles.footer, { backgroundColor: theme.bgSecondary, borderTopColor: theme.borderPrimary }]}>
             {isHost ? (
                 <View>
-                    <Text style={[styles.hostNote, { color: theme.textSecondary }]}>
+                    <TextComponent style={styles.hostNote} color={theme.textSecondary} variant="body" center>
                         {!userTeam?.name ? t('setupTeamToStart') : t('everyoneIn')}
-                    </Text>
+                    </TextComponent>
                     <AnimatedButton
                         title={!userTeam?.name ? t('setupTeamFirst') : t('startTour')}
                         onPress={() => {
@@ -54,14 +55,16 @@ export const LobbyFooter: React.FC<LobbyFooterProps> = ({ activeTour, user, user
                         variant={!userTeam?.name ? "secondary" : "primary"}
                         style={{ width: '100%', shadowColor: theme.primary, shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }}
                     />
-                </View >
+                </View>
             ) : (
                 <View style={styles.waitingContainer}>
                     <ActivityIndicator size="small" color={theme.primary} />
-                    <Text style={[styles.waitingText, { color: theme.textPrimary }]}>{t('waitingForHost')}</Text>
+                    <TextComponent style={styles.waitingText} color={theme.textPrimary} bold variant="body">
+                        {t('waitingForHost')}
+                    </TextComponent>
                 </View>
             )}
-        </Animated.View >
+        </Animated.View>
     );
 };
 

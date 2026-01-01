@@ -1,8 +1,9 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -32,12 +33,12 @@ export const LobbyTourInfo: React.FC<LobbyTourInfoProps> = ({ activeTour }) => {
                         style={styles.imageOverlay}
                     />
                     <View style={styles.imageContent}>
-                        <Text style={[styles.tourTitle, { color: '#FFF' }]} numberOfLines={1}>
+                        <TextComponent style={styles.tourTitle} color="#FFF" bold variant="h3" numberOfLines={1}>
                             {activeTour?.tour?.title || t('loading')}
-                        </Text>
-                        <Text style={[styles.tourSubtitle, { color: '#E0E0E0' }]}>
+                        </TextComponent>
+                        <TextComponent style={styles.tourSubtitle} color="#E0E0E0" variant="body">
                             {activeTour?.tour?._count?.stops || 0} {t('stops')} • {activeTour?.tour?.distance || 0} km
-                        </Text>
+                        </TextComponent>
                     </View>
                 </View>
             ) : (
@@ -49,12 +50,12 @@ export const LobbyTourInfo: React.FC<LobbyTourInfoProps> = ({ activeTour }) => {
                         <Ionicons name="map" size={24} color={theme.primary} />
                     </LinearGradient>
                     <View style={{ flex: 1 }}>
-                        <Text style={[styles.tourTitle, { color: theme.textPrimary }]} numberOfLines={1}>
+                        <TextComponent style={styles.tourTitle} color={theme.textPrimary} bold variant="h3" numberOfLines={1}>
                             {activeTour?.tour?.title || t('loading')}
-                        </Text>
-                        <Text style={[styles.tourSubtitle, { color: theme.textSecondary }]}>
+                        </TextComponent>
+                        <TextComponent style={styles.tourSubtitle} color={theme.textSecondary} variant="body">
                             {activeTour?.tour?._count?.stops || 0} {t('stops')} • {activeTour?.tour?.distance || 0} km
-                        </Text>
+                        </TextComponent>
                     </View>
                 </View>
             )}

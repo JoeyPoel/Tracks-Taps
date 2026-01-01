@@ -1,6 +1,7 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { PuzzlePieceIcon, TrophyIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -28,25 +29,25 @@ export default function TourGameModes({ modes, challengesCount, stopsCount }: To
 
             <View style={styles.headerRow}>
                 <PuzzlePieceIcon size={20} color={theme.primary} />
-                <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('gameModes')}</Text>
+                <TextComponent style={styles.headerTitle} color={theme.textPrimary} bold variant="body">{t('gameModes')}</TextComponent>
             </View>
 
             <View style={styles.tagsRow}>
                 {modes.map((mode, index) => (
                     <View key={index} style={[styles.tag, { backgroundColor: theme.secondary }]}>
-                        <Text style={[styles.tagText, { color: theme.textPrimary }]}>{mode}</Text>
+                        <TextComponent style={styles.tagText} color={theme.textPrimary} bold variant="caption">{mode}</TextComponent>
                     </View>
                 ))}
             </View>
 
             <View style={[styles.headerRow, { marginTop: 16 }]}>
                 <TrophyIcon size={20} color={theme.primary} />
-                <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('challengesIncluded')}</Text>
+                <TextComponent style={styles.headerTitle} color={theme.textPrimary} bold variant="body">{t('challengesIncluded')}</TextComponent>
             </View>
 
-            <Text style={[styles.description, { color: theme.textSecondary }]}>
+            <TextComponent style={styles.description} color={theme.textSecondary} variant="body">
                 {challengesCount} {t('uniqueChallengesAcross')} {stopsCount} {t('stops')}
-            </Text>
+            </TextComponent>
         </LinearGradient>
     );
 }

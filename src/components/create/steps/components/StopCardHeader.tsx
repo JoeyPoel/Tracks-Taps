@@ -2,7 +2,8 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { TextComponent } from '../../../common/TextComponent'; // Added import
 
 interface Props {
     item: any;
@@ -17,19 +18,21 @@ export function StopCardHeader({ item, onRemove, onEdit }: Props) {
     return (
         <View style={styles.cardHeader}>
             <View style={{ flex: 1 }}>
-                <Text style={[styles.stopName, { color: theme.textPrimary }]}>{item.name}</Text>
+                <TextComponent style={styles.stopName} color={theme.textPrimary} bold variant="h3">
+                    {item.name}
+                </TextComponent>
                 <View style={styles.metaRow}>
                     {item.pubgolfDrink && (
                         <View style={[styles.badge, { backgroundColor: theme.warning + '20' }]}>
                             <Ionicons name="beer" size={12} color={theme.warning} />
-                            <Text style={[styles.badgeText, { color: theme.warning }]}>
+                            <TextComponent style={styles.badgeText} color={theme.warning} bold variant="caption">
                                 {item.pubgolfDrink} ({t('par')} {item.pubgolfPar})
-                            </Text>
+                            </TextComponent>
                         </View>
                     )}
-                    <Text style={[styles.stopMeta, { color: theme.textTertiary }]}>
+                    <TextComponent style={styles.stopMeta} color={theme.textTertiary} variant="caption">
                         {item.challenges?.length || 0} {t('challenges')}
-                    </Text>
+                    </TextComponent>
                 </View>
             </View>
             <View style={styles.actionsRow}>
@@ -56,8 +59,6 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     stopName: {
-        fontSize: 18,
-        fontWeight: '700',
         marginBottom: 4,
     },
     metaRow: {
@@ -75,12 +76,10 @@ const styles = StyleSheet.create({
         borderRadius: 12,
     },
     badgeText: {
-        fontSize: 12,
-        fontWeight: '700',
+        // fontSize handled by TextComponent
     },
     stopMeta: {
-        fontSize: 12,
-        fontWeight: '600',
+        // fontSize handled by TextComponent
     },
     iconBtn: {
         padding: 8,

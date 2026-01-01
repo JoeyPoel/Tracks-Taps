@@ -1,6 +1,7 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 
 interface ProfileStatsProps {
@@ -29,8 +30,8 @@ export default function ProfileStats({
             onPress={onPress}
             activeOpacity={0.7}
         >
-            <Text style={[styles.value, { color: theme.textPrimary }]}>{value}</Text>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>{label}</Text>
+            <TextComponent style={styles.value} color={theme.textPrimary} bold variant="h2">{value}</TextComponent>
+            <TextComponent style={styles.label} color={theme.textSecondary} variant="caption">{label}</TextComponent>
         </TouchableOpacity>
     );
 

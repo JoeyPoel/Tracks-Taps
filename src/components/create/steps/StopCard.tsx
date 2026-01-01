@@ -3,7 +3,9 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { GenericCard } from '../../common/GenericCard'; // Added import
+import { TextComponent } from '../../common/TextComponent'; // Added import
 import { StopCardChallenges } from './components/StopCardChallenges';
 import { StopCardHeader } from './components/StopCardHeader';
 import { TimelineLeft } from './components/TimelineLeft';
@@ -43,7 +45,9 @@ export function StopCard({ item, index, isLast, onRemove, onEdit, onAddChallenge
                         onPress={onAddChallenge}
                     >
                         <Ionicons name="add" size={16} color={theme.primary} />
-                        <Text style={[styles.addChallengeText, { color: theme.primary }]}>{t('addChallenge')}</Text>
+                        <TextComponent style={styles.addChallengeText} color={theme.primary} bold variant="caption">
+                            {t('addChallenge')}
+                        </TextComponent>
                     </TouchableOpacity>
                 </GenericCard>
             </View>
@@ -68,8 +72,6 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     addChallengeText: {
-        fontSize: 13,
-        fontWeight: '700',
         textTransform: 'uppercase',
     },
 });

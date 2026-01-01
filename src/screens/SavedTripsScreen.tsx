@@ -3,24 +3,24 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React, { useCallback } from 'react';
-import { Dimensions, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { EmptyState } from '../components/common/EmptyState';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
+import { TextComponent } from '../components/common/TextComponent';
+import SavedTripSkeleton from '../components/profileScreen/SavedTripSkeleton';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useSavedTrips } from '../hooks/useSavedTrips';
 import { SavedTrip } from '../services/savedTripsService';
-import SavedTripSkeleton from '../components/profileScreen/SavedTripSkeleton';
-
-const { width } = Dimensions.get('window');
 
 export default function SavedTripsScreen() {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const router = useRouter();
     const { lists, loading, loadLists } = useSavedTrips();
+    const { width, fontScale } = useWindowDimensions();
 
     useFocusEffect(
         useCallback(() => {
@@ -60,16 +60,20 @@ export default function SavedTripsScreen() {
                             </View>
                         )}
                         <View style={[styles.badge, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
-                            <Text style={styles.badgeText}>{tourCount} {tourCount === 1 ? 'tour' : 'tours'}</Text>
+                            <TextComponent style={styles.badgeText} variant="caption" color="white" bold>
+                                {tourCount} {tourCount === 1 ? 'tour' : 'tours'}
+                            </TextComponent>
                         </View>
                     </View>
 
                     <View style={styles.content}>
                         <View style={styles.textContainer}>
-                            <Text style={[styles.name, { color: theme.textPrimary }]} numberOfLines={1}>{item.name}</Text>
-                            <Text style={[styles.updated, { color: theme.textSecondary }]}>
+                            <TextComponent style={styles.name} variant="h3" numberOfLines={1}>
+                                {item.name}
+                            </TextComponent>
+                            <TextComponent style={styles.updated} variant="caption" color={theme.textSecondary}>
                                 {item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : 'Just now'}
-                            </Text>
+                            </TextComponent>
                         </View>
                         <View style={[styles.actionIcon, { backgroundColor: theme.bgTertiary }]}>
                             <Ionicons name="arrow-forward" size={20} color={theme.primary} />
@@ -187,9 +191,9 @@ const styles = StyleSheet.create({
         backdropFilter: 'blur(10px)', // For web
     },
     badgeText: {
-        color: 'white',
-        fontSize: 12,
-        fontWeight: 'bold',
+        // color: 'white', // Handled by props
+        // fontSize: 12, // Handled by variant
+        // fontWeight: 'bold', // Handled by props
     },
     content: {
         padding: 16,
@@ -199,15 +203,13 @@ const styles = StyleSheet.create({
     },
     textContainer: {
         flex: 1,
+        marginRight: 10, // Added spacing for safety
     },
     name: {
-        fontSize: 18,
-        fontWeight: '700',
         marginBottom: 4,
     },
     updated: {
-        fontSize: 12,
-        fontWeight: '500',
+        // Handled by TextComponent
     },
     actionIcon: {
         width: 36,
@@ -215,7 +217,7 @@ const styles = StyleSheet.create({
         borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',
-        marginLeft: 12,
+        marginLeft: 0, // Reset and rely on justification
     },
     emptyContainer: {
         alignItems: 'center',

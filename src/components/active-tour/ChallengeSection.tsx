@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { TextComponent } from '../common/TextComponent'; // Added import
 import ChallengeItem from './ChallengeItem';
 import StopCard from './StopCard';
 
@@ -37,9 +38,9 @@ const ChallengeSection: React.FC<ChallengeSectionProps> = ({
 
             {stopChallenges.length === 0 ? (
                 <View style={[styles.noChallengesContainer, { backgroundColor: theme.bgTertiary }]}>
-                    <Text style={[styles.noChallengesText, { color: theme.textSecondary }]}>
+                    <TextComponent style={styles.noChallengesText} color={theme.textSecondary} variant="body">
                         {t('noChallengesAtStop')}
-                    </Text>
+                    </TextComponent>
                 </View>
             ) : (
                 stopChallenges.map((challenge: any, index: number) => {
@@ -75,7 +76,6 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     noChallengesText: {
-        fontSize: 16,
         fontStyle: 'italic',
         textAlign: 'center',
     },

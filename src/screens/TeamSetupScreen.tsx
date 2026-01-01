@@ -1,6 +1,7 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { AnimatedButton } from '../components/common/AnimatedButton';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
@@ -44,9 +45,9 @@ export default function TeamSetupScreen() {
             />
 
             <ScrollView contentContainerStyle={styles.content}>
-                <Text style={[styles.subText, { color: theme.textSecondary }]}>
+                <TextComponent style={styles.subText} color={theme.textSecondary} variant="body" center>
                     {t('customizeTeam')}
-                </Text>
+                </TextComponent>
 
                 <TeamNameInput value={teamName} onChange={setTeamName} />
 

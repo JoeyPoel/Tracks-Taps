@@ -3,13 +3,14 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
 interface FriendCardProps {
     friend: any;
 }
 
 import { GenericCard } from '@/src/components/common/GenericCard';
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 
 export function FriendCard({ friend }: FriendCardProps) {
     const { theme } = useTheme();
@@ -30,14 +31,22 @@ export function FriendCard({ friend }: FriendCardProps) {
                 />
 
                 <View style={styles.content}>
-                    <Text style={[styles.name, { color: theme.textPrimary }]}>{friend.name}</Text>
+                    <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">
+                        {friend.name}
+                    </TextComponent>
 
                     <View style={styles.statsRow}>
                         <View style={[styles.badge, { backgroundColor: theme.bgSecondary }]}>
-                            <Text style={[styles.badgeText, { color: theme.primary }]}>Lvl {friend.level}</Text>
+                            <TextComponent style={styles.badgeText} color={theme.primary} bold variant="caption">
+                                Lvl {friend.level}
+                            </TextComponent>
                         </View>
-                        <Text style={[styles.xpText, { color: theme.textTertiary }]}>•</Text>
-                        <Text style={[styles.xpText, { color: theme.textSecondary }]}>{friend.xp || 0} {t('xp')}</Text>
+                        <TextComponent style={styles.xpText} color={theme.textTertiary} variant="caption">
+                            •
+                        </TextComponent>
+                        <TextComponent style={styles.xpText} color={theme.textSecondary} variant="caption">
+                            {friend.xp || 0} {t('xp')}
+                        </TextComponent>
                     </View>
                 </View>
 

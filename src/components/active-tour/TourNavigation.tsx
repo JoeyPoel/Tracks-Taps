@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
+import { TextComponent } from '../common/TextComponent'; // Added import
 import StartTourButton from '../TourButton';
 
 interface TourNavigationProps {
@@ -32,7 +33,9 @@ const TourNavigation: React.FC<TourNavigationProps> = ({
                     interactionScale="medium"
                     haptic="light"
                 >
-                    <Text style={[styles.navButtonText, { color: theme.textSecondary }]}>{t('back')}</Text>
+                    <TextComponent style={styles.navButtonText} color={theme.textSecondary} bold variant="label">
+                        {t('back')}
+                    </TextComponent>
                 </AnimatedPressable>
             )}
 
@@ -47,7 +50,9 @@ const TourNavigation: React.FC<TourNavigationProps> = ({
                     interactionScale="medium"
                     haptic="medium"
                 >
-                    <Text style={[styles.navButtonText, { color: theme.fixedWhite }]}>{t('next')}</Text>
+                    <TextComponent style={styles.navButtonText} color={theme.fixedWhite} bold variant="label">
+                        {t('next')}
+                    </TextComponent>
                 </AnimatedPressable>
             )}
         </View>
@@ -77,8 +82,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     navButtonText: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        // fontSize and fontWeight handled by TextComponent
     },
 });
 

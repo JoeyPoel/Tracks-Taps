@@ -2,11 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
-import { FlatList, Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { FlatList, Modal, Platform, ScrollView, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Shimmer } from '../common/Shimmer';
+import { TextComponent } from '../common/TextComponent'; // Added import
 
 interface TourGalleryProps {
     images: string[];
@@ -43,12 +44,12 @@ export default function TourGallery({ images }: TourGalleryProps) {
     if ((!images || images.length === 0) && showEmpty) {
         return (
             <View style={styles.container}>
-                <Text style={[styles.title, { color: theme.textPrimary }]}>{t('gallery') || "Gallery"}</Text>
+                <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h3">{t('gallery') || "Gallery"}</TextComponent>
                 <View style={[styles.emptyContainer, { backgroundColor: theme.bgSecondary }]}>
                     <Ionicons name="images-outline" size={32} color={theme.textSecondary} style={{ marginBottom: 8 }} />
-                    <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+                    <TextComponent style={styles.emptyText} color={theme.textSecondary} variant="body">
                         No photos yet. Be the first to share one! 📸
-                    </Text>
+                    </TextComponent>
                 </View>
             </View>
         );
@@ -58,7 +59,7 @@ export default function TourGallery({ images }: TourGalleryProps) {
     if ((!images || images.length === 0) && !showEmpty) {
         return (
             <View style={styles.container}>
-                <Text style={[styles.title, { color: theme.textPrimary }]}>{t('gallery') || "Gallery"}</Text>
+                <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h3">{t('gallery') || "Gallery"}</TextComponent>
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -76,7 +77,7 @@ export default function TourGallery({ images }: TourGalleryProps) {
 
     return (
         <View style={styles.container}>
-            <Text style={[styles.title, { color: theme.textPrimary }]}>{t('gallery') || "Gallery"}</Text>
+            <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h3">{t('gallery') || "Gallery"}</TextComponent>
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -165,8 +166,6 @@ const styles = StyleSheet.create({
         marginBottom: 32,
     },
     title: {
-        fontSize: 18,
-        fontWeight: 'bold',
         marginBottom: 16,
         paddingHorizontal: 20,
     },
@@ -209,7 +208,6 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         textAlign: 'center',
-        fontSize: 14,
         opacity: 0.7,
     },
     // Modal Styles

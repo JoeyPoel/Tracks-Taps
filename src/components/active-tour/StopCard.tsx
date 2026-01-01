@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Stop } from '../../types/models';
 import { GenericCard } from '../common/GenericCard';
+import { TextComponent } from '../common/TextComponent'; // Added import
 
 
 export default function StopCard({ stop }: { stop: Stop }) {
@@ -17,12 +18,12 @@ export default function StopCard({ stop }: { stop: Stop }) {
             style={[styles.container, { borderColor: theme.secondary, borderWidth: 1 }]}
         >
             <View>
-                <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>
+                <TextComponent style={styles.headerTitle} color={theme.textPrimary} bold variant="h3">
                     {`${t('Stop')} ${stop.number}: ${stop.name}`}
-                </Text>
-                <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+                </TextComponent>
+                <TextComponent style={styles.subtitle} color={theme.textSecondary} variant="body">
                     {stop.description || t('completeAllChallengesToContinue')}
-                </Text>
+                </TextComponent>
             </View>
         </GenericCard>
     );
@@ -38,13 +39,9 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     headerTitle: {
-        fontSize: 20,
-        fontWeight: '800',
-        letterSpacing: -0.5,
         marginBottom: 6,
     },
     subtitle: {
-        fontSize: 15,
         lineHeight: 22,
         opacity: 0.8,
     },

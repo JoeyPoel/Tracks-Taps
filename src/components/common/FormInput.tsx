@@ -1,6 +1,7 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import React from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
+import { TextComponent } from './TextComponent'; // Added import
 
 interface FormInputProps {
     label?: string;
@@ -33,15 +34,12 @@ export function FormInput({
         <View style={styles.container}>
             <View style={styles.headerRow}>
                 {label && (
-                    <Text style={[styles.label, { color: theme.textSecondary }]}>{label}</Text>
+                    <TextComponent style={styles.label} color={theme.textSecondary} bold variant="label">{label}</TextComponent>
                 )}
                 {maxLength && (
-                    <Text style={[
-                        styles.charCount,
-                        { color: value.length >= maxLength ? theme.danger : theme.textTertiary }
-                    ]}>
+                    <TextComponent style={styles.charCount} color={value.length >= maxLength ? theme.danger : theme.textTertiary} variant="caption">
                         {value.length}/{maxLength}
-                    </Text>
+                    </TextComponent>
                 )}
             </View>
 
@@ -66,15 +64,15 @@ export function FormInput({
             />
 
             {description && !error && (
-                <Text style={[styles.helperText, { color: theme.textTertiary }]}>
+                <TextComponent style={styles.helperText} color={theme.textTertiary} variant="caption">
                     {description}
-                </Text>
+                </TextComponent>
             )}
 
             {error && (
-                <Text style={[styles.errorText, { color: theme.danger }]}>
+                <TextComponent style={styles.errorText} color={theme.danger} bold variant="caption">
                     {error}
-                </Text>
+                </TextComponent>
             )}
         </View>
     );
@@ -90,14 +88,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     label: {
-        fontSize: 14,
-        fontWeight: '700',
-        letterSpacing: 0.5,
         textTransform: 'uppercase',
     },
     charCount: {
-        fontSize: 12,
-        fontWeight: '500',
+        // handled
     },
     input: {
         borderWidth: 1,
@@ -111,12 +105,9 @@ const styles = StyleSheet.create({
         textAlignVertical: 'top',
     },
     helperText: {
-        fontSize: 12,
         marginLeft: 4,
     },
     errorText: {
-        fontSize: 12,
-        fontWeight: '600',
         marginLeft: 4,
     }
 });

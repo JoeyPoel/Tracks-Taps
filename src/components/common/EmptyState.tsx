@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 import { useTheme } from '../../context/ThemeContext';
+import { TextComponent } from './TextComponent'; // Added import
 
 interface EmptyStateProps {
     /**
@@ -28,10 +29,10 @@ export function EmptyState({ icon, title, message, action, style, animate = true
                     icon
                 )}
             </View>
-            <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
-            <Text style={[styles.message, { color: theme.textSecondary }]}>
+            <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">{title}</TextComponent>
+            <TextComponent style={styles.message} color={theme.textSecondary} variant="body">
                 {message}
-            </Text>
+            </TextComponent>
             {action && <View style={styles.actionContainer}>{action}</View>}
         </View>
     );
@@ -68,15 +69,11 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     title: {
-        fontSize: 20,
-        fontWeight: 'bold',
         marginBottom: 8,
         textAlign: 'center',
     },
     message: {
-        fontSize: 16,
         textAlign: 'center',
-        lineHeight: 24,
         marginBottom: 24,
         opacity: 0.8,
     },

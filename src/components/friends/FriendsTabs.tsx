@@ -1,7 +1,8 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 interface FriendsTabsProps {
     activeTab: 'friends' | 'requests';
@@ -23,12 +24,14 @@ export function FriendsTabs({ activeTab, onTabChange, requestCount }: FriendsTab
                 onPress={() => onTabChange('friends')}
                 activeOpacity={0.8}
             >
-                <Text style={[
-                    styles.tabText,
-                    { color: activeTab === 'friends' ? '#FFF' : theme.textSecondary }
-                ]}>
+                <TextComponent
+                    style={styles.tabText}
+                    color={activeTab === 'friends' ? '#FFF' : theme.textSecondary}
+                    bold
+                    variant="body"
+                >
                     {t('friends')}
-                </Text>
+                </TextComponent>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -40,23 +43,27 @@ export function FriendsTabs({ activeTab, onTabChange, requestCount }: FriendsTab
                 activeOpacity={0.8}
             >
                 <View style={styles.requestsContent}>
-                    <Text style={[
-                        styles.tabText,
-                        { color: activeTab === 'requests' ? '#FFF' : theme.textSecondary }
-                    ]}>
+                    <TextComponent
+                        style={styles.tabText}
+                        color={activeTab === 'requests' ? '#FFF' : theme.textSecondary}
+                        bold
+                        variant="body"
+                    >
                         {t('requests')}
-                    </Text>
+                    </TextComponent>
                     {requestCount > 0 && (
                         <View style={[
                             styles.badge,
                             { backgroundColor: activeTab === 'requests' ? '#FFF' : theme.primary }
                         ]}>
-                            <Text style={[
-                                styles.badgeText,
-                                { color: activeTab === 'requests' ? theme.primary : '#FFF' }
-                            ]}>
+                            <TextComponent
+                                style={styles.badgeText}
+                                color={activeTab === 'requests' ? theme.primary : '#FFF'}
+                                bold
+                                variant="caption"
+                            >
                                 {requestCount}
-                            </Text>
+                            </TextComponent>
                         </View>
                     )}
                 </View>

@@ -1,8 +1,9 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { LockClosedIcon } from 'react-native-heroicons/solid';
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import { TextComponent } from '../common/TextComponent'; // Added import
 import { AchievementIcon } from './AchievementIcon';
 
 interface Achievement {
@@ -44,19 +45,19 @@ export const AchievementGridItem = ({ achievement, index }: AchievementGridItemP
                 )}
             </View>
 
-            <Text style={[styles.cardTitle, { color: theme.textPrimary }]} numberOfLines={1}>
+            <TextComponent style={styles.cardTitle} color={theme.textPrimary} bold numberOfLines={1} variant="body">
                 {isUnlocked ? achievement.title : '???'}
-            </Text>
+            </TextComponent>
 
             {isUnlocked && (
                 <>
-                    <Text style={[styles.cardDescription, { color: theme.textSecondary }]} numberOfLines={2}>
+                    <TextComponent style={styles.cardDescription} color={theme.textSecondary} numberOfLines={2} variant="caption">
                         {achievement.description}
-                    </Text>
+                    </TextComponent>
                     {achievement.unlockedAt && (
-                        <Text style={[styles.cardDate, { color: theme.textTertiary }]}>
+                        <TextComponent style={styles.cardDate} color={theme.textTertiary} variant="label">
                             {new Date(achievement.unlockedAt).toLocaleDateString()}
-                        </Text>
+                        </TextComponent>
                     )}
                 </>
             )}
@@ -101,18 +102,15 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     cardTitle: {
-        fontSize: 14,
-        fontWeight: '700',
         textAlign: 'center',
     },
     cardDescription: {
-        fontSize: 12,
         textAlign: 'center',
         marginBottom: 8,
         marginTop: 4,
     },
     cardDate: {
-        fontSize: 11,
         textAlign: 'center',
+        fontSize: 10,
     },
 });

@@ -1,6 +1,7 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { TextComponent } from '../../common/TextComponent'; // Added import
 
 interface WizardStepHeaderProps {
     title: string;
@@ -12,8 +13,12 @@ export function WizardStepHeader({ title, subtitle }: WizardStepHeaderProps) {
 
     return (
         <View style={styles.container}>
-            <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
-            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>{subtitle}</Text>
+            <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">
+                {title}
+            </TextComponent>
+            <TextComponent style={styles.subtitle} color={theme.textSecondary} variant="body">
+                {subtitle}
+            </TextComponent>
         </View>
     );
 }
@@ -24,11 +29,9 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     title: {
-        fontSize: 28,
-        fontWeight: '800',
         lineHeight: 34,
     },
     subtitle: {
-        fontSize: 16,
+        // fontSize handled by TextComponent
     },
 });

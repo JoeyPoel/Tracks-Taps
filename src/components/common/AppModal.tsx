@@ -1,8 +1,9 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import React from 'react';
-import { Animated, Dimensions, Modal, StyleSheet, Text, View } from 'react-native';
+import { Animated, Dimensions, Modal, StyleSheet, View } from 'react-native';
 import { XMarkIcon } from 'react-native-heroicons/outline';
 import { AnimatedPressable } from './AnimatedPressable';
+import { TextComponent } from './TextComponent'; // Added import
 
 interface AppModalProps {
     visible: boolean;
@@ -80,7 +81,7 @@ export function AppModal({ visible, onClose, title, icon, children, subtitle, he
                     <View style={styles.header}>
                         <View style={styles.titleRow}>
                             {icon}
-                            <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
+                            <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">{title}</TextComponent>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                             {headerRight}
@@ -91,9 +92,9 @@ export function AppModal({ visible, onClose, title, icon, children, subtitle, he
                     </View>
 
                     {subtitle && (
-                        <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+                        <TextComponent style={styles.subtitle} color={theme.textSecondary} variant="body">
                             {subtitle}
-                        </Text>
+                        </TextComponent>
                     )}
 
                     {children}
@@ -123,11 +124,9 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     title: {
-        fontSize: 24,
-        fontWeight: 'bold',
+        // handled
     },
     subtitle: {
-        fontSize: 14,
         marginBottom: 24,
     },
 });

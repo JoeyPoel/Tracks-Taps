@@ -2,9 +2,10 @@ import { StopType } from '@/src/types/models';
 import { getStopIcon } from '@/src/utils/stopIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { TextComponent } from '../common/TextComponent'; // Added import
 
 interface StopInfoSectionProps {
     stop: any;
@@ -35,7 +36,7 @@ export default function StopInfoSection({ stop }: StopInfoSectionProps) {
                     <View style={styles.imageTypeBadge}>
                         <View style={[styles.iconBlur, { backgroundColor: theme.bgPrimary }]}>
                             {getStopIcon(stopType, 16, theme.primary)}
-                            <Text style={[styles.typeText, { color: theme.textPrimary }]}>{label}</Text>
+                            <TextComponent style={styles.typeText} color={theme.textPrimary} bold variant="caption">{label}</TextComponent>
                         </View>
                     </View>
                 </View>
@@ -43,7 +44,7 @@ export default function StopInfoSection({ stop }: StopInfoSectionProps) {
                 <View style={[styles.placeholderHeader, { backgroundColor: theme.bgSecondary }]}>
                     <View style={[styles.typeBadge, { backgroundColor: theme.bgPrimary, borderColor: theme.borderPrimary }]}>
                         {getStopIcon(stopType, 20, theme.primary)}
-                        <Text style={[styles.typeText, { color: theme.textPrimary }]}>{label}</Text>
+                        <TextComponent style={styles.typeText} color={theme.textPrimary} bold variant="caption">{label}</TextComponent>
                     </View>
                 </View>
             )}
@@ -56,14 +57,14 @@ export default function StopInfoSection({ stop }: StopInfoSectionProps) {
                 }
             ]}>
                 <View style={styles.headerRow}>
-                    <Text style={[styles.title, { color: theme.textPrimary }]}>{stop.name}</Text>
+                    <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">{stop.name}</TextComponent>
                 </View>
 
                 <View style={[styles.divider, { backgroundColor: theme.borderSecondary }]} />
 
-                <Text style={[styles.description, { color: theme.textSecondary }]}>
+                <TextComponent style={styles.description} color={theme.textSecondary} variant="body">
                     {stop.detailedDescription || stop.description || t('noStopDescription')}
-                </Text>
+                </TextComponent>
             </View>
         </View>
     );
@@ -137,8 +138,6 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     typeText: {
-        fontSize: 13,
-        fontWeight: '700',
         textTransform: 'uppercase',
         letterSpacing: 0.5,
     },
@@ -155,10 +154,7 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     title: {
-        fontSize: 28,
-        fontWeight: '800',
         letterSpacing: -0.5,
-        lineHeight: 34,
     },
     divider: {
         height: 1,
@@ -166,8 +162,6 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     description: {
-        fontSize: 16,
         lineHeight: 26,
-        fontWeight: '400',
     },
 });

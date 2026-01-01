@@ -36,6 +36,9 @@ export const strings = {
     tourMap: 'Tour Map',
     topPlayers: 'Top Players this week',
     tourWideChallenges: 'Tour Wide Challenges',
+    tourWideChallengesSubtitle: 'Complete these anytime during the tour!', // Added
+    noTourWideChallenges: 'No tour wide challenges available.', // Added
+    unknownChallengeType: 'Unknown challenge type:', // Added
     tourStops: 'Tour Stops',
     userReviews: 'User Reviews',
     // New keys for tour components
@@ -89,6 +92,12 @@ export const strings = {
     savedTrips: 'Saved Trips',
     mySavedTrips: 'My Saved Trips',
     saveToTrip: 'Save to Trip',
+    saveToCollection: 'Save to Collection', // Added
+    noCollectionsYet: 'No collections yet.', // Added
+    createOne: 'Create one', // Added
+    cancelCreation: 'Cancel creation', // Added
+    newCollection: 'New Collection', // Added
+    items: 'items', // Added
     saved: 'Saved',
     createTripList: 'Create Trip List',
     enterTripListName: 'Enter list name',
@@ -119,6 +128,7 @@ export const strings = {
     latitude: 'Latitude',
     longitude: 'Longitude',
     addChallenge: 'Add Challenge',
+    addChallengeButton: 'Add Challenge',
     editChallenge: 'Edit Challenge',
     challengeTitle: 'Challenge Title',
     challengeQuestion: 'Question / Task',
@@ -469,6 +479,10 @@ export const strings = {
     of: "of",
     noOtherTeams: "No other teams",
     otherTeams: "Other Teams",
+
+    // Explore Screen actions
+    toggleViewMode: "Map / List",
+    filterTours: "Filter Tours",
     walking: "Walking",
     done: "Done",
     active: "Active",

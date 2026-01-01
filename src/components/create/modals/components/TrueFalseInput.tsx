@@ -1,6 +1,7 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useTheme } from '@/src/context/ThemeContext';
 import React from 'react';
-import { StyleSheet, Switch, Text, View } from 'react-native';
+import { StyleSheet, Switch, View } from 'react-native';
 
 interface TrueFalseInputProps {
     value: boolean;
@@ -12,7 +13,9 @@ export function TrueFalseInput({ value, onChange }: TrueFalseInputProps) {
 
     return (
         <View style={styles.rowBetween}>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>Correct Answer is TRUE?</Text>
+            <TextComponent style={styles.label} color={theme.textSecondary} bold variant="label">
+                Correct Answer is TRUE?
+            </TextComponent>
             <Switch
                 value={value}
                 onValueChange={onChange}

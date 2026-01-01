@@ -5,6 +5,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { TextComponent } from '../components/common/TextComponent';
 import TourCard from '../components/exploreScreen/TourCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -113,7 +114,9 @@ export default function MapScreen() {
                       {getStopIcon(stop.type, 16, theme.textPrimary)}
                     </View>
                     <View style={[styles.stopNumberBadge, { backgroundColor: theme.primary }]}>
-                      <Text style={styles.stopNumberText}>{stop.number}</Text>
+                      <TextComponent style={styles.stopNumberText} color="white" bold variant="caption">
+                        {stop.number}
+                      </TextComponent>
                     </View>
                   </View>
                 )}
@@ -153,29 +156,31 @@ export default function MapScreen() {
         </TouchableOpacity>
       )}
 
-      {selectedTour && (
-        <View style={[styles.tourInfo, { bottom: 120 }]}>
-          <TourCard
-            title={selectedTour.title}
-            author={(selectedTour as any).author?.name || 'Tracks & Taps'}
-            imageUrl={selectedTour.imageUrl}
-            distance={`${(selectedTour as any).distance} km`}
-            duration={`${(selectedTour as any).duration} min`}
-            stops={(selectedTour as any).stops?.length || 0}
-            rating={selectedTour.reviews && selectedTour.reviews.length > 0
-              ? selectedTour.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / selectedTour.reviews.length
-              : 0}
-            reviewCount={selectedTour.reviews?.length || 0}
-            points={(selectedTour as any).points || 0}
-            genre={(selectedTour as any).genre || 'Adventure'}
-            tourType={(selectedTour as any).type}
-            variant="map"
-            onPress={() => {
-              router.push(`/tour/${selectedTour.id}`);
-            }}
-          />
-        </View>
-      )}
+      {
+        selectedTour && (
+          <View style={[styles.tourInfo, { bottom: 120 }]}>
+            <TourCard
+              title={selectedTour.title}
+              author={(selectedTour as any).author?.name || 'Tracks & Taps'}
+              imageUrl={selectedTour.imageUrl}
+              distance={`${(selectedTour as any).distance} km`}
+              duration={`${(selectedTour as any).duration} min`}
+              stops={(selectedTour as any).stops?.length || 0}
+              rating={selectedTour.reviews && selectedTour.reviews.length > 0
+                ? selectedTour.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / selectedTour.reviews.length
+                : 0}
+              reviewCount={selectedTour.reviews?.length || 0}
+              points={(selectedTour as any).points || 0}
+              genre={(selectedTour as any).genre || 'Adventure'}
+              tourType={(selectedTour as any).type}
+              variant="map"
+              onPress={() => {
+                router.push(`/tour/${selectedTour.id}`);
+              }}
+            />
+          </View>
+        )
+      }
     </View>
   );
 }
@@ -279,8 +284,6 @@ const styles = StyleSheet.create({
     borderColor: 'white',
   },
   stopNumberText: {
-    color: 'white',
-    fontSize: 10,
-    fontWeight: 'bold',
+    // Handled by TextComponent
   }
 });

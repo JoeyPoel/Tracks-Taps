@@ -1,11 +1,12 @@
 import { AnimatedPressable } from '@/src/components/common/AnimatedPressable';
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useChallengeForm } from '@/src/hooks/create/useChallengeForm';
 import { ChallengeType } from '@/src/types/models';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ChallengeTypeSelector } from './components/ChallengeTypeSelector';
 import { GeneralChallengeInput } from './components/GeneralChallengeInput';
 import { PointsStepper } from './components/PointsStepper';
@@ -31,9 +32,9 @@ export default function ChallengeCreationModal({ visible, onClose, onSave, initi
         <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
             <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
                 <View style={styles.header}>
-                    <Text style={[styles.title, { color: theme.textPrimary }]}>
+                    <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">
                         {initialData ? t('editChallenge') : t('addChallenge')}
-                    </Text>
+                    </TextComponent>
                     <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: theme.bgTertiary }]}>
                         <Ionicons name="close" size={20} color={theme.textPrimary} />
                     </TouchableOpacity>
@@ -77,7 +78,9 @@ export default function ChallengeCreationModal({ visible, onClose, onSave, initi
                         style={[styles.saveButton, { backgroundColor: theme.primary }]}
                         onPress={handleSave}
                     >
-                        <Text style={styles.saveButtonText}>{t('addChallengeButton')}</Text>
+                        <TextComponent style={styles.saveButtonText} color="white" bold variant="h3">
+                            {t('addChallengeButton')}
+                        </TextComponent>
                     </AnimatedPressable>
                 </View>
             </View>

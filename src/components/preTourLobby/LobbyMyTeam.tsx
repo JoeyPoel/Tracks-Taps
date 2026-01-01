@@ -1,7 +1,8 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { TeamCard } from '../../components/teamSetup/TeamCard';
 import { useLanguage } from '../../context/LanguageContext';
@@ -21,7 +22,9 @@ export const LobbyMyTeam: React.FC<LobbyMyTeamProps> = ({ userTeam, activeTourId
 
     return (
         <Animated.View entering={FadeInUp.delay(250).springify()} style={{ marginBottom: 24 }}>
-            <Text style={[styles.sectionLabel, { color: theme.textSecondary }]}>{t('myTeam')}</Text>
+            <TextComponent style={styles.sectionLabel} color={theme.textSecondary} bold variant="label">
+                {t('myTeam')}
+            </TextComponent>
             <TouchableOpacity onPress={() => router.push({
                 pathname: '/team-setup',
                 params: {
@@ -39,7 +42,9 @@ export const LobbyMyTeam: React.FC<LobbyMyTeamProps> = ({ userTeam, activeTourId
                 />
                 <View style={styles.editBadge}>
                     <Ionicons name="pencil" size={12} color="#FFF" />
-                    <Text style={styles.editBadgeText}>{t('edit').toUpperCase()}</Text>
+                    <TextComponent style={styles.editBadgeText} color="#FFF" bold variant="caption">
+                        {t('edit').toUpperCase()}
+                    </TextComponent>
                 </View>
             </TouchableOpacity>
         </Animated.View>

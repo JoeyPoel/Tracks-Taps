@@ -2,7 +2,7 @@ import { getChallengeIconProps } from '@/src/utils/challengeIcons';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
 import {
     BoltIcon,
     CheckCircleIcon,
@@ -11,6 +11,7 @@ import {
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
+import { TextComponent } from '../common/TextComponent'; // Added import
 
 export type ChallengeType = 'location' | 'trivia' | 'camera' | 'picture' | 'true_false' | 'dare' | 'riddle';
 
@@ -79,7 +80,7 @@ export default function ActiveChallengeCard({
         if (isCompleted) return theme.success;
         if (isFailed) return theme.danger;
         try {
-            const challengeIconDetails = getChallengeIconProps(type.toUpperCase() as any, theme);
+            const challengeIconDetails = getChallengeIconProps(type.toUpperCase() as any, theme, t);
             return challengeIconDetails.color || theme.primary;
         } catch (e) {
             return theme.primary;
@@ -88,7 +89,7 @@ export default function ActiveChallengeCard({
 
     const getIconName = (): any => {
         try {
-            const challengeIconDetails = getChallengeIconProps(type.toUpperCase() as any, theme);
+            const challengeIconDetails = getChallengeIconProps(type.toUpperCase() as any, theme, t);
             return challengeIconDetails.icon || 'help-circle-outline';
         } catch (e) {
             return 'help-circle-outline';
@@ -120,11 +121,11 @@ export default function ActiveChallengeCard({
                                     <Ionicons name={getIconName()} size={22} color={getIconColor()} />
                                 )}
                             </View>
-                            <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>{title}</Text>
+                            <TextComponent style={styles.cardTitle} color={theme.textPrimary} bold variant="body">{title}</TextComponent>
                         </View>
                         <View style={[styles.pointsBadge, { backgroundColor: theme.gold + '20' }]}>
                             <BoltIcon size={14} color={theme.gold} />
-                            <Text style={[styles.pointsText, { color: theme.gold }]}>{points}</Text>
+                            <TextComponent style={styles.pointsText} color={theme.gold} bold variant="label">{points}</TextComponent>
                         </View>
                     </View>
 
@@ -137,12 +138,12 @@ export default function ActiveChallengeCard({
                     {isCompleted ? (
                         <View style={[styles.statusContainer, { backgroundColor: theme.success + '10' }]}>
                             <CheckCircleIcon size={20} color={theme.success} />
-                            <Text style={[styles.statusText, { color: theme.success }]}>{t('challengeCompleted')}</Text>
+                            <TextComponent style={styles.statusText} color={theme.success} bold variant="body">{t('challengeCompleted')}</TextComponent>
                         </View>
                     ) : isFailed ? (
                         <View style={[styles.statusContainer, { backgroundColor: theme.danger + '10' }]}>
                             <XCircleIcon size={20} color={theme.danger} />
-                            <Text style={[styles.statusText, { color: theme.danger }]}>{t('challengeFailed')}</Text>
+                            <TextComponent style={styles.statusText} color={theme.danger} bold variant="body">{t('challengeFailed')}</TextComponent>
                         </View>
                     ) : (
                         <AnimatedPressable
@@ -159,9 +160,9 @@ export default function ActiveChallengeCard({
                             interactionScale="medium"
                             haptic="light"
                         >
-                            <Text style={[styles.buttonText, { color: disabled ? theme.textDisabled : '#FFF' }]}>
+                            <TextComponent style={styles.buttonText} color={disabled ? theme.textDisabled : '#FFF'} bold variant="body">
                                 {actionLabel}
-                            </Text>
+                            </TextComponent>
                             {!disabled && <Ionicons name="arrow-forward" size={18} color="#FFF" />}
                         </AnimatedPressable>
                     )}
@@ -207,8 +208,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     cardTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
         flex: 1,
     },
     pointsBadge: {
@@ -220,8 +219,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
     },
     pointsText: {
-        fontWeight: '800',
-        fontSize: 14,
+        // handled by TextComponent
     },
     contentContainer: {
         marginBottom: 16,
@@ -239,8 +237,6 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     buttonText: {
-        fontWeight: '700',
-        fontSize: 15,
         letterSpacing: 0.3,
     },
     statusContainer: {
@@ -252,7 +248,6 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     statusText: {
-        fontSize: 15,
-        fontWeight: '700',
+        // handled by TextComponent
     },
 });

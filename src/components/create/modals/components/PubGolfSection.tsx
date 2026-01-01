@@ -1,9 +1,10 @@
 import { FormInput } from '@/src/components/common/FormInput';
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Switch, Text, View } from 'react-native';
+import { StyleSheet, Switch, View } from 'react-native';
 
 interface PubGolfSectionProps {
     isPubGolfEnabled: boolean;
@@ -31,7 +32,9 @@ export function PubGolfSection({
             <View style={styles.rowBetween}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <Ionicons name="beer" size={20} color={theme.accent} />
-                    <Text style={[styles.sectionTitle, { color: theme.textPrimary, fontSize: 16 }]}>{t('isPubGolfStop')}</Text>
+                    <TextComponent style={styles.sectionTitle} color={theme.textPrimary} size={16} bold variant="body">
+                        {t('isPubGolfStop')}
+                    </TextComponent>
                 </View>
                 <Switch
                     value={isPubGolfStop}

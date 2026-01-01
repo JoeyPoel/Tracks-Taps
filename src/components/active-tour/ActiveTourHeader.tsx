@@ -1,10 +1,11 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
 import { BoltIcon, FireIcon, StarIcon, XMarkIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
+import { TextComponent } from '../common/TextComponent'; // Added import
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
@@ -74,11 +75,11 @@ export default function ActiveTourHeader({
                 <View style={styles.statsContainer}>
                     <View style={[styles.statBadge, { backgroundColor: theme.bgTertiary }]}>
                         <FireIcon size={16} color={theme.orange} />
-                        <Text style={[styles.statText, { color: theme.textPrimary }]}>{streak}</Text>
+                        <TextComponent style={styles.statText} color={theme.textPrimary} bold variant="label">{streak}</TextComponent>
                     </View>
                     <View style={[styles.statBadge, { backgroundColor: theme.bgTertiary }]}>
                         <BoltIcon size={16} color={theme.primary} />
-                        <Text style={[styles.statText, { color: theme.textPrimary }]}>{tokens}</Text>
+                        <TextComponent style={styles.statText} color={theme.textPrimary} bold variant="label">{tokens}</TextComponent>
                     </View>
                 </View>
             </View>
@@ -87,9 +88,9 @@ export default function ActiveTourHeader({
             <View style={styles.levelRow}>
                 <View style={styles.levelBadge}>
                     <StarIcon size={14} color={theme.starColor} />
-                    <Text style={[styles.levelText, { color: theme.starColor }]}>{t('level')} {level}</Text>
+                    <TextComponent style={styles.levelText} color={theme.starColor} bold variant="label">{t('level')} {level}</TextComponent>
                 </View>
-                <Text style={[styles.xpText, { color: theme.textSecondary }]}>{currentXP} / {maxXP} {t('xp')}</Text>
+                <TextComponent style={styles.xpText} color={theme.textSecondary} variant="caption">{currentXP} / {maxXP} {t('xp')}</TextComponent>
             </View>
 
             {/* Row 3: XP Bar */}
@@ -107,9 +108,9 @@ export default function ActiveTourHeader({
 
             {/* Row 4: Stop Info + Stop Bar */}
             <View style={styles.stopRow}>
-                <Text style={[styles.stopText, { color: theme.textSecondary }]}>
+                <TextComponent style={styles.stopText} color={theme.textSecondary} variant="body">
                     {t('Stop')} {currentStop} / {totalStops}
-                </Text>
+                </TextComponent>
                 <View style={styles.stopBarContainer}>
                     <View style={[styles.progressBarBg, { backgroundColor: theme.bgTertiary }]}>
                         <AnimatedLinearGradient
@@ -154,8 +155,7 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     statText: {
-        fontWeight: 'bold',
-        fontSize: 14,
+        // handled by TextComponent
     },
     levelRow: {
         flexDirection: 'row',
@@ -169,11 +169,10 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     levelText: {
-        fontWeight: 'bold',
-        fontSize: 14,
+        // handled by TextComponent
     },
     xpText: {
-        fontSize: 12,
+        // handled by TextComponent
     },
     xpBarContainer: {
         marginBottom: 12,
@@ -184,7 +183,6 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     stopText: {
-        fontSize: 14,
         minWidth: 70,
     },
     stopBarContainer: {

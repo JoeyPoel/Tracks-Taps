@@ -1,7 +1,9 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useLanguage } from '../../context/LanguageContext'; // Added import
 import { useTheme } from '../../context/ThemeContext';
 import { SavedTrip } from '../../services/savedTripsService';
 import { AnimatedButton } from '../common/AnimatedButton';
@@ -27,6 +29,7 @@ export default function AddToSavedTripsModal({
     onRemoveTour
 }: AddToSavedTripsModalProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage(); // Added hook
     const [creating, setCreating] = useState(false);
     const [newListName, setNewListName] = useState('');
     const [submitting, setSubmitting] = useState(false);
@@ -87,9 +90,9 @@ export default function AddToSavedTripsModal({
                 {lists.length === 0 && !creating ? (
                     // Optional: Show empty state if no lists and not creating
                     <View style={{ padding: 20, alignItems: 'center' }}>
-                        <Text style={{ color: theme.textSecondary }}>No collections yet.</Text>
+                        <TextComponent style={{ color: theme.textSecondary }} variant="body">{t('noCollectionsYet') || "No collections yet."}</TextComponent>
                         <TouchableOpacity onPress={() => setCreating(true)}>
-                            <Text style={{ color: theme.primary, fontWeight: 'bold', marginTop: 8 }}>Create one</Text>
+                            <TextComponent style={{ marginTop: 8 }} color={theme.primary} bold variant="body">{t('createOne') || "Create one"}</TextComponent>
                         </TouchableOpacity>
                     </View>
                 ) : (
@@ -106,9 +109,9 @@ export default function AddToSavedTripsModal({
                             <View style={[styles.iconBox, { backgroundColor: theme.primary }]}>
                                 <Ionicons name={creating ? "chevron-up" : "add"} size={24} color="white" />
                             </View>
-                            <Text style={[styles.createText, { color: theme.primary }]}>
-                                {creating ? 'Cancel creation' : 'New Collection'}
-                            </Text>
+                            <TextComponent style={styles.createText} color={theme.primary} bold variant="body">
+                                {creating ? (t('cancelCreation') || 'Cancel creation') : (t('newCollection') || 'New Collection')}
+                            </TextComponent>
                         </TouchableOpacity>
 
                         {creating && (
@@ -160,12 +163,12 @@ export default function AddToSavedTripsModal({
                                             />
                                         </View>
                                         <View style={styles.listInfo}>
-                                            <Text style={[styles.listName, { color: included ? theme.primary : theme.textPrimary }]}>
+                                            <TextComponent style={styles.listName} color={included ? theme.primary : theme.textPrimary} bold variant="body">
                                                 {list.name}
-                                            </Text>
-                                            <Text style={[styles.listCount, { color: theme.textSecondary }]}>
-                                                {list.tours?.length || 0} items
-                                            </Text>
+                                            </TextComponent>
+                                            <TextComponent style={styles.listCount} color={theme.textSecondary} variant="caption">
+                                                {list.tours?.length || 0} {t('items') || "items"}
+                                            </TextComponent>
                                         </View>
                                     </View>
 

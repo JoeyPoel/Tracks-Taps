@@ -1,5 +1,6 @@
 import { FormInput } from '@/src/components/common/FormInput';
 import { ImageUploader } from '@/src/components/common/ImageUploader';
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { WizardStepHeader } from '@/src/components/create/common/WizardStepHeader';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
@@ -8,7 +9,7 @@ import { TourType } from '@/src/types/models';
 import { GENRES } from '@/src/utils/genres';
 import { getTourTypeLabel } from '@/src/utils/tourUtils';
 import React, { useRef } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 interface StepInfoProps {
     draft: TourDraft;
@@ -29,7 +30,9 @@ export default function StepInfo({ draft, updateDraft }: StepInfoProps) {
 
             <View style={styles.form}>
                 <View>
-                    <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('genre')}</Text>
+                    <TextComponent style={styles.sectionTitle} color={theme.textSecondary} bold variant="label">
+                        {t('genre')}
+                    </TextComponent>
                     <ScrollView
                         ref={scrollViewRef}
                         horizontal
@@ -52,12 +55,14 @@ export default function StepInfo({ draft, updateDraft }: StepInfoProps) {
                                     onPress={() => updateDraft('genre', genre.id)}
                                 >
                                     <Icon size={16} color={isSelected ? '#FFF' : theme.textSecondary} />
-                                    <Text style={[
-                                        styles.genreLabel,
-                                        { color: isSelected ? '#FFF' : theme.textSecondary }
-                                    ]}>
+                                    <TextComponent
+                                        style={styles.genreLabel}
+                                        color={isSelected ? '#FFF' : theme.textSecondary}
+                                        bold={false}
+                                        variant="body"
+                                    >
                                         {genre.label}
-                                    </Text>
+                                    </TextComponent>
                                 </TouchableOpacity>
                             );
                         })}
@@ -66,7 +71,9 @@ export default function StepInfo({ draft, updateDraft }: StepInfoProps) {
 
                 {/* Tour Type Selection */}
                 <View>
-                    <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('tourType')}</Text>
+                    <TextComponent style={styles.sectionTitle} color={theme.textSecondary} bold variant="label">
+                        {t('tourType')}
+                    </TextComponent>
                     <ScrollView
                         horizontal
                         showsHorizontalScrollIndicator={false}
@@ -86,12 +93,14 @@ export default function StepInfo({ draft, updateDraft }: StepInfoProps) {
                                     ]}
                                     onPress={() => updateDraft('type', type)}
                                 >
-                                    <Text style={[
-                                        styles.genreLabel,
-                                        { color: isSelected ? '#FFF' : theme.textSecondary }
-                                    ]}>
+                                    <TextComponent
+                                        style={styles.genreLabel}
+                                        color={isSelected ? '#FFF' : theme.textSecondary}
+                                        bold={false}
+                                        variant="body"
+                                    >
                                         {getTourTypeLabel(type)}
-                                    </Text>
+                                    </TextComponent>
                                 </TouchableOpacity>
                             );
                         })}
@@ -149,8 +158,6 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     sectionTitle: {
-        fontSize: 14,
-        fontWeight: 'bold',
         marginBottom: 8,
         marginLeft: 4,
     },
@@ -164,7 +171,6 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     genreLabel: {
-        fontSize: 14,
-        fontWeight: '500',
+        // fontSize handled by TextComponent
     }
 });

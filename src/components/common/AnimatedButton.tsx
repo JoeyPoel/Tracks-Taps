@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text, TextStyle, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { triggerHaptic } from '../../utils/haptics';
 import { AnimatedPressable } from './AnimatedPressable';
+import { TextComponent } from './TextComponent'; // Added import
 
 interface AnimatedButtonProps {
     title: string;
@@ -76,9 +77,15 @@ export const AnimatedButton: React.FC<AnimatedButtonProps> = ({
             ) : (
                 <>
                     {icon && <Ionicons name={icon} size={20} color={getTextColor()} style={{ marginRight: 8 }} />}
-                    <Text style={[styles.text, { color: getTextColor(), fontSize: size === 'small' ? 14 : 16 }, textStyle]}>
+                    <TextComponent
+                        style={[styles.text, textStyle]}
+                        color={getTextColor()}
+                        size={size === 'small' ? 14 : 16}
+                        bold
+                        variant="label"
+                    >
                         {title}
-                    </Text>
+                    </TextComponent>
                 </>
             )}
         </View>
@@ -128,6 +135,6 @@ const styles = StyleSheet.create({
         zIndex: 1, // Ensure content sits above gradient
     },
     text: {
-        fontWeight: '600',
+        // handled by TextComponent
     }
 });

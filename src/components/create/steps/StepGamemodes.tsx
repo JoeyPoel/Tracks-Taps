@@ -1,3 +1,4 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { ModeCard } from '@/src/components/create/common/ModeCard';
 import { WizardStepHeader } from '@/src/components/create/common/WizardStepHeader';
 import { useLanguage } from '@/src/context/LanguageContext';
@@ -5,7 +6,7 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { TourDraft } from '@/src/hooks/useCreateTour';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 interface StepGamemodesProps {
     draft: TourDraft;
@@ -44,8 +45,12 @@ export default function StepGamemodes({ draft, actions }: StepGamemodesProps) {
                 <View style={[styles.comingSoonCard, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
                     <Ionicons name="flask-outline" size={24} color={theme.textTertiary} />
                     <View>
-                        <Text style={[styles.comingSoonTitle, { color: theme.textSecondary }]}>{t('comingSoon')}</Text>
-                        <Text style={[styles.comingSoonDesc, { color: theme.textTertiary }]}>{t('comingSoonDesc')}</Text>
+                        <TextComponent style={styles.comingSoonTitle} color={theme.textSecondary} bold variant="body">
+                            {t('comingSoon')}
+                        </TextComponent>
+                        <TextComponent style={styles.comingSoonDesc} color={theme.textTertiary} variant="caption">
+                            {t('comingSoonDesc')}
+                        </TextComponent>
                     </View>
                 </View>
             </View>
@@ -71,11 +76,9 @@ const styles = StyleSheet.create({
         opacity: 0.7,
     },
     comingSoonTitle: {
-        fontWeight: '700',
-        fontSize: 16,
+        // fontSize and fontWeight handled by TextComponent
     },
     comingSoonDesc: {
-        fontSize: 12,
         maxWidth: 240,
     }
 });

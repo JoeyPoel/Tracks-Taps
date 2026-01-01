@@ -1,7 +1,8 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useTheme } from '@/src/context/ThemeContext';
 import { StopType } from '@/src/types/models';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 // Define Region type locally to avoid importing from react-native-maps
 interface Region {
@@ -26,12 +27,12 @@ export function StopMapPicker({ region, setRegion, marker, setMarker, existingSt
     return (
         <View style={styles.mapContainer}>
             <View style={[styles.placeholder, { backgroundColor: theme.bgSecondary }]}>
-                <Text style={[styles.text, { color: theme.textSecondary }]}>
+                <TextComponent style={styles.text} color={theme.textSecondary} bold variant="body" center>
                     Map selection is not available on web.
-                </Text>
-                <Text style={[styles.subText, { color: theme.textSecondary }]}>
+                </TextComponent>
+                <TextComponent style={styles.subText} color={theme.textSecondary} variant="caption" center>
                     Please use the mobile app to set locations.
-                </Text>
+                </TextComponent>
             </View>
         </View>
     );

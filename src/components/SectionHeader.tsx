@@ -1,5 +1,6 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 
 interface SectionHeaderProps {
@@ -12,7 +13,7 @@ export default function SectionHeader({ text, color }: SectionHeaderProps) {
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.text, { color: theme.textPrimary }]}>{text}</Text>
+      <TextComponent style={styles.text} color={theme.textPrimary} bold variant="h3">{text}</TextComponent>
       <View style={[styles.underline, { backgroundColor: color }]} />
     </View>
   );

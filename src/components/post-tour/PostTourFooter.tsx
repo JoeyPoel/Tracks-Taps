@@ -1,8 +1,9 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { AnimatedButton } from '../common/AnimatedButton';
 
 interface PostTourFooterProps {
@@ -19,18 +20,24 @@ export default function PostTourFooter({ userTeam, handleViewResults }: PostTour
             <View style={styles.yourTeamSection}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                     <Ionicons name="sparkles" size={16} color={theme.gold} style={{ marginRight: 8 }} />
-                    <Text style={[styles.yourTeamLabel, { color: theme.textPrimary }]}>{t('yourTeam')}</Text>
+                    <TextComponent style={styles.yourTeamLabel} color={theme.textPrimary} bold>
+                        {t('yourTeam')}
+                    </TextComponent>
                 </View>
 
                 <View style={[styles.yourTeamCard, { backgroundColor: theme.bgSecondary, borderColor: theme.borderSecondary }]}>
                     {userTeam && (
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <View style={[styles.avatar, { backgroundColor: userTeam.color }]}>
-                                <Text style={{ fontSize: 20 }}>{userTeam.emoji}</Text>
+                                <TextComponent size={20}>{userTeam.emoji}</TextComponent>
                             </View>
                             <View style={{ marginLeft: 12 }}>
-                                <Text style={[styles.yourTeamName, { color: theme.textPrimary }]}>{userTeam.name}</Text>
-                                <Text style={[styles.yourTeamMembers, { color: theme.success }]}>{t('finished')}!</Text>
+                                <TextComponent style={styles.yourTeamName} color={theme.textPrimary} bold variant="body">
+                                    {userTeam.name}
+                                </TextComponent>
+                                <TextComponent style={styles.yourTeamMembers} color={theme.success} variant="caption">
+                                    {t('finished')}!
+                                </TextComponent>
                             </View>
                         </View>
                     )}
@@ -46,9 +53,9 @@ export default function PostTourFooter({ userTeam, handleViewResults }: PostTour
                 style={styles.viewResultsButton}
             />
 
-            <Text style={[styles.autoRedirectText, { color: theme.textSecondary }]}>
+            <TextComponent style={styles.autoRedirectText} color={theme.textSecondary} variant="caption" center>
                 {t('autoResults')}
-            </Text>
+            </TextComponent>
         </View>
     );
 }

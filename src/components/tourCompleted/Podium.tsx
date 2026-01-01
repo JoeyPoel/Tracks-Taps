@@ -1,6 +1,7 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
@@ -75,13 +76,13 @@ const PodiumBar = ({
         <View style={styles.stepContainer}>
             {/* Info floats above the bar */}
             <Animated.View style={[styles.teamInfo, animatedStyle, { height: undefined, minHeight: 60, marginBottom: 8 }]}>
-                <Text style={[styles.teamName, { color: theme.textPrimary }]} numberOfLines={1}>
+                <TextComponent style={styles.teamName} color={theme.textPrimary} bold variant="caption" numberOfLines={1}>
                     {displayName}
-                </Text>
+                </TextComponent>
                 <View style={[styles.scoreBadge, { backgroundColor: theme.bgSecondary }]}>
-                    <Text style={[styles.score, { color: teamColor }]}>
+                    <TextComponent style={styles.score} color={teamColor} bold variant="caption">
                         {team.score}
-                    </Text>
+                    </TextComponent>
                 </View>
             </Animated.View>
 
@@ -101,13 +102,13 @@ const PodiumBar = ({
                 )}
 
                 {/* Rank Number */}
-                <Text style={[styles.rankNumber, { color: place === 1 ? '#FFD700' : theme.textSecondary }]}>
+                <TextComponent style={styles.rankNumber} color={place === 1 ? '#FFD700' : theme.textSecondary} bold variant="h1">
                     {place}
-                </Text>
+                </TextComponent>
 
                 {/* Team Emoji Inside the Pillar */}
                 <View style={[styles.emojiContainer]}>
-                    <Text style={styles.emoji}>{team.emoji || '👤'}</Text>
+                    <TextComponent style={styles.emoji}>{team.emoji || '👤'}</TextComponent>
                 </View>
             </Animated.View>
         </View>

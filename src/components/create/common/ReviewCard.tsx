@@ -3,11 +3,12 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { TourDraft } from '@/src/hooks/useCreateTour';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { BoltIcon as BoltIconSolid, StarIcon as StarIconSolid } from 'react-native-heroicons/solid';
+import { GenericCard } from '../../common/GenericCard';
+import { TextComponent } from '../../common/TextComponent'; // Added import
 import { ReviewCardHeader } from './components/ReviewCardHeader';
 import { ReviewCardStats } from './components/ReviewCardStats';
-import { GenericCard } from '../../common/GenericCard';
 
 interface ReviewCardProps {
     draft: TourDraft;
@@ -25,25 +26,31 @@ export function ReviewCard({ draft, updateDraft }: ReviewCardProps) {
             <ReviewCardHeader draft={draft} />
 
             <View style={styles.content}>
-                <Text style={[styles.title, { color: theme.textPrimary }]}>{draft.title}</Text>
-                <Text style={[styles.author, { color: theme.textSecondary }]}>{t('by')} {t('you')}</Text>
+                <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h3">
+                    {draft.title}
+                </TextComponent>
+                <TextComponent style={styles.author} color={theme.textSecondary} variant="caption">
+                    {t('by')} {t('you')}
+                </TextComponent>
 
                 <ReviewCardStats draft={draft} updateDraft={updateDraft} />
 
                 <View style={styles.footer}>
                     <View style={styles.ratingContainer}>
                         <StarIconSolid size={18} color={theme.starColor} />
-                        <Text style={[styles.ratingText, { color: theme.textPrimary }]}>
+                        <TextComponent style={styles.ratingText} color={theme.textPrimary} bold variant="body">
                             {t('new')}
-                        </Text>
-                        <Text style={[styles.reviewCount, { color: theme.textSecondary }]}>
+                        </TextComponent>
+                        <TextComponent style={styles.reviewCount} color={theme.textSecondary} variant="caption">
                             (0)
-                        </Text>
+                        </TextComponent>
                     </View>
 
                     <View style={styles.pointsContainer}>
                         <BoltIconSolid size={18} color={theme.primary} />
-                        <Text style={[styles.pointsText, { color: theme.primary }]}>{draft.points} {t('pts')}</Text>
+                        <TextComponent style={styles.pointsText} color={theme.primary} bold variant="body">
+                            {draft.points} {t('pts')}
+                        </TextComponent>
                     </View>
                 </View>
             </View>

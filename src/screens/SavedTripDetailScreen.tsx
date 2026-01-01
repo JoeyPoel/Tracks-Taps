@@ -1,7 +1,8 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
@@ -115,9 +116,9 @@ export default function SavedTripDetailScreen() {
                         onPress={() => isEditing ? handleSaveOrder() : setIsEditing(true)}
                         style={[styles.textButton, { backgroundColor: isEditing ? theme.primary : theme.bgTertiary }]}
                     >
-                        <Text style={[styles.textButtonLabel, { color: isEditing ? '#FFF' : theme.textPrimary }]}>
+                        <TextComponent style={styles.textButtonLabel} color={isEditing ? '#FFF' : theme.textPrimary} bold variant="body">
                             {isEditing ? 'Done' : 'Edit'}
-                        </Text>
+                        </TextComponent>
                     </TouchableOpacity>
                 }
             />
@@ -194,7 +195,7 @@ export default function SavedTripDetailScreen() {
                             style={[styles.deleteCollectionBtn, { borderColor: theme.error }]}
                             onPress={handleDeleteList}
                         >
-                            <Text style={{ color: theme.error, fontWeight: '600' }}>Delete Collection</Text>
+                            <TextComponent style={{ fontWeight: '600' }} color={theme.error} bold variant="body">Delete Collection</TextComponent>
                         </TouchableOpacity>
                     ) : null
                 }
@@ -202,9 +203,9 @@ export default function SavedTripDetailScreen() {
                     !loading ? (
                         <View style={styles.emptyContainer}>
                             <Ionicons name="map-outline" size={64} color={theme.textSecondary} style={{ opacity: 0.5, marginBottom: 16 }} />
-                            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+                            <TextComponent style={styles.emptyText} color={theme.textSecondary} variant="body" center>
                                 No tours in this collection yet.
-                            </Text>
+                            </TextComponent>
                         </View>
                     ) : null
                 }

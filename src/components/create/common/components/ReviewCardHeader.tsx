@@ -1,8 +1,9 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useTheme } from '@/src/context/ThemeContext';
 import { TourDraft } from '@/src/hooks/useCreateTour';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ImageBackground, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { PencilSquareIcon } from 'react-native-heroicons/solid';
 
 interface Props {
@@ -23,9 +24,9 @@ export function ReviewCardHeader({ draft }: Props) {
 
                 {draft.difficulty && (
                     <View style={[styles.difficultyBadge, { backgroundColor: theme.bgSecondary }]}>
-                        <Text style={[styles.difficultyText, { color: theme.textPrimary }]}>
+                        <TextComponent style={styles.difficultyText} color={theme.textPrimary} bold variant="caption">
                             {draft.difficulty}
-                        </Text>
+                        </TextComponent>
                     </View>
                 )}
 
@@ -33,9 +34,9 @@ export function ReviewCardHeader({ draft }: Props) {
                     <View style={styles.modesContainer}>
                         {draft.modes.filter(m => m !== 'CLASSIC').map((mode, index) => (
                             <View key={index} style={[styles.modeTag, { backgroundColor: theme.secondary }]}>
-                                <Text style={[styles.modeText, { color: theme.textOnSecondary }]}>
+                                <TextComponent style={styles.modeText} color={theme.textOnSecondary} bold variant="caption">
                                     {mode}
-                                </Text>
+                                </TextComponent>
                             </View>
                         ))}
                     </View>

@@ -1,7 +1,8 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
@@ -26,16 +27,16 @@ export const TourCodeDisplay = ({ code }: TourCodeDisplayProps) => {
         <View style={[styles.container, { backgroundColor: theme.bgSecondary, borderColor: theme.accent }]}>
             <View style={styles.header}>
                 <Ionicons name="sparkles" size={20} color={theme.accent} style={{ marginRight: 8 }} />
-                <Text style={[styles.label, { color: theme.accent }]}>{t('tourCodeLabel')}</Text>
+                <TextComponent style={styles.label} color={theme.accent} bold variant="body">{t('tourCodeLabel')}</TextComponent>
             </View>
 
-            <Text style={[styles.description, { color: theme.textSecondary }]}>
+            <TextComponent style={styles.description} color={theme.textSecondary} variant="body">
                 {t('shareThisCode')}
-            </Text>
+            </TextComponent>
 
             <View style={styles.codeRow}>
                 <View style={[styles.codeBox, { backgroundColor: theme.bgPrimary, borderColor: theme.borderPrimary }]}>
-                    <Text style={[styles.codeText, { color: theme.accent }]}>{displayCode}</Text>
+                    <TextComponent style={styles.codeText} color={theme.accent} bold variant="h2">{displayCode}</TextComponent>
                 </View>
 
                 <AnimatedPressable

@@ -1,10 +1,11 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { RefreshControl, ScrollView, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { RefreshControl, ScrollView, SectionList, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { AdjustmentsHorizontalIcon, ListBulletIcon, MagnifyingGlassIcon, Squares2X2Icon } from 'react-native-heroicons/outline';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
+import { TextComponent } from '../components/common/TextComponent'; // Added import
 import ActiveTourCard from '../components/exploreScreen/ActiveTourCard';
 import ExploreFilterSidebar from '../components/exploreScreen/ExploreFilterSidebar';
 import TourCard from '../components/exploreScreen/TourCard';
@@ -108,10 +109,12 @@ export default function ExploreScreen() {
               setTourFilters({ ...tourFilters, searchQuery: query, page: 1, limit: 20 });
             }
           }}
+          maxFontSizeMultiplier={1.5} // Allow scaling but prevent breaking UI completely
         />
         <TouchableOpacity
           style={[styles.iconButton, { backgroundColor: theme.bgPrimary }]}
           onPress={() => setViewMode((prev) => (prev === 'list' ? 'grid' : 'list'))}
+          accessibilityLabel={t('toggleViewMode') || "Toggle view mode"}
         >
           {viewMode === 'list' ? (
             <Squares2X2Icon size={20} color={theme.textPrimary} />
@@ -123,6 +126,7 @@ export default function ExploreScreen() {
         <TouchableOpacity
           style={[styles.iconButton, { backgroundColor: theme.bgPrimary, marginLeft: 8 }]}
           onPress={() => setFilterVisible(true)}
+          accessibilityLabel={t('filterTours') || "Filter tours"}
         >
           <AdjustmentsHorizontalIcon size={20} color={theme.textPrimary} />
         </TouchableOpacity>
@@ -148,16 +152,18 @@ export default function ExploreScreen() {
                     borderColor: isSelected ? theme.primary : theme.borderPrimary,
                   },
                 ]}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
               >
-                <Text style={styles.categoryIcon}>{cat.icon}</Text>
-                <Text
-                  style={[
-                    styles.categoryText,
-                    { color: isSelected ? '#FFF' : theme.textPrimary },
-                  ]}
+                <TextComponent style={styles.categoryIcon} variant="body">{cat.icon}</TextComponent>
+                <TextComponent
+                  style={styles.categoryText}
+                  variant="label"
+                  bold
+                  color={isSelected ? '#FFF' : theme.textPrimary}
                 >
                   {cat.label}
-                </Text>
+                </TextComponent>
               </TouchableOpacity>
             );
           })}
@@ -174,9 +180,10 @@ export default function ExploreScreen() {
 
         return (
           <View style={styles.activeTourSection}>
-            <Text style={[styles.sectionTitle, { color: theme.textPrimary, marginBottom: 12 }]}>
+            <TextComponent style={styles.sectionTitle} variant="h2" bold color={theme.textPrimary}>
               {t('currentAdventure') || 'Current Adventure'}
-            </Text>
+            </TextComponent>
+            <View style={{ height: 12 }} />
             <ActiveTourCard
               title={activeTour.tour?.title || ''}
               imageUrl={activeTour.tour?.imageUrl || ''}
@@ -242,10 +249,13 @@ export default function ExploreScreen() {
         ListHeaderComponent={renderHeader}
         renderSectionHeader={({ section: { title } }) => (
           <View style={[styles.popularToursHeader, { backgroundColor: theme.bgPrimary }]}>
-            <Text style={[styles.sectionTitle, { color: theme.textPrimary, marginBottom: 4 }]}>
+            <TextComponent style={styles.sectionTitle} variant="h2" bold color={theme.textPrimary}>
               {title}
-            </Text>
-            <Text style={[styles.popularToursSubtitle, { color: theme.textSecondary }]}>{t('curatedAdventures')}</Text>
+            </TextComponent>
+            <View style={{ height: 4 }} />
+            <TextComponent style={styles.popularToursSubtitle} variant="label" color={theme.textSecondary}>
+              {t('curatedAdventures')}
+            </TextComponent>
           </View>
         )}
         refreshControl={
@@ -355,6 +365,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     padding: 0,
     fontWeight: '500',
+    minHeight: 24, // Touch target
   },
   iconButton: {
     width: 40,
@@ -380,15 +391,12 @@ const styles = StyleSheet.create({
   },
   categoryIcon: {
     marginRight: 8,
-    fontSize: 16,
   },
   categoryText: {
-    fontWeight: '700',
-    fontSize: 14,
+    // handled by component
   },
   sectionTitle: {
-    fontSize: 22,
-    fontWeight: '800',
+    marginBottom: 0, // Handled by Spacer
     letterSpacing: -0.3,
   },
   activeTourSection: {
@@ -402,9 +410,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
   },
   popularToursSubtitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginTop: 4,
     opacity: 0.7,
   },
   scrollContent: {

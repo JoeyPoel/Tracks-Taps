@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, ScrollView, StyleSheet, View } from 'react-native'; // Removed Text
 import ActiveTourHeader from '../components/active-tour/ActiveTourHeader';
 import ActiveTourMap from '../components/active-tour/ActiveTourMap';
 import Confetti from '../components/active-tour/animations/Confetti';
@@ -10,6 +10,7 @@ import PubGolfSection from '../components/active-tour/pubGolf/PubGolfSection';
 import StopInfoSection from '../components/active-tour/StopInfoSection';
 import TourChallengesSection from '../components/active-tour/TourChallengesSection';
 import TourNavigation from '../components/active-tour/TourNavigation';
+import { TextComponent } from '../components/common/TextComponent'; // Added Import
 import CustomTabBar from '../components/CustomTabBar';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -98,9 +99,9 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         });
     }
 
-    if (loading) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>{t('loadingTour')}</Text></View>;
-    if (error) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.danger }}>{error}</Text></View>;
-    if (!activeTour) return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>{t('tourNotFound')}</Text></View>;
+    if (loading) return <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}><TextComponent>{t('loadingTour')}</TextComponent></View>;
+    if (error) return <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}><TextComponent color={theme.danger}>{error}</TextComponent></View>;
+    if (!activeTour) return <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}><TextComponent>{t('tourNotFound')}</TextComponent></View>;
 
     const currentStop = activeTour.tour?.stops?.[currentStopIndex];
     const stopChallenges = currentStop?.challenges || [];
@@ -252,11 +253,11 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
     const { user, loading } = useUserContext();
 
     if (loading && !user) {
-        return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>{t('loading')}</Text></View>;
+        return <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}><TextComponent>{t('loading')}</TextComponent></View>;
     }
 
     if (!user) {
-        return <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textPrimary }}>{t('loginRequired')}</Text></View>;
+        return <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}><TextComponent>{t('loginRequired')}</TextComponent></View>;
     }
 
     return <ActiveTourContent activeTourId={activeTourId} user={user} />;
@@ -266,6 +267,11 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    centerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     scrollContent: {
         paddingBottom: 40,

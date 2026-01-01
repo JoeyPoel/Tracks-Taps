@@ -1,9 +1,10 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { AnimatedPressable } from '../../common/AnimatedPressable';
 import { AppModal } from '../../common/AppModal';
+import { TextComponent } from '../../common/TextComponent'; // Added import
 
 export interface SelectionOption {
     label: string;
@@ -61,12 +62,14 @@ export function SelectionModal({
                                 {Icon && (
                                     <Icon size={20} color={isSelected ? '#FFF' : (option.color || theme.textSecondary)} />
                                 )}
-                                <Text style={[
-                                    styles.optionLabel,
-                                    { color: isSelected ? '#FFF' : theme.textPrimary }
-                                ]}>
+                                <TextComponent
+                                    style={styles.optionLabel}
+                                    color={isSelected ? '#FFF' : theme.textPrimary}
+                                    bold
+                                    variant="body"
+                                >
                                     {option.label}
-                                </Text>
+                                </TextComponent>
                             </View>
 
                             {isSelected && <Ionicons name="checkmark" size={20} color="#FFF" />}
@@ -99,7 +102,6 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     optionLabel: {
-        fontSize: 16,
-        fontWeight: '600',
+        // fontSize and fontWeight handled by TextComponent
     },
 });

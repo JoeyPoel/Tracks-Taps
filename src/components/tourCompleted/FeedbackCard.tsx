@@ -1,8 +1,9 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, Layout } from 'react-native-reanimated';
 import { AnimatedButton } from '../common/AnimatedButton';
 
@@ -34,9 +35,9 @@ export default function FeedbackCard({
             layout={Layout.springify()}
             style={[styles.rateAppCard, { backgroundColor: theme.bgSecondary }]}
         >
-            <Text style={[styles.rateAppTitle, { color: theme.textPrimary }]}>
+            <TextComponent style={styles.rateAppTitle} color={theme.textPrimary} bold variant="h3">
                 {submitted ? t('thanksFeedback') : t('howWasExperience')}
-            </Text>
+            </TextComponent>
 
             {!submitted && (
                 <View style={styles.starContainer}>
@@ -59,9 +60,9 @@ export default function FeedbackCard({
                     entering={FadeInDown}
                     style={{ width: '100%', marginTop: 20 }}
                 >
-                    <Text style={[styles.feedbackLabel, { color: theme.textSecondary }]}>
+                    <TextComponent style={styles.feedbackLabel} color={theme.textSecondary} bold variant="caption">
                         {t('whatImprove')}
-                    </Text>
+                    </TextComponent>
                     <TextInput
                         style={[styles.feedbackInput, {
                             backgroundColor: theme.bgPrimary,

@@ -1,8 +1,9 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useTheme } from '@/src/context/ThemeContext';
 import { StopType } from '@/src/types/models';
 import { getStopIcon } from '@/src/utils/stopIcons';
 import React from 'react';
-import { Keyboard, StyleSheet, Text, View } from 'react-native';
+import { Keyboard, StyleSheet, View } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_DEFAULT, Region } from 'react-native-maps';
 
 interface StopMapPickerProps {
@@ -71,7 +72,9 @@ export function StopMapPicker({ region, setRegion, marker, setMarker, existingSt
             </MapView>
             {!marker && (
                 <View style={styles.mapInstruction}>
-                    <Text style={styles.mapInstructionText}>Tap map to set location</Text>
+                    <TextComponent style={styles.mapInstructionText} color="white" bold variant="body">
+                        Tap map to set location
+                    </TextComponent>
                 </View>
             )}
         </View>

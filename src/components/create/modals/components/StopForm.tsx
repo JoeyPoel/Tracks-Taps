@@ -1,5 +1,6 @@
 import { FormInput } from '@/src/components/common/FormInput';
 import { ImageUploader } from '@/src/components/common/ImageUploader';
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { StopType } from '@/src/types/models';
@@ -76,7 +77,9 @@ export function StopForm({
             </View>
 
             <View>
-                <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>{t('stopType')}</Text>
+                <TextComponent style={styles.inputLabel} color={theme.textSecondary} bold variant="label">
+                    {t('stopType')}
+                </TextComponent>
                 <View style={styles.typesGrid}>
                     {Object.values(StopType).map((stopType) => (
                         <TouchableOpacity

@@ -1,5 +1,6 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -13,10 +14,10 @@ export default function TourAbout({ description }: TourAboutProps) {
 
     return (
         <View style={styles.container}>
-            <Text style={[styles.title, { color: theme.textPrimary }]}>{t('aboutThisTour')}</Text>
-            <Text style={[styles.description, { color: theme.textSecondary }]}>
+            <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h3">{t('aboutThisTour')}</TextComponent>
+            <TextComponent style={styles.description} color={theme.textSecondary} variant="body">
                 {description}
-            </Text>
+            </TextComponent>
         </View>
     );
 }

@@ -1,6 +1,7 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedButton } from '../common/AnimatedButton';
@@ -29,14 +30,14 @@ export default function TourDetailHeader({
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
-      <Text style={[styles.title, { color: theme.primary }]}>{title}</Text>
+      <TextComponent style={styles.title} color={theme.primary} bold variant="h2">{title}</TextComponent>
 
       <View style={styles.row}>
         <Ionicons name="location-outline" size={14} color={theme.iconSecondary} />
-        <Text style={[styles.location, { color: theme.textSecondary }]}>{location}</Text>
-        <Text style={[styles.by, { color: theme.textSecondary }]}>
+        <TextComponent style={styles.location} color={theme.textSecondary} variant="caption">{location}</TextComponent>
+        <TextComponent style={styles.by} color={theme.textSecondary} variant="caption">
           {t('by')} {author}
-        </Text>
+        </TextComponent>
       </View>
 
       <View style={styles.row}>
@@ -44,12 +45,12 @@ export default function TourDetailHeader({
           <Ionicons key={i} name="star" size={16} color={theme.starColor} />
         ))}
         {rating % 1 >= 0.5 && <Ionicons name="star-half" size={16} color={theme.starColor} />}
-        <Text style={[styles.reviewCount, { color: theme.textSecondary }]}>
+        <TextComponent style={styles.reviewCount} color={theme.textSecondary} variant="caption">
           ({reviews} {t('reviews')})
-        </Text>
+        </TextComponent>
       </View>
 
-      <Text style={[styles.description, { color: theme.textPrimary }]}>{description}</Text>
+      <TextComponent style={styles.description} color={theme.textPrimary} variant="body">{description}</TextComponent>
 
       <AnimatedButton
         title={t('startTour')}

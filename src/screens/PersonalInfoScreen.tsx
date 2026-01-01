@@ -1,5 +1,6 @@
 import { FormInput } from '@/src/components/common/FormInput';
 import { ImageUploader } from '@/src/components/common/ImageUploader';
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useAuth } from '@/src/context/AuthContext';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
@@ -16,7 +17,6 @@ import {
     Platform,
     ScrollView,
     StyleSheet,
-    Text,
     TextInput,
     View
 } from 'react-native';
@@ -99,7 +99,7 @@ export default function PersonalInfoScreen() {
             >
                 <Ionicons name={icon as any} size={18} color={theme.primary} />
             </LinearGradient>
-            <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{title}</Text>
+            <TextComponent style={styles.sectionTitle} color={theme.textSecondary} bold variant="caption">{title}</TextComponent>
         </View>
     );
 
@@ -107,17 +107,17 @@ export default function PersonalInfoScreen() {
         return (
             <ScreenWrapper>
                 <View style={[styles.centerContainer]}>
-                    <Text style={[styles.title, { color: theme.textPrimary }]}>
+                    <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h1" center>
                         {t('loginRequired')}
-                    </Text>
-                    <Text style={[styles.message, { color: theme.textSecondary }]}>
+                    </TextComponent>
+                    <TextComponent style={styles.message} color={theme.textSecondary} variant="body" center>
                         {t('pleaseLoginToManageYourPersonalDetails')}
-                    </Text>
+                    </TextComponent>
                     <AnimatedPressable
                         style={[styles.button, { backgroundColor: theme.primary }]}
                         onPress={() => router.push('/auth/login')}
                     >
-                        <Text style={styles.buttonText}>{t('login')}</Text>
+                        <TextComponent style={styles.buttonText} color="#fff" bold variant="body">{t('login')}</TextComponent>
                     </AnimatedPressable>
                 </View>
             </ScreenWrapper>
@@ -181,7 +181,7 @@ export default function PersonalInfoScreen() {
                     {renderSectionHeader(t('security'), 'lock-closed-outline')}
                     <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
                         <View style={[styles.formGroup, { marginBottom: 0 }]}>
-                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('password')}</Text>
+                            <TextComponent style={styles.label} color={theme.textSecondary} bold variant="caption">{t('password')}</TextComponent>
                             <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderPrimary }]}>
                                 <Ionicons name="key-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
                                 <TextInput
@@ -194,9 +194,9 @@ export default function PersonalInfoScreen() {
                                     maxLength={100}
                                 />
                             </View>
-                            <Text style={[styles.hint, { color: theme.textTertiary }]}>
+                            <TextComponent style={styles.hint} color={theme.textTertiary} variant="caption">
                                 {t('passwordHint')}
-                            </Text>
+                            </TextComponent>
                         </View>
                     </View>
 
@@ -210,7 +210,7 @@ export default function PersonalInfoScreen() {
                             {loading ? (
                                 <ActivityIndicator color="#fff" />
                             ) : (
-                                <Text style={styles.buttonText}>{t('saveChanges')}</Text>
+                                <TextComponent style={styles.buttonText} color="#fff" bold variant="body">{t('saveChanges')}</TextComponent>
                             )}
                         </AnimatedPressable>
 
@@ -219,7 +219,7 @@ export default function PersonalInfoScreen() {
                             onPress={handleLogout}
                             disabled={loading}
                         >
-                            <Text style={[styles.logoutText, { color: theme.danger }]}>{t('logout')}</Text>
+                            <TextComponent style={styles.logoutText} color={theme.danger} bold variant="body">{t('logout')}</TextComponent>
                         </AnimatedPressable>
                     </View>
 

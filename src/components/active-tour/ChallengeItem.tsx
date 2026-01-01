@@ -1,6 +1,7 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
+import { TextComponent } from '../common/TextComponent'; // Added import
 import DareChallenge from './challenges/DareChallenge';
 import LocationChallenge from './challenges/LocationChallenge';
 import PictureChallenge from './challenges/PictureChallenge';
@@ -112,7 +113,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
         default:
             return (
                 <View>
-                    <Text>{t('unknownChallengeType')} {type}</Text>
+                    <TextComponent>{t('unknownChallengeType')} {type}</TextComponent>
                 </View>
             );
     }

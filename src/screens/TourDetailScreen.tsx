@@ -5,10 +5,11 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { AnimatedButton } from '../components/common/AnimatedButton';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
+import { TextComponent } from '../components/common/TextComponent'; // Added import
 import AddToSavedTripsModal from '../components/saved-trips/AddToSavedTripsModal';
 import TourGallery from '../components/tourdetailScreen/TourGallery';
 import TourReviews from '../components/tourdetailScreen/TourReviews';
@@ -67,7 +68,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   if (error || !tour) {
     return (
       <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}>
-        <Text style={{ color: theme.textPrimary }}>Error: {error || 'Tour not found'}</Text>
+        <TextComponent style={{ color: theme.textPrimary }}>Error: {error || 'Tour not found'}</TextComponent>
       </View>
     );
   }
@@ -102,12 +103,12 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           />
           <Animated.View entering={FadeInUp.delay(200)} style={styles.heroContent}>
             <View style={[styles.tagContainer, { backgroundColor: theme.primary }]}>
-              <Text style={styles.tagText}>{tour.genre}</Text>
+              <TextComponent style={styles.tagText} variant="caption" bold color="#FFF">{tour.genre}</TextComponent>
             </View>
-            <Text style={[styles.title, { color: theme.textPrimary }]}>{tour.title}</Text>
+            <TextComponent style={styles.title} variant="h1" bold color={theme.textPrimary}>{tour.title}</TextComponent>
             <View style={styles.authorRow}>
-              <Text style={{ color: theme.textSecondary, marginRight: 4 }}>by</Text>
-              <Text style={{ color: theme.textPrimary, fontWeight: 'bold' }}>{tour.author?.name || 'Unknown'}</Text>
+              <TextComponent style={{ marginRight: 4 }} color={theme.textSecondary} variant="body">by</TextComponent>
+              <TextComponent style={{ fontWeight: 'bold' }} color={theme.textPrimary} variant="body" bold>{tour.author?.name || 'Unknown'}</TextComponent>
             </View>
           </Animated.View>
 
@@ -117,7 +118,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             style={[styles.mapFab, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
           >
             <Ionicons name="map" size={24} color={theme.textPrimary} />
-            <Text style={[styles.mapFabText, { color: theme.textPrimary }]}>Map</Text>
+            <TextComponent style={styles.mapFabText} variant="label" bold color={theme.textPrimary}>Map</TextComponent>
           </TouchableOpacity>
 
           {/* Saved Trip Button */}
@@ -160,10 +161,10 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
         {/* Description */}
         <Animated.View entering={FadeInUp.delay(600)} style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>About this Tour</Text>
-          <Text style={[styles.description, { color: theme.textSecondary }]}>
+          <TextComponent style={styles.sectionTitle} variant="h2" bold color={theme.textPrimary}>About this Tour</TextComponent>
+          <TextComponent style={styles.description} variant="body" color={theme.textSecondary}>
             {tour.description}
-          </Text>
+          </TextComponent>
         </Animated.View>
 
         {/* Rating Placeholder */}
@@ -229,26 +230,13 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
     </ScreenWrapper>
   );
 }
-/*
-      <AddToSavedTripsModal 
-        visible={showSavedTripModal} 
-        onClose={() => setShowSavedTripModal(false)}
-        tourId={tourId}
-      />
-*/
-// Modal needs to be inside the wrapper but maybe outside the scroll/footer 
-// Actually sticking it at the end of return before closing wrapper is fine.
-
-/* We also need to add the button in the hero section. 
-   I will do a multi_replace for this to be cleaner.
-*/
 
 // Mini Component for Stats
 const StatCard = ({ icon, label, value, theme, delay }: any) => (
   <Animated.View entering={FadeInUp.delay(delay).springify()} style={[styles.statCard, { backgroundColor: theme.bgSecondary }]}>
     <Ionicons name={icon} size={20} color={theme.primary} style={{ marginBottom: 4 }} />
-    <Text style={[styles.statValue, { color: theme.textPrimary }]}>{value}</Text>
-    <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{label}</Text>
+    <TextComponent style={styles.statValue} variant="h3" bold color={theme.textPrimary}>{value}</TextComponent>
+    <TextComponent style={styles.statLabel} variant="label" color={theme.textSecondary}>{label}</TextComponent>
   </Animated.View>
 );
 
@@ -304,17 +292,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   tagText: {
-    color: '#FFF',
-    fontSize: 12,
-    fontWeight: 'bold',
+    // handled by TextComponent
     textTransform: 'uppercase',
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
     marginBottom: 8,
-    letterSpacing: -1,
-    lineHeight: 38,
     paddingRight: 100, // Safe space for Map FAB
   },
   authorRow: {
@@ -340,25 +322,19 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   statValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
     marginBottom: 2,
   },
   statLabel: {
-    fontSize: 12,
+    // handled by TextComponent
   },
   section: {
     paddingHorizontal: 20,
     marginBottom: 32,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
     marginBottom: 12,
   },
   description: {
-    fontSize: 15,
-    lineHeight: 24,
     opacity: 0.8,
   },
   ratingCard: {
@@ -426,7 +402,6 @@ const styles = StyleSheet.create({
     zIndex: 20, // ensure it's above hero image
   },
   mapFabText: {
-    fontWeight: 'bold',
-    fontSize: 14,
+    // handled by TextComponent
   }
 });

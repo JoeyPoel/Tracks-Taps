@@ -1,8 +1,9 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 interface PostTourTeamListProps {
@@ -19,14 +20,18 @@ export default function PostTourTeamList({ teams, userTeamId }: PostTourTeamList
     if (otherTeams.length === 0) {
         return (
             <View style={styles.emptyContainer}>
-                <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{t('noOtherTeams')}</Text>
+                <TextComponent style={styles.emptyText} color={theme.textSecondary} variant="body">
+                    {t('noOtherTeams')}
+                </TextComponent>
             </View>
         );
     }
 
     return (
         <View style={styles.teamList}>
-            <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>{t('otherTeams')}</Text>
+            <TextComponent style={styles.sectionTitle} color={theme.textPrimary} bold variant="label">
+                {t('otherTeams')}
+            </TextComponent>
 
             {otherTeams.map((team, index) => {
                 const isFinished = !!team.finishedAt;
@@ -40,14 +45,16 @@ export default function PostTourTeamList({ teams, userTeamId }: PostTourTeamList
                     >
                         {/* Avatar */}
                         <View style={[styles.avatarContainer, { backgroundColor: theme.bgPrimary }]}>
-                            <Text style={styles.teamEmoji}>{team.emoji}</Text>
+                            <TextComponent style={styles.teamEmoji} size={24}>{team.emoji}</TextComponent>
                         </View>
 
                         <View style={styles.teamInfo}>
-                            <Text style={[styles.teamName, { color: theme.textPrimary }]}>{team.name}</Text>
-                            <Text style={[styles.teamStatusText, { color: isFinished ? theme.success : theme.textSecondary }]}>
+                            <TextComponent style={styles.teamName} color={theme.textPrimary} bold variant="body">
+                                {team.name}
+                            </TextComponent>
+                            <TextComponent style={styles.teamStatusText} color={isFinished ? theme.success : theme.textSecondary} variant="caption">
                                 {isFinished ? t('finished') : t('walking')}...
-                            </Text>
+                            </TextComponent>
                         </View>
 
                         {/* Status Indicator */}
@@ -55,12 +62,16 @@ export default function PostTourTeamList({ teams, userTeamId }: PostTourTeamList
                             {isFinished ? (
                                 <View style={[styles.statusBadge, { backgroundColor: theme.success + '20' }]}>
                                     <Ionicons name="flag" size={14} color={theme.success} />
-                                    <Text style={[styles.statusText, { color: theme.success }]}>{t('done')}</Text>
+                                    <TextComponent style={styles.statusText} color={theme.success} bold variant="caption">
+                                        {t('done')}
+                                    </TextComponent>
                                 </View>
                             ) : (
                                 <View style={[styles.statusBadge, { backgroundColor: theme.warning + '20' }]}>
                                     <ActivityIndicator size="small" color={theme.warning} style={{ transform: [{ scale: 0.7 }] }} />
-                                    <Text style={[styles.statusText, { color: theme.warning }]}>{t('active')}</Text>
+                                    <TextComponent style={styles.statusText} color={theme.warning} bold variant="caption">
+                                        {t('active')}
+                                    </TextComponent>
                                 </View>
                             )}
                         </View>

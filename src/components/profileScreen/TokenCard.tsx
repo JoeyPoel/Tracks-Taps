@@ -1,8 +1,9 @@
 import { GenericCard } from '@/src/components/common/GenericCard';
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, Text, View } from 'react-native';
-import { CircleStackIcon, PaperAirplaneIcon, PlusIcon } from 'react-native-heroicons/outline';
+import { StyleSheet, View } from 'react-native';
+import { CircleStackIcon, PlusIcon } from 'react-native-heroicons/outline';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 
@@ -31,8 +32,8 @@ export default function TokenCard({ tokens, onBuyPress, onInvitePress }: TokenCa
                     </LinearGradient>
 
                     <View>
-                        <Text style={[styles.balance, { color: theme.textPrimary }]}>{tokens} {t('tokens')}</Text>
-                        <Text style={[styles.label, { color: theme.textSecondary }]}>{t('availableBalance')}</Text>
+                        <TextComponent style={styles.balance} color={theme.textPrimary} bold variant="h3">{tokens} {t('tokens')}</TextComponent>
+                        <TextComponent style={styles.label} color={theme.textSecondary} variant="caption">{t('availableBalance')}</TextComponent>
                     </View>
                 </View>
 
@@ -53,7 +54,7 @@ export default function TokenCard({ tokens, onBuyPress, onInvitePress }: TokenCa
                         interactionScale="subtle"
                     >
                         <PlusIcon size={16} color={theme.textPrimary} style={{ marginRight: 4 }} />
-                        <Text style={[styles.buttonText, { color: theme.textPrimary }]}>{t('topUp')}</Text>
+                        <TextComponent style={styles.buttonText} color={theme.textPrimary} bold variant="caption">{t('topUp')}</TextComponent>
                     </AnimatedPressable>
                 </View>
             </View>

@@ -4,7 +4,8 @@ import { uploadImage } from '@/src/services/imageService';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { TextComponent } from './TextComponent'; // Added import
 
 interface ImageUploaderProps {
     onUploadComplete: (url: string) => void;
@@ -120,7 +121,7 @@ export function ImageUploader({
                     disabled={uploading}
                 >
                     <Ionicons name="pencil" size={16} color={theme.textPrimary} />
-                    <Text style={[styles.actionText, { color: theme.textPrimary }]}>{t('edit')}</Text>
+                    <TextComponent style={styles.actionText} color={theme.textPrimary} variant="label">{t('edit')}</TextComponent>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.actionButton, { backgroundColor: theme.bgSecondary, borderColor: theme.error }]}
@@ -128,7 +129,7 @@ export function ImageUploader({
                     disabled={uploading}
                 >
                     <Ionicons name="trash-outline" size={16} color={theme.error} />
-                    <Text style={[styles.actionText, { color: theme.error }]}>{t('remove')}</Text>
+                    <TextComponent style={styles.actionText} color={theme.error} variant="label">{t('remove')}</TextComponent>
                 </TouchableOpacity>
             </View>
         </View>
@@ -136,7 +137,7 @@ export function ImageUploader({
 
     return (
         <View style={[styles.container, isAvatar && { alignItems: 'center' }]}>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>{label}</Text>
+            <TextComponent style={styles.label} color={theme.textSecondary} bold variant="label">{label}</TextComponent>
 
             {image ? (
                 isAvatar ? renderAvatar() : renderStandard()
@@ -155,7 +156,7 @@ export function ImageUploader({
                     ) : (
                         <>
                             <Ionicons name={isAvatar ? "person-outline" : "image-outline"} size={isAvatar ? 40 : 32} color={theme.textSecondary} />
-                            {!isAvatar && <Text style={[styles.uploadText, { color: theme.textSecondary }]}>{placeholder}</Text>}
+                            {!isAvatar && <TextComponent style={styles.uploadText} color={theme.textSecondary} variant="body">{placeholder}</TextComponent>}
                         </>
                     )}
                 </TouchableOpacity>
@@ -169,8 +170,6 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     label: {
-        fontSize: 12,
-        fontWeight: '700',
         textTransform: 'uppercase',
         marginBottom: 4,
     },
@@ -192,8 +191,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     uploadText: {
-        fontSize: 14,
-        fontWeight: '500',
+        // handled
     },
     previewContainer: {
         overflow: 'hidden',
@@ -260,7 +258,6 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     actionText: {
-        fontSize: 12,
-        fontWeight: '600',
+        // handled
     }
 });

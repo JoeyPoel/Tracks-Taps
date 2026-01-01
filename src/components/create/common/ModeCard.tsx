@@ -2,7 +2,8 @@ import { GenericCard } from '@/src/components/common/GenericCard';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { TextComponent } from '../../common/TextComponent'; // Added import
 
 interface ModeCardProps {
     mode: string;
@@ -41,8 +42,12 @@ export function ModeCard({ mode, icon, label, description, colors, isSelected, o
             </View>
 
             <View style={styles.cardContent}>
-                <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>{label}</Text>
-                <Text style={[styles.cardDesc, { color: theme.textSecondary }]}>{description}</Text>
+                <TextComponent style={styles.cardTitle} color={theme.textPrimary} bold variant="h3">
+                    {label}
+                </TextComponent>
+                <TextComponent style={styles.cardDesc} color={theme.textSecondary} variant="body">
+                    {description}
+                </TextComponent>
             </View>
         </GenericCard>
     );
@@ -75,11 +80,9 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     cardTitle: {
-        fontSize: 20,
-        fontWeight: '700',
+        // fontSize handled by TextComponent
     },
     cardDesc: {
-        fontSize: 15,
         lineHeight: 22,
     },
 });

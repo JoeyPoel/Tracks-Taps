@@ -4,9 +4,10 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { getGenreIcon } from '@/src/utils/genres';
 import { getTourTypeLabel } from '@/src/utils/tourUtils';
 import React from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { ClockIcon, MapIcon } from 'react-native-heroicons/solid';
 import { TourDraft } from '../../../hooks/useCreateTour';
+import { TextComponent } from '../../common/TextComponent'; // Added import
 import { SelectionModal } from './SelectionModal';
 
 interface EditableTourCardProps {
@@ -69,12 +70,13 @@ export function EditableTourCard({
                                 isActive ? styles.modeChipActive : styles.modeChipInactive
                             ]}
                         >
-                            <Text style={[
-                                styles.modeChipText,
-                                isActive ? styles.modeChipTextActive : styles.modeChipTextInactive
-                            ]}>
+                            <TextComponent
+                                style={isActive ? styles.modeChipTextActive : styles.modeChipTextInactive}
+                                bold
+                                size={10}
+                            >
                                 {mode}
-                            </Text>
+                            </TextComponent>
                         </TouchableOpacity>
                     );
                 })}
@@ -103,10 +105,14 @@ export function EditableTourCard({
                                         const GenreIcon = getGenreIcon(genre);
                                         return <GenreIcon size={12} color="#FFF" />;
                                     })()}
-                                    <Text style={styles.badgeText}>{genre}</Text>
+                                    <TextComponent style={styles.badgeText} color="#FFF" bold size={12}>
+                                        {genre}
+                                    </TextComponent>
                                 </>
                             ) : (
-                                <Text style={styles.badgeText}>{t('selectGenre')}</Text>
+                                <TextComponent style={styles.badgeText} color="#FFF" bold size={12}>
+                                    {t('selectGenre')}
+                                </TextComponent>
                             )}
                             <View style={styles.dropdownCaret} />
                         </TouchableOpacity>
@@ -114,7 +120,9 @@ export function EditableTourCard({
                         {/* Tour Type Badge (Display Only) */}
                         {draft.type && (
                             <View style={[styles.badge, styles.blurBadge]}>
-                                <Text style={styles.badgeText}>{getTourTypeLabel(draft.type)}</Text>
+                                <TextComponent style={styles.badgeText} color="#FFF" bold size={12}>
+                                    {getTourTypeLabel(draft.type)}
+                                </TextComponent>
                             </View>
                         )}
 
@@ -122,7 +130,9 @@ export function EditableTourCard({
                             onPress={() => setPickerType('difficulty')}
                             style={[styles.badge, styles.blurBadge]}
                         >
-                            <Text style={styles.badgeText}>{draft.difficulty || 'Medium'}</Text>
+                            <TextComponent style={styles.badgeText} color="#FFF" bold size={12}>
+                                {draft.difficulty || 'Medium'}
+                            </TextComponent>
                             <View style={styles.dropdownCaret} />
                         </TouchableOpacity>
                     </View>
@@ -140,7 +150,9 @@ export function EditableTourCard({
                             multiline
                             maxLength={60}
                         />
-                        <Text style={styles.author}>{t('by')} {t('you')}</Text>
+                        <TextComponent style={styles.author} color="rgba(255, 255, 255, 0.9)" variant="caption">
+                            {t('by')} {t('you')}
+                        </TextComponent>
                     </View>
 
                     <View style={styles.separator} />
@@ -161,7 +173,9 @@ export function EditableTourCard({
                                     selectTextOnFocus
                                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                                 />
-                                <Text style={styles.unitText}>km</Text>
+                                <TextComponent style={styles.unitText} color="rgba(255,255,255,0.7)" size={12}>
+                                    km
+                                </TextComponent>
                             </View>
 
                             <View style={styles.dotSeparator} />
@@ -178,7 +192,9 @@ export function EditableTourCard({
                                     selectTextOnFocus
                                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                                 />
-                                <Text style={styles.unitText}>min</Text>
+                                <TextComponent style={styles.unitText} color="rgba(255,255,255,0.7)" size={12}>
+                                    min
+                                </TextComponent>
                             </View>
                         </View>
 
@@ -239,9 +255,6 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255,255,255,0.1)',
     },
     badgeText: {
-        color: '#FFF',
-        fontSize: 12,
-        fontWeight: '700',
         letterSpacing: 0.3,
     },
     ratingBadge: {
@@ -273,8 +286,6 @@ const styles = StyleSheet.create({
         textShadowRadius: 4,
     },
     author: {
-        fontSize: 14,
-        color: 'rgba(255, 255, 255, 0.9)',
         fontWeight: '500',
     },
     separator: {
@@ -309,8 +320,6 @@ const styles = StyleSheet.create({
         padding: 4,
     },
     unitText: {
-        color: 'rgba(255,255,255,0.7)',
-        fontSize: 12,
         marginLeft: -2,
     },
     dotSeparator: {
@@ -337,10 +346,6 @@ const styles = StyleSheet.create({
     modeChipInactive: {
         backgroundColor: 'rgba(0,0,0,0.3)',
         borderColor: 'rgba(255,255,255,0.3)',
-    },
-    modeChipText: {
-        fontSize: 10,
-        fontWeight: '700',
     },
     modeChipTextActive: {
         color: '#000',

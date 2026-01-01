@@ -1,10 +1,11 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { PencilIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
+import { TextComponent } from '../common/TextComponent'; // Added import
 
 interface UserProfileCardProps {
     name: string;
@@ -49,17 +50,17 @@ export default function UserProfileCard({
 
             {/* User Info */}
             <View style={styles.infoCenter}>
-                <Text style={[styles.name, { color: theme.textPrimary }]}>{name}</Text>
+                <TextComponent style={styles.name} color={theme.textPrimary} bold variant="h2">{name}</TextComponent>
 
                 <View style={[styles.badgeContainer, { backgroundColor: theme.bgSecondary }]}>
-                    <Text style={[styles.badgeText, { color: theme.primary }]}>{t('reviewerLevel')} {level}</Text>
+                    <TextComponent style={styles.badgeText} color={theme.primary} bold variant="caption">{t('reviewerLevel')} {level}</TextComponent>
                 </View>
             </View>
 
             {/* XP Bar */}
             <View style={styles.xpContainer}>
                 <View style={styles.xpTextRow}>
-                    <Text style={[styles.xpText, { color: theme.textSecondary }]}>{currentXP} / {maxXP} {t('xp')}</Text>
+                    <TextComponent style={styles.xpText} color={theme.textSecondary} variant="caption">{currentXP} / {maxXP} {t('xp')}</TextComponent>
                 </View>
                 <View style={[styles.track, { backgroundColor: theme.bgSecondary }]}>
                     <LinearGradient
@@ -102,8 +103,6 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     name: {
-        fontSize: 26,
-        fontWeight: 'bold',
         marginBottom: 8,
     },
     badgeContainer: {
@@ -112,8 +111,7 @@ const styles = StyleSheet.create({
         borderRadius: 100,
     },
     badgeText: {
-        fontSize: 13,
-        fontWeight: '600',
+        // handled by TextComponent
     },
     xpContainer: {
         width: '60%',
@@ -123,8 +121,7 @@ const styles = StyleSheet.create({
         marginBottom: 6,
     },
     xpText: {
-        fontSize: 12,
-        fontWeight: '600',
+        // handled by TextComponent
     },
     track: {
         width: '100%',

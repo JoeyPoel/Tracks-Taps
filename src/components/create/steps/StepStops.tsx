@@ -1,4 +1,5 @@
 import { AnimatedPressable } from '@/src/components/common/AnimatedPressable';
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { WizardStepHeader } from '@/src/components/create/common/WizardStepHeader';
 import ChallengeCreationModal from '@/src/components/create/modals/ChallengeCreationModal';
 import StopCreationModal from '@/src/components/create/modals/StopCreationModal';
@@ -7,7 +8,7 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { TourDraft } from '@/src/hooks/useCreateTour';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { EmptyStopState } from './EmptyStopState';
 import { StopCard } from './StopCard';
 
@@ -108,7 +109,9 @@ export default function StepStops({ draft, actions }: StepStopsProps) {
                 }}
             >
                 <Ionicons name="location" size={24} color={theme.primary} />
-                <Text style={[styles.addButtonText, { color: theme.primary }]}>{t('addStop')}</Text>
+                <TextComponent style={styles.addButtonText} color={theme.primary} bold variant="label">
+                    {t('addStop')}
+                </TextComponent>
             </AnimatedPressable>
 
             <StopCreationModal
@@ -158,7 +161,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.02)'
     },
     addButtonText: {
-        fontSize: 16,
-        fontWeight: '700',
+        // fontSize and fontWeight handled by TextComponent
     }
 });

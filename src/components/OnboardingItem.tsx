@@ -1,3 +1,4 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useTheme } from '@/src/context/ThemeContext';
 import React from 'react';
 import { Dimensions, Image, StyleSheet, View } from 'react-native';
@@ -41,19 +42,21 @@ export default function OnboardingItem({ item, index }: OnboardingItemProps) {
                     )}
                 </Animated.View>
 
-                <Animated.Text
+                <Animated.View
                     entering={FadeInDown.delay(index * 200 + 300).springify()}
-                    style={[styles.title, { color: theme.textPrimary }]}
                 >
-                    {item.title}
-                </Animated.Text>
+                    <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h1" center>
+                        {item.title}
+                    </TextComponent>
+                </Animated.View>
 
-                <Animated.Text
+                <Animated.View
                     entering={FadeInDown.delay(index * 200 + 500).springify()}
-                    style={[styles.description, { color: theme.textSecondary }]}
                 >
-                    {item.description}
-                </Animated.Text>
+                    <TextComponent style={styles.description} color={theme.textSecondary} variant="body" center>
+                        {item.description}
+                    </TextComponent>
+                </Animated.View>
             </View>
         </View>
     );

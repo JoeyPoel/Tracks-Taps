@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { TextComponent } from '../common/TextComponent'; // Added import
 import ChallengeItem from './ChallengeItem';
 
 interface TourChallengesSectionProps {
@@ -31,17 +32,17 @@ const TourChallengesSection: React.FC<TourChallengesSectionProps> = ({
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.textPrimary }]}>{t('tourWideChallenges')}</Text>
-                <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+                <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">{t('tourWideChallenges')}</TextComponent>
+                <TextComponent style={styles.subtitle} color={theme.textSecondary} variant="body">
                     {t('tourWideChallengesSubtitle')}
-                </Text>
+                </TextComponent>
             </View>
 
             {challenges.length === 0 ? (
                 <View style={[styles.noChallengesContainer, { backgroundColor: theme.bgTertiary }]}>
-                    <Text style={[styles.noChallengesText, { color: theme.textSecondary }]}>
+                    <TextComponent style={styles.noChallengesText} color={theme.textSecondary} variant="body">
                         {t('noTourWideChallenges')}
-                    </Text>
+                    </TextComponent>
                 </View>
             ) : (
                 challenges.map((challenge: any) => {
@@ -76,14 +77,10 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     title: {
-        fontSize: 28,
-        fontWeight: '800',
         letterSpacing: -0.5,
-        lineHeight: 34,
         marginBottom: 8,
     },
     subtitle: {
-        fontSize: 16,
         lineHeight: 24,
         opacity: 0.8,
     },
@@ -97,7 +94,6 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(0,0,0,0.05)',
     },
     noChallengesText: {
-        fontSize: 16,
         fontStyle: 'italic',
         textAlign: 'center',
         opacity: 0.6,

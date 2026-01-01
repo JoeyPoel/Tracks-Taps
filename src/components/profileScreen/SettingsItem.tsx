@@ -1,6 +1,7 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useTheme } from '@/src/context/ThemeContext';
 import React, { ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { ChevronRightIcon } from 'react-native-heroicons/outline';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 
@@ -25,8 +26,8 @@ export default function SettingsItem({ icon, title, subtitle, onPress }: Setting
         {icon}
       </View>
       <View style={styles.textWrapper}>
-        <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
-        {subtitle && <Text style={[styles.subtitle, { color: theme.textSecondary }]}>{subtitle}</Text>}
+        <TextComponent style={styles.title} color={theme.textPrimary} bold variant="body">{title}</TextComponent>
+        {subtitle && <TextComponent style={styles.subtitle} color={theme.textSecondary} variant="caption">{subtitle}</TextComponent>}
       </View>
       <ChevronRightIcon size={20} color={theme.iconMuted} />
     </AnimatedPressable>

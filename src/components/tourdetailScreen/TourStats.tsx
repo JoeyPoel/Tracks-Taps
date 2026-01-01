@@ -1,5 +1,6 @@
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -16,8 +17,8 @@ export default function TourStats({ distance, duration, stops, points }: TourSta
 
     const StatItem = ({ label, value }: { label: string; value: string | number }) => (
         <View style={[styles.statItem, { backgroundColor: theme.bgSecondary }]}>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>{label}</Text>
-            <Text style={[styles.value, { color: theme.textPrimary }]}>{value}</Text>
+            <TextComponent style={styles.label} color={theme.textSecondary} variant="caption" center>{label}</TextComponent>
+            <TextComponent style={styles.value} color={theme.textPrimary} bold variant="body" center>{value}</TextComponent>
         </View>
     );
 

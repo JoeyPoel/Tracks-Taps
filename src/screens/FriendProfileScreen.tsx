@@ -1,5 +1,6 @@
 import { AnimatedPressable } from '@/src/components/common/AnimatedPressable';
 import { ScreenWrapper } from '@/src/components/common/ScreenWrapper';
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import UserProfileCard from '@/src/components/profileScreen/UserProfileCard';
 import ProfileSkeleton from '@/src/components/skeletons/ProfileSkeleton';
 import { useLanguage } from '@/src/context/LanguageContext';
@@ -10,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ImageBackground, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ProfileStats from '../components/profileScreen/ProfileStats';
 import RecentAchievements from '../components/profileScreen/RecentAchievements';
@@ -58,7 +59,7 @@ export default function FriendProfileScreen() {
     if (!user) {
         return (
             <ScreenWrapper style={{ backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ color: theme.textSecondary }}>{t('userNotFound')}</Text>
+                <TextComponent color={theme.textSecondary} variant="body">{t('userNotFound')}</TextComponent>
             </ScreenWrapper>
         );
     }

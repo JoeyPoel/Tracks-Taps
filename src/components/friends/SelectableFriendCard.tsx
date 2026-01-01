@@ -1,9 +1,10 @@
 import { GenericCard } from '@/src/components/common/GenericCard';
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
 interface SelectableFriendCardProps {
     friend: any;
@@ -32,8 +33,12 @@ export function SelectableFriendCard({ friend, isSelected, onToggle }: Selectabl
             <View style={styles.innerContainer}>
                 <Image source={friend.avatarUrl ? { uri: friend.avatarUrl } : require('../../../assets/images/Mascott.png')} style={styles.avatar} />
                 <View style={{ flex: 1 }}>
-                    <Text style={[styles.name, { color: theme.textPrimary }]}>{friend.name}</Text>
-                    <Text style={[styles.subText, { color: theme.textSecondary }]}>{t('levelShort')} {friend.level}</Text>
+                    <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">
+                        {friend.name}
+                    </TextComponent>
+                    <TextComponent style={styles.subText} color={theme.textSecondary} variant="caption">
+                        {t('levelShort')} {friend.level}
+                    </TextComponent>
                 </View>
                 <View style={[
                     styles.checkbox,

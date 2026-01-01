@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Image, LayoutAnimation, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, UIManager, View } from 'react-native';
+import { Image, LayoutAnimation, Platform, ScrollView, StyleSheet, TouchableOpacity, UIManager, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { TextComponent } from '../common/TextComponent'; // Added import
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -83,13 +84,9 @@ export default function TourReviews({ reviews, averageRating, totalReviews }: To
                 }
             ]}
         >
-            <Text style={{
-                fontSize: 12,
-                fontWeight: '600',
-                color: active ? '#FFF' : theme.textSecondary
-            }}>
+            <TextComponent style={{ fontSize: 12, fontWeight: '600' }} color={active ? '#FFF' : theme.textSecondary} variant="label">
                 {label}
-            </Text>
+            </TextComponent>
         </TouchableOpacity>
     );
 
@@ -114,17 +111,17 @@ export default function TourReviews({ reviews, averageRating, totalReviews }: To
                 style={[styles.headerCard, { backgroundColor: theme.bgSecondary }]}
             >
                 <View>
-                    <Text style={[styles.title, { color: theme.textPrimary }]}>{t('reviews') || "Reviews"}</Text>
+                    <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h3">{t('reviews') || "Reviews"}</TextComponent>
                     <View style={styles.ratingRow}>
-                        <Text style={[styles.averageRating, { color: theme.textPrimary }]}>
+                        <TextComponent style={styles.averageRating} color={theme.textPrimary} bold variant="h1">
                             {averageRating ? averageRating.toFixed(1) : t('new')}
-                        </Text>
+                        </TextComponent>
                         <View style={styles.starsRow}>
                             {renderStars(Math.round(averageRating || 0), 16)}
                         </View>
-                        <Text style={[styles.reviewCount, { color: theme.textSecondary }]}>
+                        <TextComponent style={styles.reviewCount} color={theme.textSecondary} variant="label">
                             • {totalReviews}
-                        </Text>
+                        </TextComponent>
                     </View>
                 </View>
                 <Ionicons
@@ -141,7 +138,7 @@ export default function TourReviews({ reviews, averageRating, totalReviews }: To
                     {/* Sorting Controls */}
                     {reviews.length > 0 && (
                         <View style={styles.sortContainer}>
-                            <Text style={[styles.sortLabel, { color: theme.textSecondary }]}>{t('sortBy')}:</Text>
+                            <TextComponent style={styles.sortLabel} color={theme.textSecondary} variant="label">{t('sortBy')}:</TextComponent>
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
                                 <SortChip label={t('newest')} value="newest" active={sortBy === 'newest'} />
                                 <SortChip label={t('highestRating')} value="highest" active={sortBy === 'highest'} />
@@ -158,42 +155,42 @@ export default function TourReviews({ reviews, averageRating, totalReviews }: To
                             <View style={styles.reviewHeader}>
                                 <Image source={{ uri: review.userAvatar }} style={styles.avatar} />
                                 <View style={styles.userInfo}>
-                                    <Text style={[styles.userName, { color: theme.textPrimary }]}>
+                                    <TextComponent style={styles.userName} color={theme.textPrimary} bold variant="body">
                                         {review.userName}
-                                    </Text>
+                                    </TextComponent>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                                         <View style={styles.stars}>{renderStars(review.rating)}</View>
-                                        <Text style={[styles.date, { color: theme.textSecondary }]}>
+                                        <TextComponent style={styles.date} color={theme.textSecondary} variant="caption">
                                             {review.date}
-                                        </Text>
+                                        </TextComponent>
                                     </View>
                                 </View>
                             </View>
 
-                            <Text style={[styles.comment, { color: theme.textPrimary }]}>
+                            <TextComponent style={styles.comment} color={theme.textPrimary} variant="body">
                                 {review.comment}
-                            </Text>
+                            </TextComponent>
                         </View>
                     ))}
 
                     {/* Pagination Controls */}
                     {sortedReviews.length > visibleCount && (
                         <TouchableOpacity onPress={handleShowMore} style={styles.showMoreButton}>
-                            <Text style={[styles.showMoreText, { color: theme.primary }]}>{t('showMore')}</Text>
+                            <TextComponent style={styles.showMoreText} color={theme.primary} bold variant="label">{t('showMore')}</TextComponent>
                             <Ionicons name="chevron-down" size={16} color={theme.primary} />
                         </TouchableOpacity>
                     )}
 
                     {visibleCount > 5 && sortedReviews.length > 5 && (
                         <TouchableOpacity onPress={handleShowLess} style={[styles.showMoreButton, { marginTop: 4 }]}>
-                            <Text style={[styles.showMoreText, { color: theme.textSecondary, fontSize: 13 }]}>{t('showLess')}</Text>
+                            <TextComponent style={styles.showMoreText} color={theme.textSecondary} size={13} variant="label">{t('showLess')}</TextComponent>
                         </TouchableOpacity>
                     )}
 
                     {reviews.length === 0 && (
-                        <Text style={{ textAlign: 'center', color: theme.textSecondary, marginTop: 12 }}>
+                        <TextComponent style={{ textAlign: 'center', marginTop: 12 }} color={theme.textSecondary} variant="body">
                             {t('noReviewsYet')}
-                        </Text>
+                        </TextComponent>
                     )}
                 </View>
             )}
@@ -220,8 +217,6 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     title: {
-        fontSize: 16,
-        fontWeight: '600',
         marginBottom: 4,
     },
     ratingRow: {
@@ -229,8 +224,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     averageRating: {
-        fontSize: 24,
-        fontWeight: 'bold',
         marginRight: 8,
     },
     starsRow: {
@@ -239,7 +232,7 @@ const styles = StyleSheet.create({
         gap: 2,
     },
     reviewCount: {
-        fontSize: 14,
+        // handled
     },
     listContainer: {
         marginTop: 16,
@@ -264,21 +257,17 @@ const styles = StyleSheet.create({
         marginLeft: 12,
     },
     userName: {
-        fontSize: 15,
-        fontWeight: '700',
         marginBottom: 2,
     },
     date: {
-        fontSize: 12,
+        // handled
     },
     stars: {
         flexDirection: 'row',
         gap: 1,
     },
     comment: {
-        fontSize: 14,
-        lineHeight: 22,
-        opacity: 0.9,
+        // handled
     },
     sortContainer: {
         flexDirection: 'row',
@@ -287,9 +276,7 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     sortLabel: {
-        fontSize: 12,
         marginRight: 8,
-        fontWeight: '600',
     },
     sortChip: {
         paddingHorizontal: 12,
@@ -304,7 +291,6 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     showMoreText: {
-        fontWeight: '600',
-        fontSize: 14,
+        // handled
     }
 });
