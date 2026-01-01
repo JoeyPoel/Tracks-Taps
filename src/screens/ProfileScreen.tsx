@@ -74,8 +74,8 @@ export default function ProfileScreen() {
           </View>
 
           <ProfileStats
-            toursDone={user?.playedTours?.length || 0}
-            toursCreated={user?.createdTours?.length || 0}
+            toursDone={user?.stats?.toursDone || 0}
+            toursCreated={user?.stats?.toursCreated || 0}
             friends={friends.length}
             onPressToursDone={() => router.push({ pathname: '/profile/tours-done', params: { type: 'done', title: t('toursDone') } })}
             onPressToursCreated={() => router.push({ pathname: '/profile/tours-created', params: { type: 'created', title: t('toursCreated') } })}

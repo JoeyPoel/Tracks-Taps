@@ -106,6 +106,10 @@ export interface User {
             status: string;
         };
     }[];
+    stats?: {
+        toursDone: number;
+        toursCreated: number;
+    };
     createdTours?: {
         id: number;
         title: string;

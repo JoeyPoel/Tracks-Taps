@@ -5,7 +5,15 @@ export const userService = {
     async getUserProfile(userId: number) {
         const user = await userRepository.getUserProfile(userId);
         if (user) {
-            return { ...user, level: LevelSystem.getLevel(user.xp) };
+            const { _count, ...rest } = user as any;
+            return {
+                ...rest,
+                level: LevelSystem.getLevel(user.xp),
+                stats: {
+                    toursDone: _count?.playedTours || 0,
+                    toursCreated: _count?.createdTours || 0
+                }
+            };
         }
         return user;
     },
@@ -13,7 +21,15 @@ export const userService = {
     async getUserByEmail(email: string) {
         const user = await userRepository.getUserByEmail(email);
         if (user) {
-            return { ...user, level: LevelSystem.getLevel(user.xp) };
+            const { _count, ...rest } = user as any;
+            return {
+                ...rest,
+                level: LevelSystem.getLevel(user.xp),
+                stats: {
+                    toursDone: _count?.playedTours || 0,
+                    toursCreated: _count?.createdTours || 0
+                }
+            };
         }
         return user;
     },

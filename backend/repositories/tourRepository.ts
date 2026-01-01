@@ -82,7 +82,9 @@ export const tourRepository = {
                 _count: {
                     select: { stops: true },
                 },
-                reviews: true, // Needed for rating calc
+                reviews: {
+                    select: { rating: true }
+                }, // Needed for rating calc
             },
         });
     },

@@ -18,6 +18,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useSavedTrips } from '../hooks/useSavedTrips';
 import { useStartTour } from '../hooks/useStartTour';
 import { useTourDetails } from '../hooks/useTourDetails';
+import { getOptimizedImageUrl } from '../utils/imageUtils';
 
 export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
@@ -48,7 +49,8 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
     if (!formattedReviews) return [];
     return formattedReviews.reduce((acc: string[], review: any) => {
       if (review.images && review.images.length > 0) {
-        return [...acc, ...review.images];
+        // Optimize gallery images
+        return [...acc, ...review.images.map((img: string) => getOptimizedImageUrl(img, 600))];
       }
       return acc;
     }, []);
@@ -89,7 +91,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
         {/* Hero Section */}
         <View style={styles.heroContainer}>
           <Image
-            source={{ uri: tour.imageUrl }}
+            source={{ uri: getOptimizedImageUrl(tour.imageUrl, 800) }}
             style={styles.heroImage}
             contentFit="cover"
             transition={500}

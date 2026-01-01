@@ -1,3 +1,4 @@
+import * as Location from 'expo-location';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import MapView from 'react-native-maps';
@@ -116,13 +117,29 @@ export const useMapScreenLogic = () => {
         if (regionRef.current) {
             lastRegion.current = regionRef.current;
         }
-        setSelectedTour(tour);
-        setTabBarVisible(false); // Hide tab bar
 
-        // Fetch route segments if stops exist
-        if (tour.stops && tour.stops.length > 1) {
+        // 1. Optimistic update with available data (shows card immediately)
+        setSelectedTour(tour);
+        setTabBarVisible(false);
+
+        // 2. Check if we need to fetch full details (stops/route)
+        let detailedTour = tour;
+        if (!tour.stops || tour.stops.length <= 1) {
+            try {
+                const fetched = await tourService.getTourById(tour.id);
+                if (fetched) {
+                    detailedTour = fetched as Tour;
+                    setSelectedTour(detailedTour); // Update UI with full details
+                }
+            } catch (error) {
+                console.error('Failed to fetch tour details for map:', error);
+            }
+        }
+
+        // 3. Fetch route segments if stops exist (using detailedTour)
+        if (detailedTour.stops && detailedTour.stops.length > 1) {
             // Sort stops first to be safe
-            const sortedStops = [...tour.stops].sort((a: any, b: any) => a.number - b.number);
+            const sortedStops = [...detailedTour.stops].sort((a: any, b: any) => a.number - b.number);
 
             // Initial direct segments for immediate feedback
             const initialSegments = [];

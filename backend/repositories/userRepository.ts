@@ -21,22 +21,10 @@ export const userRepository = {
                         }
                     }
                 },
-                createdTours: {
-                    include: {
-                        author: { select: { name: true, avatarUrl: true } },
-                        reviews: { select: { rating: true } },
-                        stops: { select: { id: true } }
-                    }
-                },
-                playedTours: {
-                    include: {
-                        tour: {
-                            include: {
-                                author: { select: { name: true, avatarUrl: true } },
-                                reviews: { select: { rating: true } },
-                                stops: { select: { id: true } }
-                            }
-                        }
+                _count: {
+                    select: {
+                        createdTours: true,
+                        playedTours: true
                     }
                 }
             },
@@ -63,22 +51,10 @@ export const userRepository = {
                         }
                     }
                 },
-                createdTours: {
-                    include: {
-                        author: { select: { name: true, avatarUrl: true } },
-                        reviews: { select: { rating: true } },
-                        stops: { select: { id: true } }
-                    }
-                },
-                playedTours: {
-                    include: {
-                        tour: {
-                            include: {
-                                author: { select: { name: true, avatarUrl: true } },
-                                reviews: { select: { rating: true } },
-                                stops: { select: { id: true } }
-                            }
-                        }
+                _count: {
+                    select: {
+                        createdTours: true,
+                        playedTours: true
                     }
                 }
             },
