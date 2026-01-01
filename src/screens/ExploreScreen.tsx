@@ -1,8 +1,8 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { Platform, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { RefreshControl, ScrollView, SectionList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { AdjustmentsHorizontalIcon, ListBulletIcon, MagnifyingGlassIcon, Squares2X2Icon } from 'react-native-heroicons/outline';
-import Animated, { FadeInDown, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import ActiveTourCard from '../components/exploreScreen/ActiveTourCard';
@@ -23,7 +23,6 @@ export default function ExploreScreen() {
   const tours = useStore((state) => state.tours);
   const activeTours = useStore((state) => state.activeTours);
   const loading = useStore((state) => state.loadingTours || state.loadingActiveTours);
-  const error = useStore((state) => state.errorTours || state.errorActiveTours);
   const fetchAllData = useStore((state) => state.fetchAllData);
   const fetchTours = useStore((state) => state.fetchTours);
   const fetchActiveTours = useStore((state) => state.fetchActiveTours);
@@ -37,25 +36,8 @@ export default function ExploreScreen() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [headerHeight, setHeaderHeight] = useState(300); // Default guess or estimate
-  const scrollY = useSharedValue(0);
 
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event: any) => {
-      scrollY.value = event.contentOffset.y;
-    },
-  });
-
-  const headerAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        {
-          translateY: scrollY.value < 0 ? 0 : -scrollY.value,
-        },
-      ],
-    };
-  });
-
+  // Active tour logic
   const activeTour = activeTours.length > 0 ? activeTours[0] : null;
 
   const CATEGORIES = [
@@ -68,12 +50,10 @@ export default function ExploreScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      // Sync local text if filters change externally (e.g. clear filters)
       const currentFilterQuery = tourFilters.searchQuery || '';
       if (currentFilterQuery !== searchText) {
         setSearchText(currentFilterQuery);
       }
-
       if (user?.id) {
         fetchAllData(user.id);
       }
@@ -84,11 +64,7 @@ export default function ExploreScreen() {
     if (user?.id) {
       setIsRefreshing(true);
       try {
-        // Force fetch everything
-        await Promise.all([
-          fetchTours(),
-          fetchActiveTours(user.id)
-        ]);
+        await Promise.all([fetchTours(), fetchActiveTours(user.id)]);
       } finally {
         setIsRefreshing(false);
       }
@@ -102,63 +78,55 @@ export default function ExploreScreen() {
     setSearchText(newCategory ? categoryId : '');
   };
 
+  const renderHeader = () => (
+    <View style={{ paddingHorizontal: 20, paddingBottom: 8, paddingTop: 10 }}>
+      <ScreenHeader
+        title={t('explore') || 'Explore'}
+        subtitle={t('findYourNextAdventure')}
+        style={[styles.headerTop, { paddingHorizontal: 0, paddingTop: 0 }]}
+      />
 
-  const renderHeaderContent = () => (
-    <View
-      onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
-      style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}
-      pointerEvents="box-none"
-    >
-      {/* Background Layer - Allows touches to pass through */}
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: theme.bgPrimary }]} pointerEvents="none" />
+      {/* Search Bar */}
+      <Animated.View
+        entering={FadeInDown.delay(100).duration(600).springify()}
+        style={[
+          styles.searchContainer,
+          { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor },
+        ]}
+      >
+        <MagnifyingGlassIcon size={20} color={theme.textSecondary} style={{ marginRight: 12 }} />
+        <TextInput
+          style={[styles.searchInput, { color: theme.textPrimary }]}
+          placeholder={t('whereToNext')}
+          placeholderTextColor={theme.textSecondary + '80'}
+          value={searchText}
+          onChangeText={setSearchText}
+          returnKeyType="search"
+          onSubmitEditing={() => {
+            const query = (searchText || '').trim();
+            if (query !== (tourFilters.searchQuery || '')) {
+              setTourFilters({ ...tourFilters, searchQuery: query, page: 1, limit: 20 });
+            }
+          }}
+        />
+        <TouchableOpacity
+          style={[styles.iconButton, { backgroundColor: theme.bgPrimary }]}
+          onPress={() => setViewMode((prev) => (prev === 'list' ? 'grid' : 'list'))}
+        >
+          {viewMode === 'list' ? (
+            <Squares2X2Icon size={20} color={theme.textPrimary} />
+          ) : (
+            <ListBulletIcon size={20} color={theme.textPrimary} />
+          )}
+        </TouchableOpacity>
 
-      <View style={{ paddingHorizontal: 20, paddingBottom: 8 }} pointerEvents="box-none">
-        {/* Header Title - Static, let touches pass */}
-        <View pointerEvents="none">
-          <ScreenHeader
-            title={t('explore') || 'Explore'}
-            subtitle={t('findYourNextAdventure')}
-            style={[styles.headerTop, { paddingHorizontal: 0 }]}
-          />
-        </View>
-
-        {/* Search Bar - Interactive */}
-        <Animated.View entering={FadeInDown.delay(100).duration(600).springify()} style={[styles.searchContainer, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
-          <MagnifyingGlassIcon size={20} color={theme.textSecondary} style={{ marginRight: 12 }} />
-          <TextInput
-            style={[styles.searchInput, { color: theme.textPrimary }]}
-            placeholder={t('whereToNext')}
-            placeholderTextColor={theme.textSecondary + '80'}
-            value={searchText}
-            onChangeText={setSearchText}
-            returnKeyType="search"
-            onSubmitEditing={() => {
-              const query = (searchText || '').trim();
-              if (query !== (tourFilters.searchQuery || '')) {
-                setTourFilters({ ...tourFilters, searchQuery: query, page: 1, limit: 20 });
-              }
-            }}
-          />
-          {/* View Toggle */}
-          <TouchableOpacity
-            style={[styles.iconButton, { backgroundColor: theme.bgPrimary }]}
-            onPress={() => setViewMode(prev => prev === 'list' ? 'grid' : 'list')}
-          >
-            {viewMode === 'list' ? (
-              <Squares2X2Icon size={20} color={theme.textPrimary} />
-            ) : (
-              <ListBulletIcon size={20} color={theme.textPrimary} />
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.iconButton, { backgroundColor: theme.bgPrimary, marginLeft: 8 }]}
-            onPress={() => setFilterVisible(true)}
-          >
-            <AdjustmentsHorizontalIcon size={20} color={theme.textPrimary} />
-          </TouchableOpacity>
-        </Animated.View>
-      </View>
+        <TouchableOpacity
+          style={[styles.iconButton, { backgroundColor: theme.bgPrimary, marginLeft: 8 }]}
+          onPress={() => setFilterVisible(true)}
+        >
+          <AdjustmentsHorizontalIcon size={20} color={theme.textPrimary} />
+        </TouchableOpacity>
+      </Animated.View>
 
       {/* Categories */}
       <Animated.View entering={FadeInDown.delay(200).duration(600).springify()}>
@@ -177,136 +145,135 @@ export default function ExploreScreen() {
                   styles.categoryChip,
                   {
                     backgroundColor: isSelected ? theme.primary : theme.bgSecondary,
-                    borderColor: isSelected ? theme.primary : theme.borderPrimary
-                  }
+                    borderColor: isSelected ? theme.primary : theme.borderPrimary,
+                  },
                 ]}
               >
                 <Text style={styles.categoryIcon}>{cat.icon}</Text>
-                <Text style={[
-                  styles.categoryText,
-                  { color: isSelected ? '#FFF' : theme.textPrimary }
-                ]}>
+                <Text
+                  style={[
+                    styles.categoryText,
+                    { color: isSelected ? '#FFF' : theme.textPrimary },
+                  ]}
+                >
                   {cat.label}
                 </Text>
               </TouchableOpacity>
             );
           })}
         </ScrollView>
+
       </Animated.View>
 
-      <View style={{ paddingHorizontal: 20 }}>
-        {/* Active Tour (if any) */}
-        {activeTour && (() => {
-          const currentTeam = activeTour.teams?.find((t: any) => t.userId === user?.id) || activeTour.teams?.[0];
-          const totalStops = activeTour.tour?._count?.stops || activeTour.tour?.stops?.length || 1;
-          const currentStop = currentTeam?.currentStop || 1;
-          const progress = Math.min(Math.max((currentStop - 1) / totalStops, 0), 1);
+      {/* Active Tour */}
+      {activeTour && (() => {
+        const currentTeam = activeTour.teams?.find((t: any) => t.userId === user?.id) || activeTour.teams?.[0];
+        const totalStops = activeTour.tour?._count?.stops || activeTour.tour?.stops?.length || 1;
+        const currentStop = currentTeam?.currentStop || 1;
+        const progress = Math.min(Math.max((currentStop - 1) / totalStops, 0), 1);
 
-          return (
-            <View style={styles.activeTourSection} pointerEvents="box-none">
-              <View pointerEvents="none">
-                <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>{t('currentAdventure') || 'Current Adventure'}</Text>
-              </View>
-              <ActiveTourCard
-                title={activeTour.tour?.title || ''}
-                imageUrl={activeTour.tour?.imageUrl || ''}
-                progress={progress}
-                onResume={() => router.push({ pathname: '/active-tour/[id]' as any, params: { id: activeTour.id } })}
-              />
-            </View>
-          );
-        })()}
-
-        <View style={styles.popularToursHeader} pointerEvents="none">
-          <Text style={[styles.sectionTitle, { color: theme.textPrimary, marginBottom: 4 }]}>{t('popularTours') || 'Popular Tours'}</Text>
-          <Text style={[styles.popularToursSubtitle, { color: theme.textSecondary }]}>{t('curatedAdventures')}</Text>
-        </View>
-      </View>
+        return (
+          <View style={styles.activeTourSection}>
+            <Text style={[styles.sectionTitle, { color: theme.textPrimary, marginBottom: 12 }]}>
+              {t('currentAdventure') || 'Current Adventure'}
+            </Text>
+            <ActiveTourCard
+              title={activeTour.tour?.title || ''}
+              imageUrl={activeTour.tour?.imageUrl || ''}
+              progress={progress}
+              onResume={() =>
+                router.push({ pathname: '/active-tour/[id]' as any, params: { id: activeTour.id } })
+              }
+            />
+          </View>
+        );
+      })()}
     </View>
   );
 
-  const renderContent = () => {
-    const isGrid = viewMode === 'grid';
-    const numColumns = isGrid ? 2 : 1;
+  // Data Preparation
+  const showSkeleton = loading && tours.length === 0;
+  const skeletonData = [1, 2, 3, 4];
+  const tourData = showSkeleton ? skeletonData : tours;
 
-    // Loading Skeletons Logic
-    // Only show skeleton if we have NO data. If we have data, we show it (memory) + RefreshControl spinner.
-    const showSkeleton = loading && tours.length === 0;
-    const dataToRender = showSkeleton ? [1, 2, 3, 4, 5, 6] : tours;
+  // Grid Logic helper
+  const isGrid = viewMode === 'grid';
+  // If grid, we need to chunk data pairs? SectionList grid support is tricky.
+  // We will just render items normally and use flex wrap style if needed?
+  // Or since we use a custom list, we'll keep it simple: List for now.
+  // Actually, standard SectionList doesn't support numColumns easily. 
+  // It's better to format the data into rows if grid is active, OR use `key` prop to force re-render with numColumns (but SectionList doesn't usually support `numColumns` as nicely across sections on all versions).
+  // React Native SectionList DOES NOT support `numColumns`.
+  // Workaround: Pre-format data into pairs if grid.
 
-    return (
-      <Animated.FlatList
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        key={viewMode}
-        data={dataToRender as any}
-        keyExtractor={(item) => (typeof item === 'number' ? `skeleton-${item}` : item.id.toString())}
-        numColumns={numColumns}
-        columnWrapperStyle={isGrid ? { justifyContent: 'space-between', marginBottom: 16, paddingHorizontal: 20 } : undefined}
+  const formatData = (data: any[]) => {
+    if (!isGrid) return data;
+    const rows = [];
+    for (let i = 0; i < data.length; i += 2) {
+      rows.push({
+        id: data[i].id || `row-${i}`,
+        left: data[i],
+        right: data[i + 1] || null,
+        isRow: true
+      });
+    }
+    return rows;
+  };
+
+  const formattedTours = formatData(tourData as any[]);
+
+  const sections = [
+    {
+      title: t('popularTours') || 'Popular Tours',
+      data: formattedTours,
+    },
+  ];
+
+  return (
+    <ScreenWrapper
+      style={{ backgroundColor: theme.bgPrimary }}
+      includeTop={true} // Changed to true
+      includeBottom={false}
+    >
+      <SectionList
+        sections={sections}
+        stickySectionHeadersEnabled={true}
+        keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
+        ListHeaderComponent={renderHeader}
+        renderSectionHeader={({ section: { title } }) => (
+          <View style={[styles.popularToursHeader, { backgroundColor: theme.bgPrimary }]}>
+            <Text style={[styles.sectionTitle, { color: theme.textPrimary, marginBottom: 4 }]}>
+              {title}
+            </Text>
+            <Text style={[styles.popularToursSubtitle, { color: theme.textSecondary }]}>{t('curatedAdventures')}</Text>
+          </View>
+        )}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={onRefresh}
             tintColor={theme.primary}
             colors={[theme.primary]}
-            progressViewOffset={headerHeight}
           />
         }
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
         renderItem={({ item }) => {
-          if (showSkeleton) {
+          if (isGrid && item.isRow) {
+            // Render Row
             return (
-              <View style={[
-                !isGrid && { marginBottom: 12 },
-                isGrid && { width: '48%' },
-                !isGrid && { paddingHorizontal: 20 }
-              ]}>
-                <TourSkeleton variant={isGrid ? 'grid' : 'hero'} />
+              <View style={styles.gridRow}>
+                <View style={{ flex: 1, paddingRight: 6 }}>
+                  {renderTourItem(item.left, true)}
+                </View>
+                <View style={{ flex: 1, paddingLeft: 6 }}>
+                  {item.right ? renderTourItem(item.right, true) : <View style={{ flex: 1 }} />}
+                </View>
               </View>
             );
           }
-
-          const tourItem = item as unknown as Tour;
-          return (
-            <View style={[
-              !isGrid && { marginBottom: 12 },
-              isGrid && { width: '48%' },
-              !isGrid && { paddingHorizontal: 20 }
-            ]}>
-              <Animated.View entering={FadeInDown.duration(400)}>
-                <TourCard
-                  title={tourItem.title}
-                  author={tourItem.author?.name || t('unknown')}
-                  imageUrl={tourItem.imageUrl}
-                  distance={`${tourItem.distance} km`}
-                  duration={`${tourItem.duration} min`}
-                  stops={tourItem._count?.stops || 0}
-                  rating={tourItem.reviews && tourItem.reviews.length > 0
-                    ? tourItem.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / tourItem.reviews.length
-                    : 0}
-                  reviewCount={tourItem.reviews?.length || 0}
-                  points={tourItem.points}
-                  modes={tourItem.modes}
-                  tourType={tourItem.type}
-                  genre={(tourItem as any).genre}
-                  variant={isGrid ? 'grid' : 'hero'}
-                  onPress={async () => {
-                    fetchTourDetails(tourItem.id, tourItem);
-                    router.push({ pathname: '/tour/[id]', params: { id: tourItem.id } });
-                  }}
-                />
-              </Animated.View>
-            </View>
-          );
+          return renderTourItem(item, false);
         }}
-        // iOS: use contentInset to push content down and allow RefreshControl to appear in the gap
-        contentInset={Platform.OS === 'ios' ? { top: headerHeight } : undefined}
-        contentOffset={Platform.OS === 'ios' ? { x: 0, y: -headerHeight } : undefined}
-        // Android: use padding (contentInset not fully supported/same behavior)
-        contentContainerStyle={Platform.OS === 'ios'
-          ? styles.scrollContent
-          : { ...styles.scrollContent, paddingTop: headerHeight }
-        }
-        showsVerticalScrollIndicator={false}
         onEndReached={() => {
           if (!loading && tours.length >= (tourFilters.limit || 20) && !showSkeleton) {
             setTourFilters({ ...tourFilters, page: (tourFilters.page || 1) + 1 });
@@ -314,15 +281,6 @@ export default function ExploreScreen() {
         }}
         onEndReachedThreshold={0.5}
       />
-    );
-  };
-
-  return (
-    <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} includeBottom={false}>
-      <Animated.View style={[headerAnimatedStyle, { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }]} pointerEvents="box-none">
-        {renderHeaderContent()}
-      </Animated.View>
-      {renderContent()}
 
       <ExploreFilterSidebar
         visible={filterVisible}
@@ -330,15 +288,51 @@ export default function ExploreScreen() {
       />
     </ScreenWrapper>
   );
+
+  function renderTourItem(item: any, gridMode: boolean) {
+    if (showSkeleton || typeof item === 'number') {
+      return (
+        <View style={gridMode ? {} : styles.listItemContainer}>
+          <TourSkeleton variant={gridMode ? 'grid' : 'hero'} />
+        </View>
+      );
+    }
+    const tourItem = item as Tour;
+
+    return (
+      <View style={gridMode ? {} : styles.listItemContainer}>
+        <Animated.View entering={FadeInDown.duration(400)}>
+          <TourCard
+            title={tourItem.title}
+            author={tourItem.author?.name || t('unknown')}
+            imageUrl={tourItem.imageUrl}
+            distance={`${tourItem.distance} km`}
+            duration={`${tourItem.duration} min`}
+            stops={tourItem._count?.stops || 0}
+            rating={
+              tourItem.reviews && tourItem.reviews.length > 0
+                ? tourItem.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) /
+                tourItem.reviews.length
+                : 0
+            }
+            reviewCount={tourItem.reviews?.length || 0}
+            points={tourItem.points}
+            modes={tourItem.modes}
+            tourType={tourItem.type}
+            genre={(tourItem as any).genre}
+            variant={gridMode ? 'grid' : 'hero'}
+            onPress={async () => {
+              fetchTourDetails(tourItem.id, tourItem);
+              router.push({ pathname: '/tour/[id]', params: { id: tourItem.id } });
+            }}
+          />
+        </Animated.View>
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
   headerTop: {
     marginTop: 16,
     marginBottom: 8,
@@ -347,12 +341,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 14, // Slightly taller
+    paddingVertical: 14,
     borderRadius: 24,
     marginBottom: 24,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08, // Subtle shadow
+    shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 4,
   },
@@ -370,15 +364,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  filterButton: {
-    padding: 8,
-    borderRadius: 50,
-    marginLeft: 8,
-  },
   categoryContainer: {
-    gap: 12,
-    paddingHorizontal: 20,
-    paddingBottom: 8, // Avoid clipping shadows
+    // Just styling for the horz scroll
+    paddingLeft: 20, // Only padding left to start
+    paddingRight: 8, // Padding right less because gaps hande it
   },
   categoryChip: {
     flexDirection: 'row',
@@ -387,6 +376,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 100,
     borderWidth: 1.5,
+    marginRight: 12, // Add gap between items
   },
   categoryIcon: {
     marginRight: 8,
@@ -399,27 +389,38 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: '800',
-    marginBottom: 16,
     letterSpacing: -0.3,
   },
   activeTourSection: {
-    marginTop: 32,
-    marginBottom: 8,
+    marginTop: 16,
+    marginBottom: 8, // Reduced from 24 to 8 to decrease space between Active Tour and Popular Tours
   },
   popularToursHeader: {
-    marginTop: 32,
-    marginBottom: 16,
+    paddingHorizontal: 20,
+    paddingTop: 8, // Reduced from 16 to 8
+    paddingBottom: 16,
+    borderBottomWidth: 0,
   },
   popularToursSubtitle: {
     fontSize: 14,
     fontWeight: '500',
-    marginTop: 0,
-    marginBottom: 4,
+    marginTop: 4,
     opacity: 0.7,
   },
   scrollContent: {
-    paddingBottom: 110,
+    paddingBottom: 120, // Ensure bottom tab doesn't cover content
+  },
+  listItemContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 12,
+  },
+  gridRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    marginBottom: 12,
   }
 });
+
 
 

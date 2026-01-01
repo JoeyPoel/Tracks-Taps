@@ -11,11 +11,7 @@
         "preview": {
             "distribution": "internal"
         },
-        "production": {
-            "env": {
-                "DIRECT_URL": "postgresql://postgres.xnfqoclbqadloaimjujr:K4nk3rSupabase@aws-1-eu-west-1.pooler.supabase.com:5432/postgres"
-            }
-        }
+        "production": {}
     },
     "submit": {
         "production": {}

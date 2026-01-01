@@ -12,6 +12,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useSavedTrips } from '../hooks/useSavedTrips';
 import { SavedTrip } from '../services/savedTripsService';
+import SavedTripSkeleton from '../components/profileScreen/SavedTripSkeleton';
 
 const { width } = Dimensions.get('window');
 
@@ -94,12 +95,25 @@ export default function SavedTripsScreen() {
             />
 
             <FlatList
-                data={lists}
-                renderItem={renderItem}
-                keyExtractor={item => item.id.toString()}
+                data={!loading || lists.length > 0 ? lists : ([1, 2, 3] as any)}
+                renderItem={({ item, index }) => {
+                    if (typeof item === 'number') {
+                        return (
+                            <Animated.View entering={FadeInDown.delay(index * 100).duration(400)}>
+                                <SavedTripSkeleton />
+                            </Animated.View>
+                        );
+                    }
+                    return renderItem({ item, index });
+                }}
+                keyExtractor={(item) => typeof item === 'number' ? `skeleton-${item}` : item.id.toString()}
                 contentContainerStyle={styles.listContent}
                 refreshControl={
-                    <RefreshControl refreshing={loading} onRefresh={loadLists} tintColor={theme.primary} />
+                    <RefreshControl
+                        refreshing={loading && lists.length > 0}
+                        onRefresh={loadLists}
+                        tintColor={theme.primary}
+                    />
                 }
                 ListEmptyComponent={
                     !loading ? (

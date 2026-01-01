@@ -48,7 +48,7 @@ export default function JoinTourScreen() {
     });
 
     return (
-        <ScreenWrapper animateEntry={false} includeTop={false} includeBottom={false} style={{ backgroundColor: theme.bgPrimary }}>
+        <ScreenWrapper animateEntry={false} includeTop={true} includeBottom={false} style={{ backgroundColor: theme.bgPrimary }}>
             <Stack.Screen options={{ headerShown: false }} />
 
             <KeyboardAvoidingView
@@ -60,7 +60,7 @@ export default function JoinTourScreen() {
                     <ScreenHeader
                         title={t('joinTourButton')}
                         showBackButton
-                        style={{ paddingHorizontal: 0 }}
+                        style={{ paddingHorizontal: 0, paddingTop: 0 }}
                     />
 
                     {/* Hero Section */}
