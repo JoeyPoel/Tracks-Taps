@@ -1,8 +1,7 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
-  ChevronRightIcon,
   Cog6ToothIcon,
   DocumentTextIcon,
   EnvelopeIcon,
@@ -10,8 +9,9 @@ import {
   QuestionMarkCircleIcon,
   UserIcon
 } from 'react-native-heroicons/outline';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
+import { SettingsItem } from '../components/common/SettingsItem';
 import BuyTokensModal from '../components/profileScreen/BuyTokensModal';
 import ProfileStats from '../components/profileScreen/ProfileStats';
 import RecentAchievements from '../components/profileScreen/RecentAchievements';
@@ -49,32 +49,14 @@ export default function ProfileScreen() {
 
   const progress = LevelSystem.getProgress(user?.xp || 0);
 
-  const SettingsRow = ({ icon, title, onPress, showBorder = true }: any) => (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.7}
-      style={[
-        styles.settingsRow,
-        {
-          borderBottomColor: theme.borderSecondary,
-          borderBottomWidth: showBorder ? 1 : 0
-        }
-      ]}
-    >
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        {icon}
-        <Text style={[styles.settingsLabel, { color: theme.textPrimary }]}>{title}</Text>
-      </View>
-      <ChevronRightIcon size={20} color={theme.textSecondary} />
-    </TouchableOpacity>
-  );
+
 
   return (
     <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} includeBottom={false} animateEntry={false}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         {/* Hero Card */}
-        <Animated.View entering={FadeInDown.duration(500)} style={{ marginTop: 8 }}>
+        <Animated.View style={{ marginTop: 8 }}>
           <UserProfileCard
             name={user?.name || 'Guest'}
             level={progress.level}
@@ -86,7 +68,7 @@ export default function ProfileScreen() {
         </Animated.View>
 
         {/* Horizontal Stats or Tokens */}
-        <Animated.View entering={FadeInDown.delay(100).duration(500)} style={{ marginTop: 8 }}>
+        <Animated.View style={{ marginTop: 8 }}>
           <View style={{ flexDirection: 'row', gap: 12 }}>
             {/* We can put small stats here if needed, or keeping the horizontal stats component */}
           </View>
@@ -101,7 +83,7 @@ export default function ProfileScreen() {
           />
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.delay(200).duration(500)} style={{ marginTop: 24 }}>
+        <Animated.View style={{ marginTop: 24 }}>
           <TokenCard
             tokens={user?.tokens || 0}
             onBuyPress={() => setShowBuyTokens(true)}
@@ -109,7 +91,7 @@ export default function ProfileScreen() {
           />
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.delay(300).duration(500)} style={{ marginTop: 24 }}>
+        <Animated.View style={{ marginTop: 24 }}>
           <RecentAchievements
             achievements={achievements}
             onSeeAll={() => router.push('/profile/achievements')}
@@ -117,36 +99,36 @@ export default function ProfileScreen() {
         </Animated.View>
 
         {/* Grouped Settings Section */}
-        <Animated.View entering={FadeInDown.delay(400).duration(500)} style={{ marginTop: 32 }}>
+        <Animated.View style={{ marginTop: 32 }}>
           <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('manageAccount')?.toUpperCase() || 'MANAGE ACCOUNT'}</Text>
 
           <View style={[styles.settingsGroup, { backgroundColor: theme.bgSecondary }]}>
-            <SettingsRow
+            <SettingsItem
               icon={<UserIcon size={22} color={theme.primary} />}
               title={t('personalInfo')}
               onPress={() => router.push('/profile/personal-info')}
             />
-            <SettingsRow
+            <SettingsItem
               icon={<HeartIcon size={22} color={theme.primary} />}
               title={t('savedTrips') || 'Saved Trips'}
               onPress={() => router.push('/profile/saved-trips' as any)}
             />
-            <SettingsRow
+            <SettingsItem
               icon={<Cog6ToothIcon size={22} color={theme.primary} />}
               title={t('appPreferences')}
               onPress={() => router.push('/profile/preferences')}
             />
-            <SettingsRow
+            <SettingsItem
               icon={<EnvelopeIcon size={22} color={theme.primary} />}
               title={t('contact')}
               onPress={() => console.log('Contact pressed')}
             />
-            <SettingsRow
+            <SettingsItem
               icon={<DocumentTextIcon size={22} color={theme.primary} />}
               title={t('terms')}
               onPress={() => console.log('Terms & Conditions pressed')}
             />
-            <SettingsRow
+            <SettingsItem
               icon={<QuestionMarkCircleIcon size={22} color={theme.primary} />}
               title={t('faq')}
               onPress={() => console.log('FAQ pressed')}
@@ -190,14 +172,5 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
   },
-  settingsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-  },
-  settingsLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-  }
+
 });

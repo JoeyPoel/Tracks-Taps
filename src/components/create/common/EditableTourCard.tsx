@@ -1,13 +1,12 @@
+import { TourCardBase } from '@/src/components/exploreScreen/TourCardBase';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { getGenreIcon } from '@/src/utils/genres';
 import { getTourTypeLabel } from '@/src/utils/tourUtils';
-import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { ClockIcon, MapIcon } from 'react-native-heroicons/solid';
 import { TourDraft } from '../../../hooks/useCreateTour';
-import { AnimatedPressable } from '../../common/AnimatedPressable';
 import { SelectionModal } from './SelectionModal';
 
 interface EditableTourCardProps {
@@ -90,127 +89,108 @@ export function EditableTourCard({
 
     return (
         <>
-            <AnimatedPressable
-                style={[
-                    styles.card,
-                    { backgroundColor: theme.bgSecondary, height: cardHeight }
-                ]}
-                interactionScale="subtle"
-            >
-                <ImageBackground source={{ uri: draft.imageUrl }} style={styles.imageBackground} imageStyle={styles.imageStyle}>
-                    <View style={styles.overlay} />
+            <TourCardBase imageUrl={draft.imageUrl} height={cardHeight}>
+                {/* Top Section */}
+                <View style={styles.topRow}>
+                    <View style={styles.badgesContainer}>
+                        <TouchableOpacity
+                            onPress={() => setPickerType('genre')}
+                            style={[styles.badge, styles.blurBadge]}
+                        >
+                            {genre ? (
+                                <>
+                                    {(() => {
+                                        const GenreIcon = getGenreIcon(genre);
+                                        return <GenreIcon size={12} color="#FFF" />;
+                                    })()}
+                                    <Text style={styles.badgeText}>{genre}</Text>
+                                </>
+                            ) : (
+                                <Text style={styles.badgeText}>{t('selectGenre')}</Text>
+                            )}
+                            <View style={styles.dropdownCaret} />
+                        </TouchableOpacity>
 
-                    <LinearGradient
-                        colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.9)']}
-                        locations={[0.3, 0.6, 1]}
-                        style={styles.gradient}
-                    >
-                        {/* Top Section */}
-                        <View style={styles.topRow}>
-                            <View style={styles.badgesContainer}>
-                                <TouchableOpacity
-                                    onPress={() => setPickerType('genre')}
-                                    style={[styles.badge, styles.blurBadge]}
-                                >
-                                    {genre ? (
-                                        <>
-                                            {(() => {
-                                                const GenreIcon = getGenreIcon(genre);
-                                                return <GenreIcon size={12} color="#FFF" />;
-                                            })()}
-                                            <Text style={styles.badgeText}>{genre}</Text>
-                                        </>
-                                    ) : (
-                                        <Text style={styles.badgeText}>{t('selectGenre')}</Text>
-                                    )}
-                                    <View style={styles.dropdownCaret} />
-                                </TouchableOpacity>
-
-
-
-                                {/* Tour Type Badge (Display Only) */}
-                                {draft.type && (
-                                    <View style={[styles.badge, styles.blurBadge]}>
-                                        <Text style={styles.badgeText}>{getTourTypeLabel(draft.type)}</Text>
-                                    </View>
-                                )}
-
-                                <TouchableOpacity
-                                    onPress={() => setPickerType('difficulty')}
-                                    style={[styles.badge, styles.blurBadge]}
-                                >
-                                    <Text style={styles.badgeText}>{draft.difficulty || 'Medium'}</Text>
-                                    <View style={styles.dropdownCaret} />
-                                </TouchableOpacity>
+                        {/* Tour Type Badge (Display Only) */}
+                        {draft.type && (
+                            <View style={[styles.badge, styles.blurBadge]}>
+                                <Text style={styles.badgeText}>{getTourTypeLabel(draft.type)}</Text>
                             </View>
-                        </View>
+                        )}
 
-                        {/* Bottom Section */}
-                        <View style={styles.bottomContent}>
-                            <View style={styles.titleContainer}>
+                        <TouchableOpacity
+                            onPress={() => setPickerType('difficulty')}
+                            style={[styles.badge, styles.blurBadge]}
+                        >
+                            <Text style={styles.badgeText}>{draft.difficulty || 'Medium'}</Text>
+                            <View style={styles.dropdownCaret} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                {/* Bottom Section */}
+                <View style={styles.bottomContent}>
+                    <View style={styles.titleContainer}>
+                        <TextInput
+                            style={styles.titleInput}
+                            value={draft.title}
+                            onChangeText={(text) => updateDraft('title', text)}
+                            placeholder={t('tourTitle')}
+                            placeholderTextColor="rgba(255,255,255,0.5)"
+                            multiline
+                            maxLength={60}
+                        />
+                        <Text style={styles.author}>{t('by')} {t('you')}</Text>
+                    </View>
+
+                    <View style={styles.separator} />
+
+                    {/* Inline Editable Stats */}
+                    <View style={styles.statsContainer}>
+                        {/* Input Row */}
+                        <View style={styles.inputsRow}>
+                            <View style={styles.inputGroup}>
+                                <MapIcon size={16} color="#E0E0E0" />
                                 <TextInput
-                                    style={styles.titleInput}
-                                    value={draft.title}
-                                    onChangeText={(text) => updateDraft('title', text)}
-                                    placeholder={t('tourTitle')}
+                                    style={styles.inlineInput}
+                                    value={draft.distance?.toString()}
+                                    onChangeText={handleDistanceChange}
+                                    keyboardType="numeric"
+                                    placeholder="0"
                                     placeholderTextColor="rgba(255,255,255,0.5)"
-                                    multiline
-                                    maxLength={60}
+                                    selectTextOnFocus
+                                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                                 />
-                                <Text style={styles.author}>{t('by')} {t('you')}</Text>
+                                <Text style={styles.unitText}>km</Text>
                             </View>
 
-                            <View style={styles.separator} />
+                            <View style={styles.dotSeparator} />
 
-                            {/* Inline Editable Stats */}
-                            <View style={styles.statsContainer}>
-                                {/* Input Row */}
-                                <View style={styles.inputsRow}>
-                                    <View style={styles.inputGroup}>
-                                        <MapIcon size={16} color="#E0E0E0" />
-                                        <TextInput
-                                            style={styles.inlineInput}
-                                            value={draft.distance?.toString()}
-                                            onChangeText={handleDistanceChange}
-                                            keyboardType="numeric"
-                                            placeholder="0"
-                                            placeholderTextColor="rgba(255,255,255,0.5)"
-                                            selectTextOnFocus
-                                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                                        />
-                                        <Text style={styles.unitText}>km</Text>
-                                    </View>
-
-                                    <View style={styles.dotSeparator} />
-
-                                    <View style={styles.inputGroup}>
-                                        <ClockIcon size={16} color="#E0E0E0" />
-                                        <TextInput
-                                            style={styles.inlineInput}
-                                            value={draft.duration?.toString()}
-                                            onChangeText={handleDurationChange}
-                                            keyboardType="numeric"
-                                            placeholder="0"
-                                            placeholderTextColor="rgba(255,255,255,0.5)"
-                                            selectTextOnFocus
-                                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                                        />
-                                        <Text style={styles.unitText}>min</Text>
-                                    </View>
-                                </View>
-
-                                {/* Modes Row - Wraps if needed */}
-                                {renderModeSelector()}
+                            <View style={styles.inputGroup}>
+                                <ClockIcon size={16} color="#E0E0E0" />
+                                <TextInput
+                                    style={styles.inlineInput}
+                                    value={draft.duration?.toString()}
+                                    onChangeText={handleDurationChange}
+                                    keyboardType="numeric"
+                                    placeholder="0"
+                                    placeholderTextColor="rgba(255,255,255,0.5)"
+                                    selectTextOnFocus
+                                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                />
+                                <Text style={styles.unitText}>min</Text>
                             </View>
                         </View>
-                    </LinearGradient>
-                </ImageBackground>
-            </AnimatedPressable >
+
+                        {/* Modes Row - Wraps if needed */}
+                        {renderModeSelector()}
+                    </View>
+                </View>
+            </TourCardBase>
 
             {/* Pickers */}
-            < SelectionModal
-                visible={pickerType === 'genre'
-                }
+            <SelectionModal
+                visible={pickerType === 'genre'}
                 onClose={() => setPickerType(null)}
                 title={t('selectGenre')}
                 options={GENRES.map((g: any) => ({ label: g.label, value: g.id, icon: g.icon, color: g.color }))}
@@ -235,32 +215,6 @@ export function EditableTourCard({
 }
 
 const styles = StyleSheet.create({
-    card: {
-        borderRadius: 24,
-        overflow: 'hidden',
-        width: '100%',
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.2,
-        shadowRadius: 12,
-        elevation: 6,
-    },
-    imageBackground: {
-        flex: 1,
-        justifyContent: 'space-between',
-    },
-    imageStyle: {
-        borderRadius: 24,
-    },
-    overlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0,0,0,0.15)',
-    },
-    gradient: {
-        flex: 1,
-        padding: 16,
-        justifyContent: 'space-between',
-    },
     topRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',

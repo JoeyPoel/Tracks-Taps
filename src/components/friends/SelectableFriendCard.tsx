@@ -1,9 +1,9 @@
+import { GenericCard } from '@/src/components/common/GenericCard';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 
 interface SelectableFriendCardProps {
     friend: any;
@@ -16,51 +16,44 @@ export function SelectableFriendCard({ friend, isSelected, onToggle }: Selectabl
     const { t } = useLanguage();
 
     return (
-        <TouchableOpacity
+        <GenericCard
+            onPress={() => onToggle(friend.id)}
+            variant={isSelected ? 'gradient' : 'flat'}
+            gradientColors={isSelected ? [theme.primary + '20', theme.secondary + '10'] : undefined}
             style={[
                 styles.itemCard,
-                { backgroundColor: theme.bgSecondary },
-                isSelected && styles.selectedItemCard
+                {
+                    borderColor: isSelected ? theme.primary : 'transparent',
+                    borderWidth: 2,
+                }
             ]}
-            onPress={() => onToggle(friend.id)}
-            activeOpacity={1}
+            padding="medium"
         >
-            {isSelected && (
-                <LinearGradient
-                    colors={[theme.primary + '20', theme.secondary + '10']}
-                    style={StyleSheet.absoluteFill}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                />
-            )}
-            <Image source={friend.avatarUrl ? { uri: friend.avatarUrl } : require('../../../assets/images/Mascott.png')} style={styles.avatar} />
-            <View style={{ flex: 1 }}>
-                <Text style={[styles.name, { color: theme.textPrimary }]}>{friend.name}</Text>
-                <Text style={[styles.subText, { color: theme.textSecondary }]}>{t('levelShort')} {friend.level}</Text>
+            <View style={styles.innerContainer}>
+                <Image source={friend.avatarUrl ? { uri: friend.avatarUrl } : require('../../../assets/images/Mascott.png')} style={styles.avatar} />
+                <View style={{ flex: 1 }}>
+                    <Text style={[styles.name, { color: theme.textPrimary }]}>{friend.name}</Text>
+                    <Text style={[styles.subText, { color: theme.textSecondary }]}>{t('levelShort')} {friend.level}</Text>
+                </View>
+                <View style={[
+                    styles.checkbox,
+                    { borderColor: isSelected ? theme.primary : theme.textSecondary },
+                    isSelected && { backgroundColor: theme.primary }
+                ]}>
+                    {isSelected && <Ionicons name="checkmark" size={16} color="white" />}
+                </View>
             </View>
-            <View style={[
-                styles.checkbox,
-                { borderColor: isSelected ? theme.primary : theme.textSecondary },
-                isSelected && { backgroundColor: theme.primary }
-            ]}>
-                {isSelected && <Ionicons name="checkmark" size={16} color="white" />}
-            </View>
-        </TouchableOpacity>
+        </GenericCard>
     );
 }
 
 const styles = StyleSheet.create({
     itemCard: {
+        marginBottom: 8,
+    },
+    innerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
-        borderRadius: 20,
-        overflow: 'hidden',
-        borderWidth: 2,
-        borderColor: 'transparent',
-    },
-    selectedItemCard: {
-        // Additional styling if needed
     },
     avatar: {
         width: 48,

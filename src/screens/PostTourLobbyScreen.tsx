@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
-import AppHeader from '../components/Header';
 import PostTourFooter from '../components/post-tour/PostTourFooter';
 import PostTourHeader from '../components/post-tour/PostTourHeader';
 import PostTourProgress from '../components/post-tour/PostTourProgress';
@@ -28,7 +28,7 @@ export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: nu
     return (
         <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={true}>
             <View style={{ zIndex: 10, position: 'absolute', top: 0, left: 0, right: 0 }}>
-                <AppHeader
+                <ScreenHeader
                     title="Lobby"
                     showBackButton={true}
                     onBackPress={() => router.replace('/')}

@@ -14,9 +14,10 @@ interface AppModalProps {
     headerRight?: React.ReactNode;
     height?: number | string;
     modalStyle?: any;
+    alignment?: 'bottom' | 'center';
 }
 
-export function AppModal({ visible, onClose, title, icon, children, subtitle, headerRight, height, modalStyle }: AppModalProps) {
+export function AppModal({ visible, onClose, title, icon, children, subtitle, headerRight, height, modalStyle, alignment = 'bottom' }: AppModalProps) {
     const { theme } = useTheme();
     const slideAnim = React.useRef(new Animated.Value(Dimensions.get('window').height)).current;
 
@@ -45,6 +46,8 @@ export function AppModal({ visible, onClose, title, icon, children, subtitle, he
         });
     };
 
+    const isBottom = alignment === 'bottom';
+
     return (
         <Modal
             visible={visible}
@@ -52,7 +55,14 @@ export function AppModal({ visible, onClose, title, icon, children, subtitle, he
             transparent={true}
             onRequestClose={handleClose}
         >
-            <View style={[styles.modalOverlay, { backgroundColor: theme.overlay }]}>
+            <View style={[
+                styles.modalOverlay,
+                {
+                    backgroundColor: theme.overlay,
+                    justifyContent: isBottom ? 'flex-end' : 'center',
+                    padding: isBottom ? 0 : 20
+                }
+            ]}>
                 <Animated.View
                     style={[
                         styles.modalContent,
@@ -60,6 +70,9 @@ export function AppModal({ visible, onClose, title, icon, children, subtitle, he
                             backgroundColor: theme.bgPrimary,
                             transform: [{ translateY: slideAnim }],
                             ...(height ? { height } : { maxHeight: '90%' }),
+                            borderTopLeftRadius: 24,
+                            borderTopRightRadius: 24,
+                            borderRadius: isBottom ? 0 : 24,
                             ...modalStyle
                         },
                     ]}
@@ -94,11 +107,8 @@ const styles = StyleSheet.create({
     modalOverlay: {
         flex: 1,
         height: '100%',
-        justifyContent: 'flex-end',
     },
     modalContent: {
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
         padding: 24,
     },
     header: {

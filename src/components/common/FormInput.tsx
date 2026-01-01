@@ -10,6 +10,7 @@ interface FormInputProps {
     multiline?: boolean;
     maxLength?: number;
     error?: string;
+    success?: boolean;
     keyboardType?: 'default' | 'numeric' | 'email-address';
     description?: string;
 }
@@ -22,6 +23,7 @@ export function FormInput({
     multiline = false,
     maxLength,
     error,
+    success,
     keyboardType = 'default',
     description
 }: FormInputProps) {
@@ -49,7 +51,7 @@ export function FormInput({
                     multiline && styles.textArea,
                     {
                         backgroundColor: theme.bgSecondary,
-                        borderColor: error ? theme.danger : theme.borderPrimary,
+                        borderColor: error ? theme.danger : success ? theme.success : theme.borderPrimary,
                         color: theme.textPrimary
                     }
                 ]}

@@ -43,7 +43,10 @@ export const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
     // List of routes that ALWAYS show the bottom tab bar
     // This allows us to auto-apply padding without manually passing the prop every time
     const tabRoutes = ['/explore', '/join', '/create', '/map', '/profile'];
-    const isTabRoute = tabRoutes.includes(pathname) || pathname === '/' || pathname === '';
+
+    // Check if the current path starts with any of the tab routes
+    // This handles nested paths (e.g. /explore/tour/123) correctly
+    const isTabRoute = tabRoutes.some(route => pathname.startsWith(route)) || pathname === '/' || pathname === '';
 
     // Use prop if explicitly provided, otherwise fallback to auto-detection
     const showBottomTabs = withBottomTabs !== undefined ? withBottomTabs : isTabRoute;

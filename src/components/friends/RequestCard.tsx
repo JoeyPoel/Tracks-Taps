@@ -10,12 +10,14 @@ interface RequestCardProps {
     onDecline: (id: number) => void;
 }
 
+import { GenericCard } from '@/src/components/common/GenericCard';
+
 export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.bgSecondary }]}>
+        <GenericCard style={styles.container} padding="small">
             <View style={styles.userInfo}>
                 <Image
                     source={request.requester.avatarUrl ? { uri: request.requester.avatarUrl } : require('../../../assets/images/Mascott.png')}
@@ -27,7 +29,7 @@ export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) 
                 </View>
             </View>
 
-            <div style={styles.actions}>
+            <View style={styles.actions}>
                 <TouchableOpacity
                     onPress={() => onAccept(request.id)}
                     style={[styles.iconButton, { backgroundColor: theme.primary }]}
@@ -40,8 +42,8 @@ export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) 
                 >
                     <Ionicons name="close" size={20} color={theme.textSecondary} />
                 </TouchableOpacity>
-            </div>
-        </View>
+            </View>
+        </GenericCard>
     );
 }
 
@@ -50,9 +52,8 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 12,
-        borderRadius: 20,
         justifyContent: 'space-between',
+        marginBottom: 8,
     },
     userInfo: {
         flexDirection: 'row',

@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
+import { EmptyState } from '../components/common/EmptyState';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import TourCard from '../components/exploreScreen/TourCard';
@@ -85,12 +85,11 @@ export default function TourListScreen() {
                     keyExtractor={(item) => item.id.toString()}
                     contentContainerStyle={styles.listContent}
                     ListEmptyComponent={
-                        <View style={styles.emptyContainer}>
-                            <Ionicons name="map-outline" size={64} color={theme.textSecondary} style={{ opacity: 0.5, marginBottom: 16 }} />
-                            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
-                                {t('noToursFound')}
-                            </Text>
-                        </View>
+                        <EmptyState
+                            icon="map-outline"
+                            title={t('noToursFound')}
+                            message={t('noToursFound')}
+                        />
                     }
                 />
             )}

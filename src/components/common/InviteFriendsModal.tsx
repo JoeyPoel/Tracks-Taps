@@ -1,11 +1,12 @@
 import { AnimatedButton } from '@/src/components/common/AnimatedButton';
+import { AppModal } from '@/src/components/common/AppModal';
 import { SelectableFriendCard } from '@/src/components/friends/SelectableFriendCard';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useFriends } from '@/src/hooks/useFriends';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 
 interface InviteFriendsModalProps {
     visible: boolean;
@@ -50,98 +51,59 @@ export default function InviteFriendsModal({ visible, onClose, activeTourId }: I
     );
 
     return (
-        <Modal visible={visible} animationType="slide" transparent>
-            <View style={styles.modalOverlay}>
-                <View style={[styles.modalContent, { backgroundColor: theme.bgPrimary }]}>
-                    <View style={styles.header}>
-                        <View style={styles.headerTextContainer}>
-                            <Text style={[styles.title, { color: theme.textPrimary }]}>{t('inviteFriends')}</Text>
-                            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>{t('selectFriendsLobby')}</Text>
-                        </View>
-                        <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: theme.bgSecondary }]}>
-                            <Ionicons name="close" size={24} color={theme.textPrimary} />
-                        </TouchableOpacity>
+        <AppModal
+            visible={visible}
+            onClose={onClose}
+            title={t('inviteFriends')}
+            subtitle={t('selectFriendsLobby')}
+            height="80%"
+            modalStyle={{ padding: 0 }}
+        >
+            <View style={{ flex: 1 }}>
+                {loading ? (
+                    <View style={styles.centerContainer}>
+                        <ActivityIndicator size="large" color={theme.primary} />
                     </View>
+                ) : (
+                    <FlatList
+                        data={friends}
+                        renderItem={renderItem}
+                        keyExtractor={(item) => item.id.toString()}
+                        contentContainerStyle={{ padding: 24, paddingBottom: 100, gap: 12 }}
+                        ListEmptyComponent={
+                            <View style={styles.emptyState}>
+                                <Ionicons name="people-outline" size={48} color={theme.textSecondary + '50'} />
+                                <Text style={{ color: theme.textSecondary, textAlign: 'center', marginTop: 12 }}>
+                                    {t('noFriendsFound')}
+                                </Text>
+                            </View>
+                        }
+                    />
+                )}
 
-                    {loading ? (
-                        <View style={styles.centerContainer}>
-                            <ActivityIndicator size="large" color={theme.primary} />
-                        </View>
-                    ) : (
-                        <FlatList
-                            data={friends}
-                            renderItem={renderItem}
-                            keyExtractor={(item) => item.id.toString()}
-                            contentContainerStyle={{ padding: 20, gap: 12 }}
-                            ListEmptyComponent={
-                                <View style={styles.emptyState}>
-                                    <Ionicons name="people-outline" size={48} color={theme.textSecondary + '50'} />
-                                    <Text style={{ color: theme.textSecondary, textAlign: 'center', marginTop: 12 }}>
-                                        {t('noFriendsFound')}
-                                    </Text>
-                                </View>
-                            }
-                        />
-                    )}
-
-                    <View style={[styles.footer, { borderTopColor: theme.bgSecondary }]}>
-                        <AnimatedButton
-                            title={actionLoading ? t('sendingInvites') : `${t('inviteSelected')} (${selectedIds.length})`}
-                            onPress={handleInvite}
-                            disabled={selectedIds.length === 0 || actionLoading}
-                            variant="primary"
-                            style={{ width: '100%' }}
-                        />
-                    </View>
+                <View style={[styles.footer, { borderTopColor: theme.bgSecondary, backgroundColor: theme.bgPrimary }]}>
+                    <AnimatedButton
+                        title={actionLoading ? t('sendingInvites') : `${t('inviteSelected')} (${selectedIds.length})`}
+                        onPress={handleInvite}
+                        disabled={selectedIds.length === 0 || actionLoading}
+                        variant="primary"
+                        style={{ width: '100%' }}
+                    />
                 </View>
             </View>
-        </Modal>
+        </AppModal>
     );
 }
 
 const styles = StyleSheet.create({
-    modalOverlay: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        backgroundColor: 'rgba(0,0,0,0.5)',
-    },
-    modalContent: {
-        height: '80%', // Taller modal for better visibility
-        borderTopLeftRadius: 32,
-        borderTopRightRadius: 32,
-        overflow: 'hidden',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 24,
-        paddingBottom: 16,
-    },
-    headerTextContainer: {
-        flex: 1,
-        gap: 4,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: '800',
-        letterSpacing: -0.5,
-    },
-    subtitle: {
-        fontSize: 14,
-    },
-    closeButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginLeft: 16,
-    },
     footer: {
         padding: 24,
         borderTopWidth: 1,
-        paddingBottom: 40, // Extra padding for safe area
+        paddingBottom: 40,
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
     },
     centerContainer: {
         flex: 1,

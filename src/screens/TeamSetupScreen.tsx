@@ -1,9 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AnimatedButton } from '../components/common/AnimatedButton';
-import { AnimatedPressable } from '../components/common/AnimatedPressable';
+import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { ColorSelector } from '../components/teamSetup/ColorSelector';
 import { EmojiSelector } from '../components/teamSetup/EmojiSelector';
@@ -31,24 +30,18 @@ export default function TeamSetupScreen() {
 
     return (
         <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} animateEntry={false}>
-            <View style={[styles.header, { borderBottomColor: theme.borderPrimary }]}>
-                <AnimatedPressable
-                    onPress={() => {
-                        if (router.canGoBack()) {
-                            router.back();
-                        } else {
-                            router.replace('/');
-                        }
-                    }}
-                    style={styles.closeButton}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    interactionScale="subtle"
-                >
-                    <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
-                </AnimatedPressable>
-                <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>{t('teamSetup')}</Text>
-                <View style={{ width: 24 }} />
-            </View>
+            <ScreenHeader
+                title={t('teamSetup')}
+                showBackButton={true}
+                onBackPress={() => {
+                    if (router.canGoBack()) {
+                        router.back();
+                    } else {
+                        router.replace('/');
+                    }
+                }}
+                style={{ paddingHorizontal: 0 }} // Match original padding if needed, or stick to default
+            />
 
             <ScrollView contentContainerStyle={styles.content}>
                 <Text style={[styles.subText, { color: theme.textSecondary }]}>
@@ -81,15 +74,7 @@ export default function TeamSetupScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 16,
-        borderBottomWidth: 1,
-    },
     headerTitle: { fontSize: 18, fontWeight: '700' },
-    closeButton: {},
     content: { padding: 24 },
     subText: { textAlign: 'center', marginBottom: 20 },
     backLink: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },

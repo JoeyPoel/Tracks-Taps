@@ -1,4 +1,3 @@
-import { AnimatedPressable } from '@/src/components/common/AnimatedPressable';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,45 +9,51 @@ interface FriendCardProps {
     friend: any;
 }
 
+import { GenericCard } from '@/src/components/common/GenericCard';
+
 export function FriendCard({ friend }: FriendCardProps) {
     const { theme } = useTheme();
     const router = useRouter();
     const { t } = useLanguage();
 
     return (
-        <AnimatedPressable
-            style={[styles.container]}
+        <GenericCard
+            style={styles.container}
             onPress={() => router.push({ pathname: '/profile/friend-profile', params: { userId: friend.id } })}
-            interactionScale="subtle"
+            variant="flat"
+            padding="small"
         >
-            <Image
-                source={friend.avatarUrl ? { uri: friend.avatarUrl } : require('../../../assets/images/Mascott.png')}
-                style={[styles.avatar, { backgroundColor: theme.bgSecondary }]}
-            />
+            <View style={styles.innerContainer}>
+                <Image
+                    source={friend.avatarUrl ? { uri: friend.avatarUrl } : require('../../../assets/images/Mascott.png')}
+                    style={[styles.avatar, { backgroundColor: theme.bgSecondary }]}
+                />
 
-            <View style={styles.content}>
-                <Text style={[styles.name, { color: theme.textPrimary }]}>{friend.name}</Text>
+                <View style={styles.content}>
+                    <Text style={[styles.name, { color: theme.textPrimary }]}>{friend.name}</Text>
 
-                <View style={styles.statsRow}>
-                    <View style={[styles.badge, { backgroundColor: theme.bgSecondary }]}>
-                        <Text style={[styles.badgeText, { color: theme.primary }]}>Lvl {friend.level}</Text>
+                    <View style={styles.statsRow}>
+                        <View style={[styles.badge, { backgroundColor: theme.bgSecondary }]}>
+                            <Text style={[styles.badgeText, { color: theme.primary }]}>Lvl {friend.level}</Text>
+                        </View>
+                        <Text style={[styles.xpText, { color: theme.textTertiary }]}>•</Text>
+                        <Text style={[styles.xpText, { color: theme.textSecondary }]}>{friend.xp || 0} {t('xp')}</Text>
                     </View>
-                    <Text style={[styles.xpText, { color: theme.textTertiary }]}>•</Text>
-                    <Text style={[styles.xpText, { color: theme.textSecondary }]}>{friend.xp || 0} {t('xp')}</Text>
                 </View>
-            </View>
 
-            <Ionicons name="chevron-forward" size={16} color={theme.textTertiary} />
-        </AnimatedPressable>
+                <Ionicons name="chevron-forward" size={16} color={theme.textTertiary} />
+            </View>
+        </GenericCard>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
+        marginBottom: 8,
+    },
+    innerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 4,
     },
     avatar: {
         width: 44,

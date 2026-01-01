@@ -1,4 +1,4 @@
-import { useAuth } from '@/src/context/AuthContext';
+
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { TourDraft } from '@/src/hooks/useCreateTour';
@@ -7,6 +7,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { BoltIcon as BoltIconSolid, StarIcon as StarIconSolid } from 'react-native-heroicons/solid';
 import { ReviewCardHeader } from './components/ReviewCardHeader';
 import { ReviewCardStats } from './components/ReviewCardStats';
+import { GenericCard } from '../../common/GenericCard';
 
 interface ReviewCardProps {
     draft: TourDraft;
@@ -14,12 +15,13 @@ interface ReviewCardProps {
 }
 
 
+
 export function ReviewCard({ draft, updateDraft }: ReviewCardProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
     return (
-        <View style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
+        <GenericCard style={styles.card} padding="none">
             <ReviewCardHeader draft={draft} />
 
             <View style={styles.content}>
@@ -45,7 +47,7 @@ export function ReviewCard({ draft, updateDraft }: ReviewCardProps) {
                     </View>
                 </View>
             </View>
-        </View>
+        </GenericCard>
     );
 }
 

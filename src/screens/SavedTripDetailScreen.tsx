@@ -2,7 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import TourCard from '../components/exploreScreen/TourCard';
 import { useTheme } from '../context/ThemeContext';
@@ -71,29 +72,19 @@ export default function SavedTripDetailScreen() {
             animateEntry={false}
             withBottomTabs={true}
         >
-            {/* Custom Header */}
-            <View style={[styles.header, { backgroundColor: theme.bgPrimary, borderBottomColor: theme.bgSecondary }]}>
-                <View style={styles.headerTop}>
-                    <TouchableOpacity
-                        onPress={() => router.back()}
-                        style={[styles.iconButton, { backgroundColor: theme.bgSecondary }]}
-                    >
-                        <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
-                    </TouchableOpacity>
+            <ScreenHeader
+                title={list?.name || 'Loading...'}
+                subtitle={`${list?.tours?.length || 0} ${(list?.tours?.length === 1) ? 'tour' : 'tours'} collected`}
+                showBackButton
+                rightElement={
                     <TouchableOpacity
                         onPress={handleDeleteList}
-                        style={[styles.iconButton, { backgroundColor: theme.error + '20' }]} // Subtle error background
+                        style={[styles.iconButton, { backgroundColor: theme.error + '20' }]}
                     >
                         <Ionicons name="trash-outline" size={22} color={theme.error} />
                     </TouchableOpacity>
-                </View>
-                <Animated.View entering={FadeInUp.delay(200).springify()}>
-                    <Text style={[styles.title, { color: theme.textPrimary }]}>{list?.name || 'Loading...'}</Text>
-                    <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-                        {list?.tours?.length || 0} {(list?.tours?.length === 1) ? 'tour' : 'tours'} collected
-                    </Text>
-                </Animated.View>
-            </View>
+                }
+            />
 
             <FlatList
                 data={list?.tours || []}
@@ -154,34 +145,12 @@ export default function SavedTripDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-    header: {
-        paddingHorizontal: 20,
-        paddingTop: 60,
-        paddingBottom: 24,
-        borderBottomWidth: 1,
-        gap: 16,
-    },
-    headerTop: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
     iconButton: {
         width: 44,
         height: 44,
         borderRadius: 22,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    title: {
-        fontSize: 32,
-        fontWeight: '800',
-        letterSpacing: -0.5,
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 16,
-        fontWeight: '500',
     },
     listContent: {
         padding: 20,

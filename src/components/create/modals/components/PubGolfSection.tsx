@@ -1,8 +1,9 @@
+import { FormInput } from '@/src/components/common/FormInput';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Switch, Text, View } from 'react-native';
 
 interface PubGolfSectionProps {
     isPubGolfEnabled: boolean;
@@ -42,24 +43,20 @@ export function PubGolfSection({
             {isPubGolfStop && (
                 <View style={[styles.row, { marginTop: 12 }]}>
                     <View style={{ flex: 2 }}>
-                        <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>{t('drink')}</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.bgPrimary, color: theme.textPrimary }]}
+                        <FormInput
+                            label={t('drink')}
                             value={drink}
-                            onChangeText={setDrink}
+                            onChange={setDrink}
                             placeholder={t('drinkPlaceholder')}
-                            placeholderTextColor={theme.textDisabled}
                         />
                     </View>
                     <View style={{ flex: 1 }}>
-                        <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>{t('parSips')}</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.bgPrimary, color: theme.textPrimary }]}
+                        <FormInput
+                            label={t('parSips')}
                             value={par}
-                            onChangeText={setPar}
+                            onChange={setPar}
                             keyboardType="numeric"
                             placeholder={t('parPlaceholder')}
-                            placeholderTextColor={theme.textDisabled}
                         />
                     </View>
                 </View>
@@ -87,15 +84,9 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     inputLabel: {
-        fontSize: 12,
-        fontWeight: '700',
-        textTransform: 'uppercase',
-        marginBottom: 6,
+        // Obsolete
     },
     input: {
-        borderRadius: 24,
-        padding: 16,
-        fontSize: 16,
-        fontWeight: '500',
+        // Obsolete
     },
 });

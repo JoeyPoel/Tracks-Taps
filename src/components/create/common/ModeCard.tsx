@@ -1,7 +1,6 @@
-import { AnimatedPressable } from '@/src/components/common/AnimatedPressable';
+import { GenericCard } from '@/src/components/common/GenericCard';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -19,24 +18,19 @@ export function ModeCard({ mode, icon, label, description, colors, isSelected, o
     const { theme } = useTheme();
 
     return (
-        <AnimatedPressable
+        <GenericCard
             onPress={onPress}
+            variant="gradient"
+            gradientColors={isSelected ? [colors[0] + '20', colors[1] + '10'] : [theme.bgSecondary, theme.bgSecondary]}
             style={[
                 styles.card,
                 {
-                    backgroundColor: theme.bgSecondary,
                     borderColor: isSelected ? theme.primary : 'transparent',
                     borderWidth: 2,
                 }
             ]}
+            padding="large"
         >
-            <LinearGradient
-                colors={isSelected ? [colors[0] + '20', colors[1] + '10'] : [theme.bgSecondary, theme.bgSecondary]}
-                style={StyleSheet.absoluteFill}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-            />
-
             <View style={styles.cardHeader}>
                 <View style={[styles.iconContainer, { backgroundColor: isSelected ? 'white' : theme.bgTertiary }]}>
                     <Ionicons name={icon} size={32} color={isSelected ? colors[0] : theme.textSecondary} />
@@ -50,15 +44,14 @@ export function ModeCard({ mode, icon, label, description, colors, isSelected, o
                 <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>{label}</Text>
                 <Text style={[styles.cardDesc, { color: theme.textSecondary }]}>{description}</Text>
             </View>
-        </AnimatedPressable>
+        </GenericCard>
     );
 }
 
 const styles = StyleSheet.create({
     card: {
         borderRadius: 24,
-        padding: 24,
-        overflow: 'hidden',
+        // Manual shadow since variant is gradient
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.05,

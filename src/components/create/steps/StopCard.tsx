@@ -1,3 +1,4 @@
+
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,6 +19,7 @@ interface StopCardProps {
     onRemoveChallenge: (challengeIndex: number) => void;
 }
 
+
 export function StopCard({ item, index, isLast, onRemove, onEdit, onAddChallenge, onEditChallenge, onRemoveChallenge }: StopCardProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
@@ -27,7 +29,7 @@ export function StopCard({ item, index, isLast, onRemove, onEdit, onAddChallenge
             <TimelineLeft index={index} isLast={isLast} />
 
             <View style={{ flex: 1, paddingBottom: 24 }}>
-                <View style={[styles.stopCard, { backgroundColor: theme.bgSecondary }]}>
+                <GenericCard style={styles.stopCard} padding="none">
                     <StopCardHeader item={item} onRemove={onRemove} onEdit={onEdit} />
 
                     <StopCardChallenges
@@ -43,7 +45,7 @@ export function StopCard({ item, index, isLast, onRemove, onEdit, onAddChallenge
                         <Ionicons name="add" size={16} color={theme.primary} />
                         <Text style={[styles.addChallengeText, { color: theme.primary }]}>{t('addChallenge')}</Text>
                     </TouchableOpacity>
-                </View>
+                </GenericCard>
             </View>
         </View>
     );
@@ -56,11 +58,6 @@ const styles = StyleSheet.create({
     stopCard: {
         borderRadius: 24,
         overflow: 'hidden',
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 2,
     },
     addChallengeBtn: {
         flexDirection: 'row',

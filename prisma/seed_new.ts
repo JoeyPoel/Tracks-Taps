@@ -172,7 +172,7 @@ async function main() {
             title: 'Tata Steel Industrial Safari',
             location: 'IJmuiden',
             description: 'A deep dive into the massive industrial landscape. From blast furnaces to the North Sea dunes, this tour reveals the raw power and surprising nature of the Steelworks.',
-            imageUrl: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80',
+            imageUrl: 'https://xnfqoclbqadloaimjujr.supabase.co/storage/v1/object/public/images/tours/TataSteel.png',
             distance: 14.5,
             duration: 120, // Driving/Biking
             points: 1600,
@@ -403,7 +403,7 @@ async function main() {
             title: 'Barcelona: Gaudi\'s Dream',
             location: 'Barcelona',
             description: 'Immerse yourself in the whimsical and organic world of Antoni Gaudi. Visit his most iconic masterpieces.',
-            imageUrl: 'https://images.unsplash.com/photo-1543783207-9273e96ad03f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60', // Sagrada Familia / Gaudi
+            imageUrl: 'https://xnfqoclbqadloaimjujr.supabase.co/storage/v1/object/public/images/tours/barcelona-gaudi-park-guell-2.jpg', // Sagrada Familia / Gaudi
             distance: 6.5,
             duration: 180,
             points: 1400,
@@ -591,7 +591,7 @@ async function main() {
             title: 'Barcelona: Gothic & Tapas',
             location: 'Barcelona',
             description: 'Wander the narrow medieval streets of the Gothic Quarter and stop for delicious tapas along the way.',
-            imageUrl: 'https://images.unsplash.com/photo-1511537632536-b7a727ccf78e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60', // Tapas / Food
+            imageUrl: 'https://xnfqoclbqadloaimjujr.supabase.co/storage/v1/object/public/images/tours/Sagrada_Familia_Sculptures.jpg', // Tapas / Food
             distance: 4.0,
             duration: 150,
             points: 1100,
@@ -775,93 +775,12 @@ async function main() {
     await createReviews(bcnTapasTour.id);
 
 
-    // --- SEED ACHIEVEMENTS ---
-    console.log('Seeding achievements...');
-    const achievementsData = [
-        {
-            title: 'First Steps',
-            description: 'Complete your first tour',
-            icon: 'flag',
-            emoji: '🏁',
-            color: '#4CAF50',
-            criteria: 'first-tour',
-            target: 1,
-            xpReward: 100
-        },
-        {
-            title: 'Social Butterfly',
-            description: 'Connect with a friend',
-            icon: 'people',
-            emoji: '🦋',
-            color: '#2196F3',
-            criteria: 'social-butterfly',
-            target: 1,
-            xpReward: 150
-        },
-        {
-            title: 'Creator',
-            description: 'Create your first tour',
-            icon: 'map',
-            emoji: '🎨',
-            color: '#9C27B0',
-            criteria: 'creator',
-            target: 1,
-            xpReward: 300
-        },
-        {
-            title: 'Explorer',
-            description: 'Complete 5 tours',
-            icon: 'map',
-            emoji: '🧭',
-            color: '#FF9800',
-            criteria: 'TOUR_COMPLETION',
-            target: 5,
-            xpReward: 500
-        },
-        {
-            title: 'Hole in One',
-            description: 'Finish a Pub Golf stop in 1 sip',
-            icon: 'beer',
-            emoji: '🍺',
-            color: '#795548',
-            criteria: 'PUBGOLF_HOLE_IN_ONE',
-            target: 1,
-            xpReward: 50
-        },
-        {
-            title: 'Pub Golf Champion',
-            description: 'Get 3 Hole in Ones in a single game',
-            icon: 'trophy',
-            emoji: '🏆',
-            color: '#FFD700',
-            criteria: 'PUBGOLF_STREAK',
-            target: 3,
-            xpReward: 200
-        }
-    ];
+    // --- SEED ACHIEVEMENTS merged into main block at end of file ---
 
-    for (const ach of achievementsData) {
-        await prisma.achievement.create({ data: ach });
-    }
+    // Grant some achievements to users (Moved logic or keeping basic placeholders if needed, but easier to do after all created)
 
-    // Grant some achievements to users
-    const firstSteps = await prisma.achievement.findFirst({ where: { title: 'First Steps' } });
-    const socialButterfly = await prisma.achievement.findFirst({ where: { title: 'Social Butterfly' } });
 
-    if (firstSteps) {
-        await prisma.userAchievement.create({
-            data: { userId: joey.id, achievementId: firstSteps.id }
-        });
-        await prisma.userAchievement.create({
-            data: { userId: bob.id, achievementId: firstSteps.id }
-        });
-    }
-
-    if (socialButterfly) {
-        await prisma.userAchievement.create({
-            data: { userId: joey.id, achievementId: socialButterfly.id }
-        });
-    }
+    // (User achievement granting moved to end of file)
 
 
     // --- TOUR 4: Warsaw: Phoenix City ---
@@ -1631,6 +1550,15 @@ async function main() {
             criteria: 'REVIEW_LEAVE',
             target: 1,
             xpReward: 100,
+        },
+        {
+            title: 'Creator',
+            description: 'Create your first tour',
+            icon: 'map',
+            color: '#9C27B0', // Purple
+            criteria: 'creator',
+            target: 1,
+            xpReward: 300
         }
     ];
 

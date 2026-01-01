@@ -1,7 +1,7 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AnimatedButton } from './common/AnimatedButton';
 
 interface SocialButtonProps {
     text: string;
@@ -13,52 +13,31 @@ interface SocialButtonProps {
 export default function SocialButton({ text, onPress, icon, loading }: SocialButtonProps) {
     const { theme } = useTheme();
 
-    return (
-        <TouchableOpacity
-            style={[styles.button, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}
-            onPress={onPress}
-            disabled={loading}
-        >
-            <View style={styles.content}>
-                {icon === 'google' && (
-                    <Ionicons name="logo-google" size={20} color={theme.textPrimary} style={styles.icon} />
-                )}
-                {/* Fallback or other icons */}
+    // Map specific social icons to Ionicons glyphs if needed, or pass directly
+    const getIconName = (): keyof typeof Ionicons.glyphMap | undefined => {
+        if (icon === 'google') return 'logo-google';
+        if (icon === 'apple') return 'logo-apple';
+        if (icon === 'facebook') return 'logo-facebook';
+        return undefined;
+    };
 
-                <Text style={[styles.text, { color: theme.textPrimary }]}>{text}</Text>
-            </View>
-        </TouchableOpacity>
+    return (
+        <AnimatedButton
+            title={text}
+            onPress={onPress}
+            loading={loading}
+            variant="outline"
+            icon={getIconName()}
+            style={{
+                marginBottom: 16,
+                backgroundColor: theme.bgSecondary,
+                borderColor: theme.borderPrimary,
+                height: 56
+            }}
+            textStyle={{
+                color: theme.textPrimary,
+                fontSize: 16
+            }}
+        />
     );
 }
-
-const styles = StyleSheet.create({
-    button: {
-        height: 56,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        marginBottom: 16,
-        width: '100%',
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
-    },
-    content: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    icon: {
-        marginRight: 12,
-    },
-    text: {
-        fontSize: 16,
-        fontWeight: '600',
-    },
-});

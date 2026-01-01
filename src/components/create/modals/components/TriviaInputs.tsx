@@ -1,6 +1,7 @@
+import { FormInput } from '@/src/components/common/FormInput';
 import { useTheme } from '@/src/context/ThemeContext';
 import React from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { View } from 'react-native';
 
 interface TriviaInputsProps {
     optionA: string;
@@ -18,27 +19,21 @@ export function TriviaInputs({ optionA, optionB, optionC, optionD, setOptionA, s
 
     return (
         <View style={{ gap: 12 }}>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>Options</Text>
-
-            <View>
-                <Text style={[styles.microLabel, { color: theme.success }]}>Correct Answer (Option A)</Text>
-                <TextInput
-                    style={[styles.input, { backgroundColor: theme.bgSecondary, borderColor: theme.success, borderWidth: 1, color: theme.textPrimary }]}
-                    value={optionA}
-                    onChangeText={setOptionA}
-                    placeholder="Type the correct answer here"
-                    placeholderTextColor={theme.textDisabled}
-                />
-            </View>
+            <FormInput
+                label="Correct Answer (Option A)"
+                value={optionA}
+                onChange={setOptionA}
+                placeholder="Type the correct answer here"
+                success={true}
+            />
 
             {['B', 'C', 'D'].map((opt, i) => (
                 <View key={opt}>
-                    <TextInput
-                        style={[styles.input, { backgroundColor: theme.bgSecondary, color: theme.textPrimary }]}
+                    <FormInput
+                        label={`Incorrect Option ${opt}`}
                         value={i === 0 ? optionB : i === 1 ? optionC : optionD}
-                        onChangeText={i === 0 ? setOptionB : i === 1 ? setOptionC : setOptionD}
-                        placeholder={`Incorrect Option ${opt}`}
-                        placeholderTextColor={theme.textDisabled}
+                        onChange={i === 0 ? setOptionB : i === 1 ? setOptionC : setOptionD}
+                        placeholder={`Option ${opt}`}
                     />
                 </View>
             ))}
@@ -46,24 +41,4 @@ export function TriviaInputs({ optionA, optionB, optionC, optionD, setOptionA, s
     );
 }
 
-const styles = StyleSheet.create({
-    label: {
-        fontSize: 13,
-        fontWeight: '700',
-        textTransform: 'uppercase',
-    },
-    microLabel: {
-        fontSize: 10,
-        fontWeight: '700',
-        marginBottom: 4,
-        marginTop: 2,
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
-    },
-    input: {
-        padding: 16,
-        borderRadius: 24,
-        fontSize: 16,
-        fontWeight: '500',
-    },
-});
+

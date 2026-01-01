@@ -1,7 +1,8 @@
+import { GenericCard } from '@/src/components/common/GenericCard';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, Text, View } from 'react-native';
-import { CircleStackIcon, PlusIcon } from 'react-native-heroicons/outline';
+import { CircleStackIcon, PaperAirplaneIcon, PlusIcon } from 'react-native-heroicons/outline';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 
@@ -16,44 +17,55 @@ export default function TokenCard({ tokens, onBuyPress, onInvitePress }: TokenCa
     const { t } = useLanguage();
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.bgSecondary }]}>
-            <View style={styles.leftContent}>
-                {/* The "Jewel": Gradient Icon Background */}
-                <LinearGradient
-                    colors={[theme.accent, theme.primary]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.iconGradient}
-                >
-                    <CircleStackIcon size={20} color="#FFF" />
-                </LinearGradient>
+        <GenericCard variant="flat" padding="medium">
+            <View style={styles.contentContainer}>
+                <View style={styles.leftContent}>
+                    {/* The "Jewel": Gradient Icon Background */}
+                    <LinearGradient
+                        colors={[theme.accent, theme.primary]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.iconGradient}
+                    >
+                        <CircleStackIcon size={20} color="#FFF" />
+                    </LinearGradient>
 
-                <View>
-                    <Text style={[styles.balance, { color: theme.textPrimary }]}>{tokens} {t('tokens')}</Text>
-                    <Text style={[styles.label, { color: theme.textSecondary }]}>{t('availableBalance')}</Text>
+                    <View>
+                        <Text style={[styles.balance, { color: theme.textPrimary }]}>{tokens} {t('tokens')}</Text>
+                        <Text style={[styles.label, { color: theme.textSecondary }]}>{t('availableBalance')}</Text>
+                    </View>
+                </View>
+
+                <View style={styles.actions}>
+                    {/* Invite Button */}
+                    {/* <AnimatedPressable
+                        style={[styles.iconButton, { backgroundColor: theme.bgTertiary }]}
+                        onPress={onInvitePress}
+                        interactionScale="subtle"
+                    >
+                        <PaperAirplaneIcon size={20} color={theme.textSecondary} />
+                    </AnimatedPressable> */}
+
+                    {/* Top Up Button */}
+                    <AnimatedPressable
+                        style={[styles.buyButton, { backgroundColor: theme.bgPrimary, borderWidth: 1, borderColor: theme.borderPrimary }]}
+                        onPress={onBuyPress}
+                        interactionScale="subtle"
+                    >
+                        <PlusIcon size={16} color={theme.textPrimary} style={{ marginRight: 4 }} />
+                        <Text style={[styles.buttonText, { color: theme.textPrimary }]}>{t('topUp')}</Text>
+                    </AnimatedPressable>
                 </View>
             </View>
-
-            <AnimatedPressable
-                style={[styles.buyButton, { backgroundColor: theme.bgPrimary, borderWidth: 1, borderColor: theme.borderPrimary }]}
-                onPress={onBuyPress}
-                interactionScale="subtle"
-            >
-                <PlusIcon size={16} color={theme.textPrimary} style={{ marginRight: 4 }} />
-                <Text style={[styles.buttonText, { color: theme.textPrimary }]}>{t('topUp')}</Text>
-            </AnimatedPressable>
-        </View>
+        </GenericCard>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    contentContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 16,
-        borderRadius: 16,
-        marginTop: 16,
     },
     leftContent: {
         flexDirection: 'row',
@@ -79,9 +91,22 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 12,
     },
+    actions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    iconButton: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     buyButton: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         paddingVertical: 8,
         paddingHorizontal: 16,
         borderRadius: 100,

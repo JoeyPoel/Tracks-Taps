@@ -11,13 +11,17 @@ interface ScreenHeaderProps {
     subtitle?: string;
     showBackButton?: boolean;
     style?: StyleProp<ViewStyle>;
+    rightElement?: React.ReactNode;
+    onBackPress?: () => void;
 }
 
 export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
     title,
     subtitle,
     showBackButton = false,
-    style
+    style,
+    rightElement,
+    onBackPress
 }) => {
     const { theme } = useTheme();
     const router = useRouter();
@@ -25,33 +29,51 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
 
     const paddingTop = style && (style as any).paddingTop !== undefined ? 0 : insets.top;
 
+    const handleBack = () => {
+        if (onBackPress) {
+            onBackPress();
+        } else {
+            router.back();
+        }
+    };
+
     return (
         <View style={[styles.header, { paddingTop }, style]}>
-            {showBackButton && (
-                <TouchableOpacity
-                    onPress={() => router.back()}
-                    style={[styles.backButton, { backgroundColor: theme.bgSecondary }]}
-                >
-                    <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
-                </TouchableOpacity>
-            )}
-
-            <View style={styles.textContainer}>
-                <Animated.Text
-                    entering={FadeInRight.delay(200).springify()}
-                    style={[styles.headerTitle, { color: theme.textPrimary }]}
-                >
-                    {title}
-                </Animated.Text>
-                {subtitle && (
-                    <Animated.Text
-                        entering={FadeInRight.delay(300).springify()}
-                        style={[styles.headerSubtitle, { color: theme.textSecondary }]}
+            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                {showBackButton && (
+                    <TouchableOpacity
+                        onPress={handleBack}
+                        style={[styles.backButton, { backgroundColor: theme.bgSecondary }]}
                     >
-                        {subtitle}
-                    </Animated.Text>
+                        <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
+                    </TouchableOpacity>
                 )}
+
+                <View style={styles.textContainer}>
+                    <Animated.Text
+                        entering={FadeInRight.delay(200).springify()}
+                        style={[styles.headerTitle, { color: theme.textPrimary }]}
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                    >
+                        {title}
+                    </Animated.Text>
+                    {subtitle && (
+                        <Animated.Text
+                            entering={FadeInRight.delay(300).springify()}
+                            style={[styles.headerSubtitle, { color: theme.textSecondary }]}
+                        >
+                            {subtitle}
+                        </Animated.Text>
+                    )}
+                </View>
             </View>
+
+            {rightElement && (
+                <View style={styles.rightElement}>
+                    {rightElement}
+                </View>
+            )}
         </View>
     );
 };
@@ -63,6 +85,7 @@ const styles = StyleSheet.create({
         // marginTop: 10, // Removed to let safe area handle top spacing
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between', // Changed to space-between
     },
     backButton: {
         width: 44,
@@ -72,8 +95,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginRight: 16,
     },
+    // Added container for title/subtitle to center it if needed or let it flex
     textContainer: {
         flex: 1,
+        justifyContent: 'center',
     },
     headerTitle: {
         fontSize: 34,
@@ -85,4 +110,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '500',
     },
+    rightElement: {
+        marginLeft: 16,
+    }
 });

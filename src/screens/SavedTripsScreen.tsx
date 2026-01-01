@@ -4,7 +4,8 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React, { useCallback } from 'react';
 import { Dimensions, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { EmptyState } from '../components/common/EmptyState';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { useLanguage } from '../context/LanguageContext';
@@ -102,15 +103,11 @@ export default function SavedTripsScreen() {
                 }
                 ListEmptyComponent={
                     !loading ? (
-                        <Animated.View entering={ZoomIn.springify()} style={styles.emptyContainer}>
-                            <View style={[styles.emptyIconCircle, { backgroundColor: theme.bgSecondary }]}>
-                                <Ionicons name="heart" size={48} color={theme.error} style={{ opacity: 0.8 }} />
-                            </View>
-                            <Text style={[styles.emptyTitle, { color: theme.textPrimary }]}>No saved trips yet</Text>
-                            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
-                                Start exploring and save your favorite tours to create your first collection.
-                            </Text>
-                        </Animated.View>
+                        <EmptyState
+                            icon="heart"
+                            title="No saved trips yet"
+                            message="Start exploring and save your favorite tours to create your first collection."
+                        />
                     ) : null
                 }
             />

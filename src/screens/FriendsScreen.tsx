@@ -1,3 +1,4 @@
+import { EmptyState } from '@/src/components/common/EmptyState';
 import { FadeInItem } from '@/src/components/common/FadeInList';
 import { ScreenWrapper } from '@/src/components/common/ScreenWrapper';
 import { FriendCard } from '@/src/components/friends/FriendCard';
@@ -7,10 +8,9 @@ import { RequestCard } from '@/src/components/friends/RequestCard';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useFriends } from '@/src/hooks/useFriends';
-import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 
 export default function FriendsScreen() {
@@ -89,19 +89,11 @@ export default function FriendsScreen() {
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={
-                        <View style={styles.emptyState}>
-                            <View style={[styles.emptyIconContainer, { backgroundColor: theme.bgSecondary }]}>
-                                <Ionicons name={activeTab === 'friends' ? "people" : "mail-unread"} size={32} color={theme.primary} />
-                            </View>
-                            <Text style={[styles.emptyTitle, { color: theme.textPrimary }]}>
-                                {activeTab === 'friends' ? t('noFriendsYet') : t('noRequests')}
-                            </Text>
-                            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
-                                {activeTab === 'friends'
-                                    ? t('searchFriendsText')
-                                    : t('noRequestsText')}
-                            </Text>
-                        </View>
+                        <EmptyState
+                            icon={activeTab === 'friends' ? "people" : "mail-unread"}
+                            title={activeTab === 'friends' ? t('noFriendsYet') : t('noRequests')}
+                            message={activeTab === 'friends' ? t('searchFriendsText') : t('noRequestsText')}
+                        />
                     }
                 />
             </View>

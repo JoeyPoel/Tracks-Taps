@@ -1,12 +1,11 @@
-import { LinearGradient } from 'expo-linear-gradient';
 
-import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { BoltIcon as BoltIconSolid, ClockIcon, MapIcon, StarIcon as StarIconSolid } from 'react-native-heroicons/solid';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { getGenreIcon } from '../../utils/genres';
 import { getTourTypeLabel } from '../../utils/tourUtils';
-import { AnimatedPressable } from '../common/AnimatedPressable';
+import { TourCardBase } from './TourCardBase';
 
 interface TourCardProps {
   title: string;
@@ -51,124 +50,81 @@ export default function TourCard({
   const cardHeight = isMap ? 220 : (isGrid ? 240 : 320);
 
   return (
-    <AnimatedPressable
-      onPress={onPress}
-      style={[
-        styles.card,
-        { backgroundColor: theme.bgSecondary, height: cardHeight }
-      ]}
-      interactionScale="subtle"
-    >
-      <ImageBackground source={{ uri: imageUrl }} style={styles.imageBackground} imageStyle={styles.imageStyle}>
-        <View style={styles.overlay} />
-
-        <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.9)']}
-          locations={[0.3, 0.6, 1]}
-          style={styles.gradient}
-        >
-          {/* Top Section */}
-          <View style={styles.topRow}>
-            {!isGrid && (
-              <View style={styles.badgesContainer}>
-                {genre && (
-                  <View style={[styles.badge, styles.blurBadge]}>
-                    {(() => {
-                      const GenreIcon = getGenreIcon(genre);
-                      return <GenreIcon size={12} color="#FFF" />;
-                    })()}
-                    <Text style={styles.badgeText}>{genre}</Text>
-                  </View>
-                )}
-                {tourType && (
-                  <View style={[styles.badge, styles.blurBadge]}>
-                    <Text style={styles.badgeText}>{getTourTypeLabel(tourType)}</Text>
-                  </View>
-                )}
+    <TourCardBase imageUrl={imageUrl} height={cardHeight} onPress={onPress}>
+      {/* Top Section */}
+      <View style={styles.topRow}>
+        {!isGrid && (
+          <View style={styles.badgesContainer}>
+            {genre && (
+              <View style={[styles.badge, styles.blurBadge]}>
+                {(() => {
+                  const GenreIcon = getGenreIcon(genre);
+                  return <GenreIcon size={12} color="#FFF" />;
+                })()}
+                <Text style={styles.badgeText}>{genre}</Text>
               </View>
             )}
-
-            {/* If grid, push rating to right, if hero, it's already right */}
-            <View style={[styles.ratingBadge, styles.blurBadge, isGrid && { marginLeft: 'auto' }]}>
-              <StarIconSolid size={10} color={theme.gold} />
-              <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
-            </View>
+            {tourType && (
+              <View style={[styles.badge, styles.blurBadge]}>
+                <Text style={styles.badgeText}>{getTourTypeLabel(tourType)}</Text>
+              </View>
+            )}
           </View>
+        )}
 
-          {/* Bottom Section */}
-          <View style={styles.bottomContent}>
-            <View style={styles.titleContainer}>
-              <Text
-                style={[styles.title, isGrid && styles.gridTitle]}
-                numberOfLines={2}
-              >
-                {title}
-              </Text>
-              {!isGrid && <Text style={styles.author}>{t('by')} {author}</Text>}
-            </View>
+        {/* If grid, push rating to right, if hero, it's already right */}
+        <View style={[styles.ratingBadge, styles.blurBadge, isGrid && { marginLeft: 'auto' }]}>
+          <StarIconSolid size={10} color={theme.gold} />
+          <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
+        </View>
+      </View>
 
-            {!isGrid && <View style={styles.separator} />}
+      {/* Bottom Section */}
+      <View style={styles.bottomContent}>
+        <View style={styles.titleContainer}>
+          <Text
+            style={[styles.title, isGrid && styles.gridTitle]}
+            numberOfLines={2}
+          >
+            {title}
+          </Text>
+          {!isGrid && <Text style={styles.author}>{t('by')} {author}</Text>}
+        </View>
 
-            <View style={[styles.statsRow, isGrid && styles.gridStatsRow]}>
-              {!isGrid ? (
-                <View style={styles.statGroup}>
-                  <View style={styles.statItem}>
-                    <MapIcon size={14} color="#E0E0E0" />
-                    <Text style={styles.statText}>{distance}</Text>
-                  </View>
-                  <View style={styles.dotSeparator} />
-                  <View style={styles.statItem}>
-                    <ClockIcon size={14} color="#E0E0E0" />
-                    <Text style={styles.statText}>{duration}</Text>
-                  </View>
-                </View>
-              ) : (
-                <View style={styles.gridStatGroup}>
-                  <Text style={styles.miniStatText}>{distance}</Text>
-                  <Text style={styles.miniStatText}>•</Text>
-                  <Text style={styles.miniStatText}>{duration}</Text>
-                </View>
-              )}
+        {!isGrid && <View style={styles.separator} />}
 
-              <View style={[styles.pointsContainer, isGrid && styles.gridPointsContainer]}>
-                <BoltIconSolid size={isGrid ? 10 : 16} color={theme.gold} />
-                <Text style={[styles.pointsText, { color: theme.gold, fontSize: isGrid ? 11 : 14 }]}>{points}</Text>
+        <View style={[styles.statsRow, isGrid && styles.gridStatsRow]}>
+          {!isGrid ? (
+            <View style={styles.statGroup}>
+              <View style={styles.statItem}>
+                <MapIcon size={14} color="#E0E0E0" />
+                <Text style={styles.statText}>{distance}</Text>
+              </View>
+              <View style={styles.dotSeparator} />
+              <View style={styles.statItem}>
+                <ClockIcon size={14} color="#E0E0E0" />
+                <Text style={styles.statText}>{duration}</Text>
               </View>
             </View>
+          ) : (
+            <View style={styles.gridStatGroup}>
+              <Text style={styles.miniStatText}>{distance}</Text>
+              <Text style={styles.miniStatText}>•</Text>
+              <Text style={styles.miniStatText}>{duration}</Text>
+            </View>
+          )}
+
+          <View style={[styles.pointsContainer, isGrid && styles.gridPointsContainer]}>
+            <BoltIconSolid size={isGrid ? 10 : 16} color={theme.gold} />
+            <Text style={[styles.pointsText, { color: theme.gold, fontSize: isGrid ? 11 : 14 }]}>{points}</Text>
           </View>
-        </LinearGradient>
-      </ImageBackground>
-    </AnimatedPressable>
+        </View>
+      </View>
+    </TourCardBase>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 24,
-    overflow: 'hidden',
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 6,
-    width: '100%',
-  },
-  imageBackground: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  imageStyle: {
-    borderRadius: 24,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.15)',
-  },
-  gradient: {
-    flex: 1,
-    padding: 16,
-    justifyContent: 'space-between',
-  },
   topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
