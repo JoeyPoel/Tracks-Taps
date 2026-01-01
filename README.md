@@ -1,149 +1,106 @@
-# Tracks & Taps
+# Tracks & Taps 🍻🗺️
 
-Tracks & Taps is a mobile-first **Gamified Bar Crawl Application** that combines location-based exploration with interactive challenges. Users join tours, complete challenges at various stops (pubs, landmarks, etc.), and compete on leaderboards.
+**Gamified Urban Exploration Platform**
 
-The project is built with **Expo (React Native)** for the frontend and a **Monolithic Vercel Serverless Function** backend using Prisma and PostgreSQL.
-
----
-
-## 🏗️ Architecture
-
-### **Tech Stack**
-- **Frontend**: React Native (Expo), TypeScript, TailwindCSS (for styling via wrappers), React Navigation.
-- **Backend**: Node.js (Expo Router API Routes), consolidated into a single Vercel Serverless Function.
-- **Database**: PostgreSQL (Supabase), managed via Prisma ORM.
-- **Auth**: Supabase Auth (or custom implementation using Prisma).
-- **Deployment**: Vercel (Web/API) & Expo EAS (iOS/Android).
-
-### **Repository Structure**
-```
-Tracks-Taps/
-├── app/                  # Expo Router file-based routing
-│   ├── (tabs)/           # Main tab navigation
-│   ├── api/              # API Route Handlers (Original Source)
-│   └── ...models/screens # App screens
-├── src/
-│   ├── components/       # Reusable UI components
-│   ├── context/          # Global state (Theme, Auth, etc.)
-│   ├── hooks/            # Custom React hooks
-│   ├── repositories/     # Data access layer
-│   ├── services/         # Business logic layer
-│   └── theme/            # Design tokens
-├── prisma/               # Database schema and seed scripts
-├── scripts/              # Build & Utility scripts
-│   └── vercel-build.js   # Custom build script for Vercel deployment
-├── dist/                 # Exported static assets (not committed)
-└── api/                  # GENERATED Monolithic API for Vercel (not committed)
-```
+> This repository contains the source code for the Tracks & Taps mobile application. 
+> For detailed documentation relevant to university admissions, please refer to:
+> -   📘 **[Engineering Architecture (UPC)](./README_TECHNICAL.md)** - Deep dive into stack, patterns, and infrastructure.
+> -   📙 **[Product Vision (UPF)](./README_BUSINESS.md)** - Analysis of user journey, loop, and business logic.
 
 ---
 
-## 🎨 UI & UX System
+## 🚀 Deployment & Launch
 
-### **Animations & Haptics**
-We use a centralized system for interactions to ensuring a premium feel.
-- **Components**: `AnimatedPressable`, `AnimatedButton`.
-- **System**: See [ANIMATION_SYSTEM.md](./ANIMATION_SYSTEM.md) for details on spring configs and haptic patterns.
-- **Rule**: Avoid raw `TouchableOpacity` or `Pressable`. Use the animated components to maintain consistency.
+### 🌐 Web & API (Vercel)
+The project is configured for serverless deployment on Vercel. 
+- **The Monolith**: To bypass Vercel serverless function limits, the build executes `scripts/vercel-build.js` which bundles all API routes into a single master function.
+- **How to Deploy**: Push to the `main` branch or use `vercel --prod` via CLI.
 
-## 🚀 Deployment (Web & API)
-
-We deploy to **Vercel** to host both the Web SPA and the API.
-
-### **The "Monolith" Strategy**
-Vercel has a limit of 12 serverless functions per deployment on hobby plans. To bypass this and ensure reliable cold starts, we consolidate all Expo API routes (`app/api/*`) into a **single monolithic function** during the build process.
-
-**Key File:** `scripts/vercel-build.js`
-1.  **Generates** `api/index.js`: A master router that handles all requests to `/api/*`.
-2.  **Bundles Prisma**: Copies the correct Linux Prisma Query Engine (`libquery_engine-rhel-openssl-3.0.x.so.node`) so it's available at runtime.
-3.  **Configures Vercel**: Generates a `vercel.json` that routes all API traffic to this single function.
-
-### **How to Deploy**
-You can deploy manually or via Git integration (recommended).
-
-#### **Option 1: Git Integration**
-Simply push to your `main` branch. Vercel will automatically detect the commit, run `npm run build`, and deploy the result.
-
-#### **Option 2: Manual CLI**
-1.  **Install Vercel CLI**: `npm install -g vercel`
-2.  **Run Deploy Command**:
-    ```bash
-    vercel --prod
-    ```
-    *The build script (`npm run build`) will automatically execute `node scripts/vercel-build.js` to prepare the artifacts.*
-
-### **Environment Variables**
-Ensure these are set in your Vercel Project Settings:
-- `DATABASE_URL`: Connection string for PostgreSQL (Transaction pooler recommended).
-- `DIRECT_URL`: Direct connection string for migrations (Session mode).
+### 🍎 iOS App Store
+We use **EAS Build** for native distribution.
+1. **Build for Production**:
+   ```bash
+   eas build --platform ios --profile production
+   ```
+2. **Submit to App Store**:
+   ```bash
+   eas build --platform ios --profile production --auto-submit
+   ```
+*Ensure `eas.json` and `app.json` are correctly configured with your developer credentials.*
 
 ---
 
-## 🍎 Launching on iOS App Store
+## ⚡ Quick Start Guide
 
-To launch the native iOS application, we use **EAS Build** and **EAS Submit**.
+Follow these steps to get the development environment running locally.
 
-### **1. Prerequisites**
-- **Apple Developer Account**: Required to publish to the App Store ($99/year).
-- **EAS CLI**: Install via `npm install -g eas-cli`.
-- **Expo Account**: Log in via `eas login`.
+### 1. Prerequisites
+-   **Node.js**: v18.0.0 or higher.
+-   **Expo Go**: Installed on your physical iOS/Android device.
+-   **Git**: For version control.
+-   **PostgreSQL**: Local or remote instance (Supabase recommended).
 
-### **2. Configuration**
-The project is configured via `eas.json`. Ensure your `production` profile is set up:
+### 2. Installation
 
-```json
-{
-  "build": {
-    "production": {}
-  },
-  "submit": {
-    "production": {}
-  }
-}
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/JoeyPoel/Tracks-Taps.git
+cd Tracks-Taps
+npm install
 ```
 
-*Note: App versioning is managed remotely via EAS (see `appVersionSource: "remote"` in `eas.json`).*
+### 3. Environment Configuration
 
-### **3. App Icons and Splash Screens**
-Ensure all assets in `assets/` are correctly sized and linked in `app.json`:
-- **icon**: 1024x1024px
-- **splash**: 1242x2436px (resizeMode: contain)
+Create a `.env` file in the root directory. You need a PostgreSQL connection string (Supabase Transaction Pooler recommended).
 
-### **4. Build for Production**
-Run the build command for iOS:
-```bash
-eas build --platform ios --profile production
+```env
+# Database Connection
+DATABASE_URL="postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres"
+
+# JWT Secrets (if using custom Auth)
+JWT_SECRET="super-secret-key"
 ```
-This will queue a build on Expo's servers. Once complete, you will have an `.ipa` file ready for submission.
 
-### **5. Submit to TestFlight / App Store**
-You can automatically submit the built binary to App Store Connect:
+### 4. Database Setup
+
+We use **Prisma ORM**. You need to push the schema and seed the database with initial tours/users.
+
 ```bash
-eas build --platform ios --profile production --auto-submit
-```
-Follow the interactive prompts to select the build you just created.
+# Generate Prisma Client
+npx prisma generate
 
----
+# Push Schema to DB
+npx prisma db push
 
-## 🛠️ Development
-
-### **Running Locally**
-```bash
-# Start the Expo development server
-npm start
-```
-- Press `w` for Web
-- Press `i` for iOS Simulator
-- Press `a` for Android Emulator
-
-### **Database Management**
-```bash
-# Run Migrations
-npx prisma migrate dev
-
-# Access Database GUI
-npx prisma studio
-
-# Seed Database
+# Seed Initial Data
 npx tsx prisma/seed_new.ts
 ```
+
+### 5. Run the Application
+
+Start the Expo Development Server:
+
+```bash
+npx expo start -c
+```
+*Flag `-c` clears the bundler cache to ensure a clean start.*
+
+Once running:
+-   Scan the QR code with **Expo Go** (Android) or **Camera App** (iOS).
+-   Press `w` to run in Web Browser.
+
+---
+
+## 🛠️ Scripts
+
+| Command | Description |
+| :--- | :--- |
+| `npm start` | Start the dev server. |
+| `npx prisma studio` | Open the Database GUI to inspect records. |
+| `npm run build` | Build the project for Vercel/Web deployment. |
+
+---
+
+*Verified Jan 2026*
