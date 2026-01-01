@@ -22,16 +22,21 @@ export const userRepository = {
                     }
                 },
                 createdTours: {
-                    select: {
-                        id: true,
-                        title: true
+                    include: {
+                        author: { select: { name: true, avatarUrl: true } },
+                        reviews: { select: { rating: true } },
+                        stops: { select: { id: true } }
                     }
                 },
                 playedTours: {
-                    select: {
-                        id: true,
-                        status: true,
-                        score: true
+                    include: {
+                        tour: {
+                            include: {
+                                author: { select: { name: true, avatarUrl: true } },
+                                reviews: { select: { rating: true } },
+                                stops: { select: { id: true } }
+                            }
+                        }
                     }
                 }
             },
@@ -59,16 +64,21 @@ export const userRepository = {
                     }
                 },
                 createdTours: {
-                    select: {
-                        id: true,
-                        title: true
+                    include: {
+                        author: { select: { name: true, avatarUrl: true } },
+                        reviews: { select: { rating: true } },
+                        stops: { select: { id: true } }
                     }
                 },
                 playedTours: {
-                    select: {
-                        id: true,
-                        status: true,
-                        score: true
+                    include: {
+                        tour: {
+                            include: {
+                                author: { select: { name: true, avatarUrl: true } },
+                                reviews: { select: { rating: true } },
+                                stops: { select: { id: true } }
+                            }
+                        }
                     }
                 }
             },

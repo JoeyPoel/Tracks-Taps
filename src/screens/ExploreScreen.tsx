@@ -36,6 +36,7 @@ export default function ExploreScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(300); // Default guess or estimate
   const scrollY = useSharedValue(0);
 
@@ -81,11 +82,16 @@ export default function ExploreScreen() {
 
   const onRefresh = useCallback(async () => {
     if (user?.id) {
-      // Force fetch everything
-      await Promise.all([
-        fetchTours(),
-        fetchActiveTours(user.id)
-      ]);
+      setIsRefreshing(true);
+      try {
+        // Force fetch everything
+        await Promise.all([
+          fetchTours(),
+          fetchActiveTours(user.id)
+        ]);
+      } finally {
+        setIsRefreshing(false);
+      }
     }
   }, [user?.id, fetchTours, fetchActiveTours]);
 
@@ -100,17 +106,23 @@ export default function ExploreScreen() {
   const renderHeaderContent = () => (
     <View
       onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
-      style={{ paddingBottom: 8, position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, backgroundColor: theme.bgPrimary }}
+      style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}
+      pointerEvents="box-none"
     >
-      <View style={{ paddingHorizontal: 20 }}>
-        {/* Header Title */}
-        <ScreenHeader
-          title={t('explore') || 'Explore'}
-          subtitle={t('findYourNextAdventure')}
-          style={[styles.headerTop, { paddingHorizontal: 0 }]}
-        />
+      {/* Background Layer - Allows touches to pass through */}
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: theme.bgPrimary }]} pointerEvents="none" />
 
-        {/* Search Bar */}
+      <View style={{ paddingHorizontal: 20, paddingBottom: 8 }} pointerEvents="box-none">
+        {/* Header Title - Static, let touches pass */}
+        <View pointerEvents="none">
+          <ScreenHeader
+            title={t('explore') || 'Explore'}
+            subtitle={t('findYourNextAdventure')}
+            style={[styles.headerTop, { paddingHorizontal: 0 }]}
+          />
+        </View>
+
+        {/* Search Bar - Interactive */}
         <Animated.View entering={FadeInDown.delay(100).duration(600).springify()} style={[styles.searchContainer, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
           <MagnifyingGlassIcon size={20} color={theme.textSecondary} style={{ marginRight: 12 }} />
           <TextInput
@@ -191,8 +203,10 @@ export default function ExploreScreen() {
           const progress = Math.min(Math.max((currentStop - 1) / totalStops, 0), 1);
 
           return (
-            <View style={styles.activeTourSection}>
-              <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>{t('currentAdventure') || 'Current Adventure'}</Text>
+            <View style={styles.activeTourSection} pointerEvents="box-none">
+              <View pointerEvents="none">
+                <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>{t('currentAdventure') || 'Current Adventure'}</Text>
+              </View>
               <ActiveTourCard
                 title={activeTour.tour?.title || ''}
                 imageUrl={activeTour.tour?.imageUrl || ''}
@@ -203,7 +217,7 @@ export default function ExploreScreen() {
           );
         })()}
 
-        <View style={styles.popularToursHeader}>
+        <View style={styles.popularToursHeader} pointerEvents="none">
           <Text style={[styles.sectionTitle, { color: theme.textPrimary, marginBottom: 4 }]}>{t('popularTours') || 'Popular Tours'}</Text>
           <Text style={[styles.popularToursSubtitle, { color: theme.textSecondary }]}>{t('curatedAdventures')}</Text>
         </View>
@@ -231,7 +245,7 @@ export default function ExploreScreen() {
         columnWrapperStyle={isGrid ? { justifyContent: 'space-between', marginBottom: 16, paddingHorizontal: 20 } : undefined}
         refreshControl={
           <RefreshControl
-            refreshing={loading && !showSkeleton}
+            refreshing={isRefreshing}
             onRefresh={onRefresh}
             tintColor={theme.primary}
             colors={[theme.primary]}
@@ -305,7 +319,7 @@ export default function ExploreScreen() {
 
   return (
     <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} includeBottom={false}>
-      <Animated.View style={[headerAnimatedStyle, { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }]}>
+      <Animated.View style={[headerAnimatedStyle, { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }]} pointerEvents="box-none">
         {renderHeaderContent()}
       </Animated.View>
       {renderContent()}

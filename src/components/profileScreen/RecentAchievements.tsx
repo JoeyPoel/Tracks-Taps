@@ -1,16 +1,7 @@
 import { useLanguage } from '@/src/context/LanguageContext';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import {
-    BoltIcon,
-    FireIcon,
-    FlagIcon,
-    GlobeAmericasIcon,
-    MapPinIcon,
-    StarIcon,
-    TrophyIcon,
-    UserGroupIcon
-} from 'react-native-heroicons/outline';
+import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { useTheme } from '../../context/ThemeContext';
 
 interface Achievement {
@@ -24,29 +15,33 @@ interface Achievement {
 
 interface RecentAchievementsProps {
     achievements: Achievement[];
+    loading?: boolean;
     onSeeAll?: () => void;
 }
 
-export default function RecentAchievements({ achievements, onSeeAll }: RecentAchievementsProps) {
+const AchievementSkeleton = () => {
+    const { theme } = useTheme();
+    const opacity = useSharedValue(0.3);
+
+    useEffect(() => {
+        opacity.value = withRepeat(withTiming(0.7, { duration: 800 }), -1, true);
+    }, []);
+
+    const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+    return (
+        <Animated.View style={[styles.card, { backgroundColor: theme.bgSecondary }, animatedStyle]}>
+            <View style={[styles.iconContainer, { backgroundColor: theme.bgPrimary, opacity: 0.5 }]} />
+            <View style={{ width: '80%', height: 12, backgroundColor: theme.bgPrimary, borderRadius: 6, opacity: 0.5 }} />
+        </Animated.View>
+    );
+};
+
+import { AchievementIcon } from '@/src/components/achievements/AchievementIcon';
+
+export default function RecentAchievements({ achievements, loading, onSeeAll }: RecentAchievementsProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
-
-    const getIconComponent = (iconName: string) => {
-        switch (iconName) {
-            case 'trophy': return TrophyIcon;
-            case 'map': return MapPinIcon;
-            case 'flame': return FireIcon;
-            case 'flash': return BoltIcon;
-            case 'star': return StarIcon;
-            case 'flag': return FlagIcon;
-            case 'globe': return GlobeAmericasIcon;
-            case 'people': return UserGroupIcon;
-            default: return StarIcon;
-        }
-    };
-
-    // Removed early return to always show the header and "See All" link
-    // if (!achievements || achievements.length === 0) return null;
 
     return (
         <View style={styles.container}>
@@ -64,16 +59,26 @@ export default function RecentAchievements({ achievements, onSeeAll }: RecentAch
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ gap: 12 }}
             >
-                {achievements && achievements.length > 0 ? (
-                    achievements.map((achievement) => {
-                        const IconComponent = getIconComponent(achievement.icon);
+                {loading ? (
+                    <>
+                        <AchievementSkeleton />
+                        <AchievementSkeleton />
+                        <AchievementSkeleton />
+                        <AchievementSkeleton />
+                    </>
+                ) : achievements && achievements.length > 0 ? (
+                    achievements.map((achievement, index) => {
                         return (
-                            <View key={achievement.id} style={[styles.card, { backgroundColor: theme.bgSecondary }]}>
+                            <Animated.View
+                                entering={FadeIn.delay(index * 100)}
+                                key={achievement.id}
+                                style={[styles.card, { backgroundColor: theme.bgSecondary }]}
+                            >
                                 <View style={[styles.iconContainer, { backgroundColor: achievement.color + '15' }]}>
-                                    <IconComponent size={28} color={achievement.color} />
+                                    <AchievementIcon icon={achievement.icon} size={28} color={achievement.color} solid={false} />
                                 </View>
                                 <Text style={[styles.title, { color: theme.textPrimary }]} numberOfLines={1}>{achievement.title}</Text>
-                            </View>
+                            </Animated.View>
                         );
                     })
                 ) : (
@@ -86,7 +91,6 @@ export default function RecentAchievements({ achievements, onSeeAll }: RecentAch
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 24,
     },
     headerRow: {
         marginBottom: 12,

@@ -31,7 +31,7 @@ export default function ProfileScreen() {
   const [showBuyTokens, setShowBuyTokens] = useState(false);
 
   const { user, loading } = useUserContext();
-  const { achievements, loadAchievements } = useAchievements();
+  const { achievements, loadAchievements, loading: achievementsLoading } = useAchievements();
   const { loadFriends, friends } = useFriends();
 
   useEffect(() => {
@@ -94,6 +94,7 @@ export default function ProfileScreen() {
         <Animated.View style={{ marginTop: 24 }}>
           <RecentAchievements
             achievements={achievements}
+            loading={achievementsLoading}
             onSeeAll={() => router.push('/profile/achievements')}
           />
         </Animated.View>

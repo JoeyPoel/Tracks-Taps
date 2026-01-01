@@ -21,7 +21,15 @@ export default function TourListScreen() {
     const { user } = useUserContext();
 
     const [tours, setTours] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+
+    // Improved Skeleton Logic: Only show skeleton if we expect data based on user context
+    const hasExpectedData = type === 'done'
+        ? (user?.playedTours?.length || 0) > 0
+        : (user?.createdTours?.length || 0) > 0;
+
+    // If we don't expect data, don't start with loading=true that triggers skeleton. 
+    // We still fetch to be sure, but visually we start empty.
+    const [loading, setLoading] = useState(hasExpectedData);
 
     useEffect(() => {
         loadTours();
@@ -36,9 +44,11 @@ export default function TourListScreen() {
                 // Reload user profile to get latest lists if needed, or just use what we have
                 const profile = await userService.getUserProfile(user.id);
                 if (type === 'done') {
-                    setTours(profile.playedTours || []);
+                    // Normalize the data: extract the nested 'tour' object from UserPlayedTour
+                    // Use pt.id (UserPlayedTour id) as unique key to avoid duplicates if tour played multiple times
+                    setTours(profile.playedTours?.map((pt: any) => ({ ...pt.tour, uniqueKey: pt.id.toString() })) || []);
                 } else if (type === 'created') {
-                    setTours(profile.createdTours || []);
+                    setTours(profile.createdTours?.map((t: any) => ({ ...t, uniqueKey: t.id.toString() })) || []);
                 }
             }
         } catch (error) {
@@ -53,9 +63,9 @@ export default function TourListScreen() {
             <ScreenHeader showBackButton title={title || (type === 'done' ? t('toursDone') : t('toursCreated'))} />
 
             <FlatList
-                data={(!loading || tours.length > 0) ? tours : [1, 2, 3, 4] as any}
+                data={(loading && hasExpectedData && tours.length === 0) ? [1, 2, 3, 4] as any : tours}
                 renderItem={({ item }) => {
-                    if (loading && tours.length === 0) {
+                    if (typeof item === 'number') {
                         return (
                             <View style={{ marginBottom: 16 }}>
                                 <TourSkeleton />
@@ -82,7 +92,10 @@ export default function TourListScreen() {
                         </View>
                     );
                 }}
-                keyExtractor={(item) => (typeof item === 'number' ? `skeleton-${item}` : item.id.toString())}
+                keyExtractor={(item) => {
+                    if (typeof item === 'number') return `skeleton-${item}`;
+                    return item.uniqueKey || item.id.toString();
+                }}
                 contentContainerStyle={styles.listContent}
                 refreshControl={
                     <RefreshControl

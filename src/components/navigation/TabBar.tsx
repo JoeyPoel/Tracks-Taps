@@ -52,7 +52,7 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     // We can rely on translation to move it out.
 
     return (
-        <Animated.View style={[styles.container, { paddingBottom: 40 }, animatedStyle]}>
+        <Animated.View style={[styles.container, { paddingBottom: 35 }, animatedStyle]}>
             <BlurView
                 intensity={80}
                 tint={mode === 'dark' ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight'}
