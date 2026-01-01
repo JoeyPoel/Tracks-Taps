@@ -43,5 +43,10 @@ export const savedTripsService = {
     async removeTour(listId: number, tourId: number) {
         const response = await client.delete(`/saved-trips/${listId}/tours/${tourId}`);
         return response.data;
+    },
+
+    async updateOrder(id: number, tourIds: number[]) {
+        const response = await client.patch(`/saved-trips/${id}`, { tourIds });
+        return response.data;
     }
 };

@@ -377,6 +377,7 @@ model TourList {
   userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   tours     Tour[]   @relation("TourListTours")
+  tourOrder Int[]    @default([])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

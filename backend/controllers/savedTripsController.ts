@@ -51,10 +51,17 @@ export const savedTripsController = {
     async updateSavedTrip(req: Request, { userId, id }: { userId: number, id: string }) {
         try {
             const body = await req.json();
+
+            if (body.tourIds && Array.isArray(body.tourIds)) {
+                const list = await savedTripsService.updateTourOrder(parseInt(id), userId, body.tourIds);
+                return Response.json(list);
+            }
+
             if (body.name) {
                 const list = await savedTripsService.updateSavedTripName(parseInt(id), userId, body.name);
                 return Response.json(list);
             }
+
             return Response.json({ error: 'Nothing to update' }, { status: 400 });
         } catch (error: any) {
             return Response.json({ error: error.message }, { status: 500 });
@@ -77,5 +84,7 @@ export const savedTripsController = {
         } catch (error: any) {
             return Response.json({ error: error.message }, { status: 500 });
         }
-    }
+    },
+
+
 };

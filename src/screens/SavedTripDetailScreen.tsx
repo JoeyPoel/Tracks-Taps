@@ -15,10 +15,18 @@ export default function SavedTripDetailScreen() {
     const router = useRouter();
     const [list, setList] = useState<SavedTrip | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
+    const [localTours, setLocalTours] = useState<any[]>([]);
 
     useEffect(() => {
         if (id) loadList();
     }, [id]);
+
+    useEffect(() => {
+        if (list?.tours) {
+            setLocalTours(list.tours);
+        }
+    }, [list]);
 
     const loadList = async () => {
         try {
@@ -31,6 +39,24 @@ export default function SavedTripDetailScreen() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleSaveOrder = async () => {
+        try {
+            const tourIds = localTours.map(t => t.id);
+            await savedTripsService.updateOrder(Number(id), tourIds);
+            setIsEditing(false);
+        } catch (error) {
+            Alert.alert('Error', 'Failed to save order');
+        }
+    };
+
+    const handleMove = (fromIndex: number, toIndex: number) => {
+        if (toIndex < 0 || toIndex >= localTours.length) return;
+        const updated = [...localTours];
+        const [moved] = updated.splice(fromIndex, 1);
+        updated.splice(toIndex, 0, moved);
+        setLocalTours(updated);
     };
 
     const handleDeleteList = async () => {
@@ -56,11 +82,19 @@ export default function SavedTripDetailScreen() {
     };
 
     const handleRemoveTour = async (tourId: number) => {
+        // Optimistic update
+        setLocalTours(prev => prev.filter(t => t.id !== tourId));
+        // We can either save immediately or wait for "Done". 
+        // For removal, usually immediate is safer or expected, but consistency with reorder suggests saving on Done.
+        // However, existing backend support removeTour separately.
+        // Let's do it immediately for removal, but re-order needs save.
+        // Actually, if we remove, order changes.
+        // Let's update backend immediately for removal.
         try {
             await savedTripsService.removeTour(Number(id), tourId);
-            loadList();
         } catch (error) {
             Alert.alert('Error', 'Failed to remove tour');
+            loadList(); // Revert
         }
     }
 
@@ -74,23 +108,25 @@ export default function SavedTripDetailScreen() {
         >
             <ScreenHeader
                 title={list?.name || 'Loading...'}
-                subtitle={`${list?.tours?.length || 0} ${(list?.tours?.length === 1) ? 'tour' : 'tours'} collected`}
+                subtitle={`${localTours.length} ${(localTours.length === 1) ? 'tour' : 'tours'} collected`}
                 showBackButton
                 rightElement={
                     <TouchableOpacity
-                        onPress={handleDeleteList}
-                        style={[styles.iconButton, { backgroundColor: theme.error + '20' }]}
+                        onPress={() => isEditing ? handleSaveOrder() : setIsEditing(true)}
+                        style={[styles.textButton, { backgroundColor: isEditing ? theme.primary : theme.bgTertiary }]}
                     >
-                        <Ionicons name="trash-outline" size={22} color={theme.error} />
+                        <Text style={[styles.textButtonLabel, { color: isEditing ? '#FFF' : theme.textPrimary }]}>
+                            {isEditing ? 'Done' : 'Edit'}
+                        </Text>
                     </TouchableOpacity>
                 }
             />
 
             <FlatList
-                data={list?.tours || []}
+                data={localTours}
                 renderItem={({ item, index }) => {
                     const rating = item.reviews && item.reviews.length > 0
-                        ? item.reviews.reduce((sum, r) => sum + r.rating, 0) / item.reviews.length
+                        ? item.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / item.reviews.length
                         : 0;
                     const reviewCount = item.reviews?.length || 0;
 
@@ -99,28 +135,51 @@ export default function SavedTripDetailScreen() {
                             entering={FadeInDown.delay(index * 100).springify()}
                             style={styles.cardContainer}
                         >
-                            <TourCard
-                                title={item.title}
-                                author={item.author?.name || 'Unknown'}
-                                imageUrl={item.imageUrl}
-                                distance={item.distance ? `${item.distance} km` : '0 km'}
-                                duration={item.duration ? `${item.duration} min` : '0 min'}
-                                stops={item.stops?.length || 0}
-                                rating={rating}
-                                reviewCount={reviewCount}
-                                points={item.points || 0}
-                                modes={item.modes || []}
-                                genre={item.genre}
-                                tourType={item.type}
-                                onPress={() => router.push(`/tour/${item.id}`)}
-                            />
-                            <TouchableOpacity
-                                style={[styles.removeButton, { backgroundColor: theme.bgPrimary, shadowColor: theme.shadowColor }]}
-                                onPress={() => handleRemoveTour(item.id)}
-                                activeOpacity={0.8}
-                            >
-                                <Ionicons name="close" size={18} color={theme.textPrimary} />
-                            </TouchableOpacity>
+                            <View style={{ opacity: isEditing ? 0.9 : 1, pointerEvents: isEditing ? 'none' : 'auto' }}>
+                                <TourCard
+                                    title={item.title}
+                                    author={item.author?.name || 'Unknown'}
+                                    imageUrl={item.imageUrl}
+                                    distance={item.distance ? `${item.distance} km` : '0 km'}
+                                    duration={item.duration ? `${item.duration} min` : '0 min'}
+                                    stops={item.stops?.length || 0}
+                                    rating={rating}
+                                    reviewCount={reviewCount}
+                                    points={item.points || 0}
+                                    modes={item.modes || []}
+                                    genre={item.genre}
+                                    tourType={item.type}
+                                    onPress={() => !isEditing && router.push(`/tour/${item.id}`)}
+                                />
+                            </View>
+
+                            {isEditing && (
+                                <View style={styles.editOverlay}>
+                                    <View style={styles.reorderControls}>
+                                        <TouchableOpacity
+                                            onPress={() => handleMove(index, index - 1)}
+                                            disabled={index === 0}
+                                            style={[styles.controlBtn, { backgroundColor: theme.bgSecondary }]}
+                                        >
+                                            <Ionicons name="chevron-up" size={20} color={index === 0 ? theme.textTertiary : theme.textPrimary} />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            onPress={() => handleMove(index, index + 1)}
+                                            disabled={index === localTours.length - 1}
+                                            style={[styles.controlBtn, { backgroundColor: theme.bgSecondary }]}
+                                        >
+                                            <Ionicons name="chevron-down" size={20} color={index === localTours.length - 1 ? theme.textTertiary : theme.textPrimary} />
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    <TouchableOpacity
+                                        style={[styles.removeButton, { backgroundColor: theme.error }]}
+                                        onPress={() => handleRemoveTour(item.id)}
+                                    >
+                                        <Ionicons name="trash" size={18} color="#FFF" />
+                                    </TouchableOpacity>
+                                </View>
+                            )}
                         </Animated.View>
                     );
                 }}
@@ -128,6 +187,16 @@ export default function SavedTripDetailScreen() {
                 contentContainerStyle={styles.listContent}
                 refreshControl={
                     <RefreshControl refreshing={loading} onRefresh={loadList} tintColor={theme.primary} />
+                }
+                ListFooterComponent={
+                    isEditing ? (
+                        <TouchableOpacity
+                            style={[styles.deleteCollectionBtn, { borderColor: theme.error }]}
+                            onPress={handleDeleteList}
+                        >
+                            <Text style={{ color: theme.error, fontWeight: '600' }}>Delete Collection</Text>
+                        </TouchableOpacity>
+                    ) : null
                 }
                 ListEmptyComponent={
                     !loading ? (
@@ -152,6 +221,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    textButton: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+    },
+    textButtonLabel: {
+        fontWeight: '600',
+        fontSize: 14,
+    },
     listContent: {
         padding: 20,
         paddingBottom: 120,
@@ -160,13 +238,38 @@ const styles = StyleSheet.create({
     cardContainer: {
         position: 'relative',
     },
-    removeButton: {
+    editOverlay: {
         position: 'absolute',
-        top: 12,
-        right: 12,
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 12,
+        pointerEvents: 'box-none',
+    },
+    reorderControls: {
+        flexDirection: 'column',
+        gap: 8,
+        justifyContent: 'center',
+    },
+    controlBtn: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    removeButton: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',
         shadowOffset: { width: 0, height: 2 },
@@ -174,6 +277,15 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
         zIndex: 10,
+    },
+    deleteCollectionBtn: {
+        marginVertical: 20,
+        padding: 16,
+        borderRadius: 16,
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'transparent',
     },
     emptyContainer: {
         padding: 40,

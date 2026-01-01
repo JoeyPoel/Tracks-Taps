@@ -44,5 +44,13 @@ export const savedTripsService = {
         if (list.userId !== userId) throw new Error('Unauthorized');
 
         return savedTripsRepository.removeTour(listId, tourId);
+    },
+
+    async updateTourOrder(listId: number, userId: number, tourIds: number[]) {
+        const list = await savedTripsRepository.findById(listId);
+        if (!list) throw new Error('Saved trip list not found');
+        if (list.userId !== userId) throw new Error('Unauthorized');
+
+        return savedTripsRepository.updateOrder(listId, tourIds);
     }
 };
