@@ -61,10 +61,10 @@ export const ToastComponent: React.FC<ToastProps> = ({
 const styles = StyleSheet.create({
     container: {
         position: 'absolute',
-        left: 20,
         right: 20,
-        padding: 16,
-        borderRadius: 16,
+        width: '30%',
+        padding: 12,
+        borderRadius: 12,
         flexDirection: 'row',
         alignItems: 'center',
         shadowColor: "#000",
@@ -77,28 +77,28 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255,255,255,0.2)'
     },
     iconContainer: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
         backgroundColor: 'rgba(255,255,255,0.2)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 12,
+        marginRight: 8,
     },
     emoji: {
-        fontSize: 24,
+        fontSize: 18,
     },
     contentContainer: {
         flex: 1,
     },
     title: {
         color: '#FFF',
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: 'bold',
         marginBottom: 2,
     },
     message: {
         color: 'rgba(255,255,255,0.9)',
-        fontSize: 13,
+        fontSize: 11,
     }
 });

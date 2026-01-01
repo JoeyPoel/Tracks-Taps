@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { EmptyState } from '../components/common/EmptyState';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
@@ -52,18 +52,17 @@ export default function TourListScreen() {
         <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={false}>
             <ScreenHeader showBackButton title={title || (type === 'done' ? t('toursDone') : t('toursCreated'))} />
 
-            {loading ? (
-                <View style={styles.listContent}>
-                    {[1, 2, 3, 4].map((i) => (
-                        <View key={i} style={{ marginBottom: 16 }}>
-                            <TourSkeleton />
-                        </View>
-                    ))}
-                </View>
-            ) : (
-                <FlatList
-                    data={tours}
-                    renderItem={({ item }) => (
+            <FlatList
+                data={(!loading || tours.length > 0) ? tours : [1, 2, 3, 4] as any}
+                renderItem={({ item }) => {
+                    if (loading && tours.length === 0) {
+                        return (
+                            <View style={{ marginBottom: 16 }}>
+                                <TourSkeleton />
+                            </View>
+                        );
+                    }
+                    return (
                         <View style={{ marginBottom: 16 }}>
                             <TourCard
                                 title={item.title}
@@ -81,18 +80,27 @@ export default function TourListScreen() {
                                 onPress={() => router.push(`/tour/${item.id}`)}
                             />
                         </View>
-                    )}
-                    keyExtractor={(item) => item.id.toString()}
-                    contentContainerStyle={styles.listContent}
-                    ListEmptyComponent={
+                    );
+                }}
+                keyExtractor={(item) => (typeof item === 'number' ? `skeleton-${item}` : item.id.toString())}
+                contentContainerStyle={styles.listContent}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={loading}
+                        onRefresh={loadTours}
+                        tintColor={theme.primary}
+                    />
+                }
+                ListEmptyComponent={
+                    (!loading && tours.length === 0) ? (
                         <EmptyState
                             icon="map-outline"
                             title={t('noToursFound')}
                             message={t('noToursFound')}
                         />
-                    }
-                />
-            )}
+                    ) : null
+                }
+            />
         </ScreenWrapper>
     );
 }

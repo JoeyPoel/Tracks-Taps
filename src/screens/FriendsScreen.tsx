@@ -10,7 +10,7 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { useFriends } from '@/src/hooks/useFriends';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 
 export default function FriendsScreen() {
@@ -23,6 +23,7 @@ export default function FriendsScreen() {
     const {
         friends,
         requests,
+        loading,
         loadFriends,
         loadRequests,
         sendFriendRequest,
@@ -36,6 +37,14 @@ export default function FriendsScreen() {
             loadRequests();
         }
     }, [activeTab]);
+
+    const handleRefresh = React.useCallback(() => {
+        if (activeTab === 'friends') {
+            loadFriends();
+        } else {
+            loadRequests();
+        }
+    }, [activeTab, loadFriends, loadRequests]);
 
     const handleSend = async () => {
         if (await sendFriendRequest(searchEmail)) {
@@ -88,12 +97,21 @@ export default function FriendsScreen() {
                     keyExtractor={(item) => item.id.toString()}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={
-                        <EmptyState
-                            icon={activeTab === 'friends' ? "people" : "mail-unread"}
-                            title={activeTab === 'friends' ? t('noFriendsYet') : t('noRequests')}
-                            message={activeTab === 'friends' ? t('searchFriendsText') : t('noRequestsText')}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={loading}
+                            onRefresh={handleRefresh}
+                            tintColor={theme.primary}
                         />
+                    }
+                    ListEmptyComponent={
+                        !loading ? (
+                            <EmptyState
+                                icon={activeTab === 'friends' ? "people" : "mail-unread"}
+                                title={activeTab === 'friends' ? t('noFriendsYet') : t('noRequests')}
+                                message={activeTab === 'friends' ? t('searchFriendsText') : t('noRequestsText')}
+                            />
+                        ) : null
                     }
                 />
             </View>

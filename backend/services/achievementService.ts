@@ -56,7 +56,9 @@ export const achievementService = {
 
         // Find relevant achievements
         const achievements = await prisma.achievement.findMany({
-            where: { criteria: 'TOUR_COMPLETION' }
+            where: {
+                criteria: { in: ['TOUR_COMPLETION', 'first-tour'] }
+            }
         });
 
         for (const ach of achievements) {

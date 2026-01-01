@@ -130,9 +130,14 @@ export default function AchievementsScreen() {
                                 </Text>
 
                                 {isUnlocked && (
-                                    <Text style={[styles.cardDate, { color: theme.textTertiary }]}>
-                                        {new Date(achievement.unlockedAt).toLocaleDateString()}
-                                    </Text>
+                                    <>
+                                        <Text style={[styles.cardDescription, { color: theme.textSecondary }]} numberOfLines={2}>
+                                            {achievement.description}
+                                        </Text>
+                                        <Text style={[styles.cardDate, { color: theme.textTertiary }]}>
+                                            {new Date(achievement.unlockedAt).toLocaleDateString()}
+                                        </Text>
+                                    </>
                                 )}
                             </View>
                         );
@@ -207,6 +212,12 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '700',
         textAlign: 'center',
+    },
+    cardDescription: {
+        fontSize: 12,
+        textAlign: 'center',
+        marginBottom: 8,
+        marginTop: 4,
     },
     cardDate: {
         fontSize: 11,

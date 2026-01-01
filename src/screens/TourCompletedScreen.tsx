@@ -18,7 +18,7 @@ type RevealState = 'CALCULATING' | 'REVEAL_3' | 'REVEAL_2' | 'REVEAL_1' | 'CELEB
 
 export default function TourCompletedScreen({ activeTourId, celebrate = false }: { activeTourId: number; celebrate?: boolean }) {
     const { theme } = useTheme();
-    const { unlockAchievement } = useAchievements();
+    const { unlockAchievement, loadAchievements } = useAchievements();
     const { showToast } = useToast();
 
     // Use custom hook for logic
@@ -43,6 +43,8 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
     const [feedbackText, setFeedbackText] = useState('');
     const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
+    const sequenceHasRun = React.useRef(false);
+
     useEffect(() => {
         // Reset feedback state when activeTourId changes
         setRating(0);
@@ -50,10 +52,12 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
         setFeedbackText('');
         setFeedbackSubmitted(false);
         setRevealState('CALCULATING');
+        sequenceHasRun.current = false;
     }, [activeTourId]);
 
     useEffect(() => {
-        if (!loading && activeTeams.length > 0) {
+        if (!loading && activeTeams.length > 0 && !sequenceHasRun.current) {
+            sequenceHasRun.current = true;
             // Start the reveal sequence
             const sequence = async () => {
                 // Wait a bit for "calculating" suspense
@@ -73,20 +77,36 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                 await new Promise(r => setTimeout(r, 800));
                 setRevealState('CELEBRATE');
 
-                // Unlock Achievement: First Tour
-                const achievement = await unlockAchievement('first-tour');
-                if (achievement) {
-                    showToast({
-                        title: achievement.title,
-                        message: achievement.description,
-                        emoji: '🚀',
-                        backgroundColor: achievement.color
+                // Reload Achievements to check for ANY newly unlocked ones
+                // The backend checks for tour completion, friend counts, etc. during finishTour
+                const latestAchievements = await loadAchievements();  // Ensure loadAchievements returns data in hook!
+
+                if (latestAchievements && latestAchievements.length > 0) {
+                    const now = new Date();
+                    const FIVE_MINUTES = 5 * 60 * 1000;
+
+                    const recent = latestAchievements.filter((ach: any) => {
+                        if (!ach.unlockedAt) return false;
+                        const unlockedDate = new Date(ach.unlockedAt);
+                        return (now.getTime() - unlockedDate.getTime()) < FIVE_MINUTES;
+                    });
+
+                    // Toast each new achievement
+                    recent.forEach((ach: any, index: number) => {
+                        setTimeout(() => {
+                            showToast({
+                                title: ach.title,
+                                message: ach.description,
+                                emoji: ach.icon || '🏆', // Fallback icon if emoji missing
+                                backgroundColor: ach.color || theme.primary
+                            });
+                        }, index * 3500); // Stagger toasts if multiple
                     });
                 }
             };
             sequence();
         }
-    }, [loading, activeTeams]); // Removed activeTeams dep from sequence start to avoid re-triggering? NO, actually we want to trigger ONLY if loading done.
+    }, [loading, activeTeams, loadAchievements]); // Removed activeTeams dep from sequence start to avoid re-triggering? NO, actually we want to trigger ONLY if loading done.
     // Ideally we'd separate the reset logic from the animation logic.
 
 

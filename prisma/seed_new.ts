@@ -1559,6 +1559,15 @@ async function main() {
             criteria: 'creator',
             target: 1,
             xpReward: 300
+        },
+        {
+            title: 'First Tour',
+            description: 'Complete your first tour',
+            icon: 'rocket',
+            color: '#F472B6', // Pink
+            criteria: 'first-tour',
+            target: 1,
+            xpReward: 200,
         }
     ];
 

@@ -5,6 +5,7 @@ import { activeTourRepository } from '../repositories/activeTourRepository';
 import { challengeRepository } from '../repositories/challengeRepository';
 import { tourRepository } from '../repositories/tourRepository';
 import { userRepository } from '../repositories/userRepository';
+import { achievementService } from './achievementService';
 
 export const activeTourService = {
     async getActiveToursForUser(userId: number) {
@@ -121,7 +122,16 @@ export const activeTourService = {
         const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
         if (!activeTour) throw new Error("Active tour not found");
 
-        // 1. Create UserPlayedTour record
+        // 0. Check Pub Golf Achievements
+        await achievementService.checkPubGolf(userId, activeTourId);
+
+        // 1. Update Team as Finished
+        await prisma.team.update({
+            where: { id: team.id },
+            data: { finishedAt: new Date() }
+        });
+
+        // 2. Create UserPlayedTour record (History)
         await prisma.userPlayedTour.create({
             data: {
                 userId: userId,
@@ -134,15 +144,17 @@ export const activeTourService = {
             }
         });
 
-        // 2. Delete the team (cascades to ActiveChallenges, PubGolfStops)
-        await activeTourRepository.deleteTeam(team.id);
+        // 3. Check Tour Count Achievements
+        await achievementService.checkTourCompletion(userId);
 
-        // 3. Check if any teams remain
+        // 4. Check if all teams are finished
         const updatedActiveTour = await activeTourRepository.findActiveTourById(activeTourId);
 
-        if (!updatedActiveTour || updatedActiveTour.teams.length === 0) {
-            await activeTourRepository.deleteActiveTourById(activeTourId);
-            return { status: 'COMPLETED', tourId: activeTour.tourId };
+        if (updatedActiveTour) {
+            const allFinished = updatedActiveTour.teams.every(t => t.finishedAt !== null);
+            if (allFinished) {
+                await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.COMPLETED);
+            }
         }
 
         return { status: 'COMPLETED', tourId: activeTour.tourId };
@@ -156,33 +168,6 @@ export const activeTourService = {
         }
 
         const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
-        if (!activeTour) throw new Error("Active tour not found");
-
-        // 2. Create UserPlayedTour record (ABANDONED)
-        await prisma.userPlayedTour.create({
-            data: {
-                userId: userId,
-                tourId: activeTour.tourId,
-                status: SessionStatus.ABANDONED,
-                score: team.score,
-                startedAt: activeTour.createdAt,
-                finishedAt: new Date(),
-                teamName: team.name,
-            }
-        });
-
-        // 3. Delete the team
-        await activeTourRepository.deleteTeam(team.id);
-
-        // 4. Check if any teams remain
-        const updatedActiveTour = await activeTourRepository.findActiveTourById(activeTourId);
-
-        if (!updatedActiveTour || updatedActiveTour.teams.length === 0) {
-            await activeTourRepository.deleteActiveTourById(activeTourId);
-            return { id: activeTourId, status: 'DELETED' };
-        }
-
-        return updatedActiveTour;
     },
 
     async updatePubGolfScore(activeTourId: number, stopId: number, sips: number, userId: number) {
@@ -209,6 +194,9 @@ export const activeTourService = {
                 await userRepository.addXp(userId, xpDiff);
             }
         }
+
+        // 4. Check Pub Golf Achievements immediately
+        await achievementService.checkPubGolf(userId, activeTourId);
 
         // Return updated progress
         return await activeTourService.getActiveTourProgress(activeTourId, userId);

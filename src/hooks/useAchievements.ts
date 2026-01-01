@@ -16,9 +16,11 @@ export const useAchievements = () => {
         try {
             const data = await achievementService.getUserAchievements(user.id);
             setAchievements(data);
+            return data;
         } catch (err) {
             console.error('Failed to load achievements:', err);
             setError('Failed to load achievements');
+            return [];
         } finally {
             setLoading(false);
         }
