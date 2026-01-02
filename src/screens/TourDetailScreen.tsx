@@ -105,10 +105,10 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             <View style={[styles.tagContainer, { backgroundColor: theme.primary }]}>
               <TextComponent style={styles.tagText} variant="caption" bold color="#FFF">{tour.genre}</TextComponent>
             </View>
-            <TextComponent style={styles.title} variant="h1" bold color={theme.textPrimary}>{tour.title}</TextComponent>
+            <TextComponent style={styles.title} variant="h1" bold color={theme.fixedWhite}>{tour.title}</TextComponent>
             <View style={styles.authorRow}>
-              <TextComponent style={{ marginRight: 4 }} color={theme.textSecondary} variant="body">by</TextComponent>
-              <TextComponent style={{ fontWeight: 'bold' }} color={theme.textPrimary} variant="body" bold>{tour.author?.name || 'Unknown'}</TextComponent>
+              <TextComponent style={{ marginRight: 4 }} color={theme.fixedWhite} variant="body">by</TextComponent>
+              <TextComponent style={{ fontWeight: 'bold' }} color={theme.fixedWhite} variant="body" bold>{tour.author?.name || 'Unknown'}</TextComponent>
             </View>
           </Animated.View>
 
@@ -192,6 +192,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             disabled={loadingMode !== null}
             variant="secondary"
             icon="person"
+            iconColor={theme.textPrimary}
             style={{ flex: 1, shadowOpacity: 0, backgroundColor: theme.bgTertiary }}
             textStyle={{ color: theme.textPrimary }}
           />

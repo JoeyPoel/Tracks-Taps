@@ -57,7 +57,7 @@ export default function CustomTabBar({ tabs, activeIndex, onTabPress }: CustomTa
               style={{
                 zIndex: 1, // Ensure text is above indicator
               }}
-              color={activeIndex === index ? '#FFF' : theme.textSecondary}
+              color={activeIndex === index ? theme.textPrimary : theme.textSecondary}
               bold={activeIndex === index}
               variant="caption"
             >

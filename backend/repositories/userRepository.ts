@@ -26,6 +26,12 @@ export const userRepository = {
                         createdTours: true,
                         playedTours: true
                     }
+                },
+                createdTours: true,
+                playedTours: {
+                    include: {
+                        tour: true
+                    }
                 }
             },
         });
@@ -55,6 +61,12 @@ export const userRepository = {
                     select: {
                         createdTours: true,
                         playedTours: true
+                    }
+                },
+                createdTours: true,
+                playedTours: {
+                    include: {
+                        tour: true
                     }
                 }
             },

@@ -13,6 +13,7 @@ interface AnimatedButtonProps {
     variant?: 'primary' | 'secondary' | 'outline' | 'danger';
     size?: 'small' | 'medium' | 'large';
     icon?: keyof typeof Ionicons.glyphMap;
+    iconColor?: string;
     loading?: boolean;
     disabled?: boolean;
     style?: ViewStyle;
@@ -27,6 +28,7 @@ export const AnimatedButton: React.FC<AnimatedButtonProps> = ({
     variant = 'primary',
     size = 'medium',
     icon,
+    iconColor,
     loading = false,
     disabled = false,
     style,
@@ -76,7 +78,7 @@ export const AnimatedButton: React.FC<AnimatedButtonProps> = ({
                 <ActivityIndicator color={getTextColor()} />
             ) : (
                 <>
-                    {icon && <Ionicons name={icon} size={20} color={getTextColor()} style={{ marginRight: 8 }} />}
+                    {icon && <Ionicons name={icon} size={20} color={iconColor || getTextColor()} style={{ marginRight: 8 }} />}
                     <TextComponent
                         style={[styles.text, textStyle]}
                         color={getTextColor()}

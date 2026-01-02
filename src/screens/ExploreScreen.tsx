@@ -1,13 +1,11 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { RefreshControl, ScrollView, SectionList, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { AdjustmentsHorizontalIcon, ListBulletIcon, MagnifyingGlassIcon, Squares2X2Icon } from 'react-native-heroicons/outline';
+import { RefreshControl, SectionList, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { TextComponent } from '../components/common/TextComponent'; // Added import
-import ActiveTourCard from '../components/exploreScreen/ActiveTourCard';
 import ExploreFilterSidebar from '../components/exploreScreen/ExploreFilterSidebar';
+import { ExploreHeader } from '../components/exploreScreen/ExploreHeader';
 import TourCard from '../components/exploreScreen/TourCard';
 import TourSkeleton from '../components/exploreScreen/TourSkeleton';
 import { useLanguage } from '../context/LanguageContext';
@@ -41,14 +39,6 @@ export default function ExploreScreen() {
   // Active tour logic
   const activeTour = activeTours.length > 0 ? activeTours[0] : null;
 
-  const CATEGORIES = [
-    { id: 'PubGolf', label: 'Pub Golf', icon: '🍺' },
-    { id: 'History', label: 'History', icon: '🏛️' },
-    { id: 'Culture', label: 'Culture', icon: '🎨' },
-    { id: 'Nature', label: 'Nature', icon: '🌳' },
-    { id: 'Mystery', label: 'Mystery', icon: '🕵️' },
-  ];
-
   useFocusEffect(
     useCallback(() => {
       const currentFilterQuery = tourFilters.searchQuery || '';
@@ -79,124 +69,7 @@ export default function ExploreScreen() {
     setSearchText(newCategory ? categoryId : '');
   };
 
-  const renderHeader = () => (
-    <View style={{ paddingHorizontal: 20, paddingBottom: 8, paddingTop: 10 }}>
-      <ScreenHeader
-        title={t('explore') || 'Explore'}
-        subtitle={t('findYourNextAdventure')}
-        style={[styles.headerTop, { paddingHorizontal: 0, paddingTop: 0 }]}
-      />
 
-      {/* Search Bar */}
-      <Animated.View
-        entering={FadeInDown.delay(100).duration(600).springify()}
-        style={[
-          styles.searchContainer,
-          { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor },
-        ]}
-      >
-        <MagnifyingGlassIcon size={20} color={theme.textSecondary} style={{ marginRight: 12 }} />
-        <TextInput
-          style={[styles.searchInput, { color: theme.textPrimary }]}
-          placeholder={t('whereToNext')}
-          placeholderTextColor={theme.textSecondary + '80'}
-          value={searchText}
-          onChangeText={setSearchText}
-          returnKeyType="search"
-          onSubmitEditing={() => {
-            const query = (searchText || '').trim();
-            if (query !== (tourFilters.searchQuery || '')) {
-              setTourFilters({ ...tourFilters, searchQuery: query, page: 1, limit: 20 });
-            }
-          }}
-          maxFontSizeMultiplier={1.5} // Allow scaling but prevent breaking UI completely
-        />
-        <TouchableOpacity
-          style={[styles.iconButton, { backgroundColor: theme.bgPrimary }]}
-          onPress={() => setViewMode((prev) => (prev === 'list' ? 'grid' : 'list'))}
-          accessibilityLabel={t('toggleViewMode') || "Toggle view mode"}
-        >
-          {viewMode === 'list' ? (
-            <Squares2X2Icon size={20} color={theme.textPrimary} />
-          ) : (
-            <ListBulletIcon size={20} color={theme.textPrimary} />
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.iconButton, { backgroundColor: theme.bgPrimary, marginLeft: 8 }]}
-          onPress={() => setFilterVisible(true)}
-          accessibilityLabel={t('filterTours') || "Filter tours"}
-        >
-          <AdjustmentsHorizontalIcon size={20} color={theme.textPrimary} />
-        </TouchableOpacity>
-      </Animated.View>
-
-      {/* Categories */}
-      <Animated.View entering={FadeInDown.delay(200).duration(600).springify()}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoryContainer}
-        >
-          {CATEGORIES.map((cat) => {
-            const isSelected = selectedCategory === cat.id;
-            return (
-              <TouchableOpacity
-                key={cat.id}
-                onPress={() => handleCategoryPress(cat.id)}
-                style={[
-                  styles.categoryChip,
-                  {
-                    backgroundColor: isSelected ? theme.primary : theme.bgSecondary,
-                    borderColor: isSelected ? theme.primary : theme.borderPrimary,
-                  },
-                ]}
-                accessibilityRole="button"
-                accessibilityState={{ selected: isSelected }}
-              >
-                <TextComponent style={styles.categoryIcon} variant="body">{cat.icon}</TextComponent>
-                <TextComponent
-                  style={styles.categoryText}
-                  variant="label"
-                  bold
-                  color={isSelected ? '#FFF' : theme.textPrimary}
-                >
-                  {cat.label}
-                </TextComponent>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-
-      </Animated.View>
-
-      {/* Active Tour */}
-      {activeTour && (() => {
-        const currentTeam = activeTour.teams?.find((t: any) => t.userId === user?.id) || activeTour.teams?.[0];
-        const totalStops = activeTour.tour?._count?.stops || activeTour.tour?.stops?.length || 1;
-        const currentStop = currentTeam?.currentStop || 1;
-        const progress = Math.min(Math.max((currentStop - 1) / totalStops, 0), 1);
-
-        return (
-          <View style={styles.activeTourSection}>
-            <TextComponent style={styles.sectionTitle} variant="h2" bold color={theme.textPrimary}>
-              {t('currentAdventure') || 'Current Adventure'}
-            </TextComponent>
-            <View style={{ height: 12 }} />
-            <ActiveTourCard
-              title={activeTour.tour?.title || ''}
-              imageUrl={activeTour.tour?.imageUrl || ''}
-              progress={progress}
-              onResume={() =>
-                router.push({ pathname: '/active-tour/[id]' as any, params: { id: activeTour.id } })
-              }
-            />
-          </View>
-        );
-      })()}
-    </View>
-  );
 
   // Data Preparation
   const showSkeleton = loading && tours.length === 0;
@@ -246,7 +119,28 @@ export default function ExploreScreen() {
         sections={sections}
         stickySectionHeadersEnabled={true}
         keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
-        ListHeaderComponent={renderHeader}
+        ListHeaderComponent={
+          <ExploreHeader
+            searchText={searchText}
+            onSearchTextChange={setSearchText}
+            onSearchSubmit={() => {
+              const query = (searchText || '').trim();
+              if (query !== (tourFilters.searchQuery || '')) {
+                setTourFilters({ ...tourFilters, searchQuery: query, page: 1, limit: 20 });
+              }
+            }}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            onFilterPress={() => setFilterVisible(true)}
+            selectedCategory={selectedCategory}
+            onCategoryPress={handleCategoryPress}
+            activeTour={activeTour}
+            user={user}
+            onActiveTourPress={(id) =>
+              router.push({ pathname: '/active-tour/[id]' as any, params: { id } })
+            }
+          />
+        }
         renderSectionHeader={({ section: { title } }) => (
           <View style={[styles.popularToursHeader, { backgroundColor: theme.bgPrimary }]}>
             <TextComponent style={styles.sectionTitle} variant="h2" bold color={theme.textPrimary}>
@@ -343,65 +237,9 @@ export default function ExploreScreen() {
 }
 
 const styles = StyleSheet.create({
-  headerTop: {
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 24,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    padding: 0,
-    fontWeight: '500',
-    minHeight: 24, // Touch target
-  },
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginLeft: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  categoryContainer: {
-    // Just styling for the horz scroll
-    paddingLeft: 20, // Only padding left to start
-    paddingRight: 8, // Padding right less because gaps hande it
-  },
-  categoryChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 100,
-    borderWidth: 1.5,
-    marginRight: 12, // Add gap between items
-  },
-  categoryIcon: {
-    marginRight: 8,
-  },
-  categoryText: {
-    // handled by component
-  },
   sectionTitle: {
-    marginBottom: 0, // Handled by Spacer
+    marginBottom: 0,
     letterSpacing: -0.3,
-  },
-  activeTourSection: {
-    marginTop: 16,
-    marginBottom: 8, // Reduced from 24 to 8 to decrease space between Active Tour and Popular Tours
   },
   popularToursHeader: {
     paddingHorizontal: 20,
