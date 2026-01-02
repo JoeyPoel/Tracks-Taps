@@ -17,7 +17,8 @@ export type TourDraft = {
     genre: string;
     startLat?: number;
     startLng?: number;
-    type: TourType | string; // New field
+    type: TourType | string;
+    challenges: any[]; // Bonus (Global) Challenges
 };
 
 const INITIAL_DRAFT: TourDraft = {
@@ -29,12 +30,13 @@ const INITIAL_DRAFT: TourDraft = {
     genre: 'Adventure',
     modes: [],
     stops: [],
+    challenges: [],
     distance: '0',
     duration: '0',
     points: 0,
     startLat: undefined,
     startLng: undefined,
-    type: TourType.QUICK_TRIP, // Default
+    type: TourType.QUICK_TRIP,
 };
 
 export function useTourDraft() {
@@ -125,6 +127,21 @@ export function useTourDraft() {
         }
     };
 
+    const addBonusChallenge = (challenge: any) => {
+        updateDraft('challenges', [...tourDraft.challenges, challenge]);
+    };
+
+    const removeBonusChallenge = (index: number) => {
+        const newChallenges = tourDraft.challenges.filter((_, i) => i !== index);
+        updateDraft('challenges', newChallenges);
+    };
+
+    const editBonusChallenge = (index: number, updatedChallenge: any) => {
+        const newChallenges = [...tourDraft.challenges];
+        newChallenges[index] = updatedChallenge;
+        updateDraft('challenges', newChallenges);
+    };
+
     return {
         tourDraft,
         updateDraft,
@@ -135,7 +152,10 @@ export function useTourDraft() {
             addChallengeToStop,
             removeChallengeFromStop,
             editChallengeInStop,
-            toggleMode
+            toggleMode,
+            addBonusChallenge,
+            removeBonusChallenge,
+            editBonusChallenge
         }
     };
 }

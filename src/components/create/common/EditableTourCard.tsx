@@ -5,7 +5,7 @@ import { getGenreIcon } from '@/src/utils/genres';
 import { getTourTypeLabel } from '@/src/utils/tourUtils';
 import React from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { ClockIcon, MapIcon } from 'react-native-heroicons/solid';
+import { ClockIcon, MapIcon, TrophyIcon } from 'react-native-heroicons/solid';
 import { TourDraft } from '../../../hooks/useCreateTour';
 import { TextComponent } from '../../common/TextComponent'; // Added import
 import { SelectionModal } from './SelectionModal';
@@ -135,6 +135,16 @@ export function EditableTourCard({
                             </TextComponent>
                             <View style={styles.dropdownCaret} />
                         </TouchableOpacity>
+
+                        {/* Bonus Challenges Badge */}
+                        {draft.challenges && draft.challenges.length > 0 && (
+                            <View style={[styles.badge, styles.blurBadge]}>
+                                <TrophyIcon size={12} color="#FFF" />
+                                <TextComponent style={styles.badgeText} color="#FFF" bold size={12}>
+                                    {draft.challenges.length}
+                                </TextComponent>
+                            </View>
+                        )}
                     </View>
                 </View>
 

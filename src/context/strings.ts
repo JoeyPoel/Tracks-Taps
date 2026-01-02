@@ -144,6 +144,14 @@ export const strings = {
     noToursFound: 'No tours found',
     noToursFoundDesc: 'Explore other areas or try changing your filters.', // Added
     challenges: 'Challenges',
+
+    // Bonus Challenges Step
+    stepChallenges: 'Challenges',
+    bonusChallengesDesc: 'Add fun challenges that apply to the entire tour, not just specific stops. Teams can complete these at any time!',
+    addBonusChallenge: 'Add Bonus Challenge',
+    addBonusChallengeSubtitle: 'Create a new tour-wide challenge',
+    noBonusChallenges: 'No bonus challenges added yet.',
+
     noChallengesAtStop: 'No challenges at this stop. Enjoy the view!',
     challengeCompleted: 'Challenge Completed!',
     challengeFailed: 'Challenge Failed',
@@ -613,6 +621,14 @@ export const strings = {
     noToursFound: 'No se encontraron tours',
     noToursFoundDesc: 'Explora otras áreas o intenta cambiar tus filtros.', // Added
     challenges: 'Desafíos',
+
+    // Bonus Challenges Step
+    stepChallenges: 'Desafíos',
+    bonusChallengesDesc: 'Añade desafíos divertidos que se apliquen a todo el tour, no solo a paradas específicas. ¡Los equipos pueden completarlos en cualquier momento!',
+    addBonusChallenge: 'Añadir Desafío Extra',
+    addBonusChallengeSubtitle: 'Crear un nuevo desafío para todo el tour',
+    noBonusChallenges: 'Aún no se han añadido desafíos extra.',
+
     noChallengesAtStop: 'No hay desafíos en esta parada. ¡Disfruta la vista!',
     challengeCompleted: '¡Desafío Completado!',
     challengeFailed: 'Desafío Fallido',

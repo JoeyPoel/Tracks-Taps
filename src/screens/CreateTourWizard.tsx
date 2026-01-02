@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AnimatedButton } from '@/src/components/common/AnimatedButton';
 import { ScreenWrapper } from '@/src/components/common/ScreenWrapper';
 import CreateTourProgress from '@/src/components/create/CreateTourProgress';
+import StepChallenges from '@/src/components/create/steps/StepChallenges'; // Added import
 import StepGamemodes from '@/src/components/create/steps/StepGamemodes';
 import StepInfo from '@/src/components/create/steps/StepInfo';
 import StepReview from '@/src/components/create/steps/StepReview';
@@ -50,7 +51,8 @@ export default function CreateTourWizard() {
                 {currentStep === 0 && <StepInfo {...stepProps} />}
                 {currentStep === 1 && <StepGamemodes {...stepProps} />}
                 {currentStep === 2 && <StepStops {...stepProps} />}
-                {currentStep === 3 && <StepReview {...stepProps} />}
+                {currentStep === 3 && <StepChallenges {...stepProps} />}
+                {currentStep === 4 && <StepReview {...stepProps} />}
             </Animated.View>
         );
     };
@@ -67,7 +69,8 @@ export default function CreateTourWizard() {
                     {currentStep === 0 && t('stepInfo')}
                     {currentStep === 1 && t('stepGamemodes')}
                     {currentStep === 2 && t('stepStops')}
-                    {currentStep === 3 && t('stepReview')}
+                    {currentStep === 3 && (t('stepChallenges') || 'Bonus Challenges')}
+                    {currentStep === 4 && t('stepReview')}
                 </TextComponent>
                 <View style={{ width: 40 }} />
             </View>

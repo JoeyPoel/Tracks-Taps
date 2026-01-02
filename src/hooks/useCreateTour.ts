@@ -6,7 +6,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { TourDraft, useTourDraft } from './create/useTourDraft';
 import { useTourSubmission } from './create/useTourSubmission';
 
-export const STEPS = ['Info', 'Gamemodes', 'Stops', 'Review'];
+export const STEPS = ['Info', 'Gamemodes', 'Stops', 'Challenges', 'Review'];
 export type { TourDraft }; // Re-export for compatibility
 
 export function useCreateTour() {
