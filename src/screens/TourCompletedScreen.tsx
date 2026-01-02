@@ -170,22 +170,36 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
     return (
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
             {/* Subtle Gradient Background - Top Fade Only */}
-            {/* Subtle Gradient Background - Top Fade Only */}
-            {/* Tour Image Background */}
-            <View style={StyleSheet.absoluteFillObject}>
-                <ImageBackground
-                    source={{ uri: activeTour.tour?.imageUrl }}
-                    style={styles.backgroundImage}
-                    blurRadius={0} // Keep it crisp, or maybe optional slight blur
-                >
-                    <View style={styles.backgroundOverlay} />
+            {/* Top Image with Fade or Fallback Gradient */}
+            <View style={styles.headerImageContainer}>
+                {activeTour.tour?.imageUrl ? (
+                    <ImageBackground
+                        source={{ uri: activeTour.tour?.imageUrl }}
+                        style={styles.headerImage}
+                        resizeMode="cover"
+                    >
+                        <LinearGradient
+                            colors={['transparent', theme.bgPrimary]}
+                            style={styles.gradientOverlay}
+                            start={{ x: 0.5, y: 0.3 }}
+                            end={{ x: 0.5, y: 1 }}
+                        />
+                    </ImageBackground>
+                ) : (
                     <LinearGradient
-                        colors={['transparent', 'rgba(0,0,0,0.8)', theme.bgPrimary]}
-                        start={{ x: 0, y: 0.3 }}
-                        end={{ x: 0, y: 1 }}
-                        style={StyleSheet.absoluteFillObject}
-                    />
-                </ImageBackground>
+                        colors={[theme.secondary, theme.primary]}
+                        style={styles.headerImage}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                    >
+                        <LinearGradient
+                            colors={['transparent', theme.bgPrimary]}
+                            style={styles.gradientOverlay}
+                            start={{ x: 0.5, y: 0.3 }}
+                            end={{ x: 0.5, y: 1 }}
+                        />
+                    </LinearGradient>
+                )}
             </View>
 
             {/* Confetti floats on top */}
@@ -429,13 +443,23 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 6,
     },
-    backgroundImage: {
-        flex: 1,
+    headerImageContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 450, // Enough to cover top bar and winner info
+        zIndex: 0,
+    },
+    headerImage: {
         width: '100%',
         height: '100%',
     },
-    backgroundOverlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0,0,0,0.3)', // Basic darkening
+    gradientOverlay: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: '100%',
     },
 });

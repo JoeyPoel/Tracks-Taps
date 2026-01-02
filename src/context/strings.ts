@@ -35,7 +35,7 @@ export const strings = {
     reviewsTab: 'Reviews',
     tourMap: 'Tour Map',
     topPlayers: 'Top Players this week',
-    tourWideChallenges: 'Tour Wide Challenges',
+    tourWideChallenges: 'Bonus',
     tourWideChallengesSubtitle: 'Complete these anytime during the tour!', // Added
     noTourWideChallenges: 'No tour wide challenges available.', // Added
     unknownChallengeType: 'Unknown challenge type:', // Added
@@ -142,6 +142,7 @@ export const strings = {
     loadingTour: 'Loading tour...',
     tourNotFound: 'Tour not found',
     noToursFound: 'No tours found',
+    noToursFoundDesc: 'Explore other areas or try changing your filters.', // Added
     challenges: 'Challenges',
     noChallengesAtStop: 'No challenges at this stop. Enjoy the view!',
     challengeCompleted: 'Challenge Completed!',
@@ -544,7 +545,7 @@ export const strings = {
     reviewsTab: 'Reseñas',
     tourMap: 'Mapa del Tour',
     topPlayers: 'Mejores jugadores de la semana',
-    tourWideChallenges: 'Desafíos del Tour',
+    tourWideChallenges: 'Bono',
     tourStops: 'Paradas del Tour',
     userReviews: 'Reseñas de usuarios',
     // New keys for tour components
@@ -610,6 +611,7 @@ export const strings = {
     loadingTour: 'Cargando tour...',
     tourNotFound: 'Tour no encontrado',
     noToursFound: 'No se encontraron tours',
+    noToursFoundDesc: 'Explora otras áreas o intenta cambiar tus filtros.', // Added
     challenges: 'Desafíos',
     noChallengesAtStop: 'No hay desafíos en esta parada. ¡Disfruta la vista!',
     challengeCompleted: '¡Desafío Completado!',

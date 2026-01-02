@@ -112,22 +112,89 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const tourAllChallenges = activeTour.tour?.challenges || [];
     const tourWideChallenges = tourAllChallenges.filter((c: any) => !c.stopId);
 
-    const hasTourChallenges = tourWideChallenges.length > 0;
-    const hasPubGolf = activeTour.tour?.modes?.includes('PUBGOLF');
+    // --- Dynamic Tab Generation ---
+    type TabItem = {
+        key: string;
+        label: string;
+        render: () => React.ReactNode;
+    };
 
-    // Define Tabs dynamically
-    const tabs = [`${t('info')}`, `${t('challenges')}`];
-    if (hasTourChallenges) tabs.push(t('tourWideChallenges') || 'Tour Challenges');
-    if (hasPubGolf) tabs.push(`${t('pubgolf')}`);
+    const tabItems: TabItem[] = [
+        {
+            key: 'info',
+            label: t('info'),
+            render: () => (
+                <TabContentWrapper key="info">
+                    <StopInfoSection stop={currentStop} />
+                </TabContentWrapper>
+            )
+        },
+        {
+            key: 'challenges',
+            label: t('challenges'),
+            render: () => (
+                <TabContentWrapper key="challenges">
+                    <ChallengeSection
+                        currentStop={currentStop}
+                        stopChallenges={stopChallenges}
+                        completedChallenges={completedChallenges}
+                        failedChallenges={failedChallenges}
+                        triviaSelected={triviaSelected}
+                        setTriviaSelected={setTriviaSelected}
+                        handleChallengeComplete={handleChallengeComplete}
+                        handleChallengeFail={handleChallengeFail}
+                        handleSubmitTrivia={handleSubmitTrivia}
+                    />
+                </TabContentWrapper>
+            )
+        }
+    ];
 
-    // Helper to resolve tab content
-    const TAB_INFO = 0;
-    const TAB_STOP_CHALLENGES = 1;
-    const TAB_TOUR_CHALLENGES = hasTourChallenges ? 2 : -1;
-    const TAB_PUBGOLF = hasPubGolf ? (hasTourChallenges ? 3 : 2) : -1;
+    // Add Tour Wide Challenges if present
+    if (tourWideChallenges.length > 0) {
+        tabItems.push({
+            key: 'tour-challenges',
+            label: t('tourWideChallenges') || 'Tour Challenges',
+            render: () => (
+                <TabContentWrapper key="tour-challenges">
+                    <TourChallengesSection
+                        challenges={tourWideChallenges}
+                        completedChallenges={completedChallenges}
+                        failedChallenges={failedChallenges}
+                        triviaSelected={triviaSelected}
+                        setTriviaSelected={setTriviaSelected}
+                        handleChallengeComplete={handleChallengeComplete}
+                        handleChallengeFail={handleChallengeFail}
+                        handleSubmitTrivia={handleSubmitTrivia}
+                    />
+                </TabContentWrapper>
+            )
+        });
+    }
 
+    // Add Game Modes
+    const modes = activeTour.tour?.modes || [];
+    modes.forEach((mode: string) => {
+        if (mode === 'PUBGOLF') {
+            tabItems.push({
+                key: 'pubgolf',
+                label: t('pubgolf'),
+                render: () => (
+                    <TabContentWrapper key="pubgolf">
+                        <PubGolfSection
+                            activeTour={activeTour}
+                            pubGolfScores={pubGolfScores}
+                            currentStopId={currentStop?.id}
+                            handleSaveSips={handleSaveSips}
+                        />
+                    </TabContentWrapper>
+                )
+            });
+        }
+        // Add other modes here in the future
+    });
 
-
+    const tabs = tabItems.map(i => i.label);
     const progress = LevelSystem.getProgress(user?.xp || 0);
 
     return (
@@ -163,53 +230,8 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                 />
 
                 <View style={styles.tabContentContainer}>
-                    {activeTab === TAB_INFO && (
-                        <TabContentWrapper key="info">
-                            <StopInfoSection stop={currentStop} />
-                        </TabContentWrapper>
-                    )}
-
-                    {activeTab === TAB_STOP_CHALLENGES && (
-                        <TabContentWrapper key="challenges">
-                            <ChallengeSection
-                                currentStop={currentStop}
-                                stopChallenges={stopChallenges}
-                                completedChallenges={completedChallenges}
-                                failedChallenges={failedChallenges}
-                                triviaSelected={triviaSelected}
-                                setTriviaSelected={setTriviaSelected}
-                                handleChallengeComplete={handleChallengeComplete}
-                                handleChallengeFail={handleChallengeFail}
-                                handleSubmitTrivia={handleSubmitTrivia}
-                            />
-                        </TabContentWrapper>
-                    )}
-
-                    {activeTab === TAB_TOUR_CHALLENGES && (
-                        <TabContentWrapper key="tour-challenges">
-                            <TourChallengesSection
-                                challenges={tourWideChallenges}
-                                completedChallenges={completedChallenges}
-                                failedChallenges={failedChallenges}
-                                triviaSelected={triviaSelected}
-                                setTriviaSelected={setTriviaSelected}
-                                handleChallengeComplete={handleChallengeComplete}
-                                handleChallengeFail={handleChallengeFail}
-                                handleSubmitTrivia={handleSubmitTrivia}
-                            />
-                        </TabContentWrapper>
-                    )}
-
-                    {activeTab === TAB_PUBGOLF && (
-                        <TabContentWrapper key="pubgolf">
-                            <PubGolfSection
-                                activeTour={activeTour}
-                                pubGolfScores={pubGolfScores}
-                                currentStopId={currentStop?.id}
-                                handleSaveSips={handleSaveSips}
-                            />
-                        </TabContentWrapper>
-                    )}
+                    {/* Render active tab content safely */}
+                    {tabItems[activeTab] && tabItems[activeTab].render()}
                 </View>
 
                 <TourNavigation

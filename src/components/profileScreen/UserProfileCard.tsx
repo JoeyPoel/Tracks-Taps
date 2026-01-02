@@ -78,10 +78,10 @@ export default function UserProfileCard({
 const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
-        paddingVertical: 20,
+        paddingVertical: 32,
     },
     avatarWrapper: {
-        marginBottom: 16,
+        marginBottom: 24,
         position: 'relative',
     },
     avatar: {
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     },
     infoCenter: {
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: 24,
     },
     name: {
         marginBottom: 8,
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
         // handled by TextComponent
     },
     xpContainer: {
-        width: '60%',
+        width: '80%',
         alignItems: 'center',
     },
     xpTextRow: {

@@ -9,6 +9,8 @@ export interface Achievement {
     unlockedAt?: string;
     criteria?: string;
     target?: number;
+    progress?: number;
+    unit?: string;
     xpReward?: number;
 }
 

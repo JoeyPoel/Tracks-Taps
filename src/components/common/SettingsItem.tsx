@@ -33,7 +33,7 @@ export const SettingsItem: React.FC<SettingsItemProps> = ({
                 }
             ]}
         >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
                 {icon}
                 <TextComponent style={styles.settingsLabel} color={theme.textPrimary} bold variant="body">{title}</TextComponent>
             </View>
@@ -48,10 +48,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 16,
+        paddingVertical: 18,
+        paddingHorizontal: 20,
+        backgroundColor: 'transparent',
     },
     settingsLabel: {
-        fontSize: 16,
-        fontWeight: '500',
+        fontSize: 15,
+        fontWeight: '600',
+        letterSpacing: 0.2,
     }
 });

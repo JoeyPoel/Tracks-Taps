@@ -22,7 +22,7 @@ export const LobbyFooter: React.FC<LobbyFooterProps> = ({ activeTour, user, user
     const router = useRouter();
     const { t } = useLanguage();
 
-    const isHost = activeTour?.userId === user?.id;
+    const isHost = String(activeTour?.userId) === String(user?.id);
 
     return (
         <Animated.View entering={FadeInDown.delay(400)} style={[styles.footer, { backgroundColor: theme.bgSecondary, borderTopColor: theme.borderPrimary }]}>

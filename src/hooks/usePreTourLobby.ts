@@ -55,7 +55,7 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
     const startTour = async () => {
         if (!activeTourId || !user) return;
         try {
-            await activeTourService.startGame(activeTourId);
+            await activeTourService.startGame(activeTourId, user.id);
             // WebSocket will handle the redirect via activeTour.status change
             // But we reload to be sure
             loadLobbyDetails();

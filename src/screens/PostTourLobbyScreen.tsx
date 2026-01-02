@@ -22,6 +22,7 @@ export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: nu
         finishedCount,
         totalTeamCount,
         progressPercentage,
+        activeTour,
         handleViewResults
     } = useWaitingLobby(activeTourId);
 
@@ -40,7 +41,7 @@ export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: nu
                 contentContainerStyle={{ paddingBottom: 100 }}
                 showsVerticalScrollIndicator={false}
             >
-                <PostTourHeader />
+                <PostTourHeader imageUrl={activeTour?.tour?.imageUrl} />
 
                 <View style={styles.contentContainer}>
                     <PostTourProgress

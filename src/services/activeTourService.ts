@@ -11,8 +11,8 @@ export const activeTourService = {
         return response.data;
     },
 
-    async startGame(activeTourId: number) {
-        const response = await client.post(`/active-tour/${activeTourId}/start`, {});
+    async startGame(activeTourId: number, userId: number) {
+        const response = await client.post(`/active-tour/${activeTourId}/start`, { userId });
         return response.data;
     },
 

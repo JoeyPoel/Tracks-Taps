@@ -185,6 +185,7 @@ export const activeTourRepository = {
                 tour: {
                     select: {
                         title: true,
+                        imageUrl: true,
                         _count: {
                             select: { stops: true }
                         }

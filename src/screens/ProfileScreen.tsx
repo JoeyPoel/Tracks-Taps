@@ -56,7 +56,7 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         {/* Hero Card */}
-        <Animated.View style={{ marginTop: 8 }}>
+        <Animated.View style={{ marginTop: 24 }}>
           <UserProfileCard
             name={user?.name || 'Guest'}
             level={progress.level}
@@ -68,7 +68,7 @@ export default function ProfileScreen() {
         </Animated.View>
 
         {/* Horizontal Stats or Tokens */}
-        <Animated.View style={{ marginTop: 8 }}>
+        <Animated.View style={{ marginTop: 24 }}>
           <View style={{ flexDirection: 'row', gap: 12 }}>
             {/* We can put small stats here if needed, or keeping the horizontal stats component */}
           </View>
@@ -83,7 +83,7 @@ export default function ProfileScreen() {
           />
         </Animated.View>
 
-        <Animated.View style={{ marginTop: 24 }}>
+        <Animated.View style={{ marginTop: 32 }}>
           <TokenCard
             tokens={user?.tokens || 0}
             onBuyPress={() => setShowBuyTokens(true)}
@@ -91,7 +91,7 @@ export default function ProfileScreen() {
           />
         </Animated.View>
 
-        <Animated.View style={{ marginTop: 24 }}>
+        <Animated.View style={{ marginTop: 32 }}>
           <RecentAchievements
             achievements={achievements}
             loading={achievementsLoading}
@@ -100,7 +100,7 @@ export default function ProfileScreen() {
         </Animated.View>
 
         {/* Grouped Settings Section */}
-        <Animated.View style={{ marginTop: 32 }}>
+        <Animated.View style={{ marginTop: 40 }}>
           <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('manageAccount')?.toUpperCase() || 'MANAGE ACCOUNT'}</Text>
 
           <View style={[styles.settingsGroup, { backgroundColor: theme.bgSecondary }]}>
@@ -166,12 +166,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 1,
-    marginBottom: 12,
+    marginBottom: 16,
     paddingLeft: 4,
   },
   settingsGroup: {
     borderRadius: 16,
     overflow: 'hidden',
+    // Premium Shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    marginTop: 4, // Spacing for shadow
   },
 
 });

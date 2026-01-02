@@ -1,5 +1,5 @@
-import { activeTourController } from '../../../../backend/controllers/activeTourController';
+import { activeTourController } from '@/backend/controllers/activeTourController';
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
-    return activeTourController.getActiveTourLobby(request, { id: params.id });
+    return activeTourController.getActiveTourLobby(request, params);
 }

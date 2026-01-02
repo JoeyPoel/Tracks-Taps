@@ -65,12 +65,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-evenly',
-        paddingVertical: 16,
+        paddingVertical: 20,
         borderRadius: 16,
     },
     statItem: {
         alignItems: 'center',
-        paddingHorizontal: 16,
+        paddingHorizontal: 20,
     },
     value: {
         fontSize: 20,
@@ -83,6 +83,6 @@ const styles = StyleSheet.create({
     },
     divider: {
         width: 1,
-        height: 24,
+        height: 32,
     }
 });

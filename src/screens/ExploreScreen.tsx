@@ -2,8 +2,9 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { RefreshControl, SectionList, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { EmptyState } from '../components/common/EmptyState'; // Added import
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
-import { TextComponent } from '../components/common/TextComponent'; // Added import
+import { TextComponent } from '../components/common/TextComponent';
 import ExploreFilterSidebar from '../components/exploreScreen/ExploreFilterSidebar';
 import { ExploreHeader } from '../components/exploreScreen/ExploreHeader';
 import TourCard from '../components/exploreScreen/TourCard';
@@ -102,12 +103,12 @@ export default function ExploreScreen() {
 
   const formattedTours = formatData(tourData as any[]);
 
-  const sections = [
+  const sections = (formattedTours.length > 0) ? [
     {
       title: t('popularTours') || 'Popular Tours',
       data: formattedTours,
     },
-  ];
+  ] : [];
 
   return (
     <ScreenWrapper
@@ -160,8 +161,22 @@ export default function ExploreScreen() {
             colors={[theme.primary]}
           />
         }
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          formattedTours.length === 0 && styles.emptyScrollContent
+        ]}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          !loading ? (
+            <View style={styles.emptyContainer}>
+              <EmptyState
+                icon="map-outline"
+                title={t('noToursFound') || 'No Tours Found'}
+                message={t('noToursFoundDesc') || 'Explore other areas or try changing your filters.'}
+              />
+            </View>
+          ) : null
+        }
         renderItem={({ item }) => {
           if (isGrid && item.isRow) {
             // Render Row
@@ -262,6 +277,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     marginBottom: 12,
+  },
+  emptyContainer: {
+    paddingTop: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyScrollContent: {
+    flexGrow: 1,
   }
 });
 

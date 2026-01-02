@@ -57,6 +57,7 @@ export const useWaitingLobby = (activeTourId: number) => {
         userTeam,
         finishedCount,
         totalTeamCount,
+        activeTour,
         progressPercentage,
         handleViewResults
     };

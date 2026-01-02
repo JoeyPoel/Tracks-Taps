@@ -58,7 +58,7 @@ export default function InviteFriendsModal({ visible, onClose, activeTourId }: I
             title={t('inviteFriends')}
             subtitle={t('selectFriendsLobby')}
             height="80%"
-            modalStyle={{ padding: 0 }}
+
         >
             <View style={{ flex: 1 }}>
                 {loading ? (
@@ -70,7 +70,7 @@ export default function InviteFriendsModal({ visible, onClose, activeTourId }: I
                         data={friends}
                         renderItem={renderItem}
                         keyExtractor={(item) => item.id.toString()}
-                        contentContainerStyle={{ padding: 24, paddingBottom: 100, gap: 12 }}
+                        contentContainerStyle={{ paddingBottom: 100, gap: 12 }}
                         ListEmptyComponent={
                             <View style={styles.emptyState}>
                                 <Ionicons name="people-outline" size={48} color={theme.textSecondary + '50'} />
@@ -102,9 +102,9 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         paddingBottom: 40,
         position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
+        right: -24,
+        left: -24,
+        bottom: -24,
     },
     centerContainer: {
         flex: 1,

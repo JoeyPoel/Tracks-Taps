@@ -1,4 +1,4 @@
-import { AchievementGridItem, AchievementGridSkeleton } from '@/src/components/achievements/AchievementGridItem';
+import { AchievementListItem } from '@/src/components/achievements/AchievementListItem';
 import { AchievementProgressCard } from '@/src/components/achievements/AchievementProgressCard';
 import { ScreenHeader } from '@/src/components/common/ScreenHeader';
 import { ScreenWrapper } from '@/src/components/common/ScreenWrapper';
@@ -7,7 +7,7 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { useAchievements } from '@/src/hooks/useAchievements';
 import { Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 
 export default function AchievementsScreen() {
     const { theme } = useTheme();
@@ -23,6 +23,7 @@ export default function AchievementsScreen() {
 
     const loadData = async () => {
         const data = await loadAllAchievements();
+        // Assuming loadAllAchievements returns everything (locked ones might need to be mocked if backend doesn't return them yet)
         setAllAchievements(data);
         setLoading(false);
     };
@@ -35,30 +36,29 @@ export default function AchievementsScreen() {
             <Stack.Screen options={{ headerShown: false }} />
             <ScreenHeader showBackButton title={t('achievements')} />
 
-            <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-
-                {/* Progress Card */}
-                <AchievementProgressCard
-                    loading={loading}
-                    unlockedCount={unlockedCount}
-                    totalCount={totalCount}
-                />
-
-                {/* Grid */}
-                <View style={styles.grid}>
-                    {loading ? (
-                        Array.from({ length: 6 }).map((_, i) => <AchievementGridSkeleton key={i} />)
-                    ) : (
-                        allAchievements.map((achievement, index) => (
-                            <AchievementGridItem
-                                key={achievement.id}
-                                achievement={achievement}
-                                index={index}
-                            />
-                        ))
-                    )}
-                </View>
-            </ScrollView>
+            <FlatList
+                data={loading ? Array.from({ length: 6 }) : allAchievements}
+                keyExtractor={(item, index) => item?.id ? item.id.toString() : index.toString()}
+                contentContainerStyle={styles.content}
+                showsVerticalScrollIndicator={false}
+                ListHeaderComponent={
+                    <AchievementProgressCard
+                        loading={loading}
+                        unlockedCount={unlockedCount}
+                        totalCount={totalCount}
+                    />
+                }
+                renderItem={({ item }) => {
+                    if (loading || !item) {
+                        // Skeleton? Or reuse generic loading state
+                        return <View style={{ height: 80, marginBottom: 16, backgroundColor: theme.bgSecondary, borderRadius: 16, opacity: 0.3 }} />;
+                    }
+                    return (
+                        <AchievementListItem achievement={item} />
+                    );
+                }}
+                ItemSeparatorComponent={() => <View style={{ height: 16 }} />} // Spacing between items
+            />
         </ScreenWrapper>
     );
 }
@@ -68,10 +68,5 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingBottom: 120,
         paddingTop: 20,
-    },
-    grid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 12,
     },
 });
