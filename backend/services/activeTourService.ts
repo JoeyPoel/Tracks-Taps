@@ -72,6 +72,13 @@ export const activeTourService = {
         if (!team) throw new Error("Team not found for this tour");
 
         await userRepository.addXp(userId, challenge.points);
+        await achievementService.checkLevel(userId);
+
+        // Check for Stop Visit achievements (Explorer)
+        // Only if challenge is linked to a stop (which it normally is)
+        if (challenge.stopId) {
+            await achievementService.checkUniqueStops(userId);
+        }
 
         // Update Team streak and score
         await activeTourRepository.updateStreak(team.id, (team.streak || 0) + 1);
@@ -147,6 +154,9 @@ export const activeTourService = {
         // 3. Check Tour Count Achievements
         await achievementService.checkTourCompletion(userId);
 
+        // 3b. Check Team Size Achievements (Party Animal)
+        await achievementService.checkTeamSize(userId, activeTourId);
+
         // 4. Check if all teams are finished
         const updatedActiveTour = await activeTourRepository.findActiveTourById(activeTourId);
 
@@ -192,6 +202,7 @@ export const activeTourService = {
 
             if (xpDiff !== 0) {
                 await userRepository.addXp(userId, xpDiff);
+                await achievementService.checkLevel(userId); // Check for level up
             }
         }
 

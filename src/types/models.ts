@@ -2,7 +2,9 @@
 
 export enum SessionStatus {
     WAITING = 'WAITING',
+    PRE_TOUR_LOBBY = 'PRE_TOUR_LOBBY',
     IN_PROGRESS = 'IN_PROGRESS',
+    POST_TOUR_LOBBY = 'POST_TOUR_LOBBY',
     COMPLETED = 'COMPLETED',
     ABANDONED = 'ABANDONED'
 }
@@ -18,6 +20,13 @@ export enum TourType {
     DAY_TRIP = 'DAY_TRIP',
     MULTI_DAY = 'MULTI_DAY',
     EXPEDITION = 'EXPEDITION'
+}
+
+export enum TourStatus {
+    DRAFT = 'DRAFT',
+    PENDING_REVIEW = 'PENDING_REVIEW',
+    PUBLISHED = 'PUBLISHED',
+    REJECTED = 'REJECTED'
 }
 
 export enum ChallengeType {
@@ -72,6 +81,7 @@ export interface Tour {
     points: number;
     modes: string[];
     difficulty: Difficulty | string;
+    status: TourStatus | string;
     type: TourType | string; // New field
     genre: string; // New field
     createdAt: Date;

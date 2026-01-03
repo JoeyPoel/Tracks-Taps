@@ -1,4 +1,5 @@
 import { reviewRepository } from '../repositories/reviewRepository';
+import { achievementService } from './achievementService';
 
 export const reviewService = {
     async createReview(data: {
@@ -8,7 +9,9 @@ export const reviewService = {
         rating: number;
         photos?: string[];
     }) {
-        return await reviewRepository.createReview(data);
+        const review = await reviewRepository.createReview(data);
+        await achievementService.checkReviewCount(data.userId);
+        return review;
     },
 
     async getReviewsForTour(tourId: number) {

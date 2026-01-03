@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { tourRepository } from '../repositories/tourRepository';
+import { achievementService } from './achievementService';
 
 import { TourFilters } from '../../src/types/filters';
 
@@ -13,6 +14,11 @@ export const tourService = {
     },
 
     async createTour(data: Prisma.TourCreateInput) {
-        return await tourRepository.createTour(data);
+        const tour = await tourRepository.createTour(data);
+        // data.author.connect.id is how author is linked usually
+        if (data.author && data.author.connect && data.author.connect.id) {
+            await achievementService.checkCreatedToursCount(data.author.connect.id);
+        }
+        return tour;
     },
 };

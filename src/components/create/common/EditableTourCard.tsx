@@ -7,6 +7,7 @@ import React from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { ClockIcon, MapIcon, TrophyIcon } from 'react-native-heroicons/solid';
 import { TourDraft } from '../../../hooks/useCreateTour';
+import { TourType } from '../../../types/models';
 import { TextComponent } from '../../common/TextComponent'; // Added import
 import { SelectionModal } from './SelectionModal';
 
@@ -86,7 +87,7 @@ export function EditableTourCard({
 
     const genre = draft.genre;
 
-    const [pickerType, setPickerType] = React.useState<'genre' | 'difficulty' | null>(null);
+    const [pickerType, setPickerType] = React.useState<'genre' | 'difficulty' | 'tourType' | null>(null);
     const { GENRES } = require('@/src/utils/genres');
 
     return (
@@ -117,14 +118,16 @@ export function EditableTourCard({
                             <View style={styles.dropdownCaret} />
                         </TouchableOpacity>
 
-                        {/* Tour Type Badge (Display Only) */}
-                        {draft.type && (
-                            <View style={[styles.badge, styles.blurBadge]}>
-                                <TextComponent style={styles.badgeText} color="#FFF" bold size={12}>
-                                    {getTourTypeLabel(draft.type)}
-                                </TextComponent>
-                            </View>
-                        )}
+                        {/* Tour Type Badge */}
+                        <TouchableOpacity
+                            onPress={() => setPickerType('tourType')}
+                            style={[styles.badge, styles.blurBadge]}
+                        >
+                            <TextComponent style={styles.badgeText} color="#FFF" bold size={12}>
+                                {draft.type ? getTourTypeLabel(draft.type) : t('selectType')}
+                            </TextComponent>
+                            <View style={styles.dropdownCaret} />
+                        </TouchableOpacity>
 
                         <TouchableOpacity
                             onPress={() => setPickerType('difficulty')}
@@ -222,6 +225,18 @@ export function EditableTourCard({
                 options={GENRES.map((g: any) => ({ label: g.label, value: g.id, icon: g.icon, color: g.color }))}
                 onSelect={(val) => updateDraft('genre', val)}
                 currentValue={draft.genre}
+            />
+
+            <SelectionModal
+                visible={pickerType === 'tourType'}
+                onClose={() => setPickerType(null)}
+                title={t('selectTourType')}
+                options={Object.values(TourType).map((type: string) => ({
+                    label: getTourTypeLabel(type),
+                    value: type
+                }))}
+                onSelect={(val) => updateDraft('type', val)}
+                currentValue={draft.type}
             />
 
             <SelectionModal

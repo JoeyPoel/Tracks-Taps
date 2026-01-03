@@ -56,6 +56,7 @@ export const tourController = {
                 sortOrder: searchParams.get('sortOrder') || undefined,
                 page: searchParams.get('page') ? Number(searchParams.get('page')) : 1,
                 limit: searchParams.get('limit') ? Number(searchParams.get('limit')) : 20,
+                status: searchParams.get('status') || 'PUBLISHED', // Default to PUBLISHED for explorer
             };
 
             const modes = searchParams.getAll('modes[]');
@@ -166,6 +167,8 @@ export const tourController = {
                 author: {
                     connect: { id: userId }
                 },
+
+                status: 'PENDING_REVIEW', // Explicitly set status
 
                 // Create Stops and Nested Challenges
                 stops: {

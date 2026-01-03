@@ -116,6 +116,8 @@ export const strings = {
     tourType: 'Tour Type',
     difficulty: 'Difficulty',
     selectDifficulty: 'Select Difficulty',
+    selectTourType: 'Select Tour Type', // Added
+    selectType: 'Select Type', // Added
     selectGenre: 'Select Genre',
     selectGameModes: 'Select Game Modes',
     addStop: 'Add Stop',
@@ -614,6 +616,8 @@ export const strings = {
     // Active Tour keys
     difficulty: 'Dificultad',
     selectDifficulty: 'Seleccionar Dificultad',
+    selectTourType: 'Seleccionar Tipo de Tour', // Added
+    selectType: 'Seleccionar Tipo', // Added
     selectGenre: 'Seleccionar Género',
     selectGameModes: 'Seleccionar Modos de Juego',
     loadingTour: 'Cargando tour...',

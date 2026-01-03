@@ -84,10 +84,14 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     } = useActiveTour(activeTourId, user.id, updateUserXp);
 
     React.useEffect(() => {
-        if (!loading && currentTeam?.finishedAt) {
-            router.replace({ pathname: '/tour-waiting-lobby/[id]', params: { id: activeTourId } });
+        if (!loading) {
+            if (activeTour?.status === 'PRE_TOUR_LOBBY') {
+                router.replace({ pathname: '/(tabs)/lobby', params: { activeTourId } });
+            } else if (activeTour?.status === 'POST_TOUR_LOBBY' || currentTeam?.finishedAt) {
+                router.replace({ pathname: '/tour-waiting-lobby/[id]', params: { id: activeTourId } });
+            }
         }
-    }, [activeTourId, currentTeam, loading]);
+    }, [activeTourId, currentTeam, loading, activeTour?.status]);
 
     // Derived PubGolf Scores
     const pubGolfScores: Record<number, number> = {};

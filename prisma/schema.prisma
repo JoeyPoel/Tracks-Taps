@@ -36,9 +36,18 @@ enum TourType {
   EXPEDITION
 }
 
+enum TourStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  REJECTED
+}
+
 enum SessionStatus {
   WAITING
+  PRE_TOUR_LOBBY
   IN_PROGRESS
+  POST_TOUR_LOBBY
   COMPLETED
   ABANDONED
 }
@@ -134,6 +143,7 @@ model Tour {
   points      Int
   modes       String[] // PostgreSQL array for modes
   difficulty  Difficulty
+  status      TourStatus @default(PENDING_REVIEW) // Review Status
   type        TourType   @default(QUICK_TRIP) // New field: Tour Duration Type
   genre       String     @default("Adventure") // New field: Genre
   createdAt   DateTime   @default(now())

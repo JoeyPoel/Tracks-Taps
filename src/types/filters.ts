@@ -13,6 +13,7 @@ export interface TourFilters {
     modes?: string[];
     difficulty?: Difficulty;
     genres?: string[];
+    status?: string; // e.g. 'PUBLISHED'
     sortBy?: SortOption;
     sortOrder?: SortOrder;
     page?: number;
