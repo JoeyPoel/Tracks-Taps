@@ -212,6 +212,10 @@ model Challenge {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
+  // Bingo Grid Position (Optional, only for Bingo challenges)
+  bingoRow Int?
+  bingoCol Int?
+
   // Polymorphic Relations (Nullable FKs)
   tourId Int?
   tour   Tour? @relation(fields: [tourId], references: [id], onDelete: Cascade)
@@ -220,6 +224,7 @@ model Challenge {
 
   // Relations
   activeChallenges ActiveChallenge[]
+  bingoCells       BingoCell[]
 
   @@index([tourId])
   @@index([stopId])
@@ -267,6 +272,7 @@ model Team {
   // Relations
   activeChallenges ActiveChallenge[]
   pubGolfStops     PubGolfStop[]
+  bingoCard        BingoCard? // No relation field here, it's on BingoCard end
 
   @@index([activeTourId])
   @@index([userId])
@@ -297,8 +303,35 @@ model PubGolfStop {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([teamId, stopId])
   @@index([teamId])
-  @@index([stopId])
+}
+
+model BingoCard {
+  id               Int         @id @default(autoincrement())
+  teamId           Int         @unique
+  team             Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  cells            BingoCell[]
+  awardedLines     String[] // e.g. ["row-0", "col-2", "diag-1"]
+  fullHouseAwarded Boolean     @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([teamId])
+}
+
+model BingoCell {
+  id          Int       @id @default(autoincrement())
+  bingoCardId Int
+  bingoCard   BingoCard @relation(fields: [bingoCardId], references: [id], onDelete: Cascade)
+  row         Int
+  col         Int
+  challengeId Int
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@index([bingoCardId])
+  @@index([challengeId])
 }
 
 model Review {

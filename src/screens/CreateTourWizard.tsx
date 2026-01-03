@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AnimatedButton } from '@/src/components/common/AnimatedButton';
 import { ScreenWrapper } from '@/src/components/common/ScreenWrapper';
 import CreateTourProgress from '@/src/components/create/CreateTourProgress';
+import StepBingo from '@/src/components/create/steps/StepBingo'; // Added import
 import StepChallenges from '@/src/components/create/steps/StepChallenges'; // Added import
 import StepGamemodes from '@/src/components/create/steps/StepGamemodes';
 import StepInfo from '@/src/components/create/steps/StepInfo';
@@ -48,11 +49,12 @@ export default function CreateTourWizard() {
                 exiting={FadeOutLeft.duration(200)}
                 style={{ flex: 1 }}
             >
-                {currentStep === 0 && <StepInfo {...stepProps} />}
-                {currentStep === 1 && <StepGamemodes {...stepProps} />}
-                {currentStep === 2 && <StepStops {...stepProps} />}
-                {currentStep === 3 && <StepChallenges {...stepProps} />}
-                {currentStep === 4 && <StepReview {...stepProps} />}
+                {stepName === 'Info' && <StepInfo {...stepProps} />}
+                {stepName === 'Gamemodes' && <StepGamemodes {...stepProps} />}
+                {stepName === 'Stops' && <StepStops {...stepProps} />}
+                {stepName === 'Bingo' && <StepBingo {...stepProps} />}
+                {stepName === 'Challenges' && <StepChallenges {...stepProps} />}
+                {stepName === 'Review' && <StepReview {...stepProps} />}
             </Animated.View>
         );
     };
@@ -66,11 +68,12 @@ export default function CreateTourWizard() {
                     <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
                 </TouchableOpacity>
                 <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h3">
-                    {currentStep === 0 && t('stepInfo')}
-                    {currentStep === 1 && t('stepGamemodes')}
-                    {currentStep === 2 && t('stepStops')}
-                    {currentStep === 3 && (t('stepChallenges') || 'Bonus Challenges')}
-                    {currentStep === 4 && t('stepReview')}
+                    {stepName === 'Info' && t('stepInfo')}
+                    {stepName === 'Gamemodes' && t('stepGamemodes')}
+                    {stepName === 'Stops' && t('stepStops')}
+                    {stepName === 'Bingo' && 'Bingo Grid'}
+                    {stepName === 'Challenges' && (t('stepChallenges') || 'Bonus Challenges')}
+                    {stepName === 'Review' && t('stepReview')}
                 </TextComponent>
                 <View style={{ width: 40 }} />
             </View>

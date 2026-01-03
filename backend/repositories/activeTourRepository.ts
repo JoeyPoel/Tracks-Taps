@@ -86,6 +86,11 @@ export const activeTourRepository = {
             });
         }
 
+        // 4. Create Bingo Card if applicable
+        if (tour.modes.includes('BINGO')) {
+            await activeTourRepository.createBingoCard(team.id, tour.id);
+        }
+
         return activeTour;
     },
 
@@ -126,11 +131,16 @@ export const activeTourRepository = {
             });
         }
 
+        // Create Bingo Card if applicable
+        if (activeTour.tour.modes.includes('BINGO')) {
+            await activeTourRepository.createBingoCard(team.id, activeTour.tour.id);
+        }
+
         return team;
     },
 
     async findActiveTourById(id: number, userId?: number) {
-        return await prisma.activeTour.findUnique({
+        const activeTour = await prisma.activeTour.findUnique({
             where: { id },
             include: {
                 tour: {
@@ -139,37 +149,76 @@ export const activeTourRepository = {
                             orderBy: { number: 'asc' },
                             include: {
                                 challenges: true,
-                                // Optimized: Removed redundant pubGolfStops fetch from tour stops
                             }
                         },
                         challenges: true,
                     }
                 },
                 teams: {
-                    where: userId ? { userId } : undefined, // Scope to current user if provided
+                    where: userId ? { userId } : undefined,
                     include: {
-                        activeChallenges: true, // Optimized: Removed nested challenge include (redundant with Tour)
+                        activeChallenges: true,
                         pubGolfStops: true,
+                        bingoCard: {
+                            include: {
+                                cells: true
+                            }
+                        },
                         user: true
                     }
                 }
             }
         });
+
+        if (!activeTour || !activeTour.tour) return null;
+
+        // Shuffle logic helper
+        const shuffleOptions = (challenges: any[]) => {
+            return challenges.map(c => {
+                if (c.type === 'TRIVIA' && Array.isArray(c.options)) {
+                    // Create a copy and shuffle
+                    const shuffled = [...c.options].sort(() => Math.random() - 0.5);
+                    return { ...c, options: shuffled };
+                }
+                return c;
+            });
+        };
+
+        // Apply shuffle to tour challenges
+        if (activeTour.tour.challenges) {
+            activeTour.tour.challenges = shuffleOptions(activeTour.tour.challenges);
+        }
+
+        // Apply shuffle to stop challenges
+        if (activeTour.tour.stops) {
+            activeTour.tour.stops = activeTour.tour.stops.map(stop => ({
+                ...stop,
+                challenges: shuffleOptions(stop.challenges)
+            }));
+        }
+
+        return activeTour;
     },
 
-    async findActiveTourProgress(id: number, userId?: number) {
+    async findActiveTourProgress(activeTourId: number, userId?: number) {
+
         return await prisma.activeTour.findUnique({
-            where: { id },
+            where: { id: activeTourId },
             include: {
                 // Tour is purposefully OMITTED here for performance
                 teams: {
                     where: userId ? { userId } : undefined,
                     include: {
                         activeChallenges: true,
-                        pubGolfStops: true
+                        pubGolfStops: true,
+                        bingoCard: {
+                            include: {
+                                cells: true
+                            }
+                        }
                     }
-                }
-            }
+                },
+            },
         });
     },
 
@@ -322,5 +371,75 @@ export const activeTourRepository = {
         return await prisma.team.delete({
             where: { id: teamId }
         });
+    },
+
+    async createBingoCard(teamId: number, tourId: number) {
+        // 1. Fetch Tour with Bingo Challenges
+        const tour = await prisma.tour.findUnique({
+            where: { id: tourId },
+            include: {
+                challenges: {
+                    where: {
+                        bingoRow: { not: null },
+                        bingoCol: { not: null }
+                    }
+                }
+            }
+        });
+
+        if (!tour) return null;
+
+        const bingoChallenges = tour.challenges;
+
+        if (bingoChallenges.length === 0) return null;
+
+        // 2. Create Bingo Card
+        const bingoCard = await prisma.bingoCard.create({
+            data: {
+                teamId: teamId
+            }
+        });
+
+        // 3. Create Cells (Map by row/col)
+        const cellData = bingoChallenges.map(challenge => ({
+            bingoCardId: bingoCard.id,
+            challengeId: challenge.id,
+            row: challenge.bingoRow!,
+            col: challenge.bingoCol!
+        }));
+
+        await prisma.bingoCell.createMany({
+            data: cellData
+        });
+
+        return bingoCard;
+    },
+
+    async getBingoCard(teamId: number) {
+        return await prisma.bingoCard.findUnique({
+            where: { teamId },
+            include: {
+                cells: {
+                    include: { challenge: true }
+                }
+            }
+        });
+    },
+
+    async updateBingoCard(cardId: number, awardedLines: string[], fullHouseAwarded: boolean) {
+        return await prisma.bingoCard.update({
+            where: { id: cardId },
+            data: {
+                awardedLines,
+                fullHouseAwarded
+            }
+        });
+    },
+
+    async deleteBingoCard(teamId: number) {
+        return await prisma.bingoCard.deleteMany({
+            where: { teamId }
+        });
     }
 };
+

@@ -1,5 +1,6 @@
 import { prisma } from '@/src/lib/prisma';
 import { SessionStatus } from '@prisma/client';
+import { checkBingo } from '../../src/utils/bingoUtils';
 import { getScoreDetails } from '../../src/utils/pubGolfUtils';
 import { activeTourRepository } from '../repositories/activeTourRepository';
 import { challengeRepository } from '../repositories/challengeRepository';
@@ -79,6 +80,9 @@ export const activeTourService = {
         if (challenge.stopId) {
             await achievementService.checkUniqueStops(userId);
         }
+
+        // Check for Bingo Progress
+        await this.checkBingo(userId, activeTourId);
 
         // Update Team streak and score
         await activeTourRepository.updateStreak(team.id, (team.streak || 0) + 1);
@@ -167,6 +171,9 @@ export const activeTourService = {
             }
         }
 
+        // Cleanup Bingo Card
+        await activeTourRepository.deleteBingoCard(team.id);
+
         return { status: 'COMPLETED', tourId: activeTour.tourId };
     },
 
@@ -177,7 +184,14 @@ export const activeTourService = {
             throw new Error('Team not found for this tour');
         }
 
+        // 2. Delete the team (Cascades will handle ActiveChallenges, BingoCard, etc.)
+        await activeTourRepository.deleteTeam(team.id);
+
+        // 3. Check if tour has any teams left
         const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
+        if (activeTour && activeTour.teams.length === 0) {
+            await activeTourRepository.deleteActiveTourById(activeTourId);
+        }
     },
 
     async updatePubGolfScore(activeTourId: number, stopId: number, sips: number, userId: number) {
@@ -234,5 +248,61 @@ export const activeTourService = {
         }
 
         return await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.IN_PROGRESS);
+    },
+
+    async checkBingo(userId: number, activeTourId: number) {
+        // 1. Get Team
+        const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
+        if (!team) return;
+
+        // 2. Get Bingo Card
+        const bingoCard = await activeTourRepository.getBingoCard(team.id);
+        if (!bingoCard) return; // Not a bingo tour or no card
+
+        // 3. Get Completed Challenges for Team
+        const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
+        const teamData = activeTour?.teams.find(t => t.id === team.id);
+        if (!teamData) return;
+
+        const completedChallengeIds = teamData.activeChallenges
+            .filter(ac => ac.completed)
+            .map(ac => ac.challengeId);
+
+        // 4. Map cells
+        const cells = bingoCard.cells.map(cell => ({
+            row: cell.row,
+            col: cell.col,
+            completed: completedChallengeIds.includes(cell.challengeId)
+        }));
+
+        // 5. Check Logic
+        const { newAwardedLines, isFullHouse } = checkBingo(cells, bingoCard.awardedLines);
+
+        if (newAwardedLines.length === 0 && (!isFullHouse || bingoCard.fullHouseAwarded)) {
+            return; // No change
+        }
+
+        // 6. Calculate Points
+        // Standardized points: 100 per line, 250 for full house
+        let pointsToAdd = 0;
+        pointsToAdd += newAwardedLines.length * 100;
+
+        if (isFullHouse && !bingoCard.fullHouseAwarded) {
+            pointsToAdd += 250;
+        }
+
+        if (pointsToAdd > 0) {
+            // Update Card
+            await activeTourRepository.updateBingoCard(
+                bingoCard.id,
+                [...bingoCard.awardedLines, ...newAwardedLines],
+                isFullHouse || bingoCard.fullHouseAwarded
+            );
+
+            // Award Points (Team Score + User XP)
+            await activeTourRepository.updateTeamScore(team.id, (team.score || 0) + pointsToAdd);
+            await userRepository.addXp(userId, pointsToAdd);
+            await achievementService.checkLevel(userId);
+        }
     }
 };

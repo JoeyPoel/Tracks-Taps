@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { useState } from 'react';
+import { ActivityIndicator, Alert, Image, StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
+import { uploadImage } from '../../../services/imageService';
 import ActiveChallengeCard from '../ActiveChallengeCard';
 
 interface PictureChallengeProps {
@@ -10,7 +12,8 @@ interface PictureChallengeProps {
     isCompleted: boolean;
     isFailed: boolean;
     onComplete: (challenge: any) => void;
-    index?: number;
+    index: number;
+    isBonus?: boolean;
 }
 
 const PictureChallenge: React.FC<PictureChallengeProps> = ({
@@ -18,16 +21,55 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
     isCompleted,
     isFailed,
     onComplete,
-    index
+    index,
+    isBonus = false
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const isDone = isCompleted || isFailed;
+    const [uploading, setUploading] = useState(false);
+    const [imageUri, setImageUri] = useState<string | null>(null);
 
-    const handlePress = (): void => {
-        // In a real app, this would open the camera
-        // For now, we simulate success
-        onComplete(challenge);
+    const handlePress = async (): Promise<void> => {
+        try {
+            const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+            if (!permissionResult.granted) {
+                Alert.alert(t('permissionNeeded'), t('cameraPermissionMsg') || "Camera access is needed to complete this challenge.");
+                return;
+            }
+
+            const result = await ImagePicker.launchCameraAsync({
+                // @ts-ignore - Expo types might be outdated, but runtime warning says to use MediaType
+                mediaTypes: (ImagePicker as any).MediaType?.Images || ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 0.5, // Compression as requested
+            });
+
+            if (!result.canceled && result.assets && result.assets.length > 0) {
+                const capturedImage = result.assets[0];
+                setImageUri(capturedImage.uri);
+                setUploading(true);
+
+                try {
+                    // Upload using service (which ensures 600px width)
+                    // Explicitly pass 'images' bucket and 'challenge-entries' folder
+                    const publicUrl = await uploadImage(capturedImage.uri, 'images', 'challenge-entries');
+
+                    // Complete challenge with the URL
+                    onComplete({ ...challenge, imageUrl: publicUrl });
+                } catch (uploadError) {
+                    console.error("Upload failed", uploadError);
+                    Alert.alert("Upload Failed", "Could not upload your picture. Please try again.");
+                    setImageUri(null); // Reset on failure
+                } finally {
+                    setUploading(false);
+                }
+            }
+        } catch (error) {
+            console.error("Camera error", error);
+            Alert.alert("Error", "Could not open camera.");
+        }
     };
 
     return (
@@ -38,19 +80,32 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
             isCompleted={isCompleted}
             isFailed={isFailed}
             onPress={handlePress}
-            actionLabel={t('takePhoto') || "Take Photo"}
-            disabled={isDone}
+            actionLabel={uploading ? (t('uploading') || "Uploading...") : (t('takePhoto') || "Take Photo")}
+            disabled={isDone || uploading}
             index={index}
+            isBonus={isBonus}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
                 {challenge.content}
             </Text>
             <View style={styles.content}>
+                {uploading && (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="small" color={theme.primary} />
+                        <Text style={{ color: theme.textSecondary, marginTop: 8 }}>{t('compressingAndUploading') || "Compressing & Uploading..."}</Text>
+                    </View>
+                )}
 
-                {isCompleted && (
+                {(imageUri || isCompleted) && !uploading && (
                     <View style={styles.placeholderImage}>
-                        <Ionicons name="image" size={40} color={theme.textSecondary} />
-                        <Text style={{ color: theme.textSecondary }}>[Image Placeholder]</Text>
+                        {imageUri ? (
+                            <Image source={{ uri: imageUri }} style={styles.previewImage} />
+                        ) : (
+                            <View style={{ alignItems: 'center' }}>
+                                <Ionicons name="checkmark-circle" size={40} color={theme.success} />
+                                <Text style={{ color: theme.textSecondary, marginTop: 4 }}>{t('photoUploaded') || "Photo Uploaded"}</Text>
+                            </View>
+                        )}
                     </View>
                 )}
             </View>
@@ -73,12 +128,23 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
     },
     placeholderImage: {
-        height: 100,
+        height: 150,
         backgroundColor: 'rgba(0,0,0,0.05)',
         borderRadius: 8,
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 8,
+        overflow: 'hidden',
+    },
+    loadingContainer: {
+        height: 100,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    previewImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
     }
 });
 

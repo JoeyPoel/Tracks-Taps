@@ -84,6 +84,8 @@ export interface Tour {
     status: TourStatus | string;
     type: TourType | string; // New field
     genre: string; // New field
+    bingoLinePoints: number;
+    bingoFullPoints: number;
     createdAt: Date;
     updatedAt: Date;
     authorId: number;
@@ -171,6 +173,7 @@ export interface Team {
     finishedAt: Date | null;
     activeChallenges?: ActiveChallenge[];
     pubGolfStops?: PubGolfStop[];
+    bingoCard?: BingoCard;
     user?: User;
 }
 
@@ -179,6 +182,25 @@ export interface PubGolfStop {
     teamId: number;
     stopId: number;
     sips: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface BingoCell {
+    id: number;
+    bingoCardId: number;
+    row: number;
+    col: number;
+    challengeId: number;
+    challenge?: Challenge;
+}
+
+export interface BingoCard {
+    id: number;
+    teamId: number;
+    cells: BingoCell[];
+    awardedLines: string[];
+    fullHouseAwarded: boolean;
     createdAt: Date;
     updatedAt: Date;
 }

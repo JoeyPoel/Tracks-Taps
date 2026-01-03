@@ -55,6 +55,17 @@ export const useTourCompleted = (activeTourId: number) => {
         }
     }, [activeTour]);
 
+    const cleanupAndExit = async () => {
+        if (activeTourId && user?.id) {
+            try {
+                await useStore.getState().abandonTour(activeTourId, user.id);
+            } catch (ignore) {
+                console.warn('Cleanup failed:', ignore);
+            }
+        }
+        router.navigate('/(tabs)/explore');
+    };
+
     const handleCreateReview = async (rating: number, content: string, photos: string[]) => {
         if (!user) {
             Alert.alert(t('error'), t('mustBeLoggedIn'));
@@ -67,43 +78,26 @@ export const useTourCompleted = (activeTourId: number) => {
             return;
         }
 
-        console.log('Submitting review for tourId:', activeTour.tourId);
         setSubmittingReview(true);
         try {
-            const result = await tourService.createReview(activeTour.tourId, {
+            await tourService.createReview(activeTour.tourId, {
                 rating,
                 content,
                 photos
             });
-            console.log('Review submitted successfully:', result);
 
             // Force refetch details so the new review appears
-            console.log('Refetching tour details...');
             await fetchTourDetails(activeTour.tourId, undefined, true);
-            console.log('Tour details refetched.');
 
             setShowReviewForm(false);
 
-            // Navigate to explore
-            console.log('Navigating to /explore');
+            // Cleanup and Navigate
+            await cleanupAndExit();
 
-            // Just navigate to explore. Using router.replace ensures we swap the current screen (modal/completed) 
-            // with explore, or just go there. safely.
-            // In expo-router stack, replace helps avoid going back.
-            // router.dismissAll() might be unmounting the root layout or something unexpected.
-
-            // Use navigate to go to the tabs route reliably.
-            router.navigate('/(tabs)/explore');
         } catch (error: any) {
             console.error('Error submitting review:', error);
-            // detailed logging
-            if (error.response) {
-                console.error('Response data:', error.response.data);
-                console.error('Response status:', error.response.status);
-            }
             Alert.alert(t('error'), t('reviewSubmitError') + (error.message ? `: ${error.message}` : ''));
         } finally {
-            console.log('Setting submittingReview to false');
             setSubmittingReview(false);
         }
     };
@@ -119,17 +113,14 @@ export const useTourCompleted = (activeTourId: number) => {
                 feedback,
                 source: 'TOUR_COMPLETION'
             });
-
-            console.log('Feedback submitted successfully');
         } catch (error) {
             console.error('Failed to submit feedback', error);
-            // Optionally alert user or just fail silently since it's feedback
         }
     };
 
 
-    const handleBackToHome = () => {
-        router.navigate('/(tabs)/explore');
+    const handleBackToHome = async () => {
+        await cleanupAndExit();
     };
 
     return {

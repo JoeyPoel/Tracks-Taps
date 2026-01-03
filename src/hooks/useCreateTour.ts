@@ -19,6 +19,17 @@ export function useCreateTour() {
     const { tourDraft, updateDraft, actions } = useTourDraft();
     const { isSubmitting, submitTour } = useTourSubmission(user);
 
+    const getSteps = () => {
+        const steps = ['Info', 'Gamemodes', 'Stops'];
+        if (tourDraft.modes.includes('BINGO')) {
+            steps.push('Bingo');
+        }
+        steps.push('Challenges', 'Review');
+        return steps;
+    };
+
+    const steps = getSteps();
+
     const handleNext = () => {
         // Validation check before next step
         if (currentStep === 0) {
@@ -28,7 +39,14 @@ export function useCreateTour() {
             }
         }
 
-        if (currentStep < STEPS.length - 1) {
+        if (steps[currentStep] === 'Bingo') {
+            if (tourDraft.bingoChallenges.length !== 9) {
+                Alert.alert(t('missingInfo') || "Incomplete", "Bingo requires exactly 9 challenges to form a 3x3 grid.");
+                return;
+            }
+        }
+
+        if (currentStep < steps.length - 1) {
             setCurrentStep(currentStep + 1);
         } else {
             submitTour(tourDraft);
@@ -45,8 +63,9 @@ export function useCreateTour() {
 
     return {
         currentStep,
-        totalSteps: STEPS.length,
-        stepName: STEPS[currentStep],
+        totalSteps: steps.length,
+        stepName: steps[currentStep],
+        steps,
         tourDraft,
         isSubmitting,
         updateDraft,

@@ -1,10 +1,8 @@
-import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { ModeCard } from '@/src/components/create/common/ModeCard';
 import { WizardStepHeader } from '@/src/components/create/common/WizardStepHeader';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { TourDraft } from '@/src/hooks/useCreateTour';
-import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -13,9 +11,10 @@ interface StepGamemodesProps {
     actions: {
         toggleMode: (mode: string) => void;
     };
+    updateDraft: (key: keyof TourDraft, value: any) => void;
 }
 
-export default function StepGamemodes({ draft, actions }: StepGamemodesProps) {
+export default function StepGamemodes({ draft, actions, updateDraft }: StepGamemodesProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
@@ -41,17 +40,16 @@ export default function StepGamemodes({ draft, actions }: StepGamemodesProps) {
                     onPress={() => toggleMode('PUBGOLF')}
                 />
 
-                {/* Coming Soon Placeholder */}
-                <View style={[styles.comingSoonCard, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
-                    <Ionicons name="flask-outline" size={24} color={theme.textTertiary} />
-                    <View>
-                        <TextComponent style={styles.comingSoonTitle} color={theme.textSecondary} bold variant="body">
-                            {t('comingSoon')}
-                        </TextComponent>
-                        <TextComponent style={styles.comingSoonDesc} color={theme.textTertiary} variant="caption">
-                            {t('comingSoonDesc')}
-                        </TextComponent>
-                    </View>
+                <View>
+                    <ModeCard
+                        mode="BINGO"
+                        icon="grid"
+                        label={t('bingo')}
+                        description={t('bingoDescription')}
+                        colors={[theme.primary, theme.accent]}
+                        isSelected={draft.modes.includes('BINGO')}
+                        onPress={() => toggleMode('BINGO')}
+                    />
                 </View>
             </View>
         </View>
@@ -65,20 +63,11 @@ const styles = StyleSheet.create({
     grid: {
         gap: 16,
     },
-    comingSoonCard: {
-        borderRadius: 24,
-        padding: 20,
-        borderWidth: 1,
-        borderStyle: 'dashed',
-        flexDirection: 'row',
-        alignItems: 'center',
+    settingsContainer: {
+        marginTop: 12,
+        padding: 16,
+        borderRadius: 20,
         gap: 16,
-        opacity: 0.7,
-    },
-    comingSoonTitle: {
-        // fontSize and fontWeight handled by TextComponent
-    },
-    comingSoonDesc: {
-        maxWidth: 240,
+        borderWidth: 1,
     }
 });

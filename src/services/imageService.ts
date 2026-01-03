@@ -26,7 +26,7 @@ export const uploadImage = async (
         // This ensures consistent performance and reduces bandwidth/storage usage.
         const manipulatedImage = await ImageManipulator.manipulateAsync(
             uri,
-            [{ resize: { width: 1080 } }], // Resize to max width 1080, height auto-scaled
+            [{ resize: { width: 600 } }], // Resize to max width 600, height auto-scaled
             { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
         );
 

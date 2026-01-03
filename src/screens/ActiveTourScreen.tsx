@@ -5,11 +5,14 @@ import ActiveTourHeader from '../components/active-tour/ActiveTourHeader';
 import ActiveTourMap from '../components/active-tour/ActiveTourMap';
 import Confetti from '../components/active-tour/animations/Confetti';
 import FloatingPoints from '../components/active-tour/animations/FloatingPoints';
+import { BingoCard } from '../components/active-tour/BingoCard'; // Added Import
+import ChallengeItem from '../components/active-tour/ChallengeItem';
 import ChallengeSection from '../components/active-tour/ChallengeSection';
 import PubGolfSection from '../components/active-tour/pubGolf/PubGolfSection';
 import StopInfoSection from '../components/active-tour/StopInfoSection';
 import TourChallengesSection from '../components/active-tour/TourChallengesSection';
 import TourNavigation from '../components/active-tour/TourNavigation';
+import { AppModal } from '../components/common/AppModal';
 import { TextComponent } from '../components/common/TextComponent'; // Added Import
 import CustomTabBar from '../components/CustomTabBar';
 import { useLanguage } from '../context/LanguageContext';
@@ -55,6 +58,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const { t } = useLanguage();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState(0);
+    const [selectedBingoChallenge, setSelectedBingoChallenge] = useState<any>(null);
 
     const { updateUserXp, refreshUser } = useUserContext();
 
@@ -111,8 +115,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const stopChallenges = currentStop?.challenges || [];
     const isLastStop = currentStopIndex === (activeTour.tour?.stops?.length || 0) - 1;
 
-    // Filter for tour-wide challenges (challenges with no stopId)
-    // Note: activeTour.tour.challenges contains ALL challenges for the tour, so we filter.
+    // Filter for tour-wide challenges (challenges with no stopId, and NOT bingo challenges)
     const tourAllChallenges = activeTour.tour?.challenges || [];
     const tourWideChallenges = tourAllChallenges.filter((c: any) => !c.stopId);
 
@@ -176,30 +179,79 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         });
     }
 
-    // Add Game Modes
-    const modes = activeTour.tour?.modes || [];
-    modes.forEach((mode: string) => {
-        if (mode === 'PUBGOLF') {
-            tabItems.push({
-                key: 'pubgolf',
-                label: t('pubgolf'),
-                render: () => (
-                    <TabContentWrapper key="pubgolf">
-                        <PubGolfSection
-                            activeTour={activeTour}
-                            pubGolfScores={pubGolfScores}
-                            currentStopId={currentStop?.id}
-                            handleSaveSips={handleSaveSips}
-                        />
-                    </TabContentWrapper>
-                )
-            });
-        }
-        // Add other modes here in the future
-    });
+    // Add PubGolf Tab (Check for stops with pubgolfPar)
+    const hasPubGolfStops = activeTour.tour?.stops?.some((s: any) => s.pubgolfPar != null && s.pubgolfPar > 0);
+    if (hasPubGolfStops) {
+        tabItems.push({
+            key: 'pubgolf',
+            label: t('pubgolf'),
+            render: () => (
+                <TabContentWrapper key="pubgolf">
+                    <PubGolfSection
+                        activeTour={activeTour}
+                        pubGolfScores={pubGolfScores}
+                        currentStopId={currentStop?.id}
+                        handleSaveSips={handleSaveSips}
+                    />
+                </TabContentWrapper>
+            )
+        });
+    }
+
+    // Add Bingo Tab (Check mode or challenges existence)
+    const hasBingoMode = activeTour.tour?.modes?.includes('BINGO');
+    // Also check if there are actual bingo challenges to be safe, or just rely on mode.
+    // Given the request "if there is bingo", and the previous implementation relied on mode.
+    // I'll stick to 'hasBingoMode' but also ensure currentTeam exists as per previous logic.
+    if (hasBingoMode && currentTeam) {
+        tabItems.push({
+            key: 'bingo',
+            label: t('bingo'),
+            render: () => (
+                <TabContentWrapper key="bingo">
+                    <BingoCard
+                        team={currentTeam}
+                        challenges={tourAllChallenges}
+                        onChallengePress={(challenge: any) => {
+                            // Only set if not already completed (or allow viewing completed ones too - usually view is fine)
+                            // But usually users want to complete them.
+                            setSelectedBingoChallenge(challenge);
+                        }}
+                    />
+                </TabContentWrapper>
+            )
+        });
+    }
 
     const tabs = tabItems.map(i => i.label);
     const progress = LevelSystem.getProgress(user?.xp || 0);
+
+    // Filter out active challenge wrapper
+    const activeBingoChallengeItem = (
+        <AppModal
+            visible={!!selectedBingoChallenge}
+            onClose={() => setSelectedBingoChallenge(null)}
+            title={t('bingoChallenge')}
+            alignment="center"
+        >
+            <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+                {selectedBingoChallenge && (
+                    <ChallengeItem
+                        challenge={selectedBingoChallenge}
+                        isCompleted={completedChallenges.has(selectedBingoChallenge.id)}
+                        isFailed={failedChallenges.has(selectedBingoChallenge.id)}
+                        triviaSelected={triviaSelected}
+                        setTriviaSelected={setTriviaSelected}
+                        onClaimArrival={handleChallengeComplete}
+                        onSubmitTrivia={handleSubmitTrivia}
+                        onFail={handleChallengeFail}
+                        index={0}
+                    />
+                )}
+            </ScrollView>
+        </AppModal>
+    );
+
 
     return (
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
@@ -268,6 +320,9 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
             )}
 
             {showConfetti && <Confetti />}
+
+            {/* Render Modal Overlay */}
+            {activeBingoChallengeItem}
         </View>
     );
 }

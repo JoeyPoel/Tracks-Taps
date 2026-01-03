@@ -19,6 +19,7 @@ interface ChallengeItemProps {
     onSubmitTrivia: (challenge: any) => void;
     onFail: (challenge: any) => void;
     index: number;
+    isBonus?: boolean;
 }
 
 const ChallengeItem: React.FC<ChallengeItemProps> = ({
@@ -30,7 +31,8 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
     onClaimArrival,
     onSubmitTrivia,
     onFail,
-    index
+    index,
+    isBonus = false
 }) => {
     const { t } = useLanguage(); // Added hook
     const type = challenge.type.toLowerCase();
@@ -54,6 +56,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                     isFailed={isFailed}
                     onComplete={handleComplete}
                     index={index}
+                    isBonus={isBonus}
                 />
             );
         case 'trivia':
@@ -66,6 +69,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                     setTriviaSelected={setTriviaSelected}
                     onSubmit={onSubmitTrivia}
                     index={index}
+                    isBonus={isBonus}
                 />
             );
         case 'picture':
@@ -76,6 +80,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                     isFailed={isFailed}
                     onComplete={handleComplete}
                     index={index}
+                    isBonus={isBonus}
                 />
             );
         case 'true_false':
@@ -87,6 +92,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                     onComplete={handleComplete}
                     onFail={handleFail}
                     index={index}
+                    isBonus={isBonus}
                 />
             );
         case 'dare':
@@ -97,6 +103,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                     isFailed={isFailed}
                     onComplete={handleComplete}
                     index={index}
+                    isBonus={isBonus}
                 />
             );
         case 'riddle':
@@ -108,6 +115,7 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                     onComplete={handleComplete}
                     onFail={handleFail}
                     index={index}
+                    isBonus={isBonus}
                 />
             );
         default:

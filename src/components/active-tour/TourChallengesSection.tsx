@@ -61,6 +61,7 @@ const TourChallengesSection: React.FC<TourChallengesSectionProps> = ({
                             onFail={handleChallengeFail}
                             onSubmitTrivia={handleSubmitTrivia}
                             index={0} // Default index since no staggering needed here
+                            isBonus={true}
                         />
                     )
                 })

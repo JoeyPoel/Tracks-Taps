@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     },
     trophyIcon: {
         zIndex: 2,
-        shadowColor: "orange",
+        shadowColor: "white",
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.5,
         shadowRadius: 10,

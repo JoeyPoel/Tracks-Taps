@@ -163,6 +163,8 @@ export const strings = {
     wrongAnswer: 'Wrong Answer',
     claimPoints: 'Claim Points',
     submitAnswer: 'Submit Answer',
+    submit: 'Submit', // Added
+    verifyLocation: 'Verify Location', // Added
     rightLocation: "You're at the right location!",
     wrongAnswerCorrectWas: 'Wrong answer! The correct answer was:',
     back: 'Back',
@@ -259,6 +261,8 @@ export const strings = {
     teamPlayDesc: 'Join forces with friends or compete against other teams in epic challenges!',
     // New Challenge Types
     uploading: 'Uploading...',
+    compressingAndUploading: 'Compressing & Uploading...',
+    photoUploaded: 'Photo Uploaded',
     takePhoto: 'Take Photo',
     true: 'True',
     false: 'False',
@@ -348,6 +352,11 @@ export const strings = {
     stepGamemodesTitle: "Choose the vibe.",
     stepGamemodesSubtitle: "Add special game modes to your tour.",
     pubGolfDescription: "A boozy adventure. Score par on drinks. Strictly 18+.",
+    bingo: 'Bingo',
+    bingoDescription: 'Complete challenges in a 3x3 grid. Get points for lines and a full house!',
+    bingoChallenge: 'Bingo Challenge',
+    bingoLinePoints: 'Points per Line',
+    bingoFullPoints: 'Points for Full House',
     comingSoon: "More Coming Soon...",
     comingSoonDesc: "Bingo, Crazy 88, and more are on the way!",
     stepStopsTitle: "Map your adventure.",
@@ -640,6 +649,8 @@ export const strings = {
     wrongAnswer: 'Respuesta Incorrecta',
     claimPoints: 'Reclamar Puntos',
     submitAnswer: 'Enviar Respuesta',
+    submit: 'Enviar', // Added
+    verifyLocation: 'Verificar Ubicación', // Added
     rightLocation: '¡Estás en la ubicación correcta!',
     wrongAnswerCorrectWas: '¡Respuesta incorrecta! La respuesta correcta era:',
     back: 'Atrás',
@@ -712,6 +723,8 @@ export const strings = {
     teamPlayDesc: '¡Une fuerzas con amigos o compite contra otros equipos en desafíos épicos!',
     // New Challenge Types
     takePhoto: 'Tomar Foto',
+    compressingAndUploading: 'Comprimiendo y Subiendo...',
+    photoUploaded: 'Foto Subida',
     true: 'Verdadero',
     false: 'Falso',
     dareCompleted: '¡Lo hice!',
@@ -1124,6 +1137,8 @@ export const strings = {
     teamPlayDesc: 'Bundel je krachten met vrienden of strijd tegen andere teams in epische uitdagingen!',
     // New Challenge Types
     takePhoto: 'Maak Foto',
+    compressingAndUploading: 'Comprimeren & Uploaden...',
+    photoUploaded: 'Foto Geüpload',
     true: 'Waar',
     false: 'Niet Waar',
     dareCompleted: 'Ik heb het gedaan!',

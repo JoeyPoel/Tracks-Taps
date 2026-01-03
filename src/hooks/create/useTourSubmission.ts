@@ -36,11 +36,22 @@ export function useTourSubmission(user: any) {
             const payload = {
                 ...tourDraft,
                 stops: sanitizedStops,
+                points: Math.round(tourDraft.points),
                 distance: parseFloat(tourDraft.distance) || 0,
                 duration: parseInt(tourDraft.duration) || 0,
                 authorId: parseInt(user.id) || 0,
-                points: Math.round(tourDraft.points),
-                challenges: [],
+
+
+                challenges: [
+                    ...tourDraft.challenges, // Bonus challenges
+                    ...tourDraft.bingoChallenges.map(bc => ({
+                        ...bc,
+                        bingoRow: bc.row, // Ensure mapping matches schema
+                        bingoCol: bc.col,
+                        points: 0, // Bingo challenges might not have individual points? Or use default?
+                        type: bc.type || 'LOCATION' // Fallback
+                    }))
+                ],
                 startLat: tourDraft.startLat,
                 startLng: tourDraft.startLng,
             };

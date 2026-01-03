@@ -19,6 +19,7 @@ export type TourDraft = {
     startLng?: number;
     type: TourType | string;
     challenges: any[]; // Bonus (Global) Challenges
+    bingoChallenges: any[]; // 3x3 Grid Challenges { row, col, ...challenge }
 };
 
 const INITIAL_DRAFT: TourDraft = {
@@ -31,6 +32,7 @@ const INITIAL_DRAFT: TourDraft = {
     modes: [],
     stops: [],
     challenges: [],
+    bingoChallenges: [],
     distance: '0',
     duration: '0',
     points: 0,
@@ -142,6 +144,22 @@ export function useTourDraft() {
         updateDraft('challenges', newChallenges);
     };
 
+    const addBingoChallenge = (challenge: any) => {
+        // expect challenge to have row and col
+        // remove existing challenge at that position if any
+        const newChallenges = tourDraft.bingoChallenges.filter(
+            c => c.row !== challenge.row || c.col !== challenge.col
+        );
+        updateDraft('bingoChallenges', [...newChallenges, challenge]);
+    };
+
+    const removeBingoChallenge = (row: number, col: number) => {
+        const newChallenges = tourDraft.bingoChallenges.filter(
+            c => c.row !== row || c.col !== col
+        );
+        updateDraft('bingoChallenges', newChallenges);
+    };
+
     return {
         tourDraft,
         updateDraft,
@@ -155,7 +173,9 @@ export function useTourDraft() {
             toggleMode,
             addBonusChallenge,
             removeBonusChallenge,
-            editBonusChallenge
+            editBonusChallenge,
+            addBingoChallenge,
+            removeBingoChallenge
         }
     };
 }

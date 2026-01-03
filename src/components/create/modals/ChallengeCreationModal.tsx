@@ -57,6 +57,8 @@ export default function ChallengeCreationModal({ visible, onClose, onSave, initi
                                 optionB={optionB} setOptionB={(val) => updateField('optionB', val)}
                                 optionC={optionC} setOptionC={(val) => updateField('optionC', val)}
                                 optionD={optionD} setOptionD={(val) => updateField('optionD', val)}
+                                correctOption={formState.correctOption}
+                                setCorrectOption={(val) => updateField('correctOption', val)}
                             />
                         )}
 

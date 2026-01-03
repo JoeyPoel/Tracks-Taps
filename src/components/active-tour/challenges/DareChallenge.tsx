@@ -10,6 +10,7 @@ interface DareChallengeProps {
     isFailed: boolean;
     onComplete: (challenge: any) => void;
     index?: number;
+    isBonus?: boolean;
 }
 
 const DareChallenge: React.FC<DareChallengeProps> = ({
@@ -17,7 +18,8 @@ const DareChallenge: React.FC<DareChallengeProps> = ({
     isCompleted,
     isFailed,
     onComplete,
-    index
+    index,
+    isBonus = false
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
@@ -31,9 +33,10 @@ const DareChallenge: React.FC<DareChallengeProps> = ({
             isCompleted={isCompleted}
             isFailed={isFailed}
             onPress={() => onComplete(challenge)}
-            actionLabel={t('dareCompleted') || "I did it!"}
+            actionLabel={t('dareCompleted') || "Dare Completed"}
             disabled={isDone}
             index={index}
+            isBonus={isBonus}
         >
             <View style={styles.content}>
                 <Text style={[styles.dareText, { color: theme.textPrimary }]}>

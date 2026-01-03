@@ -26,6 +26,7 @@ interface ActiveChallengeCardProps {
     actionLabel: string;
     children?: React.ReactNode;
     index?: number; // For staggered animation
+    isBonus?: boolean;
 }
 
 export default function ActiveChallengeCard({
@@ -38,8 +39,9 @@ export default function ActiveChallengeCard({
     actionLabel,
     children,
     disabled = false,
-    index = 0
-}: ActiveChallengeCardProps & { disabled?: boolean, isFailed?: boolean, index?: number }) {
+    index = 0,
+    isBonus = false
+}: ActiveChallengeCardProps & { disabled?: boolean, isFailed?: boolean, index?: number, isBonus?: boolean }) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
@@ -65,8 +67,9 @@ export default function ActiveChallengeCard({
     }, []);
 
     const getBorderColors = (): [string, string] => {
-        if (isCompleted) return [theme.success, theme.success + '40'];
-        if (isFailed) return [theme.danger, theme.danger + '40'];
+        if (isCompleted) return [theme.success, theme.success + '50'];
+        if (isFailed) return [theme.danger, theme.danger + '50'];
+        if (isBonus) return [theme.gold, theme.gold + '50'];
         return [theme.primary, theme.secondary];
     };
 
@@ -160,10 +163,10 @@ export default function ActiveChallengeCard({
                             interactionScale="medium"
                             haptic="light"
                         >
-                            <TextComponent style={styles.buttonText} color={disabled ? theme.textDisabled : '#FFF'} bold variant="body">
+                            <TextComponent style={styles.buttonText} color={theme.fixedWhite} bold variant="body">
                                 {actionLabel}
                             </TextComponent>
-                            {!disabled && <Ionicons name="arrow-forward" size={18} color="#FFF" />}
+                            {!disabled && <Ionicons name="arrow-forward" size={18} color={theme.fixedWhite} />}
                         </AnimatedPressable>
                     )}
                 </LinearGradient>

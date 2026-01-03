@@ -9,7 +9,8 @@ interface LocationChallengeProps {
     isCompleted: boolean;
     isFailed: boolean;
     onComplete: (challenge: any) => void;
-    index?: number;
+    index: number;
+    isBonus?: boolean;
 }
 
 const LocationChallenge: React.FC<LocationChallengeProps> = ({
@@ -17,11 +18,16 @@ const LocationChallenge: React.FC<LocationChallengeProps> = ({
     isCompleted,
     isFailed,
     onComplete,
-    index
+    index,
+    isBonus = false
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const isDone = isCompleted || isFailed;
+
+    const handlePress = () => {
+        onComplete(challenge);
+    };
 
     return (
         <ActiveChallengeCard
@@ -30,10 +36,11 @@ const LocationChallenge: React.FC<LocationChallengeProps> = ({
             type="location"
             isCompleted={isCompleted}
             isFailed={isFailed}
-            onPress={() => onComplete(challenge)}
-            actionLabel={t('claimPoints') || "Claim Points"}
+            onPress={handlePress}
+            actionLabel={t('verifyLocation')}
             disabled={isDone}
             index={index}
+            isBonus={isBonus}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
                 {challenge.content}

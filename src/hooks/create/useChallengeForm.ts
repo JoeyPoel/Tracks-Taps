@@ -16,6 +16,7 @@ export interface ChallengeFormState {
     optionB: string;
     optionC: string;
     optionD: string;
+    correctOption: 'A' | 'B' | 'C' | 'D'; // New field
 }
 
 export function useChallengeForm(onSave: (challenge: any) => void, onClose: () => void, initialData?: any) {
@@ -33,10 +34,19 @@ export function useChallengeForm(onSave: (challenge: any) => void, onClose: () =
         optionB: '',
         optionC: '',
         optionD: '',
+        correctOption: 'A', // Default to A
     });
 
     useEffect(() => {
         if (initialData) {
+            // Determine correct option if editing
+            let correct = 'A';
+            if (initialData.type === ChallengeType.TRIVIA && initialData.answer) {
+                if (initialData.answer === initialData.options?.[1]) correct = 'B';
+                if (initialData.answer === initialData.options?.[2]) correct = 'C';
+                if (initialData.answer === initialData.options?.[3]) correct = 'D';
+            }
+
             setFormState({
                 title: initialData.title || '',
                 content: initialData.content || '',
@@ -49,6 +59,7 @@ export function useChallengeForm(onSave: (challenge: any) => void, onClose: () =
                 optionB: initialData.options?.[1] || '',
                 optionC: initialData.options?.[2] || '',
                 optionD: initialData.options?.[3] || '',
+                correctOption: correct as 'A' | 'B' | 'C' | 'D',
             });
         } else {
             resetForm();
@@ -72,6 +83,7 @@ export function useChallengeForm(onSave: (challenge: any) => void, onClose: () =
             optionB: '',
             optionC: '',
             optionD: '',
+            correctOption: 'A',
         });
     };
 

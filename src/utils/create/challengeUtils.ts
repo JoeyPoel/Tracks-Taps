@@ -20,13 +20,17 @@ export const validateChallenge = (state: ChallengeFormState, t: (key: string) =>
 };
 
 export const createChallengePayload = (state: ChallengeFormState) => {
-    const { title, content, type, answer, points, hint, tfAnswer, optionA, optionB, optionC, optionD } = state;
+    const { title, content, type, answer, points, hint, tfAnswer, optionA, optionB, optionC, optionD, correctOption } = state;
 
     let finalAnswer = answer;
     if (type === ChallengeType.TRUE_FALSE) {
         finalAnswer = tfAnswer ? 'TRUE' : 'FALSE';
     } else if (type === ChallengeType.TRIVIA) {
-        finalAnswer = optionA;
+        // Use the selected correct option
+        if (correctOption === 'B') finalAnswer = optionB;
+        else if (correctOption === 'C') finalAnswer = optionC;
+        else if (correctOption === 'D') finalAnswer = optionD;
+        else finalAnswer = optionA; // Default to A
     }
 
     return {
