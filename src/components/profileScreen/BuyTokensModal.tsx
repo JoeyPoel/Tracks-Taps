@@ -1,8 +1,9 @@
 import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
+import * as Clipboard from 'expo-clipboard';
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { CircleStackIcon, GiftIcon } from 'react-native-heroicons/outline';
+import { CheckIcon, CircleStackIcon, ClipboardDocumentIcon, GiftIcon } from 'react-native-heroicons/outline';
 import client from '../../api/apiClient';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserContext } from '../../context/UserContext';
@@ -28,6 +29,15 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
     const { t } = useLanguage();
     const { user, refreshUser } = useUserContext();
     const [isLoading, setIsLoading] = React.useState(false);
+    const [copied, setCopied] = React.useState(false);
+
+    const handleCopy = async () => {
+        if (user?.referralCode) {
+            await Clipboard.setStringAsync(user.referralCode);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    };
 
     const handleBuy = async (pkg: typeof PACKAGES[0]) => {
         if (!user) {
@@ -128,6 +138,21 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                         <TextComponent style={styles.footerDescription} color={theme.primary} variant="caption">
                             {t('inviteFriendsDescription')}
                         </TextComponent>
+
+                        {user?.referralCode && (
+                            <AnimatedPressable
+                                style={[styles.codeContainer, { backgroundColor: theme.bgTertiary }]}
+                                onPress={handleCopy}
+                            >
+                                <TextComponent style={styles.codeLabel} color={theme.textSecondary} variant="caption">{t('yourCode')}:</TextComponent>
+                                <View style={styles.codeWrapper}>
+                                    <TextComponent style={styles.codeText} color={theme.textPrimary} bold variant="body">
+                                        {user.referralCode?.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3') || user.referralCode}
+                                    </TextComponent>
+                                    {copied ? <CheckIcon size={18} color={theme.success} /> : <ClipboardDocumentIcon size={18} color={theme.textSecondary} />}
+                                </View>
+                            </AnimatedPressable>
+                        )}
                     </View>
                 </View>
             </View>
@@ -220,4 +245,25 @@ const styles = StyleSheet.create({
         fontSize: 14,
         lineHeight: 20,
     },
+    codeContainer: {
+        marginTop: 12,
+        padding: 8,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 8,
+    },
+    codeLabel: {
+        marginRight: 4,
+    },
+    codeWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    codeText: {
+        letterSpacing: 1,
+    }
 });

@@ -1,4 +1,4 @@
-import { randomBytes, scryptSync } from 'crypto';
+import { randomBytes, randomInt, scryptSync } from 'crypto';
 import { prisma } from '../../src/lib/prisma';
 
 const hashPassword = (password: string) => {
@@ -8,72 +8,10 @@ const hashPassword = (password: string) => {
 };
 
 export const userRepository = {
-    async getUserProfile(userId: number) {
-        return await prisma.user.findUnique({
-            where: { id: userId },
-            include: {
-                teams: {
-                    include: {
-                        activeTour: {
-                            select: {
-                                status: true
-                            }
-                        }
-                    }
-                },
-                _count: {
-                    select: {
-                        createdTours: true,
-                        playedTours: true
-                    }
-                },
-                createdTours: true,
-                playedTours: {
-                    include: {
-                        tour: true
-                    }
-                }
-            },
-        });
-    },
-
-    async getUserById(userId: number) {
-        return await prisma.user.findUnique({
-            where: { id: userId },
-        });
-    },
-
-
-    async getUserByEmail(email: string) {
-        return await prisma.user.findUnique({
-            where: { email },
-            include: {
-                teams: {
-                    include: {
-                        activeTour: {
-                            select: {
-                                status: true
-                            }
-                        }
-                    }
-                },
-                _count: {
-                    select: {
-                        createdTours: true,
-                        playedTours: true
-                    }
-                },
-                createdTours: true,
-                playedTours: {
-                    include: {
-                        tour: true
-                    }
-                }
-            },
-        });
-    },
-
+    // ...
     async createUser(data: { email: string; name: string; password?: string }) {
+        // Generate secure 9-digit numeric code
+        const referralCode = randomInt(100000000, 1000000000).toString();
         return await prisma.user.create({
             data: {
                 email: data.email,
@@ -82,7 +20,58 @@ export const userRepository = {
                 xp: 0,
                 tokens: 0,
                 level: 1,
+                referralCode,
             },
+        });
+    },
+
+    async claimReferral(userId: number, code: string) {
+        const referrer = await prisma.user.findUnique({
+            where: { referralCode: code }
+        });
+
+        if (!referrer) {
+            throw new Error('Invalid referral code');
+        }
+
+        if (referrer.id === userId) {
+            throw new Error('Cannot refer yourself');
+        }
+
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (user?.referredBy) {
+            throw new Error('Already referred');
+        }
+
+        // Circular check (Simple 1-level: A -> B -> A)
+        if (referrer.referredBy === userId) {
+            throw new Error('Circular referral detected');
+        }
+
+        return await prisma.$transaction(async (tx) => {
+            // Link user to referrer
+            await tx.user.update({
+                where: { id: userId },
+                data: { referredBy: referrer.id }
+            });
+
+            // Increment count on referrer
+            const updatedReferrer = await tx.user.update({
+                where: { id: referrer.id },
+                data: { referralCount: { increment: 1 } }
+            });
+
+            // Check for reward (every 3rd referral)
+            let rewardAwarded = false;
+            if (updatedReferrer.referralCount % 3 === 0) {
+                await tx.user.update({
+                    where: { id: referrer.id },
+                    data: { tokens: { increment: 1 } }
+                });
+                rewardAwarded = true;
+            }
+
+            return { referrer: updatedReferrer, rewardAwarded };
         });
     },
 

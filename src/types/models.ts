@@ -109,6 +109,8 @@ export interface User {
     level: number;
     xp: number;
     tokens: number;
+    referralCode?: string;
+    referralCount?: number;
     createdAt: Date;
     updatedAt: Date;
     teams?: {

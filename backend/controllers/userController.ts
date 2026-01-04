@@ -111,5 +111,22 @@ export const userController = {
             console.error('Error updating user:', error);
             return Response.json({ error: 'Failed to update user' }, { status: 500 });
         }
+    },
+
+    async claimReferral(request: Request, parsedBody?: any) {
+        try {
+            const body = parsedBody || await request.json();
+            const { userId, code } = body;
+
+            if (!userId || !code) {
+                return Response.json({ error: 'Missing userId or code' }, { status: 400 });
+            }
+
+            const result = await userService.claimReferral(Number(userId), code);
+            return Response.json(result);
+        } catch (error: any) {
+            console.error('Error claiming referral:', error);
+            return Response.json({ error: error.message || 'Failed to claim referral' }, { status: 400 });
+        }
     }
 };

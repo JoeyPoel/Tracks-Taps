@@ -7,6 +7,7 @@ import {
   EnvelopeIcon,
   HeartIcon,
   QuestionMarkCircleIcon,
+  TicketIcon,
   UserIcon
 } from 'react-native-heroicons/outline';
 import Animated from 'react-native-reanimated';
@@ -15,6 +16,7 @@ import { SettingsItem } from '../components/common/SettingsItem';
 import BuyTokensModal from '../components/profileScreen/BuyTokensModal';
 import ProfileStats from '../components/profileScreen/ProfileStats';
 import RecentAchievements from '../components/profileScreen/RecentAchievements';
+import ReferralClaimModal from '../components/profileScreen/ReferralClaimModal';
 import TokenCard from '../components/profileScreen/TokenCard';
 import UserProfileCard from '../components/profileScreen/UserProfileCard';
 import { useLanguage } from '../context/LanguageContext';
@@ -29,6 +31,7 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { t } = useLanguage();
   const [showBuyTokens, setShowBuyTokens] = useState(false);
+  const [showReferralModal, setShowReferralModal] = useState(false);
 
   const { user, loading } = useUserContext();
   const { achievements, loadAchievements, loading: achievementsLoading } = useAchievements();
@@ -87,7 +90,7 @@ export default function ProfileScreen() {
           <TokenCard
             tokens={user?.tokens || 0}
             onBuyPress={() => setShowBuyTokens(true)}
-            onInvitePress={() => console.log('Invite Friends pressed')}
+            onInvitePress={() => setShowBuyTokens(true)}
           />
         </Animated.View>
 
@@ -104,6 +107,11 @@ export default function ProfileScreen() {
           <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('manageAccount')?.toUpperCase() || 'MANAGE ACCOUNT'}</Text>
 
           <View style={[styles.settingsGroup, { backgroundColor: theme.bgSecondary }]}>
+            <SettingsItem
+              icon={<TicketIcon size={22} color={theme.accent} />}
+              title={t('enterReferralCode') || 'Enter Referral Code'}
+              onPress={() => setShowReferralModal(true)}
+            />
             <SettingsItem
               icon={<UserIcon size={22} color={theme.primary} />}
               title={t('personalInfo')}
@@ -143,6 +151,10 @@ export default function ProfileScreen() {
       <BuyTokensModal
         visible={showBuyTokens}
         onClose={() => setShowBuyTokens(false)}
+      />
+      <ReferralClaimModal
+        visible={showReferralModal}
+        onClose={() => setShowReferralModal(false)}
       />
     </ScreenWrapper>
   );

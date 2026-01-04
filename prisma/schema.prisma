@@ -53,16 +53,24 @@ enum SessionStatus {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
+  id           Int     @id @default(autoincrement())
+  email        String  @unique
   passwordHash String
   name         String
   avatarUrl    String?
-  level        Int      @default(1)
-  xp           Int      @default(0)
-  tokens       Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  level        Int     @default(1)
+  xp           Int     @default(0)
+  tokens       Int     @default(0)
+
+  // Referral System
+  referralCount Int @default(0)
+
+  referredBy Int?
+  referrer   User?  @relation("UserReferrals", fields: [referredBy], references: [id])
+  referrals  User[] @relation("UserReferrals")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   createdTours Tour[]   @relation("TourAuthor")

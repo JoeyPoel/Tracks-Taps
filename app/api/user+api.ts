@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
 
-        if (body.action === 'buy-tokens' || body.action === 'add-xp') {
+        if (body.action === 'buy-tokens' || body.action === 'add-xp' || body.action === 'claim-referral') {
             // Security check: Ensure the userId in the body belongs to the authenticated user
             const dbUser = await userService.getUserByEmail(user.email);
 
@@ -30,6 +30,8 @@ export async function POST(request: Request) {
 
             if (body.action === 'buy-tokens') {
                 return await userController.addTokens(request, body);
+            } else if (body.action === 'claim-referral') {
+                return await userController.claimReferral(request, body);
             } else {
                 return await userController.addXp(request, body);
             }

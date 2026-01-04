@@ -62,4 +62,8 @@ export const userService = {
         const user = await userRepository.updateUser(userId, data);
         return { ...user, level: LevelSystem.getLevel(user.xp) };
     },
+
+    async claimReferral(userId: number, code: string) {
+        return await userRepository.claimReferral(userId, code);
+    },
 };
