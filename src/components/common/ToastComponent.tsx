@@ -21,7 +21,7 @@ export interface ToastProps {
     title: string;
     message?: string;
     emoji?: string;
-    backgroundColor?: string; // Optional override, otherwise uses theme/modern style
+    backgroundColor?: string;
     duration?: number;
     onHide: () => void;
 }

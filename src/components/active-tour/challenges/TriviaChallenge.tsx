@@ -36,7 +36,7 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
             isCompleted={isCompleted}
             isFailed={isFailed}
             onPress={() => onSubmit(challenge)}
-            actionLabel={isFailed ? (t('wrongAnswer') || "Wrong Answer") : isCompleted ? (t('completed') || "Completed") : (t('submitAnswer') || "Submit Answer")}
+            actionLabel={isFailed ? t('wrongAnswer') : isCompleted ? t('completed') : t('submitAnswer')}
             disabled={isDone}
             index={index}
         >
@@ -94,7 +94,7 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
                 </View>
                 {isFailed && (
                     <Text style={{ color: theme.danger, marginTop: 8, fontWeight: 'bold' }}>
-                        {t('wrongAnswerCorrectWas') || "Correct answer was:"} {challenge.answer}
+                        {t('wrongAnswerCorrectWas')} {challenge.answer}
                     </Text>
                 )}
             </View>

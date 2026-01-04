@@ -34,9 +34,6 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
         StatusIcon = ExclamationCircleIcon;
     }
 
-    // Use holeInOne gradient for the card background as it's gold/orange
-    const gradientColors = theme.pubGolf.holeInOne.slice(0, 3) as [string, string, string];
-
     return (
         <LinearGradient
             colors={[theme.accent, theme.primary]} // Orange to Pink gradient
@@ -70,7 +67,7 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
                 haptic="light"
             >
                 <Text style={[styles.toggleButtonText, { color: theme.fixedWhite }]}>
-                    {t('viewRulesAndScoring') || "View Rules & Scoring"}
+                    {t('viewRulesAndScoring')}
                 </Text>
                 {isRulesOpen ? (
                     <ChevronUpIcon size={20} color={theme.fixedWhite} />
@@ -102,7 +99,7 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
                                 <View style={styles.legendXp}>
                                     <BoltIcon size={12} color={theme.fixedWhite} />
                                     <Text style={[styles.legendXpText, { color: theme.fixedWhite }]}>
-                                        {item.xp} XP
+                                        {item.xp} {t('xp')}
                                     </Text>
                                 </View>
                             </View>

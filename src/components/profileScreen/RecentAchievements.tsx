@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { useTheme } from '../../context/ThemeContext';
+import { AchievementIcon } from '@/src/components/achievements/AchievementIcon';
 
 interface Achievement {
     id: number | string;
@@ -38,7 +39,6 @@ const AchievementSkeleton = () => {
     );
 };
 
-import { AchievementIcon } from '@/src/components/achievements/AchievementIcon';
 
 export default function RecentAchievements({ achievements, loading, onSeeAll }: RecentAchievementsProps) {
     const { theme } = useTheme();

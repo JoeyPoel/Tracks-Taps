@@ -31,15 +31,6 @@ export const AchievementListItem = ({ achievement }: AchievementListItemProps) =
     const target = achievement.target || 1;
     const progressPercent = Math.min((progress / target) * 100, 100);
 
-    // Flitsmeister Style:
-    // Left: Big rounded square Icon background.
-    // Right: Content
-    // Icon Logic:
-    // - Unlocked: Colored Background (e.g. Green), Icon inside.
-    // - Locked: Gray Background, Lock/Icon inside? Screenshot showed Lock. 
-    //   But usually better to show what you get (Icon) but grayed out, or a Lock. 
-    //   Screenshot showed a "Lock" on a gray rounded square.
-
     const iconBgColor = isUnlocked ? (achievement.color || theme.primary) : theme.bgDisabled;
 
     return (

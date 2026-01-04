@@ -42,9 +42,9 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
             style={[
                 styles.chip,
                 {
-                    backgroundColor: selected ? theme.primary : theme.bgSecondary, // Swapped to bgSecondary
-                    borderColor: selected ? theme.primary : theme.borderSecondary, // Swapped border
-                    borderWidth: 1, // Explicit border
+                    backgroundColor: selected ? theme.primary : theme.bgSecondary,
+                    borderColor: selected ? theme.primary : theme.borderSecondary,
+                    borderWidth: 1,
                 }
             ]}
         >

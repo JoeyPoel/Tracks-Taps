@@ -32,8 +32,7 @@ export function PointsStepper({ points, onChange, label }: PointsStepperProps) {
                     onPress={() => {
                         let val = (parseInt(points) || 50) - 5;
                         if (val < 50) val = 50;
-                        onChange(String(val)); // Direct pass, let auto-fix on blur or here? 
-                        // The user requested strict 5s logic. 
+                        onChange(String(val));
                     }}
                 >
                     <Ionicons name="remove" size={24} color={theme.textPrimary} />

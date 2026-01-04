@@ -5,7 +5,7 @@ import { BoltIcon, FireIcon, StarIcon, XMarkIcon } from 'react-native-heroicons/
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
-import { TextComponent } from '../common/TextComponent'; // Added import
+import { TextComponent } from '../common/TextComponent';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 

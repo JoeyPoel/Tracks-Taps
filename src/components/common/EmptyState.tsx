@@ -3,7 +3,7 @@ import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 import { useTheme } from '../../context/ThemeContext';
-import { TextComponent } from './TextComponent'; // Added import
+import { TextComponent } from './TextComponent';
 
 interface EmptyStateProps {
     /**

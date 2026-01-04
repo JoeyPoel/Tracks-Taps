@@ -1,7 +1,7 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { TextComponent } from '../../common/TextComponent'; // Added import
+import { TextComponent } from '../../common/TextComponent';
 
 interface WizardStepHeaderProps {
     title: string;

@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
-import { TextComponent } from '../common/TextComponent'; // Added import
+import { TextComponent } from '../common/TextComponent';
 import ChallengeItem from './ChallengeItem';
 import StopCard from './StopCard';
 
@@ -14,7 +14,7 @@ interface ChallengeSectionProps {
     triviaSelected: Record<number, number>;
     setTriviaSelected: (value: React.SetStateAction<Record<number, number>>) => void;
     handleChallengeComplete: (challenge: any) => void;
-    handleChallengeFail: (challenge: any) => void;  // Add prop
+    handleChallengeFail: (challenge: any) => void;
     handleSubmitTrivia: (challenge: any) => void;
 }
 
@@ -26,7 +26,7 @@ const ChallengeSection: React.FC<ChallengeSectionProps> = ({
     triviaSelected,
     setTriviaSelected,
     handleChallengeComplete,
-    handleChallengeFail, // Destructure
+    handleChallengeFail,
     handleSubmitTrivia
 }) => {
     const { theme } = useTheme();
@@ -58,7 +58,7 @@ const ChallengeSection: React.FC<ChallengeSectionProps> = ({
                             onClaimArrival={handleChallengeComplete}
                             onFail={handleChallengeFail}
                             onSubmitTrivia={handleSubmitTrivia}
-                            index={index} // Pass index
+                            index={index}
                         />
                     )
                 })

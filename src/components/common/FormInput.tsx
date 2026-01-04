@@ -1,7 +1,7 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import React from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
-import { TextComponent } from './TextComponent'; // Added import
+import { TextComponent } from './TextComponent';
 
 interface FormInputProps {
     label?: string;

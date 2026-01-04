@@ -1,11 +1,10 @@
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
-import { uploadImage } from '@/src/services/imageService';
+import { useImageUploader } from '@/src/hooks/useImageUploader';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
-import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { TextComponent } from './TextComponent'; // Added import
+import React from 'react';
+import { ActivityIndicator, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { TextComponent } from './TextComponent';
 
 interface ImageUploaderProps {
     onUploadComplete: (url: string) => void;
@@ -26,57 +25,21 @@ export function ImageUploader({
 }: ImageUploaderProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
-    const [image, setImage] = useState<string | null>(initialImage || null);
-    const [uploading, setUploading] = useState(false);
 
-    React.useEffect(() => {
-        if (initialImage) {
-            setImage(initialImage);
-        }
-    }, [initialImage]);
+    // Use the hook
+    const {
+        image,
+        uploading,
+        pickImage,
+        removeImage
+    } = useImageUploader({
+        initialImage,
+        folder,
+        onUploadComplete,
+        variant
+    });
 
     const isAvatar = variant === 'avatar';
-
-    const pickImage = async () => {
-        // Request permissions
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            Alert.alert(t('permissionNeeded'), t('cameraPermissionMsg'));
-            return;
-        }
-
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: 'images',
-            allowsEditing: true,
-            aspect: isAvatar ? [1, 1] : [16, 9], // Standard landscape or square for avatar
-            quality: 1,
-        });
-
-        if (!result.canceled && result.assets[0].uri) {
-            handleUpload(result.assets[0].uri);
-        }
-    };
-
-    const handleUpload = async (uri: string) => {
-        try {
-            setUploading(true);
-            setImage(uri); // Optimistic update
-            const publicUrl = await uploadImage(uri, 'images', folder);
-            onUploadComplete(publicUrl);
-            setImage(publicUrl);
-        } catch (error) {
-            Alert.alert(t('uploadFailed'), t('uploadErrorMsg'));
-            console.error(error);
-        } finally {
-            setUploading(false);
-        }
-    };
-
-    const removeImage = () => {
-        setImage(null);
-        onUploadComplete('');
-    };
-
     const containerStyle = isAvatar ? styles.avatarContainer : styles.standardContainer;
 
     const renderStandard = () => (

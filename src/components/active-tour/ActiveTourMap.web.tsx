@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface ActiveTourMapProps {
     currentStop: any;
@@ -8,9 +9,10 @@ interface ActiveTourMapProps {
 }
 
 export default function ActiveTourMap({ currentStop, previousStop, onNavigate }: ActiveTourMapProps) {
+    const { t } = useLanguage();
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Map not available on web</Text>
+            <Text style={styles.text}>{t('mapNotAvailableWeb')}</Text>
         </View>
     );
 }

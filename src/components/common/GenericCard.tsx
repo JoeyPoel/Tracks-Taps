@@ -39,8 +39,8 @@ export const GenericCard: React.FC<GenericCardProps> = ({
     };
 
     const getBackgroundColor = () => {
-        if (variant === 'gradient') return 'transparent'; // Handled by inner gradient
-        return theme.bgSecondary; // Default card background
+        if (variant === 'gradient') return 'transparent';
+        return theme.bgSecondary;
     };
 
     const getBorder = () => {

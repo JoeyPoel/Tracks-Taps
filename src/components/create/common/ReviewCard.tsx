@@ -6,7 +6,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { BoltIcon as BoltIconSolid, StarIcon as StarIconSolid } from 'react-native-heroicons/solid';
 import { GenericCard } from '../../common/GenericCard';
-import { TextComponent } from '../../common/TextComponent'; // Added import
+import { TextComponent } from '../../common/TextComponent';
 import { ReviewCardHeader } from './components/ReviewCardHeader';
 import { ReviewCardStats } from './components/ReviewCardStats';
 

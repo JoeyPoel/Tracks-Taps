@@ -1,9 +1,9 @@
-import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
+import { TextComponent } from '@/src/components/common/TextComponent';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { useLanguage } from '../../context/LanguageContext'; // Added import
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { SavedTrip } from '../../services/savedTripsService';
 import { AnimatedButton } from '../common/AnimatedButton';
@@ -78,7 +78,7 @@ export default function AddToSavedTripsModal({
         <AppModal
             visible={visible}
             onClose={onClose}
-            title="Save to Collection"
+            title={t('saveToCollectionTitle') || "Save to Collection"}
             height="70%"
         >
             <KeyboardAvoidingView
@@ -122,7 +122,7 @@ export default function AddToSavedTripsModal({
                                         backgroundColor: theme.bgPrimary,
                                         borderColor: theme.primary
                                     }]}
-                                    placeholder="Name your collection..."
+                                    placeholder={t('nameCollectionPlaceholder') || "Name your collection..."}
                                     placeholderTextColor={theme.textSecondary}
                                     value={newListName}
                                     onChangeText={setNewListName}

@@ -99,7 +99,7 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
                                 haptic="selection"
                             >
                                 <Text style={[styles.optionText, { color: textColor }]}>
-                                    {option === 'true' ? (t('true') || "True") : (t('false') || "False")}
+                                    {option === 'true' ? t('true') : t('false')}
                                 </Text>
                             </AnimatedPressable>
                         );
@@ -108,7 +108,7 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
 
                 {isFailed && (
                     <Text style={[styles.feedback, { color: theme.danger }]}>
-                        {t('wrongAnswer') || "Incorrect!"}
+                        {t('wrongAnswer')}
                     </Text>
                 )}
             </View>

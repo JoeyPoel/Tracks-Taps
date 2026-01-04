@@ -9,7 +9,7 @@ import { ScrollView, StyleSheet, Text } from 'react-native';
 
 interface ChallengeTypeSelectorProps {
     selectedType: ChallengeType;
-    onSelect: (type: ChallengeType) => void; // Fixed type definition
+    onSelect: (type: ChallengeType) => void;
 }
 
 export function ChallengeTypeSelector({ selectedType, onSelect }: ChallengeTypeSelectorProps) {

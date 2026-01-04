@@ -1,5 +1,6 @@
 
 import { TextComponent } from '@/src/components/common/TextComponent';
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Challenge, ChallengeType, Team } from '@/src/types/models';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,12 +23,13 @@ const CELL_SIZE = Math.floor((width - SCREEN_PADDING - (GAP * 2)) / 3);
 
 export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
     const bingoCard = team.bingoCard;
 
     if (!bingoCard) {
         return (
             <View style={styles.emptyContainer}>
-                <TextComponent>No Bingo Card Found</TextComponent>
+                <TextComponent>{t('noBingoCardFound')}</TextComponent>
             </View>
         );
     }
@@ -59,10 +61,10 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TextComponent variant="h3" bold>Bingo Card</TextComponent>
+                <TextComponent variant="h3" bold>{t('bingoCardTitle')}</TextComponent>
                 <View style={[styles.badge, { backgroundColor: theme.accent }]}>
                     <TextComponent variant="caption" color="#FFF" bold>
-                        {bingoCard.fullHouseAwarded ? 'FULL HOUSE!' : `${bingoCard.awardedLines.length} LINES`}
+                        {bingoCard.fullHouseAwarded ? t('fullHouse') : `${bingoCard.awardedLines.length} ${t('lines')}`}
                     </TextComponent>
                 </View>
             </View>

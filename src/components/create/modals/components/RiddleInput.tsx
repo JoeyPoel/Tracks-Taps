@@ -1,4 +1,5 @@
 import { FormInput } from '@/src/components/common/FormInput';
+import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import React from 'react';
 
@@ -9,13 +10,14 @@ interface RiddleInputProps {
 
 export function RiddleInput({ value, onChange }: RiddleInputProps) {
     const { theme } = useTheme();
+    const { t } = useLanguage();
 
     return (
         <FormInput
-            label="The Answer"
+            label={t('theAnswer')}
             value={value}
             onChange={onChange}
-            placeholder="What is the answer?"
+            placeholder={t('riddleAnswerPlaceholder')}
         />
     );
 }

@@ -11,7 +11,7 @@ import {
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
-import { TextComponent } from '../common/TextComponent'; // Added import
+import { TextComponent } from '../common/TextComponent';
 
 export type ChallengeType = 'location' | 'trivia' | 'camera' | 'picture' | 'true_false' | 'dare' | 'riddle';
 
@@ -25,7 +25,7 @@ interface ActiveChallengeCardProps {
     onPress: () => void;
     actionLabel: string;
     children?: React.ReactNode;
-    index?: number; // For staggered animation
+    index?: number;
     isBonus?: boolean;
 }
 
@@ -54,7 +54,7 @@ export default function ActiveChallengeCard({
             Animated.timing(fadeAnim, {
                 toValue: 1,
                 duration: 500,
-                delay: index * 100, // Stagger effect
+                delay: index * 100,
                 useNativeDriver: true,
             }),
             Animated.timing(translateY, {
@@ -76,7 +76,7 @@ export default function ActiveChallengeCard({
     const getBackgroundColors = (): [string, string] => {
         if (isCompleted) return [theme.bgSuccess, theme.bgPrimary];
         if (isFailed) return [theme.challengeFailedBackground, theme.bgPrimary];
-        return [theme.bgSecondary, theme.bgSecondary]; // Subtle light gradient
+        return [theme.bgSecondary, theme.bgSecondary];
     };
 
     const getIconColor = (): string => {

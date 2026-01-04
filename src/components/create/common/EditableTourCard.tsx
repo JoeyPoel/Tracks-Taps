@@ -8,7 +8,7 @@ import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { ClockIcon, MapIcon, TrophyIcon } from 'react-native-heroicons/solid';
 import { TourDraft } from '../../../hooks/useCreateTour';
 import { TourType } from '../../../types/models';
-import { TextComponent } from '../../common/TextComponent'; // Added import
+import { TextComponent } from '../../common/TextComponent';
 import { SelectionModal } from './SelectionModal';
 
 interface EditableTourCardProps {

@@ -4,7 +4,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { AnimatedPressable } from '../../common/AnimatedPressable';
 import { AppModal } from '../../common/AppModal';
-import { TextComponent } from '../../common/TextComponent'; // Added import
+import { TextComponent } from '../../common/TextComponent';
 
 export interface SelectionOption {
     label: string;

@@ -50,11 +50,11 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
         <ActiveChallengeCard
             title={challenge.title}
             points={challenge.points}
-            type="trivia" // Use trivia style
+            type="trivia"
             isCompleted={isCompleted}
             isFailed={isFailed}
             onPress={handleSubmit}
-            actionLabel={t('submitAnswer') || "Submit"}
+            actionLabel={t('submitAnswer')}
             disabled={isDone || !answer.trim()}
             index={index}
             isBonus={isBonus}
@@ -73,7 +73,7 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
                     >
                         <Ionicons name={showHint ? "eye-off-outline" : "bulb-outline"} size={20} color={theme.accent} />
                         <Text style={{ color: theme.accent, marginLeft: 4 }}>
-                            {showHint ? (t('hideHint') || "Hide Hint") : (t('showHint') || "Need a hint?")}
+                            {showHint ? t('hideHint') : t('showHint')}
                         </Text>
                     </AnimatedPressable>
                 )}
@@ -89,7 +89,7 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
                 {!isDone && (
                     <TextInput
                         style={[styles.input, { color: theme.textPrimary, borderColor: theme.borderPrimary, backgroundColor: theme.bgTertiary }]}
-                        placeholder={t('enterAnswer') || "Enter your answer..."}
+                        placeholder={t('enterAnswer')}
                         placeholderTextColor={theme.textSecondary}
                         value={answer}
                         onChangeText={setAnswer}
@@ -97,13 +97,13 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
                     />
                 )}
 
-                {isFailed && (
+                {isFailed && (  
                     <View>
                         <Text style={[styles.feedback, { color: theme.danger }]}>
-                            {t('wrongAnswer') || "That's not it!"}
+                            {t('wrongAnswer')}
                         </Text>
                         <Text style={{ color: theme.danger, marginTop: 4, fontWeight: 'bold', textAlign: 'center' }}>
-                            {t('correctAnswerWas') || "Answer:"} {challenge.answer}
+                            {t('correctAnswerWas')} {challenge.answer}
                         </Text>
                     </View>
                 )}

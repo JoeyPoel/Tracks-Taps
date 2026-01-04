@@ -2,7 +2,6 @@ import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState } from 'react';
 import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ArrowsPointingOutIcon } from 'react-native-heroicons/outline';
-// import { ArrowLeftIcon } from 'react-native-heroicons/solid'; // Removed unused icon
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import MapView, { LatLng, Marker, Polyline } from 'react-native-maps';
@@ -120,8 +119,6 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                 async (newLoc) => {
                     const newLatLng = { latitude: newLoc.coords.latitude, longitude: newLoc.coords.longitude };
                     setUserLocation(newLatLng);
-                    // Optionally update route here if significantly moved, checking distance...
-                    // For now, keep the route static or re-fetch if needed.
                 }
             );
         };

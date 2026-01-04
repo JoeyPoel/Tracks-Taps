@@ -4,7 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Stop } from '../../types/models';
 import { GenericCard } from '../common/GenericCard';
-import { TextComponent } from '../common/TextComponent'; // Added import
+import { TextComponent } from '../common/TextComponent';
 
 
 export default function StopCard({ stop }: { stop: Stop }) {

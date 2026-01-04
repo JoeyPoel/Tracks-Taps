@@ -17,7 +17,7 @@ interface ExploreHeaderProps {
     onFilterPress: () => void;
     selectedCategory: string | null;
     onCategoryPress: (id: string) => void;
-    activeTour: any | null; // Using any for ActiveTour wrapper type as it seems complex in usage
+    activeTour: any | null;
     user: any | null;
     onActiveTourPress: (tourId: string) => void;
 }

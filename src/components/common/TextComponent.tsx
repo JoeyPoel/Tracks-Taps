@@ -7,7 +7,7 @@ interface TextComponentProps extends TextProps {
     color?: string;
     bold?: boolean;
     center?: boolean;
-    size?: number; // Explicit size override
+    size?: number;
 }
 
 /**

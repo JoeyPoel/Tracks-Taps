@@ -1,4 +1,4 @@
-import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
+import { TextComponent } from '@/src/components/common/TextComponent';
 import { useTheme } from '@/src/context/ThemeContext';
 import { StopType } from '@/src/types/models';
 import { getStopIcon } from '@/src/utils/stopIcons';

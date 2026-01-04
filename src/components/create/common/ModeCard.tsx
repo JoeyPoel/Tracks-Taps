@@ -3,7 +3,7 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { TextComponent } from '../../common/TextComponent'; // Added import
+import { TextComponent } from '../../common/TextComponent';
 
 interface ModeCardProps {
     mode: string;

@@ -52,16 +52,12 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
                 setUploading(true);
 
                 try {
-                    // Upload using service (which ensures 600px width)
-                    // Explicitly pass 'images' bucket and 'challenge-entries' folder
                     const publicUrl = await uploadOptimizedImage(capturedImage.uri, 'images', 'challenge-entries');
-
-                    // Complete challenge with the URL
                     onComplete({ ...challenge, imageUrl: publicUrl });
                 } catch (uploadError) {
                     console.error("Upload failed", uploadError);
                     Alert.alert("Upload Failed", "Could not upload your picture. Please try again.");
-                    setImageUri(null); // Reset on failure
+                    setImageUri(null);
                 } finally {
                     setUploading(false);
                 }
@@ -80,7 +76,7 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
             isCompleted={isCompleted}
             isFailed={isFailed}
             onPress={handlePress}
-            actionLabel={uploading ? (t('uploading') || "Uploading...") : (t('takePhoto') || "Take Photo")}
+            actionLabel={uploading ? t('uploading') : t('takePhoto')}
             disabled={isDone || uploading}
             index={index}
             isBonus={isBonus}
@@ -92,7 +88,7 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
                 {uploading && (
                     <View style={styles.loadingContainer}>
                         <ActivityIndicator size="small" color={theme.primary} />
-                        <Text style={{ color: theme.textSecondary, marginTop: 8 }}>{t('compressingAndUploading') || "Compressing & Uploading..."}</Text>
+                        <Text style={{ color: theme.textSecondary, marginTop: 8 }}>{t('compressingAndUploading')}</Text>
                     </View>
                 )}
 
@@ -103,7 +99,7 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
                         ) : (
                             <View style={{ alignItems: 'center' }}>
                                 <Ionicons name="checkmark-circle" size={40} color={theme.success} />
-                                <Text style={{ color: theme.textSecondary, marginTop: 4 }}>{t('photoUploaded') || "Photo Uploaded"}</Text>
+                                <Text style={{ color: theme.textSecondary, marginTop: 4 }}>{t('photoUploaded')}</Text>
                             </View>
                         )}
                     </View>

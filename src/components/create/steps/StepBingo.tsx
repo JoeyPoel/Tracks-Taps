@@ -111,8 +111,8 @@ export default function StepBingo({ draft, actions }: StepBingoProps) {
     return (
         <View style={styles.container}>
             <WizardStepHeader
-                title="Bingo Grid" // TODO: Add translation
-                subtitle="Tap a cell to add a challenge." // TODO: Add translation
+                title={t('bingoGridTitle')}
+                subtitle={t('bingoGridSubtitle')}
             />
 
             <View style={styles.gridContainer}>

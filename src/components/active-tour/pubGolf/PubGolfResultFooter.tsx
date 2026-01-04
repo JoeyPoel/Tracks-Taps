@@ -27,7 +27,7 @@ export default function PubGolfResultFooter({
                     <View style={styles.xpContainer}>
                         <BoltIcon size={14} color={theme.gold} />
                         <Text style={[styles.xpText, { color: theme.gold }]}>
-                            +{scoreDetails.recommendedXP} XP
+                            +{scoreDetails.recommendedXP} {t('xp')}
                         </Text>
                     </View>
                 )}

@@ -9,7 +9,7 @@ import { EmptyState } from '../components/common/EmptyState';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { TextComponent } from '../components/common/TextComponent';
-import SavedTripSkeleton from '../components/profileScreen/SavedTripSkeleton';
+import SavedTripSkeleton from '../components/saved-trips/SavedTripSkeleton';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useSavedTrips } from '../hooks/useSavedTrips';

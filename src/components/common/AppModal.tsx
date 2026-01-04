@@ -3,7 +3,7 @@ import React from 'react';
 import { Animated, Dimensions, Modal, StyleSheet, View } from 'react-native';
 import { XMarkIcon } from 'react-native-heroicons/outline';
 import { AnimatedPressable } from './AnimatedPressable';
-import { TextComponent } from './TextComponent'; // Added import
+import { TextComponent } from './TextComponent';
 
 interface AppModalProps {
     visible: boolean;
@@ -26,7 +26,6 @@ export function AppModal({ visible, onClose, title, icon, children, subtitle, he
         if (visible) {
             Animated.spring(slideAnim, {
                 toValue: 0,
-                // @ts-ignore
                 useNativeDriver: true,
                 damping: 20,
                 stiffness: 90,
@@ -40,7 +39,6 @@ export function AppModal({ visible, onClose, title, icon, children, subtitle, he
         Animated.timing(slideAnim, {
             toValue: Dimensions.get('window').height,
             duration: 250,
-            // @ts-ignore
             useNativeDriver: true,
         }).start(() => {
             onClose();
