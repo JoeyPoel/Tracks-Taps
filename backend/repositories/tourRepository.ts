@@ -116,6 +116,12 @@ export const tourRepository = {
         return await prisma.tour.create({
             data,
             include: {
+                author: {
+                    select: {
+                        name: true,
+                        avatarUrl: true
+                    },
+                },
                 stops: {
                     include: {
                         challenges: true,

@@ -15,8 +15,10 @@ interface BingoCardProps {
 
 const { width } = Dimensions.get('window');
 const GAP = 8;
-const PADDING = 20;
-const CELL_SIZE = (width - (PADDING * 2) - (GAP * 2)) / 3;
+const SCREEN_PADDING = 40; // Padding from ActiveTourScreen parent (20 * 2)
+
+// Calculate cell size based on screen width minus parent padding and gaps
+const CELL_SIZE = Math.floor((width - SCREEN_PADDING - (GAP * 2)) / 3);
 
 export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps) {
     const { theme } = useTheme();
@@ -143,7 +145,7 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
 
 const styles = StyleSheet.create({
     container: {
-        padding: 20,
+        // Padding is handled by parent ScrollView
     },
     header: {
         flexDirection: 'row',

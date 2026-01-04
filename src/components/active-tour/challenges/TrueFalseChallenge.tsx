@@ -14,7 +14,6 @@ interface TrueFalseChallengeProps {
     onComplete: (challenge: Challenge) => void;
     onFail: (challenge: Challenge) => void;
     index?: number;
-    isBonus?: boolean;
 }
 
 const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
@@ -23,8 +22,7 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
     isFailed,
     onComplete,
     onFail,
-    index,
-    isBonus = false
+    index
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
@@ -55,10 +53,9 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
             isCompleted={isCompleted}
             isFailed={isFailed}
             onPress={handleSubmit}
-            actionLabel={t('submit')}
+            actionLabel={t('submitAnswer') || "Submit"}
             disabled={isDone || !selected}
             index={index}
-            isBonus={isBonus}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
                 {challenge.content}

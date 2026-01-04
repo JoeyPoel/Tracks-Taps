@@ -117,7 +117,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
 
     // Filter for tour-wide challenges (challenges with no stopId, and NOT bingo challenges)
     const tourAllChallenges = activeTour.tour?.challenges || [];
-    const tourWideChallenges = tourAllChallenges.filter((c: any) => !c.stopId);
+    const tourWideChallenges = tourAllChallenges.filter((c: any) => !c.stopId && typeof c.bingoRow !== 'number');
 
     // --- Dynamic Tab Generation ---
     type TabItem = {

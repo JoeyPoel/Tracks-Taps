@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { activeTourService } from '../services/activeTourService';
 import { useStore } from '../store/store';
 import { ActiveChallenge, PubGolfStop, Stop, Team } from '../types/models';
@@ -78,45 +78,14 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         }
     }, [activeTourId, userId, fetchActiveTourById]);
 
-    // Bingo Animation Logic
-    const prevBingoState = useRef<{ lines: number, fullHouse: boolean }>({ lines: 0, fullHouse: false });
-
-    useEffect(() => {
-        const bingoCard = currentTeam?.bingoCard;
-        if (!bingoCard) return;
-
-        const currentLines = bingoCard.awardedLines?.length || 0;
-        const currentFullHouse = bingoCard.fullHouseAwarded || false;
-
-        const { lines: prevLines, fullHouse: prevFullHouse } = prevBingoState.current;
-
-        // Check for new lines
-        if (currentLines > prevLines) {
-            const points = 50;
-            triggerFloatingPoints(points);
-            if (onXpEarned) onXpEarned(points);
-        }
-
-        // Check for full house
-        if (currentFullHouse && !prevFullHouse) {
-            setTimeout(() => {
-                const points = 250;
-                triggerFloatingPoints(points);
-                if (onXpEarned) onXpEarned(points);
-            }, 1000);
-        }
-
-        // Update ref
-        prevBingoState.current = { lines: currentLines, fullHouse: currentFullHouse };
-    }, [currentTeam?.bingoCard]);
-
     const triggerFloatingPoints = (amount: number) => {
         setFloatingPointsAmount(amount);
         setShowFloatingPoints(true);
     };
 
     const handleChallengeComplete = async (challenge: any) => {
-        if (!currentTeam || completedChallenges.has(challenge.id) || failedChallenges.has(challenge.id)) return;
+        // Prevent actions while loading to avoid duplicate awards or race conditions
+        if (loading || !currentTeam || completedChallenges.has(challenge.id) || failedChallenges.has(challenge.id)) return;
 
         // 1. Optimistic update
         triggerFloatingPoints(challenge.points);
@@ -238,7 +207,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     }
 
     const handleSaveSips = async (stopId: number, sips: number) => {
-        if (!currentTeam) return;
+        if (loading || !currentTeam) return;
 
         // Optimistic update via Store
         const updatedPubGolfStops = currentTeam.pubGolfStops?.map((pg: any) =>

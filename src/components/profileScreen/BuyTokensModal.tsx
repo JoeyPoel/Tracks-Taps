@@ -15,10 +15,10 @@ interface BuyTokensModalProps {
 }
 
 const PACKAGES = [
-    { tokens: 3, price: 4.99, bonus: 0, popular: false },
-    { tokens: 10, price: 14.99, bonus: 2, popular: true },
-    { tokens: 25, price: 34.99, bonus: 7, popular: false },
-    { tokens: 50, price: 59.99, bonus: 20, popular: false },
+    { tokens: 1, price: 3.00, bonus: 0, popular: false },
+    { tokens: 2, price: 5.50, bonus: 0, popular: false },
+    { tokens: 5, price: 12.50, bonus: 0, popular: true },
+    { tokens: 10, price: 20.00, bonus: 0, popular: false },
 ];
 
 import { authEvents } from '../../utils/authEvents';

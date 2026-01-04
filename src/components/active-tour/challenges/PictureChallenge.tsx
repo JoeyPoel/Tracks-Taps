@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { ActivityIndicator, Alert, Image, StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
-import { uploadImage } from '../../../services/imageService';
 import ActiveChallengeCard from '../ActiveChallengeCard';
+import { uploadOptimizedImage } from '@/src/utils/imageUtils';
 
 interface PictureChallengeProps {
     challenge: any;
@@ -54,7 +54,7 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
                 try {
                     // Upload using service (which ensures 600px width)
                     // Explicitly pass 'images' bucket and 'challenge-entries' folder
-                    const publicUrl = await uploadImage(capturedImage.uri, 'images', 'challenge-entries');
+                    const publicUrl = await uploadOptimizedImage(capturedImage.uri, 'images', 'challenge-entries');
 
                     // Complete challenge with the URL
                     onComplete({ ...challenge, imageUrl: publicUrl });
