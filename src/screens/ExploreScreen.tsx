@@ -234,7 +234,7 @@ export default function ExploreScreen() {
                 tourItem.reviews.length
                 : 0
             }
-            reviewCount={tourItem.reviews?.length || 0}
+            reviewCount={(tourItem as any).reviewCount ?? tourItem.reviews?.length ?? 0}
             points={tourItem.points}
             modes={tourItem.modes}
             tourType={tourItem.type}

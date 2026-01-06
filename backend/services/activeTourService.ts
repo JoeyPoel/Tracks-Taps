@@ -268,12 +268,19 @@ export const activeTourService = {
             .filter(ac => ac.completed)
             .map(ac => ac.challengeId);
 
-        // 4. Map cells
-        const cells = bingoCard.cells.map(cell => ({
-            row: cell.row,
-            col: cell.col,
-            completed: completedChallengeIds.includes(cell.challengeId)
-        }));
+        // 4. Map cells from Challenges directly (since BingoCell model is removed)
+        const allChallenges = [
+            ...(activeTour?.tour.challenges || []),
+            ...(activeTour?.tour.stops?.flatMap(s => s.challenges) || [])
+        ];
+
+        const cells = allChallenges
+            .filter((c: any) => typeof c.bingoRow === 'number' && typeof c.bingoCol === 'number')
+            .map((c: any) => ({
+                row: c.bingoRow,
+                col: c.bingoCol,
+                completed: completedChallengeIds.includes(c.id)
+            }));
 
         // 5. Check Logic
         const { newAwardedLines, isFullHouse } = checkBingo(cells, bingoCard.awardedLines);

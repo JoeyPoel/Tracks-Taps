@@ -11,7 +11,6 @@ interface TourCardBaseProps {
     children: React.ReactNode;
 }
 
-import { getOptimizedImageUrl } from '../../utils/imageUtils';
 
 export function TourCardBase({ imageUrl, height = 320, onPress, children }: TourCardBaseProps) {
     const { theme } = useTheme();
@@ -25,7 +24,7 @@ export function TourCardBase({ imageUrl, height = 320, onPress, children }: Tour
             ]}
             interactionScale="subtle"
         >
-            <ImageBackground source={{ uri: getOptimizedImageUrl(imageUrl, 600) }} style={styles.imageBackground} imageStyle={styles.imageStyle}>
+            <ImageBackground source={{ uri: imageUrl }} style={styles.imageBackground} imageStyle={styles.imageStyle} resizeMode="cover">
                 <View style={styles.overlay} />
 
                 <LinearGradient

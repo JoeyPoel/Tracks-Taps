@@ -191,8 +191,12 @@ export const achievementService = {
                     userId: userId
                 }
             },
-            include: {
-                challenge: true
+            select: {
+                challenge: {
+                    select: {
+                        stopId: true
+                    }
+                }
             }
         });
 

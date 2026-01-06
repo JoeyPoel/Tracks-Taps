@@ -26,8 +26,8 @@ export default function StopInfoSection({ stop }: StopInfoSectionProps) {
                 <View style={styles.imageContainer}>
                     <Image
                         source={{ uri: stop.imageUrl }}
-                        style={styles.image}
-                        resizeMode="cover"
+                        resizeMode="contain"
+                        style={[styles.image, { backgroundColor: theme.bgSecondary }]}
                     />
                     <LinearGradient
                         colors={['transparent', 'rgba(0,0,0,0.6)']}

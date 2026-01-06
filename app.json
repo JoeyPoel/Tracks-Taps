@@ -17,7 +17,8 @@
         "NSPhotoLibraryUsageDescription": "Tracks Taps needs access to your photo library to select images for tours and stops.",
         "NSCameraUsageDescription": "Tracks Taps needs access to your camera to take photos for challenges and tour images.",
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,6 +27,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "package": "com.joeypoel.trackstaps",
+      "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },

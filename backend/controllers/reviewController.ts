@@ -10,7 +10,10 @@ export const reviewController = {
         }
 
         try {
-            const reviews = await reviewService.getReviewsForTour(parseInt(tourId));
+            const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
+            const limit = searchParams.get('limit') ? Number(searchParams.get('limit')) : 20;
+
+            const reviews = await reviewService.getReviewsForTour(parseInt(tourId), page, limit);
             return Response.json(reviews);
         } catch (error) {
             console.error('Error fetching reviews:', error);

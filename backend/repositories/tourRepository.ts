@@ -70,46 +70,155 @@ export const tourRepository = {
         const limit = filters.limit && filters.limit > 0 ? filters.limit : 20;
         const skip = (page - 1) * limit;
 
-        return await prisma.tour.findMany({
+        const tours = await prisma.tour.findMany({
             where,
             orderBy,
             skip,
             take: limit,
-            include: {
+            select: {
+                id: true,
+                title: true,
+                location: true,
+                imageUrl: true,
+                distance: true,
+                duration: true,
+                points: true,
+                modes: true,
+                difficulty: true,
+                status: true,
+                type: true,
+                genre: true,
+                createdAt: true,
                 author: {
-                    select: { name: true },
+                    select: { name: true, avatarUrl: true },
                 },
                 _count: {
                     select: { stops: true },
                 },
-                reviews: {
-                    select: { rating: true }
-                }, // Needed for rating calc
             },
+        });
+
+        // 2. Fetch Average Ratings efficiently
+        const tourIds = tours.map(t => t.id);
+        const ratings = await prisma.review.groupBy({
+            by: ['tourId'],
+            _avg: {
+                rating: true
+            },
+            _count: {
+                rating: true
+            },
+            where: {
+                tourId: { in: tourIds }
+            }
+        });
+
+        // 3. Merge data
+        return tours.map(tour => {
+            const ratingData = ratings.find(r => r.tourId === tour.id);
+            return {
+                ...tour,
+                averageRating: ratingData?._avg.rating || 0,
+                reviewCount: ratingData?._count.rating || 0,
+                // Backwards compatibility if frontend expects array
+                reviews: ratingData?._avg.rating ? [{ rating: ratingData._avg.rating }] : []
+            };
         });
     },
 
     async getTourById(id: number) {
-        return await prisma.tour.findUnique({
+        // 1. Fetch Tour Data
+        const tour = await prisma.tour.findUnique({
             where: { id },
-            include: {
-                author: true,
+            select: {
+                id: true,
+                title: true,
+                location: true,
+                description: true,
+                imageUrl: true,
+                distance: true,
+                duration: true,
+                points: true,
+                modes: true,
+                difficulty: true,
+                status: true,
+                type: true,
+                genre: true,
+                createdAt: true,
+                author: {
+                    select: {
+                        id: true,
+                        name: true,
+                        avatarUrl: true,
+                        level: true
+                    }
+                },
                 stops: {
-                    orderBy: {
-                        number: 'asc',
-                    },
-                    include: {
-                        challenges: true,
-                    },
+                    orderBy: { number: 'asc' },
+                    select: {
+                        id: true,
+                        number: true,
+                        name: true,
+                        description: true,
+                        latitude: true,
+                        longitude: true,
+                        type: true,
+                        challenges: {
+                            select: {
+                                id: true,
+                                title: true,
+                                type: true,
+                                points: true
+                            }
+                        }
+                    }
                 },
-                challenges: true, // Global challenges
+                challenges: {
+                    select: {
+                        id: true,
+                        title: true,
+                        type: true,
+                        points: true
+                    }
+                },
                 reviews: {
-                    include: {
-                        author: true,
-                    },
+                    take: 3,
+                    orderBy: { createdAt: 'desc' },
+                    select: {
+                        id: true,
+                        content: true,
+                        rating: true,
+                        createdAt: true,
+                        author: {
+                            select: {
+                                name: true,
+                                avatarUrl: true
+                            }
+                        }
+                    }
                 },
+                _count: {
+                    select: {
+                        reviews: true,
+                        stops: true
+                    }
+                }
             },
         });
+
+        if (!tour) return null;
+
+        // 2. Aggregate Rating (Fast separate query)
+        const ratingAgg = await prisma.review.aggregate({
+            where: { tourId: id },
+            _avg: { rating: true }
+        });
+
+        return {
+            ...tour,
+            averageRating: ratingAgg._avg.rating || 0,
+            reviewCount: tour._count.reviews
+        };
     },
 
     async createTour(data: Prisma.TourCreateInput) {

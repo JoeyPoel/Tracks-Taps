@@ -19,18 +19,30 @@ export const activeTourRepository = {
                     in: [SessionStatus.IN_PROGRESS, SessionStatus.WAITING],
                 },
             },
-            include: {
+            select: {
+                id: true,
+                status: true,
+                createdAt: true,
                 tour: {
-                    include: {
+                    select: {
+                        id: true,
+                        title: true,
+                        imageUrl: true,
                         _count: {
                             select: { stops: true }
                         }
                     }
                 },
                 teams: {
-                    where: { userId: userId }
+                    where: { userId: userId },
+                    select: {
+                        id: true,
+                        currentStop: true,
+                        finishedAt: true,
+                        score: true
+                    }
                 }
-            },
+            }
         });
     },
 
@@ -142,16 +154,65 @@ export const activeTourRepository = {
     async findActiveTourById(id: number, userId?: number) {
         const activeTour = await prisma.activeTour.findUnique({
             where: { id },
-            include: {
+            select: {
+                id: true,
+                status: true,
+                userId: true, // Needed for host verification
+                createdAt: true, // Needed for history
+                tourId: true,
                 tour: {
-                    include: {
-                        stops: {
-                            orderBy: { number: 'asc' },
-                            include: {
-                                challenges: true,
+                    select: {
+                        id: true,
+                        title: true,
+                        modes: true, // Needed for determining tabs (e.g. BINGO)
+                        challenges: {
+                            select: {
+                                id: true,
+                                title: true,
+                                type: true,
+                                points: true,
+                                bingoRow: true,
+                                bingoCol: true,
+                                stopId: true,
+                                tourId: true,
+                                options: true,
+                                answer: true,
+                                hint: true,
+                                content: true
                             }
                         },
-                        challenges: true,
+                        stops: {
+                            orderBy: { number: 'asc' },
+                            select: {
+                                id: true,
+                                number: true,
+                                name: true,
+                                description: true,
+                                detailedDescription: true, // Needed for info
+                                latitude: true,
+                                longitude: true,
+                                imageUrl: true,
+                                type: true,
+                                pubgolfPar: true,
+                                pubgolfDrink: true,
+                                challenges: {
+                                    select: {
+                                        id: true,
+                                        title: true,
+                                        type: true,
+                                        points: true,
+                                        bingoRow: true,
+                                        bingoCol: true,
+                                        stopId: true,
+                                        tourId: true,
+                                        options: true,
+                                        answer: true,
+                                        hint: true,
+                                        content: true
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 teams: {
@@ -160,11 +221,19 @@ export const activeTourRepository = {
                         activeChallenges: true,
                         pubGolfStops: true,
                         bingoCard: {
-                            include: {
-                                cells: true
+                            select: {
+                                id: true,
+                                awardedLines: true,
+                                fullHouseAwarded: true
                             }
                         },
-                        user: true
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                avatarUrl: true
+                            }
+                        }
                     }
                 }
             }
@@ -201,24 +270,43 @@ export const activeTourRepository = {
     },
 
     async findActiveTourProgress(activeTourId: number, userId?: number) {
-
         return await prisma.activeTour.findUnique({
             where: { id: activeTourId },
-            include: {
-                // Tour is purposefully OMITTED here for performance
+            select: {
+                id: true,
+                status: true,
+                winnerTeamId: true,
                 teams: {
                     where: userId ? { userId } : undefined,
-                    include: {
-                        activeChallenges: true,
-                        pubGolfStops: true,
+                    select: {
+                        id: true,
+                        score: true,
+                        currentStop: true,
+                        streak: true,
+                        finishedAt: true,
+                        activeChallenges: {
+                            select: {
+                                challengeId: true,
+                                completed: true,
+                                failed: true
+                            }
+                        },
+                        pubGolfStops: {
+                            select: {
+                                stopId: true,
+                                sips: true
+                            }
+                        },
                         bingoCard: {
-                            include: {
-                                cells: true
+                            select: {
+                                id: true,
+                                awardedLines: true,
+                                fullHouseAwarded: true
                             }
                         }
                     }
-                },
-            },
+                }
+            }
         });
     },
 
@@ -228,7 +316,14 @@ export const activeTourRepository = {
             include: {
                 teams: {
                     include: {
-                        user: true
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                avatarUrl: true,
+                                level: true
+                            }
+                        }
                     }
                 },
                 tour: {
@@ -250,9 +345,6 @@ export const activeTourRepository = {
             where: {
                 userId,
                 activeTourId
-            },
-            include: {
-                activeTour: true
             }
         });
     },
@@ -374,22 +466,17 @@ export const activeTourRepository = {
     },
 
     async createBingoCard(teamId: number, tourId: number) {
-        // 1. Fetch Tour with Bingo Challenges
-        const tour = await prisma.tour.findUnique({
-            where: { id: tourId },
-            include: {
-                challenges: {
-                    where: {
-                        bingoRow: { not: null },
-                        bingoCol: { not: null }
-                    }
-                }
+        // 1. Fetch ALL Bingo Challenges for this Tour (Top-level OR Stop-level)
+        const bingoChallenges = await prisma.challenge.findMany({
+            where: {
+                OR: [
+                    { tourId: tourId },
+                    { stop: { tourId: tourId } }
+                ],
+                bingoRow: { not: null },
+                bingoCol: { not: null }
             }
         });
-
-        if (!tour) return null;
-
-        const bingoChallenges = tour.challenges;
 
         if (bingoChallenges.length === 0) return null;
 
@@ -400,29 +487,14 @@ export const activeTourRepository = {
             }
         });
 
-        // 3. Create Cells (Map by row/col)
-        const cellData = bingoChallenges.map(challenge => ({
-            bingoCardId: bingoCard.id,
-            challengeId: challenge.id,
-            row: challenge.bingoRow!,
-            col: challenge.bingoCol!
-        }));
-
-        await prisma.bingoCell.createMany({
-            data: cellData
-        });
+        // No need to create cells locally, we rely on Challenges' bingoRow/bingoCol metadata
 
         return bingoCard;
     },
 
     async getBingoCard(teamId: number) {
         return await prisma.bingoCard.findUnique({
-            where: { teamId },
-            include: {
-                cells: {
-                    include: { challenge: true }
-                }
-            }
+            where: { teamId }
         });
     },
 

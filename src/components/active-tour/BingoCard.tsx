@@ -70,12 +70,33 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
             </View>
 
             <View style={styles.grid}>
-                {bingoCard.cells.sort((a, b) => (a.row * 3 + a.col) - (b.row * 3 + b.col)).map((cell, index) => {
-                    const challenge = getChallenge(cell.challengeId);
-                    const completed = isCompleted(cell.challengeId);
-                    const failed = isFailed(cell.challengeId);
+                {Array.from({ length: 9 }).map((_, index) => {
+                    const row = Math.floor(index / 3);
+                    const col = index % 3;
 
-                    if (!challenge) return <View key={cell.id} style={[styles.cell, { width: CELL_SIZE, height: CELL_SIZE }]} />;
+                    // Find challenge for this position
+                    const challenge = challenges.find(c => c.bingoRow === row && c.bingoCol === col);
+
+                    // If no challenge at this position, render empty placeholder
+                    if (!challenge) {
+                        return (
+                            <View
+                                key={`empty-${index}`}
+                                style={[
+                                    styles.cell,
+                                    {
+                                        width: CELL_SIZE,
+                                        height: CELL_SIZE,
+                                        backgroundColor: theme.bgSecondary,
+                                        borderColor: theme.borderPrimary
+                                    }
+                                ]}
+                            />
+                        );
+                    }
+
+                    const completed = isCompleted(challenge.id);
+                    const failed = isFailed(challenge.id);
 
                     let bgColor = theme.bgSecondary;
                     let borderColor = theme.borderPrimary;
@@ -96,7 +117,7 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
 
                     return (
                         <TouchableOpacity
-                            key={cell.id}
+                            key={challenge.id}
                             activeOpacity={0.8}
                             onPress={() => onChallengePress(challenge)}
                         >

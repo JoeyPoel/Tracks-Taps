@@ -33,8 +33,8 @@ export const useStartTour = (tourId: number, authorId?: number) => {
             }
 
             // Refresh user tokens to update balance in UI
-            // Safely await to ensure user state is consistent, but don't block on error
-            await refreshUser().catch(err => console.error('Failed to refresh user:', err));
+            // Refresh user tokens to update balance in UI background
+            refreshUser().catch(err => console.error('Failed to refresh user:', err));
 
             if (isLobbyMode) {
                 router.push({

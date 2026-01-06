@@ -41,14 +41,19 @@ export default function TourListScreen() {
             // In a real app, you might fetch specific lists from an API
             // For now, we'll assume we checking the current user's lists from context or service
             if (user) {
-                // Reload user profile to get latest lists if needed, or just use what we have
-                const profile = await userService.getUserProfile(user.id);
                 if (type === 'done') {
-                    // Normalize the data: extract the nested 'tour' object from UserPlayedTour
-                    // Use pt.id (UserPlayedTour id) as unique key to avoid duplicates if tour played multiple times
-                    setTours(profile.playedTours?.map((pt: any) => ({ ...pt.tour, uniqueKey: pt.id.toString() })) || []);
+                    const playedTours = await userService.getUserPlayedTours(user.id);
+                    // data from API is UserPlayedTour[] with nested tour
+                    setTours(playedTours.map((pt: any) => ({
+                        ...pt.tour,
+                        uniqueKey: pt.id.toString() // UserPlayedTour ID
+                    })) || []);
                 } else if (type === 'created') {
-                    setTours(profile.createdTours?.map((t: any) => ({ ...t, uniqueKey: t.id.toString() })) || []);
+                    const createdTours = await userService.getUserCreatedTours(user.id);
+                    setTours(createdTours.map((t: any) => ({
+                        ...t,
+                        uniqueKey: t.id.toString()
+                    })) || []);
                 }
             }
         } catch (error) {
@@ -80,9 +85,9 @@ export default function TourListScreen() {
                                 imageUrl={item.imageUrl}
                                 distance={item.distance ? `${item.distance} km` : '0 km'}
                                 duration={item.duration ? `${item.duration} min` : '0 min'}
-                                stops={item.stops?.length || 0}
+                                stops={item._count?.stops ?? item.stops?.length ?? 0}
                                 rating={item.rating || 0}
-                                reviewCount={item.reviews?.length || 0}
+                                reviewCount={item._count?.reviews ?? item.reviews?.length ?? 0}
                                 points={item.points || 0}
                                 modes={item.modes || []}
                                 genre={item.genre}

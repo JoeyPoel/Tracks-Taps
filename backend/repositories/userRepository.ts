@@ -8,7 +8,51 @@ const hashPassword = (password: string) => {
 };
 
 export const userRepository = {
-    // ...
+    async getUserProfile(userId: number) {
+        return await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                avatarUrl: true,
+                xp: true,
+                level: true,
+                tokens: true,
+                referralCode: true,
+                createdAt: true,
+                _count: {
+                    select: {
+                        createdTours: true,
+                        playedTours: true
+                    }
+                }
+            }
+        });
+    },
+
+    async getUserByEmail(email: string) {
+        return await prisma.user.findUnique({
+            where: { email },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                avatarUrl: true,
+                xp: true,
+                level: true,
+                tokens: true,
+                referralCode: true,
+                createdAt: true,
+                _count: {
+                    select: {
+                        createdTours: true,
+                        playedTours: true
+                    }
+                }
+            }
+        });
+    },
     async createUser(data: { email: string; name: string; password?: string }) {
         // Generate secure 9-digit numeric code
         const referralCode = randomInt(100000000, 1000000000).toString();
@@ -112,4 +156,52 @@ export const userRepository = {
         });
     },
 
+    async getUserPlayedTours(userId: number) {
+        return await prisma.userPlayedTour.findMany({
+            where: {
+                userId: userId,
+                status: 'COMPLETED'
+            },
+            select: {
+                id: true,
+                status: true,
+                score: true,
+                finishedAt: true,
+                tour: {
+                    select: {
+                        id: true,
+                        title: true,
+                        imageUrl: true,
+                        distance: true,
+                        duration: true,
+                        points: true,
+                        modes: true,
+                        genre: true,
+                        type: true,
+                        author: { select: { name: true } },
+                        _count: { select: { stops: true, reviews: true } }
+                    }
+                }
+            },
+            orderBy: { finishedAt: 'desc' }
+        });
+    },
+
+    async getUserCreatedTours(userId: number) {
+        return await prisma.tour.findMany({
+            where: { authorId: userId },
+            select: {
+                id: true,
+                title: true,
+                imageUrl: true,
+                distance: true,
+                duration: true,
+                status: true,
+                createdAt: true,
+                author: { select: { name: true } },
+                _count: { select: { stops: true, reviews: true } }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+    }
 };

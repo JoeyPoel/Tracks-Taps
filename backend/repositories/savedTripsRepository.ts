@@ -16,14 +16,19 @@ export const savedTripsRepository = {
     async findByUserId(userId: number) {
         return prisma.tourList.findMany({
             where: { userId },
-            include: {
+            select: {
+                id: true,
+                name: true,
+                updatedAt: true,
+                userId: true,
+                tourOrder: true,
                 tours: {
-                    include: {
-                        author: {
-                            select: { name: true, avatarUrl: true }
-                        }
+                    select: {
+                        id: true,
+                        title: true,
+                        imageUrl: true
                     }
-                },
+                }
             },
             orderBy: { updatedAt: 'desc' },
         });

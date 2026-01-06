@@ -66,4 +66,12 @@ export const userService = {
     async claimReferral(userId: number, code: string) {
         return await userRepository.claimReferral(userId, code);
     },
+
+    async getUserPlayedTours(userId: number) {
+        return await userRepository.getUserPlayedTours(userId);
+    },
+
+    async getUserCreatedTours(userId: number) {
+        return await userRepository.getUserCreatedTours(userId);
+    }
 };

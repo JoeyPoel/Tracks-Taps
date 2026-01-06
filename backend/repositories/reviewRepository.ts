@@ -19,7 +19,8 @@ export const reviewRepository = {
         });
     },
 
-    async getReviewsForTour(tourId: number) {
+    async getReviewsForTour(tourId: number, page: number = 1, limit: number = 20) {
+        const skip = (page - 1) * limit;
         return await prisma.review.findMany({
             where: { tourId },
             include: {
@@ -31,6 +32,8 @@ export const reviewRepository = {
                 },
             },
             orderBy: { createdAt: 'desc' },
+            take: limit,
+            skip,
         });
     },
 };

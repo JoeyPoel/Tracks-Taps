@@ -92,7 +92,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
         {/* Hero Section */}
         <View style={styles.heroContainer}>
           <Image
-            source={{ uri: getOptimizedImageUrl(tour.imageUrl, 800) }}
+            source={{ uri: tour.imageUrl }}
             style={styles.heroImage}
             contentFit="cover"
             transition={500}

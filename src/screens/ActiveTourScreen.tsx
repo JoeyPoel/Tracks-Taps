@@ -115,9 +115,13 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const stopChallenges = currentStop?.challenges || [];
     const isLastStop = currentStopIndex === (activeTour.tour?.stops?.length || 0) - 1;
 
-    // Filter for tour-wide challenges (challenges with no stopId, and NOT bingo challenges)
+    // Gather ALL challenges (tour-wide + stop-specific) for Bingo Lookup
+    const allStopChallenges = activeTour.tour?.stops?.flatMap((s: any) => s.challenges || []) || [];
+    const tourWideRefChallenges = activeTour.tour?.challenges || [];
+    const allPossibleChallenges = [...tourWideRefChallenges, ...allStopChallenges];
+
     const tourAllChallenges = activeTour.tour?.challenges || [];
-    const tourWideChallenges = tourAllChallenges.filter((c: any) => !c.stopId && typeof c.bingoRow !== 'number');
+    const bonusChallenges = tourAllChallenges.filter((c: any) => !c.stopId && typeof c.bingoRow !== 'number');
 
     // --- Dynamic Tab Generation ---
     type TabItem = {
@@ -157,15 +161,15 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         }
     ];
 
-    // Add Tour Wide Challenges if present
-    if (tourWideChallenges.length > 0) {
+    // Add Bonus Challenges if present
+    if (bonusChallenges.length > 0) {
         tabItems.push({
-            key: 'tour-challenges',
-            label: t('tourWideChallenges') || 'Tour Challenges',
+            key: 'bonus',
+            label: t('bonus') || 'Bonus',
             render: () => (
-                <TabContentWrapper key="tour-challenges">
+                <TabContentWrapper key="bonus">
                     <TourChallengesSection
-                        challenges={tourWideChallenges}
+                        challenges={bonusChallenges}
                         completedChallenges={completedChallenges}
                         failedChallenges={failedChallenges}
                         triviaSelected={triviaSelected}
@@ -211,7 +215,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                 <TabContentWrapper key="bingo">
                     <BingoCard
                         team={currentTeam}
-                        challenges={tourAllChallenges}
+                        challenges={allPossibleChallenges}
                         onChallengePress={(challenge: any) => {
                             // Only set if not already completed (or allow viewing completed ones too - usually view is fine)
                             // But usually users want to complete them.

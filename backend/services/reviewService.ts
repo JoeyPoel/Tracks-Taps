@@ -14,7 +14,7 @@ export const reviewService = {
         return review;
     },
 
-    async getReviewsForTour(tourId: number) {
-        return await reviewRepository.getReviewsForTour(tourId);
+    async getReviewsForTour(tourId: number, page: number = 1, limit: number = 20) {
+        return await reviewRepository.getReviewsForTour(tourId, page, limit);
     },
 };

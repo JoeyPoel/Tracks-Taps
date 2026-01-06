@@ -5,8 +5,17 @@ export const userController = {
         const { searchParams } = new URL(request.url);
         const email = searchParams.get('email');
         const userId = searchParams.get('userId');
+        const type = searchParams.get('type');
 
         try {
+            if (userId && type === 'played') {
+                const tours = await userService.getUserPlayedTours(parseInt(userId));
+                return Response.json(tours);
+            } else if (userId && type === 'created') {
+                const tours = await userService.getUserCreatedTours(parseInt(userId));
+                return Response.json(tours);
+            }
+
             let user;
             if (userId) {
                 user = await userService.getUserProfile(parseInt(userId));

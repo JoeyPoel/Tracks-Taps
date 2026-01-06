@@ -61,12 +61,13 @@ model User {
   level        Int     @default(1)
   xp           Int     @default(0)
   tokens       Int     @default(0)
+  referralCode String? @unique // Unique code for referrals
 
   // Referral System
   referralCount Int @default(0)
 
   referredBy Int?
-  referrer   User?  @relation("UserReferrals", fields: [referredBy], references: [id])
+
   referrals  User[] @relation("UserReferrals")
 
   createdAt DateTime @default(now())
@@ -172,6 +173,12 @@ model Tour {
   lists       TourList[]       @relation("TourListTours")
 
   @@index([authorId])
+  @@index([createdAt])
+  @@index([location])
+  @@index([startLat, startLng]) // Composite index for map queries
+  @@index([difficulty])
+  @@index([distance])
+  @@index([duration])
 }
 
 model Stop {
@@ -232,7 +239,6 @@ model Challenge {
 
   // Relations
   activeChallenges ActiveChallenge[]
-  bingoCells       BingoCell[]
 
   @@index([tourId])
   @@index([stopId])
@@ -316,30 +322,16 @@ model PubGolfStop {
 }
 
 model BingoCard {
-  id               Int         @id @default(autoincrement())
-  teamId           Int         @unique
-  team             Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  cells            BingoCell[]
+  id               Int      @id @default(autoincrement())
+  teamId           Int      @unique
+  team             Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   awardedLines     String[] // e.g. ["row-0", "col-2", "diag-1"]
-  fullHouseAwarded Boolean     @default(false)
+  fullHouseAwarded Boolean  @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([teamId])
-}
-
-model BingoCell {
-  id          Int       @id @default(autoincrement())
-  bingoCardId Int
-  bingoCard   BingoCard @relation(fields: [bingoCardId], references: [id], onDelete: Cascade)
-  row         Int
-  col         Int
-  challengeId Int
-  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
-
-  @@index([bingoCardId])
-  @@index([challengeId])
 }
 
 model Review {

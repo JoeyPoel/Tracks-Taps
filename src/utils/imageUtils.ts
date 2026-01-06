@@ -113,7 +113,7 @@ export const getOptimizedImageUrl = (url: string, width: number = 600): string =
         // width={width}   -> specific size (e.g. 600px)
         // quality=60      -> compress to 60% quality (visually fine for mobile, huge savings)
         // resize=cover    -> ensures the image fills the dimensions without distortion
-        return `${optimizedUrl}${separator}width=${width}&quality=60&resize=cover`;
+        return `${optimizedUrl}${separator}width=${width}&quality=60`;
     }
 
     // Return original URL for non-Supabase images

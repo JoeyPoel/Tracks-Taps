@@ -61,7 +61,7 @@ export const activeTourController = {
         }
     },
 
-    async getActiveTourById(request: Request, params?: { id: string }) {
+    async getActiveTourById(request: Request, params?: { id: string }, userId?: number) {
         let id = params?.id;
 
         if (!id) {
@@ -81,7 +81,7 @@ export const activeTourController = {
         }
 
         try {
-            const activeTour = await activeTourService.getActiveTourById(activeTourId);
+            const activeTour = await activeTourService.getActiveTourById(activeTourId, userId);
             if (!activeTour) {
                 return Response.json({ error: 'Active tour not found' }, { status: 404 });
             }

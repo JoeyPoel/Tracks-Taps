@@ -27,10 +27,16 @@ try {
 
 export const AuthService = {
     configureGoogle: () => {
+        const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+        if (!webClientId) {
+            console.error('Google Sign-In Error: EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID is missing in .env');
+            return;
+        }
+
         try {
             GoogleSignin.configure({
                 scopes: ['email', 'profile'],
-                webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+                webClientId: webClientId,
             });
         } catch (error) {
             console.warn('Google Signin configure failed (likely missing native module):', error);
@@ -41,32 +47,41 @@ export const AuthService = {
         try {
             await GoogleSignin.hasPlayServices();
             const userInfo = await GoogleSignin.signIn();
+            console.log("Google Sign-In Response:", JSON.stringify(userInfo, null, 2));
 
-            if (userInfo.data?.idToken) {
+            // Depending on the version of @react-native-google-signin/google-signin,
+            // idToken might be directly on userInfo or nested.
+            const idToken = userInfo.data?.idToken || userInfo.idToken;
+
+            if (idToken) {
                 const { data, error } = await supabase.auth.signInWithIdToken({
                     provider: 'google',
-                    token: userInfo.data.idToken,
+                    token: idToken,
                 });
 
                 if (error) {
+                    console.error("Supabase Google Sign-In Error:", error);
                     throw error;
                 }
 
                 return data;
             } else {
-                throw new Error('No ID token present!');
+                console.error("Missing ID Token in response:", userInfo);
+                throw new Error('No ID token present in Google Sign-In response!');
             }
         } catch (error: any) {
             if (error.code === statusCodes?.SIGN_IN_CANCELLED) {
                 // user cancelled the login flow
+                console.log('Google Sign-In cancelled by user');
             } else if (error.code === statusCodes?.IN_PROGRESS) {
                 // operation (e.g. sign in) is in progress already
+                console.log('Google Sign-In already in progress');
             } else if (error.code === statusCodes?.PLAY_SERVICES_NOT_AVAILABLE) {
                 // play services not available or outdated
                 Alert.alert("Error", "Google Play Services are not available.");
             } else {
-                console.error(error);
-                Alert.alert("Google Sign-In Error", error.message);
+                console.error("Google Sign-In logic error:", error);
+                Alert.alert("Google Sign-In Error", error.message || "An unknown error occurred during Google Sign-In.");
             }
             return null;
         }
@@ -77,7 +92,7 @@ export const AuthService = {
             await GoogleSignin.signOut();
             await supabase.auth.signOut();
         } catch (error) {
-            console.error(error);
+            console.error("Sign out error:", error);
         }
     }
 };

@@ -61,14 +61,14 @@ export const achievementController = {
 
         try {
             const allAchievements = await achievementRepository.getAllAchievements();
-            const userAchievements = await achievementRepository.getUserAchievements(parseInt(userId));
+            const userUnlocked = await achievementRepository.getUserUnlockedIds(parseInt(userId));
 
-            const unlockedIds = new Set(userAchievements.map(ua => ua.achievementId));
+            const unlockedMap = new Map(userUnlocked.map(ua => [ua.achievementId, ua.unlockedAt]));
 
             const formatted = allAchievements.map(ach => ({
                 ...ach,
-                unlocked: unlockedIds.has(ach.id),
-                unlockedAt: userAchievements.find(ua => ua.achievementId === ach.id)?.unlockedAt || null
+                unlocked: unlockedMap.has(ach.id),
+                unlockedAt: unlockedMap.get(ach.id) || null
             }));
 
             return Response.json(formatted);

@@ -10,8 +10,24 @@ export const friendRepository = {
                 ],
             },
             include: {
-                requester: true,
-                addressee: true,
+                requester: {
+                    select: {
+                        id: true,
+                        name: true,
+                        avatarUrl: true,
+                        level: true,
+                        xp: true
+                    }
+                },
+                addressee: {
+                    select: {
+                        id: true,
+                        name: true,
+                        avatarUrl: true,
+                        level: true,
+                        xp: true
+                    }
+                },
             },
         });
     },
@@ -23,7 +39,14 @@ export const friendRepository = {
                 status: 'PENDING',
             },
             include: {
-                requester: true,
+                requester: {
+                    select: {
+                        id: true,
+                        name: true,
+                        avatarUrl: true,
+                        level: true
+                    }
+                },
             },
         });
     },

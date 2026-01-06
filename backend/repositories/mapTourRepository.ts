@@ -25,7 +25,7 @@ export const mapTourRepository = {
                     number: true,
                 }
             },
-            reviews: { select: { rating: true } },
+            // reviews: { select: { rating: true } }, // Removed for performance
             _count: { select: { stops: true } }
         };
 

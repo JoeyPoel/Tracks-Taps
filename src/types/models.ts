@@ -149,6 +149,8 @@ export interface Challenge {
     updatedAt: Date;
     tourId: number | null;
     stopId: number | null;
+    bingoRow?: number | null;
+    bingoCol?: number | null;
 }
 
 export interface ActiveTour {
@@ -188,19 +190,9 @@ export interface PubGolfStop {
     updatedAt: Date;
 }
 
-export interface BingoCell {
-    id: number;
-    bingoCardId: number;
-    row: number;
-    col: number;
-    challengeId: number;
-    challenge?: Challenge;
-}
-
 export interface BingoCard {
     id: number;
     teamId: number;
-    cells: BingoCell[];
     awardedLines: string[];
     fullHouseAwarded: boolean;
     createdAt: Date;

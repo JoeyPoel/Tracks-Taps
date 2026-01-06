@@ -32,7 +32,7 @@ const TourChallengesSection: React.FC<TourChallengesSectionProps> = ({
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">{t('tourWideChallenges')}</TextComponent>
+                <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">{t('bonus')}</TextComponent>
                 <TextComponent style={styles.subtitle} color={theme.textSecondary} variant="body">
                     {t('tourWideChallengesSubtitle')}
                 </TextComponent>
