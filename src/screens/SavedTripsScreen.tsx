@@ -19,7 +19,7 @@ export default function SavedTripsScreen() {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const router = useRouter();
-    const { lists, loading, loadLists } = useSavedTrips();
+    const { lists, loading, loadLists, loadMore } = useSavedTrips();
     const { width, fontScale } = useWindowDimensions();
 
     useFocusEffect(
@@ -31,7 +31,7 @@ export default function SavedTripsScreen() {
     const renderItem = ({ item, index }: { item: SavedTrip; index: number }) => {
         // Get up to 3 thumbnails for a gallery collage effect
         const thumbnails = item.tours?.slice(0, 3).map(t => t.imageUrl) || [];
-        const tourCount = item.tours?.length || 0;
+        const tourCount = item._count?.tours ?? item.tours?.length ?? 0;
 
         return (
             <Animated.View entering={FadeInDown.delay(index * 100).springify()}>
@@ -128,6 +128,10 @@ export default function SavedTripsScreen() {
                         />
                     ) : null
                 }
+                onEndReached={() => {
+                    loadMore();
+                }}
+                onEndReachedThreshold={0.5}
             />
         </ScreenWrapper>
     );

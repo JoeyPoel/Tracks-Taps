@@ -3,7 +3,11 @@ import { savedTripsService } from '../services/savedTripsService';
 export const savedTripsController = {
     async getUserSavedTrips(req: Request, { userId }: { userId: number }) {
         try {
-            const lists = await savedTripsService.getUserSavedTrips(userId);
+            const { searchParams } = new URL(req.url);
+            const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
+            const limit = searchParams.get('limit') ? Number(searchParams.get('limit')) : 20;
+
+            const lists = await savedTripsService.getUserSavedTrips(userId, page, limit);
             return Response.json(lists);
         } catch (error: any) {
             console.error('[SavedTripsController] Error getting user saved trips:', error);

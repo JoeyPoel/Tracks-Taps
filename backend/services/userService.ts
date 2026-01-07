@@ -67,11 +67,11 @@ export const userService = {
         return await userRepository.claimReferral(userId, code);
     },
 
-    async getUserPlayedTours(userId: number) {
-        return await userRepository.getUserPlayedTours(userId);
+    async getUserPlayedTours(userId: number, page: number = 1, limit: number = 10) {
+        return await userRepository.getUserPlayedTours(userId, page, limit);
     },
 
-    async getUserCreatedTours(userId: number) {
-        return await userRepository.getUserCreatedTours(userId);
+    async getUserCreatedTours(userId: number, page: number = 1, limit: number = 10) {
+        return await userRepository.getUserCreatedTours(userId, page, limit);
     }
 };

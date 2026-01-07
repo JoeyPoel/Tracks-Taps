@@ -7,11 +7,14 @@ export interface SavedTrip {
     userId: number;
     tours: Tour[];
     updatedAt: string;
+    _count?: {
+        tours: number;
+    };
 }
 
 export const savedTripsService = {
-    async getAll() {
-        const response = await client.get('/saved-trips');
+    async getAll(page: number = 1, limit: number = 10) {
+        const response = await client.get(`/saved-trips?page=${page}&limit=${limit}`);
         return response.data;
     },
 

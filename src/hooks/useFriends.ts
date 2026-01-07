@@ -13,8 +13,9 @@ export function useFriends() {
     const loadFriends = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await friendService.getFriends();
-            setFriends(data || []);
+            const response = await friendService.getFriends();
+            const data = (response.data && Array.isArray(response.data)) ? response.data : response;
+            setFriends(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error loading friends:', error);
         } finally {

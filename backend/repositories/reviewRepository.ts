@@ -1,4 +1,5 @@
 import { prisma } from '../../src/lib/prisma';
+import { paginate } from '../utils/pagination';
 
 export const reviewRepository = {
     async createReview(data: {
@@ -19,21 +20,23 @@ export const reviewRepository = {
         });
     },
 
-    async getReviewsForTour(tourId: number, page: number = 1, limit: number = 20) {
-        const skip = (page - 1) * limit;
-        return await prisma.review.findMany({
-            where: { tourId },
-            include: {
-                author: {
-                    select: {
-                        name: true,
-                        // avatarUrl if we add it to User model later
+    async getReviewsForTour(tourId: number, page: number = 1, limit: number = 10) {
+        return paginate(
+            prisma.review,
+            {
+                where: { tourId },
+                include: {
+                    author: {
+                        select: {
+                            name: true,
+                            avatarUrl: true
+                        },
                     },
                 },
+                orderBy: { createdAt: 'desc' },
             },
-            orderBy: { createdAt: 'desc' },
-            take: limit,
-            skip,
-        });
+            page,
+            limit
+        );
     },
 };

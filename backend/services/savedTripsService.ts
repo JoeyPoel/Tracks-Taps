@@ -5,8 +5,8 @@ export const savedTripsService = {
         return savedTripsRepository.create(userId, name);
     },
 
-    async getUserSavedTrips(userId: number) {
-        return savedTripsRepository.findByUserId(userId);
+    async getUserSavedTrips(userId: number, page: number = 1, limit: number = 10) {
+        return savedTripsRepository.findByUserId(userId, page, limit);
     },
 
     async getSavedTrip(id: number) {

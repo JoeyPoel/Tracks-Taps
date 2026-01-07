@@ -1,5 +1,7 @@
+import { SessionStatus } from '@prisma/client';
 import { randomBytes, randomInt, scryptSync } from 'crypto';
 import { prisma } from '../../src/lib/prisma';
+import { paginate } from '../utils/pagination';
 
 const hashPassword = (password: string) => {
     const salt = randomBytes(16).toString('hex');
@@ -156,52 +158,62 @@ export const userRepository = {
         });
     },
 
-    async getUserPlayedTours(userId: number) {
-        return await prisma.userPlayedTour.findMany({
-            where: {
-                userId: userId,
-                status: 'COMPLETED'
-            },
-            select: {
-                id: true,
-                status: true,
-                score: true,
-                finishedAt: true,
-                tour: {
-                    select: {
-                        id: true,
-                        title: true,
-                        imageUrl: true,
-                        distance: true,
-                        duration: true,
-                        points: true,
-                        modes: true,
-                        genre: true,
-                        type: true,
-                        author: { select: { name: true } },
-                        _count: { select: { stops: true, reviews: true } }
+    async getUserPlayedTours(userId: number, page: number = 1, limit: number = 10) {
+        return paginate(
+            prisma.userPlayedTour,
+            {
+                where: {
+                    userId: userId,
+                    status: SessionStatus.COMPLETED
+                },
+                select: {
+                    id: true,
+                    status: true,
+                    score: true,
+                    finishedAt: true,
+                    tour: {
+                        select: {
+                            id: true,
+                            title: true,
+                            imageUrl: true,
+                            distance: true,
+                            duration: true,
+                            points: true,
+                            modes: true,
+                            genre: true,
+                            type: true,
+                            author: { select: { name: true } },
+                            _count: { select: { stops: true, reviews: true } }
+                        }
                     }
-                }
+                },
+                orderBy: { finishedAt: 'desc' },
             },
-            orderBy: { finishedAt: 'desc' }
-        });
+            page,
+            limit
+        );
     },
 
-    async getUserCreatedTours(userId: number) {
-        return await prisma.tour.findMany({
-            where: { authorId: userId },
-            select: {
-                id: true,
-                title: true,
-                imageUrl: true,
-                distance: true,
-                duration: true,
-                status: true,
-                createdAt: true,
-                author: { select: { name: true } },
-                _count: { select: { stops: true, reviews: true } }
+    async getUserCreatedTours(userId: number, page: number = 1, limit: number = 10) {
+        return paginate(
+            prisma.tour,
+            {
+                where: { authorId: userId },
+                select: {
+                    id: true,
+                    title: true,
+                    imageUrl: true,
+                    distance: true,
+                    duration: true,
+                    status: true,
+                    createdAt: true,
+                    author: { select: { name: true } },
+                    _count: { select: { stops: true, reviews: true } }
+                },
+                orderBy: { createdAt: 'desc' },
             },
-            orderBy: { createdAt: 'desc' }
-        });
+            page,
+            limit
+        );
     }
 };

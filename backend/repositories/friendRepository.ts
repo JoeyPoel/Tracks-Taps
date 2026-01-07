@@ -1,35 +1,48 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../src/lib/prisma';
+import { paginate } from '../utils/pagination';
+
+const friendshipWithUsersArgs = Prisma.validator<Prisma.FriendshipDefaultArgs>()({
+    include: {
+        requester: {
+            select: {
+                id: true,
+                name: true,
+                avatarUrl: true,
+                level: true,
+                xp: true
+            }
+        },
+        addressee: {
+            select: {
+                id: true,
+                name: true,
+                avatarUrl: true,
+                level: true,
+                xp: true
+            }
+        },
+    },
+});
+
+type FriendshipWithUsers = Prisma.FriendshipGetPayload<typeof friendshipWithUsersArgs>;
 
 export const friendRepository = {
-    async findFriendships(userId: number) {
-        return await prisma.friendship.findMany({
-            where: {
-                OR: [
-                    { requesterId: userId, status: 'ACCEPTED' },
-                    { addresseeId: userId, status: 'ACCEPTED' },
-                ],
-            },
-            include: {
-                requester: {
-                    select: {
-                        id: true,
-                        name: true,
-                        avatarUrl: true,
-                        level: true,
-                        xp: true
-                    }
+    async findFriendships(userId: number, page: number = 1, limit: number = 10) {
+        return paginate<FriendshipWithUsers, Prisma.FriendshipFindManyArgs>(
+            prisma.friendship,
+            {
+                where: {
+                    OR: [
+                        { requesterId: userId, status: 'ACCEPTED' },
+                        { addresseeId: userId, status: 'ACCEPTED' },
+                    ],
                 },
-                addressee: {
-                    select: {
-                        id: true,
-                        name: true,
-                        avatarUrl: true,
-                        level: true,
-                        xp: true
-                    }
-                },
+                include: friendshipWithUsersArgs.include,
             },
-        });
+            page,
+            limit
+        );
     },
 
     async findPendingRequests(userId: number) {

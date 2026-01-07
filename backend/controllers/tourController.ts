@@ -72,8 +72,8 @@ export const tourController = {
             }
             if (genres.length > 0) filters.genres = genres;
 
-            const tours = await tourService.getAllTours(filters);
-            return Response.json(tours);
+            const result = await tourService.getAllTours(filters);
+            return Response.json(result);
         } catch (error) {
             console.error('Error fetching tours:', error);
             return Response.json({ error: 'Failed to fetch tours' }, { status: 500 });

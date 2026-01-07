@@ -42,18 +42,22 @@ export default function TourListScreen() {
             // For now, we'll assume we checking the current user's lists from context or service
             if (user) {
                 if (type === 'done') {
-                    const playedTours = await userService.getUserPlayedTours(user.id);
+                    const response: any = await userService.getUserPlayedTours(user.id);
+                    const data = (response.data && Array.isArray(response.data)) ? response.data : response;
+
                     // data from API is UserPlayedTour[] with nested tour
-                    setTours(playedTours.map((pt: any) => ({
+                    setTours(Array.isArray(data) ? data.map((pt: any) => ({
                         ...pt.tour,
                         uniqueKey: pt.id.toString() // UserPlayedTour ID
-                    })) || []);
+                    })) : []);
                 } else if (type === 'created') {
-                    const createdTours = await userService.getUserCreatedTours(user.id);
-                    setTours(createdTours.map((t: any) => ({
+                    const response: any = await userService.getUserCreatedTours(user.id);
+                    const data = (response.data && Array.isArray(response.data)) ? response.data : response;
+
+                    setTours(Array.isArray(data) ? data.map((t: any) => ({
                         ...t,
                         uniqueKey: t.id.toString()
-                    })) || []);
+                    })) : []);
                 }
             }
         } catch (error) {

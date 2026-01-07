@@ -9,7 +9,11 @@ export const friendController = {
                 return Response.json({ error: 'Unauthorized' }, { status: 401 });
             }
 
-            const friends = await friendService.getFriends(user.email);
+            const { searchParams } = new URL(request.url);
+            const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
+            const limit = searchParams.get('limit') ? Number(searchParams.get('limit')) : 20;
+
+            const friends = await friendService.getFriends(user.email, page, limit);
             return Response.json(friends);
         } catch (error: any) {
             console.error('Error fetching friends:', error);

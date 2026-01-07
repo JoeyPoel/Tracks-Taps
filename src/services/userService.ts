@@ -6,14 +6,14 @@ export const userService = {
         return response.data;
     },
 
-    async getUserPlayedTours(userId: number) {
-        const response = await client.get(`/user?userId=${userId}&type=played`);
-        return response.data; // Expecting UserPlayedTour[] with tour included
+    async getUserPlayedTours(userId: number, page: number = 1, limit: number = 10) {
+        const response = await client.get(`/user?userId=${userId}&type=played&page=${page}&limit=${limit}`);
+        return response.data;
     },
 
-    async getUserCreatedTours(userId: number) {
-        const response = await client.get(`/user?userId=${userId}&type=created`);
-        return response.data; // Expecting Tour[]
+    async getUserCreatedTours(userId: number, page: number = 1, limit: number = 10) {
+        const response = await client.get(`/user?userId=${userId}&type=created&page=${page}&limit=${limit}`);
+        return response.data;
     },
 
     async getUserByEmail(email: string) {

@@ -72,15 +72,25 @@ export const useStore = create<StoreState>((set, get) => ({
         // If appending, don't set global loadingTours (maybe add a loadingMore state? For now, we use loadingTours)
         set({ loadingTours: true, errorTours: null });
         try {
-            const newTours = await tourService.getAllTours(tourFilters);
-            if (Array.isArray(newTours)) {
-                if (tourFilters.page && tourFilters.page > 1) {
-                    set({ tours: [...tours, ...newTours], loadingTours: false });
-                } else {
-                    set({ tours: newTours, loadingTours: false });
-                }
+            const response: any = await tourService.getAllTours(tourFilters);
+            let newTours: Tour[] = [];
+
+            // Check if response is a PaginatedResult (has data property equal to array)
+            if (response.data && Array.isArray(response.data)) {
+                newTours = response.data;
+            }
+            // Check if response itself is an array (legacy or unpaginated)
+            else if (Array.isArray(response)) {
+                newTours = response;
             } else {
-                throw new Error('Invalid response format');
+                // If neither, we might have an issue, but let's try to infer or fallback
+                console.warn('fetchTours: Invalid response format', response);
+            }
+
+            if (tourFilters.page && tourFilters.page > 1) {
+                set({ tours: [...tours, ...newTours], loadingTours: false });
+            } else {
+                set({ tours: newTours, loadingTours: false });
             }
         } catch (error: any) {
             set({ errorTours: error.message || 'Failed to fetch tours', loadingTours: false });
@@ -114,9 +124,13 @@ export const useStore = create<StoreState>((set, get) => ({
 
             const results = await Promise.all(promises);
             const activeTours = results[0];
-            const tours = shouldFetchTours ? results[1] : state.tours;
+            let toursData = shouldFetchTours ? results[1] : state.tours;
 
-            set({ tours, activeTours, loadingTours: false, loadingActiveTours: false });
+            if (shouldFetchTours && toursData && !Array.isArray(toursData) && toursData.data && Array.isArray(toursData.data)) {
+                toursData = toursData.data;
+            }
+
+            set({ tours: toursData, activeTours, loadingTours: false, loadingActiveTours: false });
         } catch (error: any) {
             console.error("Failed to fetch all data", error);
             set({

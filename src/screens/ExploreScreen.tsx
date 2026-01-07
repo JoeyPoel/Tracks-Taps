@@ -194,7 +194,7 @@ export default function ExploreScreen() {
           return renderTourItem(item, false);
         }}
         onEndReached={() => {
-          if (!loading && tours.length >= (tourFilters.limit || 20) && !showSkeleton) {
+          if (!loading && !showSkeleton && tours.length >= (tourFilters.limit || 20)) {
             setTourFilters({ ...tourFilters, page: (tourFilters.page || 1) + 1 });
           }
         }}

@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import React, { useState } from 'react';
-import { Image, LayoutAnimation, Platform, ScrollView, StyleSheet, TouchableOpacity, UIManager, View } from 'react-native';
+import { LayoutAnimation, Platform, ScrollView, StyleSheet, TouchableOpacity, UIManager, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { TextComponent } from '../common/TextComponent'; // Added import
@@ -170,6 +171,21 @@ export default function TourReviews({ reviews, averageRating, totalReviews }: To
                             <TextComponent style={styles.comment} color={theme.textPrimary} variant="body">
                                 {review.comment}
                             </TextComponent>
+
+                            {review.images && review.images.length > 0 && (
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imagesContainer}>
+                                    {review.images.map((img, index) => (
+                                        <TouchableOpacity key={index} activeOpacity={0.9} onPress={() => { /* Handle maximize? */ }}>
+                                            <Image
+                                                source={{ uri: img }}
+                                                style={styles.reviewImage}
+                                                contentFit="cover"
+                                                transition={300}
+                                            />
+                                        </TouchableOpacity>
+                                    ))}
+                                </ScrollView>
+                            )}
                         </View>
                     ))}
 
@@ -292,5 +308,16 @@ const styles = StyleSheet.create({
     },
     showMoreText: {
         // handled
+    },
+    imagesContainer: {
+        marginTop: 12,
+        flexDirection: 'row',
+    },
+    reviewImage: {
+        width: 80,
+        height: 80,
+        borderRadius: 12,
+        marginRight: 8,
+        backgroundColor: '#f0f0f0',
     }
 });

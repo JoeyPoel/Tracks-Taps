@@ -1,4 +1,5 @@
 import { prisma } from '../../src/lib/prisma';
+import { paginate } from '../utils/pagination';
 
 export const savedTripsRepository = {
     async create(userId: number, name: string) {
@@ -13,25 +14,33 @@ export const savedTripsRepository = {
         });
     },
 
-    async findByUserId(userId: number) {
-        return prisma.tourList.findMany({
-            where: { userId },
-            select: {
-                id: true,
-                name: true,
-                updatedAt: true,
-                userId: true,
-                tourOrder: true,
-                tours: {
-                    select: {
-                        id: true,
-                        title: true,
-                        imageUrl: true
+    async findByUserId(userId: number, page: number = 1, limit: number = 10) {
+        return paginate(
+            prisma.tourList,
+            {
+                where: { userId },
+                select: {
+                    id: true,
+                    name: true,
+                    updatedAt: true,
+                    userId: true,
+                    tourOrder: true,
+                    tours: {
+                        take: 4,
+                        select: {
+                            id: true,
+                            imageUrl: true
+                        }
+                    },
+                    _count: {
+                        select: { tours: true }
                     }
-                }
+                },
+                orderBy: { updatedAt: 'desc' },
             },
-            orderBy: { updatedAt: 'desc' },
-        });
+            page,
+            limit
+        );
     },
 
     async findById(id: number) {

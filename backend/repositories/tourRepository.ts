@@ -1,4 +1,5 @@
 import { prisma } from '../../src/lib/prisma';
+import { paginate } from '../utils/pagination';
 
 import { Prisma } from '@prisma/client';
 import { TourFilters } from '../../src/types/filters';
@@ -68,35 +69,39 @@ export const tourRepository = {
 
         const page = filters.page && filters.page > 0 ? filters.page : 1;
         const limit = filters.limit && filters.limit > 0 ? filters.limit : 20;
-        const skip = (page - 1) * limit;
 
-        const tours = await prisma.tour.findMany({
-            where,
-            orderBy,
-            skip,
-            take: limit,
-            select: {
-                id: true,
-                title: true,
-                location: true,
-                imageUrl: true,
-                distance: true,
-                duration: true,
-                points: true,
-                modes: true,
-                difficulty: true,
-                status: true,
-                type: true,
-                genre: true,
-                createdAt: true,
-                author: {
-                    select: { name: true, avatarUrl: true },
-                },
-                _count: {
-                    select: { stops: true },
+        const result = await paginate<any, Prisma.TourFindManyArgs>(
+            prisma.tour,
+            {
+                where,
+                orderBy,
+                select: {
+                    id: true,
+                    title: true,
+                    location: true,
+                    imageUrl: true,
+                    distance: true,
+                    duration: true,
+                    points: true,
+                    modes: true,
+                    difficulty: true,
+                    status: true,
+                    type: true,
+                    genre: true,
+                    createdAt: true,
+                    author: {
+                        select: { name: true, avatarUrl: true },
+                    },
+                    _count: {
+                        select: { stops: true },
+                    },
                 },
             },
-        });
+            page,
+            limit
+        );
+
+        const tours = result.data;
 
         // 2. Fetch Average Ratings efficiently
         const tourIds = tours.map(t => t.id);
@@ -114,16 +119,20 @@ export const tourRepository = {
         });
 
         // 3. Merge data
-        return tours.map(tour => {
+        const data = tours.map(tour => {
             const ratingData = ratings.find(r => r.tourId === tour.id);
             return {
                 ...tour,
                 averageRating: ratingData?._avg.rating || 0,
                 reviewCount: ratingData?._count.rating || 0,
-                // Backwards compatibility if frontend expects array
                 reviews: ratingData?._avg.rating ? [{ rating: ratingData._avg.rating }] : []
             };
         });
+
+        return {
+            data,
+            meta: result.meta
+        };
     },
 
     async getTourById(id: number) {
@@ -189,6 +198,7 @@ export const tourRepository = {
                         content: true,
                         rating: true,
                         createdAt: true,
+                        photos: true,
                         author: {
                             select: {
                                 name: true,

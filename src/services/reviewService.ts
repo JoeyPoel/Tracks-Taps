@@ -12,8 +12,8 @@ export const reviewService = {
         return response.data;
     },
 
-    async getReviewsForTour(tourId: number) {
-        const response = await client.get(`/reviews?tourId=${tourId}`);
+    async getReviewsForTour(tourId: number, page: number = 1, limit: number = 10) {
+        const response = await client.get(`/reviews?tourId=${tourId}&page=${page}&limit=${limit}`);
         return response.data;
     }
 };

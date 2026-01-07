@@ -6,13 +6,15 @@ export const userController = {
         const email = searchParams.get('email');
         const userId = searchParams.get('userId');
         const type = searchParams.get('type');
+        const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
+        const limit = searchParams.get('limit') ? Number(searchParams.get('limit')) : 20;
 
         try {
             if (userId && type === 'played') {
-                const tours = await userService.getUserPlayedTours(parseInt(userId));
+                const tours = await userService.getUserPlayedTours(parseInt(userId), page, limit);
                 return Response.json(tours);
             } else if (userId && type === 'created') {
-                const tours = await userService.getUserCreatedTours(parseInt(userId));
+                const tours = await userService.getUserCreatedTours(parseInt(userId), page, limit);
                 return Response.json(tours);
             }
 

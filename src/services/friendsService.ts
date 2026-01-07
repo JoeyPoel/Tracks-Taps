@@ -15,8 +15,8 @@ export interface FriendRequest {
 }
 
 export const friendService = {
-    async getFriends(): Promise<Friend[]> {
-        const response = await client.get('/friends');
+    async getFriends(page: number = 1, limit: number = 10): Promise<any> {
+        const response = await client.get(`/friends?page=${page}&limit=${limit}`);
         return response.data;
     },
 

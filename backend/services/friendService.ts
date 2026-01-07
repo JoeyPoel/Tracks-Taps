@@ -1,24 +1,29 @@
 import { friendRepository } from '../repositories/friendRepository';
-import { achievementService } from './achievementService';
 import { userRepository } from '../repositories/userRepository';
+import { achievementService } from './achievementService';
 
 export const friendService = {
-    async getFriends(email: string) {
+    async getFriends(email: string, page: number = 1, limit: number = 10) {
         const user = await userRepository.getUserByEmail(email);
         if (!user) {
             throw new Error('User not found');
         }
 
-        const friendships = await friendRepository.findFriendships(user.id);
+        const result = await friendRepository.findFriendships(user.id, page, limit);
 
         // Map to a list of "Friend" objects (the other person)
-        return friendships.map(f => {
+        const friends = result.data.map(f => {
             if (f.requesterId === user.id) {
                 return f.addressee;
             } else {
                 return f.requester;
             }
         });
+
+        return {
+            data: friends,
+            meta: result.meta
+        };
     },
 
     async getRequests(email: string) {
