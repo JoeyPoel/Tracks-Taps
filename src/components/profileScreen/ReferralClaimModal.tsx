@@ -1,12 +1,10 @@
 import { TextComponent } from '@/src/components/common/TextComponent';
 import { useLanguage } from '@/src/context/LanguageContext';
-import * as Clipboard from 'expo-clipboard';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { CheckIcon, ClipboardDocumentIcon, GiftIcon, TicketIcon } from 'react-native-heroicons/outline';
-import client from '../../api/apiClient';
 import { useTheme } from '../../context/ThemeContext';
-import { useUserContext } from '../../context/UserContext';
+import { useReferral } from '../../hooks/useReferral';
 import { AnimatedButton } from '../common/AnimatedButton';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 import { AppModal } from '../common/AppModal';
@@ -19,50 +17,29 @@ interface ReferralClaimModalProps {
 export default function ReferralClaimModal({ visible, onClose }: ReferralClaimModalProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
-    const { user, refreshUser } = useUserContext();
 
     const [code, setCode] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState(false);
-    const [copied, setCopied] = useState(false);
 
-    const handleCopy = async () => {
-        if (user?.referralCode) {
-            await Clipboard.setStringAsync(user.referralCode);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        }
-    };
+    const {
+        claimReferral,
+        copyReferralCode,
+        resetReferralState,
+        clearError,
+        loading,
+        error,
+        success,
+        copied,
+        userReferralCode
+    } = useReferral();
 
     const handleClaim = async () => {
-        if (!code.trim()) return;
-        setLoading(true);
-        setError('');
-
-        try {
-            const response = await client.post('/user', {
-                action: 'claim-referral',
-                userId: user?.id,
-                code: code.trim().toUpperCase() // Normalize
-            });
-
-            if (response.data.error) {
-                setError(response.data.error);
-            } else {
-                setSuccess(true);
-                await refreshUser();
-                setTimeout(() => {
-                    onClose();
-                    setSuccess(false);
-                    setCode('');
-                }, 1500);
-            }
-        } catch (err: any) {
-            console.error('Claim error:', err);
-            setError(err.response?.data?.error || t('referralError'));
-        } finally {
-            setLoading(false);
+        const isSuccess = await claimReferral(code);
+        if (isSuccess) {
+            setTimeout(() => {
+                onClose();
+                resetReferralState();
+                setCode('');
+            }, 1500);
         }
     };
 
@@ -73,7 +50,7 @@ export default function ReferralClaimModal({ visible, onClose }: ReferralClaimMo
             title={t('claimReferral')}
             icon={<TicketIcon size={24} color={theme.accent} />}
             subtitle={t('enterReferralCode')}
-            height="70%"
+            height="60%"
         >
             <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
                 {success ? (
@@ -93,7 +70,7 @@ export default function ReferralClaimModal({ visible, onClose }: ReferralClaimMo
                                 value={code}
                                 onChangeText={(text) => {
                                     setCode(text);
-                                    setError('');
+                                    clearError();
                                 }}
                                 keyboardType="number-pad"
                             />
@@ -114,19 +91,19 @@ export default function ReferralClaimModal({ visible, onClose }: ReferralClaimMo
                             style={styles.button}
                         />
 
-                        {user?.referralCode && (
+                        {userReferralCode && (
                             <View style={[styles.dividerContainer, { borderTopColor: theme.borderPrimary }]}>
                                 <TextComponent style={styles.dividerText} color={theme.textSecondary} variant="caption">
                                     {t('orShareYourCode')}
                                 </TextComponent>
                                 <AnimatedPressable
                                     style={[styles.shareContainer, { backgroundColor: theme.bgTertiary }]}
-                                    onPress={handleCopy}
+                                    onPress={copyReferralCode}
                                 >
                                     <View>
                                         <TextComponent style={styles.shareLabel} color={theme.textSecondary} variant="caption">{t('yourCode')}</TextComponent>
                                         <TextComponent style={styles.shareCode} color={theme.textPrimary} bold variant="h3">
-                                            {user.referralCode.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3')}
+                                            {userReferralCode.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3')}
                                         </TextComponent>
                                     </View>
                                     <View style={[styles.copyButton, { backgroundColor: theme.bgSecondary }]}>
@@ -146,6 +123,7 @@ const styles = StyleSheet.create({
     container: {
         paddingBottom: 40,
         gap: 20, // Add gap for general spacing
+        flexGrow: 1,
     },
     inputContainer: {
         borderRadius: 16,
@@ -179,7 +157,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     dividerContainer: {
-        marginTop: 32, // More space before divider
+        marginTop: 'auto', // Push to bottom
         paddingTop: 32,
         borderTopWidth: 1,
         alignItems: 'center',
