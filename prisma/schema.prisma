@@ -67,7 +67,7 @@ model User {
   referralCount Int @default(0)
 
   referredBy Int?
-
+  referrer   User?  @relation("UserReferrals", fields: [referredBy], references: [id])
   referrals  User[] @relation("UserReferrals")
 
   createdAt DateTime @default(now())

@@ -31,7 +31,7 @@ export const activeTourService = {
         const tour = await tourRepository.getTourById(tourId);
         if (!tour) throw new Error("Tour not found");
 
-        if (tour.authorId !== userId) {
+        if (tour.author.id !== userId) {
             // Deduct 1 token for playing a tour IF not author
             await userRepository.deductTokens(userId, 1);
         }

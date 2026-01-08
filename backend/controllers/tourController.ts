@@ -222,5 +222,24 @@ export const tourController = {
             // Handle validation errors from Prisma
             return Response.json({ error: 'Failed to create tour', details: error.message }, { status: 500 });
         }
+    },
+
+    async createTourByJson(request: Request, userId: number) {
+        try {
+            const data = await request.json();
+
+            // Minimal validation - let the Service/Repository handle the schema mapping
+            if (!data.title || !data.location) {
+                return Response.json({ error: 'Invalid JSON: Missing title or location' }, { status: 400 });
+            }
+
+            const createdTour = await tourService.createTourByJson(data, userId);
+
+            return Response.json(createdTour, { status: 201 });
+
+        } catch (error: any) {
+            console.error('Error creating tour by JSON:', error);
+            return Response.json({ error: 'Failed to create tour from JSON', details: error.message }, { status: 500 });
+        }
     }
 };

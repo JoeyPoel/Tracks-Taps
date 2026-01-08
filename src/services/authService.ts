@@ -37,6 +37,8 @@ export const AuthService = {
             GoogleSignin.configure({
                 scopes: ['email', 'profile'],
                 webClientId: webClientId,
+                offlineAccess: true,
+                forceCodeForRefreshToken: true,
             });
         } catch (error) {
             console.warn('Google Signin configure failed (likely missing native module):', error);
@@ -45,9 +47,11 @@ export const AuthService = {
 
     signInWithGoogle: async () => {
         try {
-            await GoogleSignin.hasPlayServices();
+            if (process.env.EXPO_OS === 'android') {
+                await GoogleSignin.hasPlayServices();
+            }
             const userInfo = await GoogleSignin.signIn();
-            console.log("Google Sign-In Response:", JSON.stringify(userInfo, null, 2));
+            console.log("Google Sign-In successful");
 
             // Depending on the version of @react-native-google-signin/google-signin,
             // idToken might be directly on userInfo or nested.

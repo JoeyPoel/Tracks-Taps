@@ -250,4 +250,18 @@ export const tourRepository = {
             },
         });
     },
+
+    async createTourByJson(data: Prisma.TourCreateInput) {
+        return await prisma.tour.create({
+            data,
+            include: {
+                stops: {
+                    include: {
+                        challenges: true
+                    }
+                },
+                challenges: true
+            }
+        });
+    },
 };
