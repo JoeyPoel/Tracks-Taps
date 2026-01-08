@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "135339006032",
+    "project_id": "tracks-taps-db8d1",
+    "storage_bucket": "tracks-taps-db8d1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:135339006032:android:d05571212d685242ffd955",
+        "android_client_info": {
+          "package_name": "com.joeypoel.trackstaps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "135339006032-ljs3adjblcqcb25olkpbiqdst7d1g7qn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.joeypoel.trackstaps",
+            "certificate_hash": "a33e09df025ad2134990ea32efb5d804683eac89"
+          }
+        },
+        {
+          "client_id": "135339006032-og8g0v7dd0h38lqi3g5g86opkmr21q3l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCFX08_VRrObsuBvC3lBLzPfMkASoiNkk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "135339006032-og8g0v7dd0h38lqi3g5g86opkmr21q3l.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "135339006032-7pf4smvcht4pj54tu2s03mn0b887jpru.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.joeypoel.trackstaps"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
