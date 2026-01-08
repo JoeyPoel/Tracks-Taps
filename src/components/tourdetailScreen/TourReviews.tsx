@@ -1,3 +1,4 @@
+import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React, { useState } from 'react';
@@ -154,7 +155,7 @@ export default function TourReviews({ reviews, averageRating, totalReviews }: To
                             style={[styles.reviewCard, { backgroundColor: theme.bgSecondary }]}
                         >
                             <View style={styles.reviewHeader}>
-                                <Image source={{ uri: review.userAvatar }} style={styles.avatar} />
+                                <Image source={{ uri: getOptimizedImageUrl(review.userAvatar, 40) }} style={styles.avatar} cachePolicy="disk" />
                                 <View style={styles.userInfo}>
                                     <TextComponent style={styles.userName} color={theme.textPrimary} bold variant="body">
                                         {review.userName}
@@ -177,9 +178,10 @@ export default function TourReviews({ reviews, averageRating, totalReviews }: To
                                     {review.images.map((img, index) => (
                                         <TouchableOpacity key={index} activeOpacity={0.9} onPress={() => { /* Handle maximize? */ }}>
                                             <Image
-                                                source={{ uri: img }}
+                                                source={{ uri: getOptimizedImageUrl(img, 200) }}
                                                 style={styles.reviewImage}
                                                 contentFit="cover"
+                                                cachePolicy="disk"
                                                 transition={300}
                                             />
                                         </TouchableOpacity>

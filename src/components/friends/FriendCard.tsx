@@ -1,9 +1,11 @@
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
+import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 interface FriendCardProps {
     friend: any;
@@ -26,8 +28,10 @@ export function FriendCard({ friend }: FriendCardProps) {
         >
             <View style={styles.innerContainer}>
                 <Image
-                    source={friend.avatarUrl ? { uri: friend.avatarUrl } : require('../../../assets/images/Mascott.png')}
+                    source={friend.avatarUrl ? { uri: getOptimizedImageUrl(friend.avatarUrl, 100) } : require('../../../assets/images/Mascott.png')}
                     style={[styles.avatar, { backgroundColor: theme.bgSecondary }]}
+                    contentFit="cover"
+                    cachePolicy="disk"
                 />
 
                 <View style={styles.content}>

@@ -1,9 +1,11 @@
 import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useTheme } from '@/src/context/ThemeContext';
 import { TourDraft } from '@/src/hooks/useCreateTour';
+import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { ImageBackground, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { PencilSquareIcon } from 'react-native-heroicons/solid';
 
 interface Props {
@@ -13,7 +15,13 @@ interface Props {
 export function ReviewCardHeader({ draft }: Props) {
     const { theme } = useTheme();
     return (
-        <ImageBackground source={{ uri: draft.imageUrl }} style={styles.imageBackground}>
+        <View style={styles.imageBackground}>
+            <Image
+                source={{ uri: getOptimizedImageUrl(draft.imageUrl, 600) }}
+                style={StyleSheet.absoluteFill}
+                contentFit="cover"
+                cachePolicy="disk"
+            />
             <LinearGradient
                 colors={['transparent', theme.overlay]}
                 style={styles.gradient}
@@ -42,7 +50,7 @@ export function ReviewCardHeader({ draft }: Props) {
                     </View>
                 )}
             </LinearGradient>
-        </ImageBackground>
+        </View>
     );
 }
 

@@ -1,4 +1,5 @@
-import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
+import { TextComponent } from '@/src/components/common/TextComponent';
+import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,13 +18,14 @@ export const LobbyTourInfo: React.FC<LobbyTourInfoProps> = ({ activeTour }) => {
     const { t } = useLanguage();
 
     const imageUrl = activeTour?.tour?.imageUrl;
+    const optimizedUrl = getOptimizedImageUrl(imageUrl, 600);
 
     return (
         <Animated.View entering={FadeInUp.delay(100).springify()} style={[styles.tourCard, { backgroundColor: theme.bgSecondary }]}>
             {imageUrl ? (
                 <View style={styles.imageContainer}>
                     <Image
-                        source={{ uri: imageUrl }}
+                        source={{ uri: optimizedUrl }}
                         style={styles.tourImage}
                         contentFit="cover"
                         transition={200}

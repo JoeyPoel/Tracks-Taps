@@ -2,9 +2,11 @@ import { GenericCard } from '@/src/components/common/GenericCard';
 import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
+import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 interface SelectableFriendCardProps {
     friend: any;
@@ -31,7 +33,12 @@ export function SelectableFriendCard({ friend, isSelected, onToggle }: Selectabl
             padding="medium"
         >
             <View style={styles.innerContainer}>
-                <Image source={friend.avatarUrl ? { uri: friend.avatarUrl } : require('../../../assets/images/Mascott.png')} style={styles.avatar} />
+                <Image
+                    source={friend.avatarUrl ? { uri: getOptimizedImageUrl(friend.avatarUrl, 100) } : require('../../../assets/images/Mascott.png')}
+                    style={styles.avatar}
+                    contentFit="cover"
+                    cachePolicy="disk"
+                />
                 <View style={{ flex: 1 }}>
                     <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">
                         {friend.name}

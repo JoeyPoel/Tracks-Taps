@@ -1,6 +1,8 @@
+import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { PencilIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -34,8 +36,10 @@ export default function UserProfileCard({
             {/* Avatar Section */}
             <View style={styles.avatarWrapper}>
                 <Image
-                    source={avatarUrl ? { uri: avatarUrl } : require('../../../assets/images/Mascott.png')}
+                    source={avatarUrl ? { uri: getOptimizedImageUrl(avatarUrl, 200) } : require('../../../assets/images/Mascott.png')}
                     style={[styles.avatar, { borderColor: theme.bgSecondary }]}
+                    contentFit="cover"
+                    cachePolicy="disk"
                 />
 
                 {onEditPress && (

@@ -1,3 +1,4 @@
+import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -94,9 +95,10 @@ export default function TourGallery({ images }: TourGalleryProps) {
                             style={styles.imageWrapper}
                         >
                             <Image
-                                source={{ uri: img }}
+                                source={{ uri: getOptimizedImageUrl(img, 200) }}
                                 style={styles.image}
                                 contentFit="cover"
+                                cachePolicy="disk"
                                 transition={200}
                             />
                             <LinearGradient
@@ -144,12 +146,13 @@ export default function TourGallery({ images }: TourGalleryProps) {
                                     alignItems: 'center',
                                 }}>
                                     <Image
-                                        source={{ uri: item }}
+                                        source={{ uri: getOptimizedImageUrl(item, 800) }}
                                         style={{
                                             width: windowWidth,
                                             height: windowHeight,
                                         }}
                                         contentFit="contain"
+                                        cachePolicy="disk"
                                     />
                                 </View>
                             )}

@@ -1,11 +1,12 @@
+import { uploadOptimizedImage } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Image, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
 import ActiveChallengeCard from '../ActiveChallengeCard';
-import { uploadOptimizedImage } from '@/src/utils/imageUtils';
 
 interface PictureChallengeProps {
     challenge: any;
@@ -95,7 +96,12 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
                 {(imageUri || isCompleted) && !uploading && (
                     <View style={styles.placeholderImage}>
                         {imageUri ? (
-                            <Image source={{ uri: imageUri }} style={styles.previewImage} />
+                            <Image
+                                source={{ uri: imageUri }}
+                                style={styles.previewImage}
+                                contentFit="cover"
+                                cachePolicy="disk"
+                            />
                         ) : (
                             <View style={{ alignItems: 'center' }}>
                                 <Ionicons name="checkmark-circle" size={40} color={theme.success} />

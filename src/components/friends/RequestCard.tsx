@@ -1,8 +1,10 @@
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
+import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import React from 'react';
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 interface RequestCardProps {
     request: any;
@@ -21,8 +23,10 @@ export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) 
         <GenericCard style={styles.container} padding="small">
             <View style={styles.userInfo}>
                 <Image
-                    source={request.requester.avatarUrl ? { uri: request.requester.avatarUrl } : require('../../../assets/images/Mascott.png')}
+                    source={request.requester.avatarUrl ? { uri: getOptimizedImageUrl(request.requester.avatarUrl, 100) } : require('../../../assets/images/Mascott.png')}
                     style={styles.avatar}
+                    contentFit="cover"
+                    cachePolicy="disk"
                 />
                 <View style={styles.textContainer}>
                     <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">

@@ -1,9 +1,11 @@
 import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
+import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as StoreReview from 'expo-store-review';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ImageBackground, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import Confetti from '../components/active-tour/animations/Confetti';
 import { AnimatedButton } from '../components/common/AnimatedButton';
@@ -173,18 +175,21 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
             {/* Top Image with Fade or Fallback Gradient */}
             <View style={styles.headerImageContainer}>
                 {activeTour.tour?.imageUrl ? (
-                    <ImageBackground
-                        source={{ uri: activeTour.tour?.imageUrl }}
-                        style={styles.headerImage}
-                        resizeMode="cover"
-                    >
+                    <View style={styles.headerImage}>
+                        <Image
+                            source={{ uri: getOptimizedImageUrl(activeTour.tour?.imageUrl, 800) }}
+                            style={StyleSheet.absoluteFill}
+                            contentFit="cover"
+                            cachePolicy="disk"
+                            transition={500}
+                        />
                         <LinearGradient
                             colors={['transparent', theme.bgPrimary]}
                             style={styles.gradientOverlay}
                             start={{ x: 0.5, y: 0.3 }}
                             end={{ x: 0.5, y: 1 }}
                         />
-                    </ImageBackground>
+                    </View>
                 ) : (
                     <LinearGradient
                         colors={[theme.secondary, theme.primary]}

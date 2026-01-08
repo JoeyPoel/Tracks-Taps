@@ -2,8 +2,9 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useImageUploader } from '@/src/hooks/useImageUploader';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import React from 'react';
-import { ActivityIndicator, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { TextComponent } from './TextComponent';
 
 interface ImageUploaderProps {
@@ -44,7 +45,12 @@ export function ImageUploader({
 
     const renderStandard = () => (
         <View style={[styles.previewContainer, styles.standardContainer]}>
-            <Image source={{ uri: image! }} style={styles.image} />
+            <Image
+                source={{ uri: image! }}
+                style={styles.image}
+                contentFit="cover"
+                cachePolicy="disk"
+            />
             {uploading && (
                 <View style={[styles.loadingOverlay, { backgroundColor: 'rgba(0,0,0,0.4)' }]}>
                     <ActivityIndicator color={theme.primary} size="large" />
@@ -70,7 +76,12 @@ export function ImageUploader({
     const renderAvatar = () => (
         <View style={{ alignItems: 'center', gap: 12 }}>
             <View style={[styles.previewContainer, styles.avatarContainer]}>
-                <Image source={{ uri: image! }} style={styles.avatarImage} />
+                <Image
+                    source={{ uri: image! }}
+                    style={styles.avatarImage}
+                    contentFit="cover"
+                    cachePolicy="disk"
+                />
                 {uploading && (
                     <View style={[styles.loadingOverlay, { backgroundColor: 'rgba(0,0,0,0.4)' }]}>
                         <ActivityIndicator color={theme.primary} size="large" />

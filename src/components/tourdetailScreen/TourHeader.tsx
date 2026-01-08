@@ -1,7 +1,9 @@
 import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
+import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { ImageBackground, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -23,8 +25,18 @@ export default function TourHeader({ title, author, imageUrl, genre, onMapPress 
     const { t } = useLanguage();
     const GenreIcon = genre ? getGenreIcon(genre) : null;
 
+    // Optimize hero image (width 800 for high quality on retina)
+    const optimizedUrl = getOptimizedImageUrl(imageUrl, 800);
+
     return (
-        <ImageBackground source={{ uri: imageUrl }} style={styles.background}>
+        <View style={styles.background}>
+            <Image
+                source={{ uri: optimizedUrl }}
+                style={StyleSheet.absoluteFill}
+                contentFit="cover"
+                cachePolicy="disk"
+                transition={300}
+            />
             <LinearGradient
                 colors={['transparent', 'rgba(0,0,0,0.8)']}
                 style={styles.gradient}
@@ -54,7 +66,7 @@ export default function TourHeader({ title, author, imageUrl, genre, onMapPress 
                     )}
                 </View>
             </LinearGradient>
-        </ImageBackground>
+        </View>
     );
 }
 

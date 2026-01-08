@@ -1,9 +1,11 @@
 import { TextComponent } from '@/src/components/common/TextComponent';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
+import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { ImageBackground, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 interface PostTourHeaderProps {
     imageUrl?: string;
@@ -16,18 +18,21 @@ export default function PostTourHeader({ imageUrl }: PostTourHeaderProps) {
     return (
         <View style={styles.container}>
             {imageUrl ? (
-                <ImageBackground
-                    source={{ uri: imageUrl }}
-                    style={styles.imageBackground}
-                    resizeMode="cover"
-                >
+                <View style={styles.imageBackground}>
+                    <Image
+                        source={{ uri: getOptimizedImageUrl(imageUrl, 800) }}
+                        style={StyleSheet.absoluteFill}
+                        contentFit="cover"
+                        cachePolicy="disk"
+                        transition={300}
+                    />
                     <LinearGradient
                         colors={['transparent', theme.bgPrimary]}
                         style={styles.gradientOverlay}
                         start={{ x: 0.5, y: 0.3 }}
                         end={{ x: 0.5, y: 1 }}
                     />
-                </ImageBackground>
+                </View>
             ) : (
                 <LinearGradient
                     colors={[theme.secondary, theme.primary]}
@@ -45,7 +50,7 @@ export default function PostTourHeader({ imageUrl }: PostTourHeaderProps) {
                     {t('waitingForTeams')}
                 </TextComponent>
             </View>
-        </View>
+        </View >
     );
 }
 

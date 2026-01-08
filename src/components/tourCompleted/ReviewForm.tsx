@@ -1,9 +1,9 @@
 import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
-import { uploadImage } from '@/src/services/imageService';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Image, Modal, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -52,7 +52,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
 
             if (!result.canceled && result.assets[0].uri) {
                 setUploading(true);
-                const publicUrl = await uploadImage(result.assets[0].uri, 'images', 'reviews');
+                const publicUrl = await uploadOptimizedImage(result.assets[0].uri, 'images', 'reviews');
                 setPhotos([...photos, publicUrl]);
             }
         } catch (error) {
@@ -158,7 +158,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                             {photos.map((uri, index) => (
                                 <Animated.View key={index} entering={FadeInDown.springify()}>
                                     <View style={styles.photoItem}>
-                                        <Image source={{ uri }} style={styles.photo} />
+                                        <Image source={{ uri }} style={styles.photo} contentFit="cover" />
                                         <AnimatedPressable
                                             style={[styles.deletePhotoBtn, { backgroundColor: theme.error }]}
                                             onPress={() => removePhoto(index)}

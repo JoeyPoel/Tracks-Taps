@@ -43,13 +43,32 @@ export default function SavedTripsScreen() {
                     <View style={styles.imageContainer}>
                         {thumbnails.length > 0 ? (
                             thumbnails.length === 1 ? (
-                                <Image source={{ uri: thumbnails[0] }} style={styles.singleImage} contentFit="cover" />
+                                <Image
+                                    source={{ uri: thumbnails[0] }}
+                                    style={styles.singleImage}
+                                    contentFit="cover"
+                                    cachePolicy="disk"
+                                    transition={200}
+                                />
                             ) : (
                                 <View style={styles.collage}>
-                                    <Image source={{ uri: thumbnails[0] }} style={styles.collageMain} contentFit="cover" />
+                                    <Image
+                                        source={{ uri: thumbnails[0] }}
+                                        style={styles.collageMain}
+                                        contentFit="cover"
+                                        cachePolicy="disk"
+                                        transition={200}
+                                    />
                                     <View style={styles.collageSide}>
                                         {thumbnails.slice(1).map((uri: string, i: number) => (
-                                            <Image key={i} source={{ uri }} style={styles.collageSmall} contentFit="cover" />
+                                            <Image
+                                                key={i}
+                                                source={{ uri }}
+                                                style={styles.collageSmall}
+                                                contentFit="cover"
+                                                cachePolicy="disk"
+                                                transition={200}
+                                            />
                                         ))}
                                     </View>
                                 </View>

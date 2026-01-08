@@ -1,8 +1,10 @@
 import { StopType } from '@/src/types/models';
+import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
 import { getStopIcon } from '@/src/utils/stopIcons';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { TextComponent } from '../common/TextComponent'; // Added import
@@ -25,8 +27,10 @@ export default function StopInfoSection({ stop }: StopInfoSectionProps) {
             {stop.imageUrl ? (
                 <View style={styles.imageContainer}>
                     <Image
-                        source={{ uri: stop.imageUrl }}
-                        resizeMode="contain"
+                        source={{ uri: getOptimizedImageUrl(stop.imageUrl, 600) }}
+                        contentFit="cover"
+                        cachePolicy="disk"
+                        transition={200}
                         style={[styles.image, { backgroundColor: theme.bgSecondary }]}
                     />
                     <LinearGradient

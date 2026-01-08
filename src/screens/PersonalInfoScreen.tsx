@@ -160,7 +160,7 @@ export default function PersonalInfoScreen() {
                                 value={name}
                                 onChange={setName}
                                 placeholder={t('name')}
-                                maxLength={50}
+                                maxLength={25}
                             />
                         </View>
 

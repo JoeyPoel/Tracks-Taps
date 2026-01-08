@@ -1,10 +1,8 @@
-import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
   Cog6ToothIcon,
-  DocumentDuplicateIcon,
   DocumentTextIcon,
   EnvelopeIcon,
   HeartIcon,
@@ -114,19 +112,7 @@ export default function ProfileScreen() {
               title={t('enterReferralCode') || 'Enter Referral Code'}
               onPress={() => setShowReferralModal(true)}
             />
-            {user?.referralCode && (
-              <SettingsItem
-                icon={<DocumentDuplicateIcon size={22} color={theme.primary} />}
-                title={t('yourCode') || 'Your Referral Code'}
-                rightElement={
-                  <Text style={{ color: theme.textSecondary, fontSize: 14 }}>{user.referralCode}</Text>
-                }
-                onPress={async () => {
-                  await Clipboard.setStringAsync(user.referralCode!);
-                  Alert.alert(t('success') || 'Success', t('referralCodeCopied') || 'Referral code copied to clipboard!');
-                }}
-              />
-            )}
+
             <SettingsItem
               icon={<UserIcon size={22} color={theme.primary} />}
               title={t('personalInfo')}
@@ -155,7 +141,7 @@ export default function ProfileScreen() {
             <SettingsItem
               icon={<QuestionMarkCircleIcon size={22} color={theme.primary} />}
               title={t('faq')}
-              onPress={() => console.log('FAQ pressed')}
+              onPress={() => router.push('/profile/faq')}
               showBorder={false}
             />
           </View>

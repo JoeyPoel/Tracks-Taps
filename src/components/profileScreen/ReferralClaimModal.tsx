@@ -1,12 +1,14 @@
 import { TextComponent } from '@/src/components/common/TextComponent';
 import { useLanguage } from '@/src/context/LanguageContext';
+import * as Clipboard from 'expo-clipboard';
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
-import { GiftIcon, TicketIcon } from 'react-native-heroicons/outline';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { CheckIcon, ClipboardDocumentIcon, GiftIcon, TicketIcon } from 'react-native-heroicons/outline';
 import client from '../../api/apiClient';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserContext } from '../../context/UserContext';
 import { AnimatedButton } from '../common/AnimatedButton';
+import { AnimatedPressable } from '../common/AnimatedPressable';
 import { AppModal } from '../common/AppModal';
 
 interface ReferralClaimModalProps {
@@ -23,6 +25,15 @@ export default function ReferralClaimModal({ visible, onClose }: ReferralClaimMo
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = async () => {
+        if (user?.referralCode) {
+            await Clipboard.setStringAsync(user.referralCode);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    };
 
     const handleClaim = async () => {
         if (!code.trim()) return;
@@ -62,8 +73,9 @@ export default function ReferralClaimModal({ visible, onClose }: ReferralClaimMo
             title={t('claimReferral')}
             icon={<TicketIcon size={24} color={theme.accent} />}
             subtitle={t('enterReferralCode')}
+            height="70%"
         >
-            <View style={styles.container}>
+            <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
                 {success ? (
                     <View style={styles.successContainer}>
                         <GiftIcon size={48} color={theme.success} />
@@ -101,29 +113,52 @@ export default function ReferralClaimModal({ visible, onClose }: ReferralClaimMo
                             variant="primary"
                             style={styles.button}
                         />
+
+                        {user?.referralCode && (
+                            <View style={[styles.dividerContainer, { borderTopColor: theme.borderPrimary }]}>
+                                <TextComponent style={styles.dividerText} color={theme.textSecondary} variant="caption">
+                                    {t('orShareYourCode')}
+                                </TextComponent>
+                                <AnimatedPressable
+                                    style={[styles.shareContainer, { backgroundColor: theme.bgTertiary }]}
+                                    onPress={handleCopy}
+                                >
+                                    <View>
+                                        <TextComponent style={styles.shareLabel} color={theme.textSecondary} variant="caption">{t('yourCode')}</TextComponent>
+                                        <TextComponent style={styles.shareCode} color={theme.textPrimary} bold variant="h3">
+                                            {user.referralCode.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3')}
+                                        </TextComponent>
+                                    </View>
+                                    <View style={[styles.copyButton, { backgroundColor: theme.bgSecondary }]}>
+                                        {copied ? <CheckIcon size={20} color={theme.success} /> : <ClipboardDocumentIcon size={20} color={theme.primary} />}
+                                    </View>
+                                </AnimatedPressable>
+                            </View>
+                        )}
                     </>
                 )}
-            </View>
-        </AppModal>
+            </ScrollView>
+        </AppModal >
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        paddingBottom: 20,
+        paddingBottom: 40,
+        gap: 20, // Add gap for general spacing
     },
     inputContainer: {
-        borderRadius: 12,
+        borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        marginBottom: 8,
+        paddingHorizontal: 20,
+        paddingVertical: 16,
     },
     input: {
-        fontSize: 18,
+        fontSize: 22, // Larger font
         fontWeight: 'bold',
         textAlign: 'center',
-        letterSpacing: 2,
+        letterSpacing: 3,
     },
     errorText: {
         textAlign: 'center',
@@ -131,14 +166,46 @@ const styles = StyleSheet.create({
     },
     button: {
         width: '100%',
+        marginTop: 8,
     },
     successContainer: {
         alignItems: 'center',
         justifyContent: 'center',
         padding: 20,
         gap: 16,
+        flex: 1, // utilize space
     },
     successText: {
         textAlign: 'center',
+    },
+    dividerContainer: {
+        marginTop: 32, // More space before divider
+        paddingTop: 32,
+        borderTopWidth: 1,
+        alignItems: 'center',
+        width: '100%',
+        gap: 16,
+    },
+    dividerText: {
+        marginBottom: 4,
+    },
+    shareContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+        padding: 16, // More padding
+        borderRadius: 16,
+    },
+    shareLabel: {
+        marginBottom: 2,
+        fontSize: 12,
+    },
+    shareCode: {
+        letterSpacing: 1,
+    },
+    copyButton: {
+        padding: 10,
+        borderRadius: 8,
     }
 });

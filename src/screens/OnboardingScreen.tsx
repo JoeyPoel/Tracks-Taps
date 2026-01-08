@@ -134,6 +134,7 @@ export default function OnboardingScreen() {
                     >
                         <Animated.View
                             key={isLastSlide ? "start" : "next"}
+                            style={styles.textWrapper}
                             entering={FadeIn.duration(300)}
                             exiting={FadeOut.duration(300)}
                         >
@@ -190,6 +191,12 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    textWrapper: {
         position: 'absolute',
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });

@@ -1,3 +1,4 @@
+import { randomInt } from 'crypto';
 import { LevelSystem } from '../../src/utils/levelUtils';
 import { userRepository } from '../repositories/userRepository';
 
@@ -5,6 +6,13 @@ export const userService = {
     async getUserProfile(userId: number) {
         const user = await userRepository.getUserProfile(userId);
         if (user) {
+            // Check if referral code needs backfilling
+            if (!user.referralCode) {
+                const referralCode = randomInt(100000000, 1000000000).toString();
+                // We update it in the background/sync
+                await userRepository.updateUser(user.id, { referralCode });
+                user.referralCode = referralCode;
+            }
             const { _count, ...rest } = user as any;
             return {
                 ...rest,
@@ -21,6 +29,12 @@ export const userService = {
     async getUserByEmail(email: string) {
         const user = await userRepository.getUserByEmail(email);
         if (user) {
+            // Check if referral code needs backfilling
+            if (!user.referralCode) {
+                const referralCode = randomInt(100000000, 1000000000).toString();
+                await userRepository.updateUser(user.id, { referralCode });
+                user.referralCode = referralCode;
+            }
             const { _count, ...rest } = user as any;
             return {
                 ...rest,
@@ -34,11 +48,10 @@ export const userService = {
         return user;
     },
 
-    async createUserByEmail(email: string, password?: string) {
+    async createUserByEmail(email: string) {
         const user = await userRepository.createUser({
             email,
-            password,
-            name: email.split('@')[0], // Default name from email
+            name: email.split('@')[0].substring(0, 25), // Default name from email
         });
         return { ...user, level: LevelSystem.getLevel(user.xp) };
     },
@@ -58,7 +71,7 @@ export const userService = {
         return await userRepository.addTokens(userId, amount);
     },
 
-    async updateUser(userId: number, data: { name?: string; avatarUrl?: string }) {
+    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; referralCode?: string }) {
         const user = await userRepository.updateUser(userId, data);
         return { ...user, level: LevelSystem.getLevel(user.xp) };
     },

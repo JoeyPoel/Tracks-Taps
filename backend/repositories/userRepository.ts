@@ -1,13 +1,7 @@
 import { SessionStatus } from '@prisma/client';
-import { randomBytes, randomInt, scryptSync } from 'crypto';
+import { randomInt } from 'crypto';
 import { prisma } from '../../src/lib/prisma';
 import { paginate } from '../utils/pagination';
-
-const hashPassword = (password: string) => {
-    const salt = randomBytes(16).toString('hex');
-    const hashedPassword = scryptSync(password, salt, 64).toString('hex');
-    return `${salt}:${hashedPassword}`;
-};
 
 export const userRepository = {
     async getUserProfile(userId: number) {
@@ -55,14 +49,16 @@ export const userRepository = {
             }
         });
     },
-    async createUser(data: { email: string; name: string; password?: string }) {
+    async createUser(data: { email: string; name: string }) {
+        if (data.name.length > 25) {
+            throw new Error('Name cannot exceed 25 characters');
+        }
         // Generate secure 9-digit numeric code
         const referralCode = randomInt(100000000, 1000000000).toString();
         return await prisma.user.create({
             data: {
                 email: data.email,
                 name: data.name,
-                passwordHash: data.password ? hashPassword(data.password) : 'auth_handled_by_supabase',
                 xp: 0,
                 tokens: 0,
                 level: 1,
@@ -151,7 +147,10 @@ export const userRepository = {
         });
     },
 
-    async updateUser(userId: number, data: { name?: string; avatarUrl?: string }) {
+    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; referralCode?: string }) {
+        if (data.name && data.name.length > 25) {
+            throw new Error('Name cannot exceed 25 characters');
+        }
         return await prisma.user.update({
             where: { id: userId },
             data,

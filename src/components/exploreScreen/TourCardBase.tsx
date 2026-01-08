@@ -1,7 +1,9 @@
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { ImageBackground, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
+import { getOptimizedImageUrl } from '../../utils/imageUtils';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 
 interface TourCardBaseProps {
@@ -15,6 +17,9 @@ interface TourCardBaseProps {
 export function TourCardBase({ imageUrl, height = 320, onPress, children }: TourCardBaseProps) {
     const { theme } = useTheme();
 
+    // Use optimized URL with a default width of 600px (covers most phones @ 2x/3x density for this card size)
+    const optimizedUrl = getOptimizedImageUrl(imageUrl, 600);
+
     return (
         <AnimatedPressable
             onPress={onPress}
@@ -24,17 +29,23 @@ export function TourCardBase({ imageUrl, height = 320, onPress, children }: Tour
             ]}
             interactionScale="subtle"
         >
-            <ImageBackground source={{ uri: imageUrl }} style={styles.imageBackground} imageStyle={styles.imageStyle} resizeMode="cover">
-                <View style={styles.overlay} />
+            <Image
+                source={{ uri: optimizedUrl }}
+                style={StyleSheet.absoluteFill}
+                contentFit="cover"
+                cachePolicy="disk"
+                transition={200}
+            />
 
-                <LinearGradient
-                    colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.9)']}
-                    locations={[0.3, 0.6, 1]}
-                    style={styles.gradient}
-                >
-                    {children}
-                </LinearGradient>
-            </ImageBackground>
+            <View style={styles.overlay} />
+
+            <LinearGradient
+                colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.9)']}
+                locations={[0.3, 0.6, 1]}
+                style={styles.gradient}
+            >
+                {children}
+            </LinearGradient>
         </AnimatedPressable>
     );
 }
@@ -50,13 +61,7 @@ const styles = StyleSheet.create({
         shadowRadius: 12,
         elevation: 6,
     },
-    imageBackground: {
-        flex: 1,
-        justifyContent: 'space-between',
-    },
-    imageStyle: {
-        borderRadius: 24,
-    },
+    // Removed imageBackground, imageStyle since we use absolute fill Image
     overlay: {
         ...StyleSheet.absoluteFillObject,
         backgroundColor: 'rgba(0,0,0,0.15)',

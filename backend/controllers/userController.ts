@@ -82,14 +82,13 @@ export const userController = {
     async createUser(request: Request, parsedBody?: any) {
         try {
             const body = parsedBody || await request.json();
-            const { email, password } = body;
+            const { email } = body;
 
             if (!email) {
                 return Response.json({ error: 'Missing email' }, { status: 400 });
             }
 
             if (email.length > 254) return Response.json({ error: 'Email exceeds 254 characters' }, { status: 400 });
-            if (password && password.length > 100) return Response.json({ error: 'Password exceeds 100 characters' }, { status: 400 });
 
             // Check if exists first to avoid duplicate errors
             const existing = await userService.getUserByEmail(email);
@@ -97,7 +96,7 @@ export const userController = {
                 return Response.json(existing);
             }
 
-            const newUser = await userService.createUserByEmail(email, password);
+            const newUser = await userService.createUserByEmail(email);
             return Response.json(newUser);
         } catch (error) {
             console.error('Error creating user:', error);
@@ -114,7 +113,7 @@ export const userController = {
                 return Response.json({ error: 'Missing userId' }, { status: 400 });
             }
 
-            if (name && name.length > 50) return Response.json({ error: 'Name exceeds 50 characters' }, { status: 400 });
+            if (name && name.length > 25) return Response.json({ error: 'Name exceeds 25 characters' }, { status: 400 });
 
             const updatedUser = await userService.updateUser(Number(userId), { name, avatarUrl });
             return Response.json(updatedUser);
