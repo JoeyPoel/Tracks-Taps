@@ -18,7 +18,7 @@ export function TourCardBase({ imageUrl, height = 320, onPress, children }: Tour
     const { theme } = useTheme();
 
     // Use optimized URL with a default width of 600px (covers most phones @ 2x/3x density for this card size)
-    const optimizedUrl = getOptimizedImageUrl(imageUrl, 600);
+    const optimizedUrl = getOptimizedImageUrl(imageUrl, 600, { resize: 'contain' });
 
     return (
         <AnimatedPressable

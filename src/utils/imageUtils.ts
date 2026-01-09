@@ -86,7 +86,7 @@ export const uploadOptimizedImage = async (
     }
 };
 
-export const getOptimizedImageUrl = (url: string, width: number = 600): string => {
+export const getOptimizedImageUrl = (url: string, width: number = 600, options?: { height?: number, resize?: string }): string => {
     if (!url) return url;
 
     // 1. Identify if this is a Supabase Storage URL
@@ -113,7 +113,19 @@ export const getOptimizedImageUrl = (url: string, width: number = 600): string =
         // width={width}   -> specific size (e.g. 600px)
         // quality=60      -> compress to 60% quality (visually fine for mobile, huge savings)
         // resize=cover    -> ensures the image fills the dimensions without distortion
-        return `${optimizedUrl}${separator}width=${width}&quality=60`;
+        let params = `width=${width}&quality=60`;
+
+        if (options?.height) {
+            params += `&height=${options.height}`;
+        }
+
+        // Default to 'contain' if not specified to prevent server-side cropping on resize
+        // (unless height is provided, in which case we might want cover, but let caller decide)
+        if (options?.resize) {
+            params += `&resize=${options.resize}`;
+        }
+
+        return `${optimizedUrl}${separator}${params}`;
     }
 
     // Return original URL for non-Supabase images

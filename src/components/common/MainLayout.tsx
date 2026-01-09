@@ -5,9 +5,11 @@ import { useLevelUpListener } from '@/src/hooks/useLevelUpListener';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import { useTheme } from '../../context/ThemeContext';
 
 export function MainLayout() {
     const { session, loading } = useAuth();
+    const { theme } = useTheme();
     const segment = useSegments();
     const router = useRouter();
 
@@ -57,15 +59,15 @@ export function MainLayout() {
 
     if (!isReady || loading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" />
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.bgPrimary }}>
+                <ActivityIndicator size="large" color={theme.primary} />
             </View>
         );
     }
 
     return (
         <>
-            <Stack screenOptions={{ headerShown: false }}>
+            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bgPrimary } }}>
                 <Stack.Screen name="auth" options={{ headerShown: false }} />
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen name="tour" options={{ headerShown: false }} />
