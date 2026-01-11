@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect } from 'react';
-import { Dimensions, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
     Easing,
     interpolate,
@@ -30,15 +30,15 @@ export const TourLoadingScreen: React.FC<TourLoadingScreenProps> = ({
     const rotation = useSharedValue(0);
     const scale = useSharedValue(1);
     const opacity = useSharedValue(0.5);
-    const dotProgress = useSharedValue(0);
 
     useEffect(() => {
         // 1. Compass Rotation (continuous spin/adjust)
-        rotation.value = withRepeat(
-            withTiming(360, { duration: 8000, easing: Easing.linear }),
-            -1,
-            false
-        );
+        // Use a very large value to simulate infinite rotation without resetting
+        // This prevents the "jump" artifact on Web when withRepeat resets from 360 to 0
+        rotation.value = withTiming(360000, {
+            duration: 8000000, // 1000 loops * 8000ms = ~2.2 hours
+            easing: Easing.linear
+        });
 
         // 2. Pulse Effect
         scale.value = withRepeat(
@@ -49,13 +49,6 @@ export const TourLoadingScreen: React.FC<TourLoadingScreenProps> = ({
             -1,
             true
         );
-
-        // 3. Dot Progress (for traveling dots)
-        dotProgress.value = withRepeat(
-            withTiming(1, { duration: 2000, easing: Easing.linear }),
-            -1,
-            false
-        );
     }, []);
 
     const compassStyle = useAnimatedStyle(() => ({
@@ -64,7 +57,7 @@ export const TourLoadingScreen: React.FC<TourLoadingScreenProps> = ({
 
     const pulseRingStyle = useAnimatedStyle(() => {
         // Create a ripple expanding out
-        const ringScale = interpolate(scale.value, [1, 1.1], [1, 1.5]);
+        const ringScale = interpolate(scale.value, [1, 1.1], [1, 1.8]); // Increased scale
         const ringOpacity = interpolate(scale.value, [1, 1.1], [0.5, 0]);
         return {
             transform: [{ scale: ringScale }],
@@ -77,13 +70,18 @@ export const TourLoadingScreen: React.FC<TourLoadingScreenProps> = ({
         const offset = index * (360 / 3);
         const currentDeg = (rotation.value * 2 + offset) % 360;
         const rad = currentDeg * (Math.PI / 180);
-        const radius = 60; // Orbit radius
+        const radius = 85; // Increased Orbit radius
 
+        // Center is (0,0) relative to the dot's own position (because we centered it with top/left)
+        // We just need to move it OUT by radius
         const translateX = radius * Math.cos(rad);
         const translateY = radius * Math.sin(rad);
 
         return {
-            transform: [{ translateX }, { translateY }],
+            transform: [
+                { translateX: translateX },
+                { translateY: translateY }
+            ],
             opacity: 0.8
         };
     });
@@ -120,15 +118,16 @@ export const TourLoadingScreen: React.FC<TourLoadingScreenProps> = ({
                 </Animated.View>
 
                 {/* Message */}
-                <TextComponent
-                    variant="h3"
-                    color={theme.textPrimary}
-                    style={{ marginTop: 40 }}
-                    center
-                    bold
-                >
-                    {message}
-                </TextComponent>
+                <View style={styles.textContainer}>
+                    <TextComponent
+                        variant="h3"
+                        color={theme.textPrimary}
+                        center
+                        bold
+                    >
+                        {message}
+                    </TextComponent>
+                </View>
             </View>
         </Container>
     );
@@ -151,10 +150,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         position: 'relative',
-        height: 200, // Reserve space for orbit
-        width: 200,
+        height: 300, // Increased from 200
+        width: 300,  // Increased from 200 to give more orbit space
     },
     iconContainer: {
+        position: 'absolute',
+        top: 110,              // Center 80x80 in 300x300: (300-80)/2 = 110
+        left: 110,
         width: 80,
         height: 80,
         borderRadius: 40,
@@ -180,11 +182,24 @@ const styles = StyleSheet.create({
         height: 80,
         borderRadius: 40,
         borderWidth: 2,
+        // Center the pulse ring
+        top: 110,  // (300-80)/2 = 110
+        left: 110,
     },
     orbitDot: {
         position: 'absolute',
         width: 12,
         height: 12,
         borderRadius: 6,
+        // Start from center
+        top: 144,  // (300-12)/2 = 144
+        left: 144,
+    },
+    textContainer: {
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
     }
 });
