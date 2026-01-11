@@ -5,6 +5,7 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import InviteFriendsModal from '../components/common/InviteFriendsModal';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
+import { TourLoadingScreen } from '../components/common/TourLoadingScreen';
 import { TourCodeDisplay } from '../components/teamSetup/TourCodeDisplay';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
@@ -25,7 +26,7 @@ export default function PreTourLobbyScreen() {
     const activeTourId = Number(params.activeTourId);
     const [showInviteModal, setShowInviteModal] = useState(false);
 
-    const { activeTour, userTeam, loadLobbyDetails, startTour } = usePreTourLobby(activeTourId, user);
+    const { activeTour, userTeam, loading, loadLobbyDetails, startTour } = usePreTourLobby(activeTourId, user);
 
     useFocusEffect(
         useCallback(() => {
@@ -41,6 +42,10 @@ export default function PreTourLobbyScreen() {
             router.replace(`/active-tour/${activeTourId}`);
         }
     }, [activeTour?.status, activeTourId]);
+
+    if (loading) {
+        return <TourLoadingScreen message="Loading lobby..." />;
+    }
 
     return (
         <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} animateEntry={false} includeTop>

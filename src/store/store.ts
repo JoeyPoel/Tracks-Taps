@@ -64,7 +64,7 @@ export const useStore = create<StoreState>((set, get) => ({
     tourFilters: {},
     tourDetails: {},
     mapTours: [],
-    loadingTours: false,
+    loadingTours: true, // Start as true to show skeleton immediately
     errorTours: null,
 
     fetchTours: async () => {

@@ -14,6 +14,7 @@ import TourChallengesSection from '../components/active-tour/TourChallengesSecti
 import TourNavigation from '../components/active-tour/TourNavigation';
 import { AppModal } from '../components/common/AppModal';
 import { TextComponent } from '../components/common/TextComponent'; // Added Import
+import { TourLoadingScreen } from '../components/common/TourLoadingScreen'; // Added Import
 import CustomTabBar from '../components/CustomTabBar';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -107,7 +108,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         });
     }
 
-    if (loading) return <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}><TextComponent>{t('loadingTour')}</TextComponent></View>;
+    if (loading) return <TourLoadingScreen message={t('loadingTour') || "Loading Tour..."} />;
     if (error) return <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}><TextComponent color={theme.danger}>{error}</TextComponent></View>;
     if (!activeTour) return <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}><TextComponent>{t('tourNotFound')}</TextComponent></View>;
 

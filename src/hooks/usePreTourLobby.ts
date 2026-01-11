@@ -6,10 +6,12 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
     // Local State
     const [activeTour, setActiveTour] = useState<any>(null);
     const [userTeam, setUserTeam] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
     const loadLobbyDetails = useCallback(async () => {
         if (!activeTourId || !user) return;
         try {
+            setLoading(true);
             const tour = await activeTourService.getActiveTourLobby(activeTourId);
             setActiveTour(tour);
 
@@ -19,6 +21,8 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
             }
         } catch (error) {
             console.error('Failed to load lobby details', error);
+        } finally {
+            setLoading(false);
         }
     }, [activeTourId, user]);
 
@@ -69,6 +73,7 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
     return {
         activeTour,
         userTeam,
+        loading,
         loadLobbyDetails,
         startTour
     };

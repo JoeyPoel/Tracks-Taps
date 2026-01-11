@@ -5,11 +5,12 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { AnimatedButton } from '../components/common/AnimatedButton';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { TextComponent } from '../components/common/TextComponent'; // Added import
+import { TourLoadingScreen } from '../components/common/TourLoadingScreen';
 import AddToSavedTripsModal from '../components/saved-trips/AddToSavedTripsModal';
 import TourGallery from '../components/tourdetailScreen/TourGallery';
 import TourReviews from '../components/tourdetailScreen/TourReviews';
@@ -59,9 +60,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
   if (loading) {
     return (
-      <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}>
-        <ActivityIndicator size="large" color={theme.primary} />
-      </View>
+      <TourLoadingScreen message="Loading tour details..." />
     );
   }
 

@@ -37,18 +37,25 @@ export default function ExploreScreen() {
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  // Tracking first load to prevent flash of empty state
+  const [hasInitialized, setHasInitialized] = useState(false);
+
   // Active tour logic
   const activeTour = activeTours.length > 0 ? activeTours[0] : null;
 
   useFocusEffect(
     useCallback(() => {
-      const currentFilterQuery = tourFilters.searchQuery || '';
-      if (currentFilterQuery !== searchText) {
-        setSearchText(currentFilterQuery);
-      }
-      if (user?.id) {
-        fetchAllData(user.id);
-      }
+      const init = async () => {
+        const currentFilterQuery = tourFilters.searchQuery || '';
+        if (currentFilterQuery !== searchText) {
+          setSearchText(currentFilterQuery);
+        }
+        if (user?.id) {
+          await fetchAllData(user.id);
+        }
+        setHasInitialized(true);
+      };
+      init();
     }, [user?.id, fetchAllData])
   );
 
@@ -63,6 +70,7 @@ export default function ExploreScreen() {
     }
   }, [user?.id, fetchTours, fetchActiveTours]);
 
+
   const handleCategoryPress = (categoryId: string) => {
     const newCategory = selectedCategory === categoryId ? null : categoryId;
     setSelectedCategory(newCategory);
@@ -70,10 +78,9 @@ export default function ExploreScreen() {
     setSearchText(newCategory ? categoryId : '');
   };
 
-
-
   // Data Preparation
-  const showSkeleton = loading && tours.length === 0;
+  // Show skeleton if globally loading OR we haven't finished first initialization
+  const showSkeleton = (!hasInitialized || (loading && tours.length === 0));
   const skeletonData = [1, 2, 3, 4];
   const tourData = showSkeleton ? skeletonData : tours;
 
