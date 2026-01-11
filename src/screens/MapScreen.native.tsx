@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { FlagIcon } from 'lucide-react-native';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import Animated, { SlideInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -29,7 +29,8 @@ export default function MapScreen() {
     routeSegments,
     handleTourSelect,
     handleBack,
-    onRegionChangeComplete
+    onRegionChangeComplete,
+    isFetchingDetails
   } = useMapScreenLogic();
 
   return (

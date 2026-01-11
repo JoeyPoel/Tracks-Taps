@@ -28,7 +28,7 @@ export function FriendCard({ friend }: FriendCardProps) {
         >
             <View style={styles.innerContainer}>
                 <Image
-                    source={friend.avatarUrl ? { uri: getOptimizedImageUrl(friend.avatarUrl, 100) } : require('../../../assets/images/Mascott.png')}
+                    source={friend.avatarUrl ? { uri: getOptimizedImageUrl(friend.avatarUrl, 100) } : require('../../../assets/images/profilePictureFallback.png')}
                     style={[styles.avatar, { backgroundColor: theme.bgSecondary }]}
                     contentFit="cover"
                     cachePolicy="disk"

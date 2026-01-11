@@ -27,28 +27,24 @@ export default function OnboardingScreen() {
             title: t('onboardingTitle1'),
             description: t('onboardingDesc1'),
             icon: Map,
-            image: require('@/assets/images/onboarding/map.png'),
         },
         {
             id: '2',
             title: t('onboardingTitle2'),
             description: t('onboardingDesc2'),
             icon: Trophy,
-            image: require('@/assets/images/onboarding/challengeComplete.png'),
         },
         {
             id: '3',
             title: t('onboardingTitle3'),
             description: t('onboardingDesc3'),
             icon: Swords,
-            image: require('@/assets/images/onboarding/trophy.png'),
         },
         {
             id: '4',
             title: t('onboardingTitle4'),
             description: t('onboardingDesc4'),
             icon: Beer,
-            image: require('@/assets/images/onboarding/pubgolf.png'),
         },
     ];
 

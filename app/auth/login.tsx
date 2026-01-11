@@ -10,8 +10,6 @@ import React, { useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
-    Dimensions,
-    Image,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -21,9 +19,9 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
-const { width } = Dimensions.get('window');
+
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -33,7 +31,6 @@ export default function LoginScreen() {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
     React.useEffect(() => {
         AuthService.configureGoogle();
@@ -75,16 +72,7 @@ export default function LoginScreen() {
 
                     {/* Header Section matching Onboarding */}
                     <View style={styles.header}>
-                        <Animated.View
-                            entering={FadeInUp.delay(200).springify()}
-                            style={styles.imageContainer}
-                        >
-                            <Image
-                                source={isPasswordFocused ? require('@/assets/images/login/password.png') : require('@/assets/images/login/welcome.png')}
-                                style={styles.headerImage}
-                                resizeMode="contain"
-                            />
-                        </Animated.View>
+
 
                         <Animated.Text
                             entering={FadeInDown.delay(400).springify()}
@@ -128,8 +116,7 @@ export default function LoginScreen() {
                                     value={password}
                                     onChangeText={setPassword}
                                     secureTextEntry={!showPassword}
-                                    onFocus={() => setIsPasswordFocused(true)}
-                                    onBlur={() => setIsPasswordFocused(false)}
+
                                     maxLength={100}
                                 />
                                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
@@ -194,29 +181,13 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         justifyContent: 'center',
         paddingHorizontal: 24,
-        paddingTop: 120, // Increased top padding to center visually and push content down
         paddingBottom: 40,
     },
     header: {
         alignItems: 'center',
-        marginBottom: 30,
+        marginBottom: 40,
     },
-    imageContainer: {
-        marginBottom: 20,
-        alignItems: 'center',
-    },
-    headerImage: {
-        width: 140,
-        height: 140,
-    },
-    glow: {
-        position: 'absolute',
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        opacity: 0.15,
-        zIndex: -1,
-    },
+
     title: {
         fontSize: 32,
         fontWeight: '800',

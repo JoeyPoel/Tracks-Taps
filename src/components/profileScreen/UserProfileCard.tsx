@@ -36,7 +36,7 @@ export default function UserProfileCard({
             {/* Avatar Section */}
             <View style={styles.avatarWrapper}>
                 <Image
-                    source={avatarUrl ? { uri: getOptimizedImageUrl(avatarUrl, 200) } : require('../../../assets/images/Mascott.png')}
+                    source={avatarUrl ? { uri: getOptimizedImageUrl(avatarUrl, 200) } : require('../../../assets/images/profilePictureFallback.png')}
                     style={[styles.avatar, { borderColor: theme.bgSecondary }]}
                     contentFit="cover"
                     cachePolicy="disk"

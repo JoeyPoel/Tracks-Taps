@@ -1,5 +1,5 @@
 export const lightTheme = {
-  primary: "#FF375D",
+  primary: "#E91E63",
   primaryHover: "#E63254",
   primaryText: "#FFFFFF",
   secondary: "#2AC3FF",
@@ -34,7 +34,7 @@ export const lightTheme = {
   textSecondary: "#475569", // Slate-600
   textTertiary: "#94A3B8", // Slate-400
   textDisabled: "#CBD5E1", // Slate-300
-  textLink: "#FF375D",
+  textLink: "#E91E63",
   textOnPrimary: "#FFFFFF",
   textOnSecondary: "#FFFFFF",
   textOnSuccess: "#064E3B",
@@ -44,11 +44,11 @@ export const lightTheme = {
   borderPrimary: "#E2E8F0", // Slate-200
   borderSecondary: "#F1F5F9", // Slate-100
   borderInput: "#CBD5E1", // Slate-300
-  borderFocus: "#FF375D",
+  borderFocus: "#E91E63",
   borderSuccess: "#34D399", // Emerald-400
 
   // Icons
-  iconPrimary: "#FF375D",
+  iconPrimary: "#E91E63",
   iconSecondary: "#0EA5E9", // Sky-500
   iconMuted: "#94A3B8", // Slate-400
 
@@ -59,7 +59,7 @@ export const lightTheme = {
   fixedBlack: "#000000",
   fixedTrophyGold: "#D97706", // Amber-600
   fixedGradientFrom: "#2AC3FF",
-  fixedGradientTo: "#FF375D",
+  fixedGradientTo: "#E91E63",
   fixedGradientFromLevel: "#FBBF24",
   fixedGradientToLevel: "#F87171",
 
@@ -111,7 +111,7 @@ export const lightTheme = {
 };
 
 export const darkTheme = {
-  primary: "#FF375D",
+  primary: "#E91E63",
   primaryHover: "#F05577",
   primaryText: "#FFFFFF",
   secondary: "#2AC3FF",
@@ -155,7 +155,7 @@ export const darkTheme = {
   borderFocus: "#2AC3FF",
   borderSuccess: "#10B981",
 
-  iconPrimary: "#FF375D",
+  iconPrimary: "#E91E63",
   iconSecondary: "#2AC3FF",
   iconMuted: "#64748B",
 
@@ -166,7 +166,7 @@ export const darkTheme = {
   fixedBlack: "#000000",
   fixedTrophyGold: "#FFC107",
   fixedGradientFrom: "#2AC3FF",
-  fixedGradientTo: "#FF375D",
+  fixedGradientTo: "#E91E63",
   fixedGradientFromLevel: "#FBBF24",
   fixedGradientToLevel: "#F87171",
 

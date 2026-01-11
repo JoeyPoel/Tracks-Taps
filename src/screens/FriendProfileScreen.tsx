@@ -73,7 +73,7 @@ export default function FriendProfileScreen() {
             {/* Immersive Header */}
             <View style={styles.headerContainer}>
                 <ImageBackground
-                    source={require('../../assets/images/Mascott.png')} // Fallback or user cover
+                    source={require('../../assets/images/profilePictureFallback.png')} // Fallback or user cover
                     style={styles.headerImage}
                     resizeMode="cover"
                 >

@@ -4,7 +4,7 @@
     "slug": "tracks-and-taps",
     "version": "1.4.3",
     "orientation": "portrait",
-    "icon": "./assets/images/Logo.png",
+    "icon": "./assets/images/App Icon Coloured.png",
     "scheme": "tracks-taps",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -22,10 +22,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#ffffff",
+        "foregroundImage": "./assets/images/App Icon Coloured.png"
       },
       "package": "com.joeypoel.trackstaps",
       "edgeToEdgeEnabled": true,
@@ -34,14 +32,14 @@
     },
     "web": {
       "output": "server",
-      "favicon": "./assets/images/Logo.png"
+      "favicon": "./assets/images/App Icon Coloured.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/SplashScreenWithLogo.jpeg",
+          "image": "./assets/images/Splash Screen Coloured.png",
           "imageWidth": 1024,
           "imageHeight": 1024,
           "resizeMode": "contain",

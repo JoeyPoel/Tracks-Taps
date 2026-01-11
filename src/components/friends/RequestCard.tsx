@@ -23,7 +23,7 @@ export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) 
         <GenericCard style={styles.container} padding="small">
             <View style={styles.userInfo}>
                 <Image
-                    source={request.requester.avatarUrl ? { uri: getOptimizedImageUrl(request.requester.avatarUrl, 100) } : require('../../../assets/images/Mascott.png')}
+                    source={request.requester.avatarUrl ? { uri: getOptimizedImageUrl(request.requester.avatarUrl, 100) } : require('../../../assets/images/profilePictureFallback.png')}
                     style={styles.avatar}
                     contentFit="cover"
                     cachePolicy="disk"

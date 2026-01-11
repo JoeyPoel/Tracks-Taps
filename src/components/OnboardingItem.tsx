@@ -1,8 +1,8 @@
 import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useTheme } from '@/src/context/ThemeContext';
-import React from 'react';
-import { Dimensions, Image, StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import React, { useEffect } from 'react';
+import { Dimensions, StyleSheet, View } from 'react-native';
+import Animated, { Easing, FadeInDown, FadeInUp, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 
@@ -12,7 +12,6 @@ type OnboardingItemProps = {
         title: string;
         description: string;
         icon?: any;
-        image?: any;
     };
     index: number;
 };
@@ -21,6 +20,24 @@ export default function OnboardingItem({ item, index }: OnboardingItemProps) {
     const { theme } = useTheme();
     const Icon = item.icon;
 
+    // Pulse animation for the glow
+    const pulse = useSharedValue(1);
+
+    useEffect(() => {
+        pulse.value = withRepeat(
+            withTiming(1.2, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+            -1,
+            true
+        );
+    }, []);
+
+    const animatedGlowStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ scale: pulse.value }],
+            opacity: withTiming(0.2),
+        };
+    });
+
     return (
         <View style={styles.container}>
             <View style={styles.content}>
@@ -28,18 +45,8 @@ export default function OnboardingItem({ item, index }: OnboardingItemProps) {
                     entering={FadeInUp.delay(index * 200).springify()}
                     style={styles.iconContainer}
                 >
-                    {item.image ? (
-                        <Image
-                            source={item.image}
-                            style={styles.image}
-                            resizeMode="contain"
-                        />
-                    ) : (
-                        <>
-                            <Icon size={80} color={theme.primary} strokeWidth={1.5} />
-                            <View style={[styles.glow, { backgroundColor: theme.primary }]} />
-                        </>
-                    )}
+                    <Icon size={120} color={theme.primary} strokeWidth={1.5} />
+                    <Animated.View style={[styles.glow, { backgroundColor: theme.primary }, animatedGlowStyle]} />
                 </Animated.View>
 
                 <Animated.View
@@ -76,16 +83,17 @@ const styles = StyleSheet.create({
         marginTop: -50,
     },
     iconContainer: {
-        marginBottom: 40,
+        marginBottom: 60,
+        width: 150,
+        height: 150,
         justifyContent: 'center',
         alignItems: 'center',
     },
     glow: {
         position: 'absolute',
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        opacity: 0.15,
+        width: 140,
+        height: 140,
+        borderRadius: 70,
         zIndex: -1,
     },
     title: {
@@ -100,9 +108,5 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         lineHeight: 28,
         paddingHorizontal: 10,
-    },
-    image: {
-        width: width * 0.8,
-        height: width * 0.8,
     },
 });

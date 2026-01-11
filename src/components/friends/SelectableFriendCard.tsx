@@ -34,7 +34,7 @@ export function SelectableFriendCard({ friend, isSelected, onToggle }: Selectabl
         >
             <View style={styles.innerContainer}>
                 <Image
-                    source={friend.avatarUrl ? { uri: getOptimizedImageUrl(friend.avatarUrl, 100) } : require('../../../assets/images/Mascott.png')}
+                    source={friend.avatarUrl ? { uri: getOptimizedImageUrl(friend.avatarUrl, 100) } : require('../../../assets/images/profilePictureFallback.png')}
                     style={styles.avatar}
                     contentFit="cover"
                     cachePolicy="disk"

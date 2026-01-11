@@ -4,8 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import MapView from 'react-native-maps';
 import { routingService } from '../services/routingService';
 import { tourService } from '../services/tourService';
-import { Tour } from '../types/models';
-import { useMapFit } from './useMapFit';
+import { Stop, Tour } from '../types/models';
 import { useMapTours } from './useMapTour';
 
 import { useStore } from '../store/store';
@@ -21,6 +20,7 @@ export const useMapScreenLogic = () => {
     const { tours, loading, refetch } = useMapTours();
     const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
     const [routeSegments, setRouteSegments] = useState<any[]>([]);
+    const [isFetchingDetails, setIsFetchingDetails] = useState(false);
 
     // Handle deep linking / navigation with tourId
     useEffect(() => {
@@ -110,7 +110,22 @@ export const useMapScreenLogic = () => {
         }, [selectedTour, setTabBarVisible])
     );
 
-    useMapFit(mapRef, tours, selectedTour);
+    const zoomToTour = (tour: Tour | any) => {
+        if (mapRef.current && tour.stops && tour.stops.length > 0) {
+            const coordinates = tour.stops.map((s: Stop) => ({
+                latitude: s.latitude,
+                longitude: s.longitude,
+            }));
+
+            // Add a small delay to ensure map is ready
+            setTimeout(() => {
+                mapRef.current?.fitToCoordinates(coordinates, {
+                    edgePadding: { top: 100, right: 50, bottom: 250, left: 50 }, // Increased bottom padding for card
+                    animated: true,
+                });
+            }, 100);
+        }
+    };
 
     const handleTourSelect = async (tour: Tour) => {
         // Save the last known region before zooming into the tour
@@ -118,50 +133,56 @@ export const useMapScreenLogic = () => {
             lastRegion.current = regionRef.current;
         }
 
-        // 1. Optimistic update with available data (shows card immediately)
-        setSelectedTour(tour);
-        setTabBarVisible(false);
+        // 2. Always fetch full details to ensure we have complete info (stops, route, etc.)
+        // This satisfies the requirement to "wait for the whole get is done" before ANY animation/UI update.
+        setIsFetchingDetails(true);
+        try {
+            const fetched = await tourService.getTourById(tour.id);
+            if (fetched) {
+                const detailedTour = fetched as Tour;
+                // AFTER FETCH: Update UI and Zoom
+                setSelectedTour(detailedTour);
+                setTabBarVisible(false);
+                zoomToTour(detailedTour);
 
-        // 2. Check if we need to fetch full details (stops/route)
-        let detailedTour = tour;
-        if (!tour.stops || tour.stops.length <= 1) {
-            try {
-                const fetched = await tourService.getTourById(tour.id);
-                if (fetched) {
-                    detailedTour = fetched as Tour;
-                    setSelectedTour(detailedTour); // Update UI with full details
+                // 3. Fetch route segments if stops exist (using detailedTour)
+                if (detailedTour.stops && detailedTour.stops.length > 1) {
+                    // Sort stops first to be safe
+                    const sortedStops = [...detailedTour.stops].sort((a: any, b: any) => a.number - b.number);
+
+                    // Initial direct segments for immediate feedback
+                    const initialSegments = [];
+                    for (let i = 0; i < sortedStops.length - 1; i++) {
+                        initialSegments.push({
+                            coords: [
+                                { latitude: sortedStops[i].latitude, longitude: sortedStops[i].longitude },
+                                { latitude: sortedStops[i + 1].latitude, longitude: sortedStops[i + 1].longitude }
+                            ],
+                            type: 'DIRECT'
+                        });
+                    }
+                    setRouteSegments(initialSegments);
+
+                    // Fetch actual route
+                    const routeData = await routingService.getTourRoute(sortedStops.map((s: any) => ({
+                        latitude: s.latitude,
+                        longitude: s.longitude
+                    })));
+                    setRouteSegments(routeData);
+                } else {
+                    setRouteSegments([]);
                 }
-            } catch (error) {
-                console.error('Failed to fetch tour details for map:', error);
+                return; // Exit success path
             }
-        }
-
-        // 3. Fetch route segments if stops exist (using detailedTour)
-        if (detailedTour.stops && detailedTour.stops.length > 1) {
-            // Sort stops first to be safe
-            const sortedStops = [...detailedTour.stops].sort((a: any, b: any) => a.number - b.number);
-
-            // Initial direct segments for immediate feedback
-            const initialSegments = [];
-            for (let i = 0; i < sortedStops.length - 1; i++) {
-                initialSegments.push({
-                    coords: [
-                        { latitude: sortedStops[i].latitude, longitude: sortedStops[i].longitude },
-                        { latitude: sortedStops[i + 1].latitude, longitude: sortedStops[i + 1].longitude }
-                    ],
-                    type: 'DIRECT'
-                });
-            }
-            setRouteSegments(initialSegments);
-
-            // Fetch actual route
-            const routeData = await routingService.getTourRoute(sortedStops.map((s: any) => ({
-                latitude: s.latitude,
-                longitude: s.longitude
-            })));
-            setRouteSegments(routeData);
-        } else {
-            setRouteSegments([]);
+        } catch (error) {
+            console.error('Failed to fetch tour details for map:', error);
+            // Fallback: Use the partial tour we have if fetch fails, so the user isn't stuck
+            // But we try to rely on fetch first.
+            setSelectedTour(tour);
+            setTabBarVisible(false);
+            zoomToTour(tour);
+        } finally {
+            setIsFetchingDetails(false);
         }
     };
 
@@ -210,6 +231,7 @@ export const useMapScreenLogic = () => {
         routeSegments,
         handleTourSelect,
         handleBack,
-        onRegionChangeComplete
+        onRegionChangeComplete,
+        isFetchingDetails
     };
 };
