@@ -1,6 +1,7 @@
 
 
-import { StyleSheet, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { BoltIcon as BoltIconSolid, ClockIcon, MapIcon, StarIcon as StarIconSolid } from 'react-native-heroicons/solid';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -23,6 +24,7 @@ interface TourCardProps {
   genre?: string;
   tourType?: string;
   onPress?: () => void;
+  onEdit?: () => void;
   variant?: 'hero' | 'grid' | 'map';
 }
 
@@ -40,6 +42,7 @@ export default function TourCard({
   genre,
   tourType,
   onPress,
+  onEdit,
   variant = 'hero',
 }: TourCardProps) {
   const { theme } = useTheme();
@@ -75,9 +78,24 @@ export default function TourCard({
         )}
 
         {/* If grid, push rating to right, if hero, it's already right */}
-        <View style={[styles.ratingBadge, styles.blurBadge, isGrid && { marginLeft: 'auto' }]}>
-          <StarIconSolid size={10} color={theme.gold} />
-          <TextComponent style={styles.ratingText} variant="caption" bold>{rating.toFixed(1)}</TextComponent>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: isGrid ? 'auto' : 0 }}>
+          <View style={[styles.ratingBadge, styles.blurBadge]}>
+            <StarIconSolid size={10} color={theme.gold} />
+            <TextComponent style={styles.ratingText} variant="caption" bold>{rating.toFixed(1)}</TextComponent>
+          </View>
+
+          {onEdit && (
+            <TouchableOpacity
+              onPress={(e) => {
+                e.stopPropagation && e.stopPropagation();
+                onEdit();
+              }}
+              style={[styles.ratingBadge, styles.blurBadge, { backgroundColor: theme.primary }]}
+            >
+              <Ionicons name="pencil" size={12} color="#FFF" />
+              {!isGrid && <TextComponent style={styles.ratingText} variant="caption" bold>Edit</TextComponent>}
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 

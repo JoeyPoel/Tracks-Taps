@@ -1,6 +1,7 @@
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useImageUploader } from '@/src/hooks/useImageUploader';
+import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React from 'react';
@@ -46,7 +47,7 @@ export function ImageUploader({
     const renderStandard = () => (
         <View style={[styles.previewContainer, styles.standardContainer]}>
             <Image
-                source={{ uri: image! }}
+                source={{ uri: getOptimizedImageUrl(image!, 600) }}
                 style={styles.image}
                 contentFit="cover"
                 cachePolicy="disk"
@@ -77,7 +78,7 @@ export function ImageUploader({
         <View style={{ alignItems: 'center', gap: 12 }}>
             <View style={[styles.previewContainer, styles.avatarContainer]}>
                 <Image
-                    source={{ uri: image! }}
+                    source={{ uri: getOptimizedImageUrl(image!, 200) }}
                     style={styles.avatarImage}
                     contentFit="cover"
                     cachePolicy="disk"

@@ -88,7 +88,8 @@ export const useStartTour = (tourId: number, authorId?: number) => {
             return;
         }
 
-        const isAuthor = authorId !== undefined && user.id && parseInt(user.id.toString()) === authorId;
+        // Check if author
+        const isAuthor = authorId !== undefined && user && String(user.id) === String(authorId);
 
         if (!isAuthor && user.tokens < 1) {
             if (Platform.OS === 'web') {

@@ -97,6 +97,7 @@ export default function TourListScreen() {
                                 genre={item.genre}
                                 tourType={item.type}
                                 onPress={() => router.push(`/tour/${item.id}`)}
+                                onEdit={type === 'created' ? () => router.push({ pathname: '/(tabs)/create', params: { tourId: item.id } }) : undefined}
                             />
                         </View>
                     );

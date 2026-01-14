@@ -21,5 +21,10 @@ export const tourService = {
     async createTour(data: any) {
         const response = await client.post('/tours', data);
         return response.data;
+    },
+
+    async updateTour(id: number, data: any) {
+        const response = await client.put(`/tours/${id}`, data);
+        return response.data;
     }
 };

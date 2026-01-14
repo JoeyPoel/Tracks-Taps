@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import React from 'react';
 import { StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
 import { TextComponent } from './TextComponent'; // Added import
+
+import { useSafeNavigation } from '../../hooks/useSafeNavigation';
 
 interface ScreenHeaderProps {
     title: string;
@@ -25,7 +26,9 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
     onBackPress
 }) => {
     const { theme } = useTheme();
-    const router = useRouter();
+    // router is not needed directly here if we switch to useSafeNavigation for back
+    // but might be needed for other things? No, only back is used here.
+    const { goBack } = useSafeNavigation();
     const insets = useSafeAreaInsets();
 
     const paddingTop = style && (style as any).paddingTop !== undefined ? 0 : insets.top;
@@ -34,7 +37,7 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
         if (onBackPress) {
             onBackPress();
         } else {
-            router.back();
+            goBack();
         }
     };
 

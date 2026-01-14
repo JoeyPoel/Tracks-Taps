@@ -13,6 +13,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useTeamSetup } from '../hooks/useTeamSetup';
 
+
 export default function TeamSetupScreen() {
     const { theme } = useTheme();
     const { t } = useLanguage();
@@ -34,13 +35,7 @@ export default function TeamSetupScreen() {
             <ScreenHeader
                 title={t('teamSetup')}
                 showBackButton={true}
-                onBackPress={() => {
-                    if (router.canGoBack()) {
-                        router.back();
-                    } else {
-                        router.replace('/');
-                    }
-                }}
+                /* onBackPress removed to use default safe navigation from ScreenHeader */
                 style={{ paddingHorizontal: 0 }} // Match original padding if needed, or stick to default
             />
 

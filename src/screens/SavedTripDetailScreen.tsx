@@ -10,10 +10,13 @@ import TourCard from '../components/exploreScreen/TourCard';
 import { useTheme } from '../context/ThemeContext';
 import { SavedTrip, savedTripsService } from '../services/savedTripsService';
 
+import { useSafeNavigation } from '../hooks/useSafeNavigation';
+
 export default function SavedTripDetailScreen() {
     const { id } = useLocalSearchParams();
     const { theme } = useTheme();
-    const router = useRouter();
+    const router = useRouter(); // Used for other navigations (push)
+    const { goBack } = useSafeNavigation();
     const [list, setList] = useState<SavedTrip | null>(null);
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
@@ -72,7 +75,7 @@ export default function SavedTripDetailScreen() {
                     onPress: async () => {
                         try {
                             await savedTripsService.delete(Number(id));
-                            router.back();
+                            goBack();
                         } catch (e) {
                             Alert.alert('Error', 'Failed to delete list');
                         }

@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import MapView from 'react-native-maps';
 import { routingService } from '../services/routingService';
@@ -15,6 +15,7 @@ export const useMapScreenLogic = () => {
     const lastRegion = useRef<any>(null);
     const regionRef = useRef<any>(null);
     const { tourId } = useLocalSearchParams();
+    const router = useRouter();
     const { setTabBarVisible } = useStore();
 
     const { tours, loading, refetch } = useMapTours();
@@ -49,7 +50,17 @@ export const useMapScreenLogic = () => {
                             }, 1000);
                         }
                     }
-                }).catch(err => console.error("Failed to fetch selected tour on map", err));
+                }).catch((err: any) => { // Explicitly typed as any
+                    console.error("Failed to fetch selected tour on map", err);
+                    // Check if error is "not found"
+                    const isNotFound = err.response?.status === 404 ||
+                        (err.message && err.message.toLowerCase().includes('not found')) ||
+                        (err.response?.data?.error && err.response.data.error.toLowerCase().includes('not found'));
+
+                    if (isNotFound) {
+                        router.replace('/+not-found');
+                    }
+                });
             }
         }
     }, [tourId, tours.length]); // Depend on tours.length to retry if tours load laters
@@ -112,10 +123,14 @@ export const useMapScreenLogic = () => {
 
     const zoomToTour = (tour: Tour | any) => {
         if (mapRef.current && tour.stops && tour.stops.length > 0) {
-            const coordinates = tour.stops.map((s: Stop) => ({
-                latitude: s.latitude,
-                longitude: s.longitude,
-            }));
+            const coordinates = tour.stops
+                .filter((s: Stop) => s.latitude && s.longitude)
+                .map((s: Stop) => ({
+                    latitude: s.latitude,
+                    longitude: s.longitude,
+                }));
+
+            if (coordinates.length === 0) return;
 
             // Add a small delay to ensure map is ready
             setTimeout(() => {
@@ -148,7 +163,14 @@ export const useMapScreenLogic = () => {
                 // 3. Fetch route segments if stops exist (using detailedTour)
                 if (detailedTour.stops && detailedTour.stops.length > 1) {
                     // Sort stops first to be safe
-                    const sortedStops = [...detailedTour.stops].sort((a: any, b: any) => a.number - b.number);
+                    const sortedStops = [...detailedTour.stops]
+                        .filter(s => s.latitude && s.longitude) // Ensure valid coordinates
+                        .sort((a: any, b: any) => a.number - b.number);
+
+                    if (sortedStops.length < 2) {
+                        setRouteSegments([]);
+                        return;
+                    }
 
                     // Initial direct segments for immediate feedback
                     const initialSegments = [];

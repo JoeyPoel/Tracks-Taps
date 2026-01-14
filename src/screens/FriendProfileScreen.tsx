@@ -9,7 +9,7 @@ import { userService } from '@/src/services/userService';
 import { LevelSystem } from '@/src/utils/levelUtils';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ImageBackground, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,9 +17,11 @@ import ProfileStats from '../components/profileScreen/ProfileStats';
 import RecentAchievements from '../components/profileScreen/RecentAchievements';
 import { achievementService } from '../services/achievementService';
 
+import { useSafeNavigation } from '../hooks/useSafeNavigation';
+
 export default function FriendProfileScreen() {
     const { theme } = useTheme();
-    const router = useRouter();
+    const { goBack } = useSafeNavigation();
     const { t } = useLanguage();
     const { userId } = useLocalSearchParams();
     const [user, setUser] = useState<any>(null);
@@ -85,7 +87,7 @@ export default function FriendProfileScreen() {
                 </ImageBackground>
 
                 <View style={[styles.backButtonContainer, { top: insets.top + 10 }]}>
-                    <AnimatedPressable onPress={() => router.back()} style={styles.backButton}>
+                    <AnimatedPressable onPress={goBack} style={styles.backButton}>
                         <Ionicons name="arrow-back" size={24} color="#FFF" />
                     </AnimatedPressable>
                 </View>

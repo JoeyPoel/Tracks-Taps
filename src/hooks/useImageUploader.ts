@@ -1,5 +1,5 @@
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { uploadOptimizedImage } from '../utils/imageUtils';
@@ -20,6 +20,13 @@ export const useImageUploader = ({
     const [image, setImage] = useState<string | null>(initialImage || null);
     const [uploading, setUploading] = useState(false);
     const { t } = useLanguage();
+
+    // Sync state with prop (for when data loads async)
+    useEffect(() => {
+        if (initialImage !== undefined) {
+            setImage(initialImage || null);
+        }
+    }, [initialImage]);
 
     const isAvatar = variant === 'avatar';
 

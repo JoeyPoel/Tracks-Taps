@@ -1,9 +1,9 @@
-import * as Location from 'expo-location';
-import React, { useEffect, useRef, useState } from 'react';
-import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { ArrowsPointingOutIcon } from 'react-native-heroicons/outline';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
+import * as Location from 'expo-location';
+import React, { useEffect, useRef, useState } from 'react';
+import { Linking, Modal, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ArrowsPointingOutIcon } from 'react-native-heroicons/outline';
 import MapView, { LatLng, Marker, Polyline } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '../../context/LanguageContext';
@@ -12,6 +12,7 @@ import { routingService } from '../../services/routingService';
 import { StopType } from '../../types/models';
 import { getStopIcon } from '../../utils/stopIcons';
 import { AnimatedPressable } from '../common/AnimatedPressable';
+import { TextComponent } from '../common/TextComponent';
 
 interface StopLocation {
     latitude: number;
@@ -83,6 +84,7 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
     // Full Screen Logic: Get User Location & Route (User -> Stop B)
     useEffect(() => {
         let subscription: Location.LocationSubscription | null = null;
+        let lastRouteUpdate = 0;
 
         const startNavigation = async () => {
             if (!isFullScreen) return;
@@ -101,6 +103,7 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
             // Initial fetch of walking route from User -> Destination
             const result = await routingService.getWalkingRoute(userLatLng, { latitude: currentStop.latitude, longitude: currentStop.longitude });
             setNavigationRoute(result);
+            lastRouteUpdate = Date.now();
 
             // Fit to show user and destination
             setTimeout(() => {
@@ -113,12 +116,20 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                 });
             }, 500);
 
-            // Subscribe to updates
+            // Subscribe to updates AND update route periodically
             subscription = await Location.watchPositionAsync(
                 { accuracy: Location.Accuracy.High, timeInterval: 5000, distanceInterval: 10 },
                 async (newLoc) => {
                     const newLatLng = { latitude: newLoc.coords.latitude, longitude: newLoc.coords.longitude };
                     setUserLocation(newLatLng);
+
+                    // Update route every 15 seconds if moved
+                    const now = Date.now();
+                    if (now - lastRouteUpdate > 15000) {
+                        lastRouteUpdate = now;
+                        const newRoute = await routingService.getWalkingRoute(newLatLng, { latitude: currentStop.latitude, longitude: currentStop.longitude });
+                        setNavigationRoute(newRoute);
+                    }
                 }
             );
         };
@@ -133,6 +144,22 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
             }
         };
     }, [isFullScreen, currentStop.id]);
+
+    const handleExternalNavigation = () => {
+        const scheme = Platform.select({ ios: 'maps:', android: 'geo:' });
+        const lat = currentStop.latitude;
+        const lng = currentStop.longitude;
+        const label = encodeURIComponent(currentStop.name);
+
+        const url = Platform.select({
+            ios: `${scheme}?daddr=${lat},${lng}&dirflg=w`, // dirflg=w for walking
+            android: `${scheme}0,0?q=${lat},${lng}(${label})`
+        });
+
+        if (url) {
+            Linking.openURL(url);
+        }
+    };
 
 
     return (
@@ -249,6 +276,15 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                             </BlurView>
                         </TouchableOpacity>
                     </View>
+
+                    {/* External Navigation Button */}
+                    <TouchableOpacity
+                        style={[styles.externalNavButton, { backgroundColor: theme.primary, top: insets.top + 10 }]}
+                        onPress={handleExternalNavigation}
+                    >
+                        <Ionicons name="navigate" size={20} color="white" />
+                        <TextComponent style={styles.externalNavText} color="white" bold>{t('navigate')}</TextComponent>
+                    </TouchableOpacity>
 
                 </View>
             </Modal>

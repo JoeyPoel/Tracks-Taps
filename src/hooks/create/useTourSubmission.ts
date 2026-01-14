@@ -3,12 +3,13 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import { useToast } from '@/src/context/ToastContext';
 import { useAchievements } from '@/src/hooks/useAchievements';
 import { tourService } from '@/src/services/tourService';
+import { useStore } from '@/src/store/store';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert } from 'react-native';
 import { TourDraft } from './useTourDraft';
 
-export function useTourSubmission(user: any) {
+export function useTourSubmission(user: any, tourId?: number | null) {
     const { t } = useLanguage();
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,31 +57,50 @@ export function useTourSubmission(user: any) {
                 startLng: tourDraft.startLng,
             };
 
-            const createdTour = await tourService.createTour(payload);
+            let result: any;
+            if (tourId) {
+                result = await tourService.updateTour(tourId, payload);
+                // Force refresh tour details in store so TourDetailScreen shows new data
+                if (useStore.getState().fetchTourDetails) {
+                    await useStore.getState().fetchTourDetails(result.id, undefined, true);
+                }
 
-            // Unlock Achievement: Creator
-            const achievement = await unlockAchievement('creator');
-            if (achievement) {
-                showToast({
-                    title: achievement.title,
-                    message: achievement.description,
-                    emoji: '🎨',
-                    backgroundColor: achievement.color
-                });
+                Alert.alert((t('success' as any) || 'Success'), (t('tourUpdated' as any) || 'Tour updated successfully!'), [
+                    {
+                        text: 'OK',
+                        onPress: () => router.replace({
+                            pathname: '/tour/[id]',
+                            params: { id: result.id }
+                        })
+                    }
+                ]);
+            } else {
+                result = await tourService.createTour(payload);
+
+                // Unlock Achievement: Creator
+                const achievement = await unlockAchievement('creator');
+                if (achievement) {
+                    showToast({
+                        title: achievement.title,
+                        message: achievement.description,
+                        emoji: '🎨',
+                        backgroundColor: achievement.color
+                    });
+                }
+
+                Alert.alert(t('tourCreatedSuccess'), t('playForFree'), [
+                    {
+                        text: 'OK',
+                        onPress: () => router.replace({
+                            pathname: '/tour/[id]',
+                            params: { id: result.id }
+                        })
+                    }
+                ]);
             }
 
-            Alert.alert(t('tourCreatedSuccess'), t('playForFree'), [
-                {
-                    text: 'OK',
-                    onPress: () => router.replace({
-                        pathname: '/tour/[id]',
-                        params: { id: createdTour.id }
-                    })
-                }
-            ]);
-
         } catch (error: any) {
-            console.error("Tour creation error:", error);
+            console.error("Tour submission error:", error);
             let msg = error.message;
             if (msg.includes('Network request failed')) {
                 msg = "Network error. Please check your connection and try again.";

@@ -41,6 +41,8 @@ const INITIAL_DRAFT: TourDraft = {
     type: TourType.QUICK_TRIP,
 };
 
+export { INITIAL_DRAFT };
+
 export function useTourDraft() {
     const [tourDraft, setTourDraft] = useState<TourDraft>(INITIAL_DRAFT);
 
@@ -77,6 +79,8 @@ export function useTourDraft() {
     const updateDraft = (key: keyof TourDraft, value: any) => {
         setTourDraft(prev => ({ ...prev, [key]: value }));
     };
+
+    const resetDraft = () => setTourDraft(INITIAL_DRAFT);
 
     // --- Actions ---
 
@@ -163,6 +167,8 @@ export function useTourDraft() {
     return {
         tourDraft,
         updateDraft,
+        resetDraft,
+        setDraft: setTourDraft,
         actions: {
             addStop,
             editStop,

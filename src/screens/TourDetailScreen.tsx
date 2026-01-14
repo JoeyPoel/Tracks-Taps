@@ -22,11 +22,14 @@ import { useStartTour } from '../hooks/useStartTour';
 import { useTourDetails } from '../hooks/useTourDetails';
 import { getOptimizedImageUrl } from '../utils/imageUtils';
 
+import { useSafeNavigation } from '../hooks/useSafeNavigation';
+
 export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
   const { t } = useLanguage();
   const { user } = useAuth();
   const router = useRouter();
+  const { goBack } = useSafeNavigation();
   const [showSavedTripModal, setShowSavedTripModal] = useState(false);
 
   const {
@@ -78,7 +81,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
       {/* Back Button Overlay */}
       <TouchableOpacity
-        onPress={() => router.back()}
+        onPress={goBack}
         style={styles.backButton}
       >
         <BlurView intensity={30} tint="dark" style={styles.backButtonBlur}>
@@ -120,6 +123,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             <TextComponent style={styles.mapFabText} variant="label" bold color={theme.textPrimary}>Map</TextComponent>
           </TouchableOpacity>
 
+
           {/* Saved Trip Button */}
           <TouchableOpacity
             onPress={() => setShowSavedTripModal(true)}
@@ -131,6 +135,16 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
               color={isSaved ? theme.primary : theme.textPrimary}
             />
           </TouchableOpacity>
+
+          {/* Edit Button (Only for Author) */}
+          {user && tour.authorId && String(user.id) === String(tour.authorId) && (
+            <TouchableOpacity
+              onPress={() => router.push({ pathname: '/(tabs)/create', params: { tourId: tour.id } })}
+              style={[styles.editFab, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
+            >
+              <Ionicons name="pencil" size={24} color={theme.primary} />
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Stats Grid */}
@@ -400,6 +414,21 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 6,
     zIndex: 20, // ensure it's above hero image
+  },
+  editFab: {
+    position: 'absolute',
+    top: 116, // Below savedTripFab (60 + 44 + 12 gap)
+    right: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
+    zIndex: 20,
   },
   mapFabText: {
     // handled by TextComponent
