@@ -144,9 +144,13 @@ export default function ExploreScreen() {
             onCategoryPress={handleCategoryPress}
             activeTour={activeTour}
             user={user}
-            onActiveTourPress={(id) =>
-              router.push({ pathname: '/active-tour/[id]' as any, params: { id } })
-            }
+            onActiveTourPress={(id) => {
+              if (activeTour && activeTour.status === 'PRE_TOUR_LOBBY') {
+                router.push({ pathname: '/lobby', params: { activeTourId: id } });
+              } else {
+                router.push({ pathname: '/active-tour/[id]' as any, params: { id } });
+              }
+            }}
           />
         }
         renderSectionHeader={({ section: { title } }) => (

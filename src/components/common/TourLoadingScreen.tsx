@@ -138,6 +138,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingBottom: 100, // Visual adjustment to be vertically higher
         zIndex: 999
     },
     embeddedContainer: {

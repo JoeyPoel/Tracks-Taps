@@ -16,7 +16,7 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
             setActiveTour(tour);
 
             if (tour && tour.teams) {
-                const team = tour.teams.find((t: any) => t.userId === user?.id);
+                const team = tour.teams.find((t: any) => String(t.userId) === String(user?.id));
                 setUserTeam(team);
             }
         } catch (error) {

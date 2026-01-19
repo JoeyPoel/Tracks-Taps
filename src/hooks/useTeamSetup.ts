@@ -61,10 +61,16 @@ export const useTeamSetup = () => {
             );
 
             setLoading(false);
-            router.push({
-                pathname: '/lobby',
-                params: { activeTourId: activeTourId }
-            });
+            setLoading(false);
+
+            if (router.canGoBack()) {
+                router.back();
+            } else {
+                router.replace({
+                    pathname: '/lobby',
+                    params: { activeTourId: activeTourId }
+                });
+            }
 
             // Refresh store in background
             fetchActiveTours(user.id).catch(console.error);

@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
     },
     avatarEmoji: {
         fontSize: 26,
+        lineHeight: 32,
     },
     playerInfo: {
         flex: 1,

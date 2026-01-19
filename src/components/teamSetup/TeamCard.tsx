@@ -22,7 +22,7 @@ export const TeamCard: React.FC<TeamCardProps> = ({ name, color, emoji }) => {
             padding="medium"
         >
             <View style={styles.teamHeader}>
-                <TextComponent style={{ fontSize: 32, marginRight: 16 }}>{emoji}</TextComponent>
+                <TextComponent style={{ fontSize: 32, lineHeight: 40, marginRight: 16 }}>{emoji}</TextComponent>
                 <View>
                     <TextComponent style={styles.name} color={theme.textPrimary} size={18} bold variant="body">
                         {name || t('yourTeamName')}

@@ -1,6 +1,7 @@
 import { supabase } from '@/utils/supabase';
 import axios from 'axios';
 import Constants from 'expo-constants';
+import { router } from 'expo-router';
 import { Platform } from 'react-native';
 
 const getBaseUrl = () => {
@@ -67,6 +68,19 @@ client.interceptors.response.use(
             const { authEvents } = require('@/src/utils/authEvents');
             authEvents.emit();
         }
+
+        if (error.response?.status >= 500) {
+            router.replace({
+                pathname: '/error-screen',
+                params: {
+                    title: 'Server Error',
+                    message: typeof error.response?.data?.message === 'string'
+                        ? error.response.data.message
+                        : "Our servers are having a moment. Please try again later."
+                }
+            });
+        }
+
         console.error('API Error:', error.response?.data || error.message);
         return Promise.reject(error);
     }

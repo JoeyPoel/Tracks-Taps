@@ -78,7 +78,12 @@ export default function PreTourLobbyScreen() {
                 activeTour={activeTour}
                 user={user}
                 userTeam={userTeam}
-                onStartTour={startTour}
+                onStartTour={async () => {
+                    const result: any = await startTour();
+                    if (result && !result.success) {
+                        alert(result.error); // Simple alert for web/native compatibility or import Alert
+                    }
+                }}
                 activeTourId={activeTourId}
             />
 
