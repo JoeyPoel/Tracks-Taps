@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tracks&Taps",
     "slug": "tracks-and-taps",
-    "version": "1.6.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/App Icon Coloured.png",
     "scheme": "tracks-taps",
@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.joeypoel.trackstaps",
-      "buildNumber": "4",
+      "buildNumber": "5",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Tracks Taps uses your location to show your position on the map and verify location-based challenges.",
         "NSPhotoLibraryUsageDescription": "Tracks Taps needs access to your photo library to select images for tours and stops.",
@@ -54,7 +54,7 @@
       [
         "@react-native-google-signin/google-signin",
         {
-          "iosUrlScheme": "com.googleusercontent.apps.135339006032-7pf4smvcht4pj54tu2s03mn0b887jpru"
+          "iosUrlScheme": "com.googleusercontent.apps.200375813162-21etd79sc2q5276t3aer5c5f7kfg1aqb"
         }
       ]
     ],
@@ -65,9 +65,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "8ff732e5-d191-421d-a9f3-c170186ec961"
+        "projectId": "033de2f9-fb8a-489a-8360-f4fb5f48540e"
       }
     },
-    "owner": "joey_poel"
+    "owner": "tracks-and-taps"
   }
 }

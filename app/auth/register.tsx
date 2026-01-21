@@ -53,6 +53,12 @@ export default function RegisterScreen() {
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
+            options: {
+                emailRedirectTo: Platform.select({
+                    web: window.location.origin + '/auth/confirm-email',
+                    default: undefined
+                }),
+            }
         });
         setLoading(false);
 
@@ -60,7 +66,7 @@ export default function RegisterScreen() {
             Alert.alert(t('failedToRegister'), error.message);
         } else if (!data.session) {
             // Session is null -> Email verification is enabled and required
-            Alert.alert('Success', 'Please check your email to verify your account.');
+            Alert.alert(t('checkEmailToVerify'));
             router.replace('/auth/login');
         } else {
             // User is created in Supabase and logged in. Now create in our DB explicitly.

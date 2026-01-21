@@ -23,6 +23,7 @@ export const achievementRepository = {
                         description: true,
                         icon: true,
                         color: true,
+                        emoji: true,
                         xpReward: true,
                         criteria: true,
                         target: true

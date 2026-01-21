@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { activeTourService } from '../services/activeTourService';
 
 export const usePreTourLobby = (activeTourId: number | null, user: any) => {
@@ -7,11 +7,18 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
     const [activeTour, setActiveTour] = useState<any>(null);
     const [userTeam, setUserTeam] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [isStarting, setIsStarting] = useState(false);
 
-    const loadLobbyDetails = useCallback(async () => {
+    const initialized = useRef(false);
+
+    const loadLobbyDetails = useCallback(async (background = false) => {
         if (!activeTourId || !user) return;
+
+        // Use ref to check if initialized, avoiding state dependency loop
+        const isBackground = background || initialized.current;
+
         try {
-            setLoading(true);
+            if (!isBackground) setLoading(true);
             const tour = await activeTourService.getActiveTourLobby(activeTourId);
             setActiveTour(tour);
 
@@ -22,7 +29,8 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
         } catch (error) {
             console.error('Failed to load lobby details', error);
         } finally {
-            setLoading(false);
+            if (!isBackground) setLoading(false);
+            initialized.current = true;
         }
     }, [activeTourId, user]);
 
@@ -38,7 +46,7 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
                 { event: '*', schema: 'public', table: 'ActiveTour', filter: `id=eq.${activeTourId}` },
                 () => {
                     console.log('Realtime: ActiveTour updated');
-                    loadLobbyDetails();
+                    loadLobbyDetails(true);
                 }
             )
             .on(
@@ -46,7 +54,7 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
                 { event: '*', schema: 'public', table: 'Team', filter: `activeTourId=eq.${activeTourId}` },
                 () => {
                     console.log('Realtime: Team updated');
-                    loadLobbyDetails();
+                    loadLobbyDetails(true);
                 }
             )
             .subscribe();
@@ -59,13 +67,15 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
     const startTour = async () => {
         if (!activeTourId || !user) return;
         try {
+            setIsStarting(true);
             await activeTourService.startGame(activeTourId, user.id);
             // WebSocket will handle the redirect via activeTour.status change
             // But we reload to be sure
-            loadLobbyDetails();
+            loadLobbyDetails(true);
             return { success: true };
         } catch (error: any) {
             console.error('Failed to start tour', error);
+            setIsStarting(false);
             return { success: false, error: error.message || 'Network error' };
         }
     };
@@ -74,6 +84,7 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
         activeTour,
         userTeam,
         loading,
+        isStarting,
         loadLobbyDetails,
         startTour
     };

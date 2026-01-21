@@ -45,8 +45,7 @@ app-example
 # Prisma
 prisma/migrations/
 prisma/migration_lock.toml
-prisma/seed.ts
-prisma/seed.ts
+
 
 .env
 

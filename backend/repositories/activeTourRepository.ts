@@ -321,7 +321,6 @@ export const activeTourRepository = {
                                 id: true,
                                 name: true,
                                 avatarUrl: true,
-                                level: true
                             }
                         }
                     }

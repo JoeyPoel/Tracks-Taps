@@ -167,7 +167,12 @@ export const activeTourService = {
         if (updatedActiveTour) {
             const allFinished = updatedActiveTour.teams.every(t => t.finishedAt !== null);
             if (allFinished) {
-                await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.COMPLETED);
+                // Determine Winner (Highest Score)
+                // Sort by core descending
+                const rankedTeams = [...updatedActiveTour.teams].sort((a, b) => b.score - a.score);
+                const winnerId = rankedTeams.length > 0 ? rankedTeams[0].id : undefined;
+
+                await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.POST_TOUR_LOBBY, winnerId);
             }
         }
 

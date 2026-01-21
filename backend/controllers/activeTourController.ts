@@ -154,7 +154,14 @@ export const activeTourController = {
             return Response.json(activeTour);
         } catch (error: any) {
             console.error('Error fetching active tour lobby:', error);
-            return Response.json({ error: 'Failed to fetch active tour lobby' }, { status: 500 });
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            const errorStack = error instanceof Error ? error.stack : undefined;
+            return Response.json({
+                error: 'Failed to fetch active tour lobby',
+                details: errorMessage,
+                stack: errorStack,
+                rawError: JSON.stringify(error)
+            }, { status: 500 });
         }
     },
 
@@ -236,15 +243,15 @@ export const activeTourController = {
             const body = await request.json();
             const { activeTourId, currentStop, userId } = body;
 
-            if (!activeTourId || currentStop === undefined) {
-                return Response.json({ error: 'Missing required fields' }, { status: 400 });
+            if (!activeTourId || currentStop === undefined || !userId) {
+                return Response.json({ error: 'Missing required fields: activeTourId, currentStop, or userId' }, { status: 400 });
             }
 
             const updatedTour = await activeTourService.updateCurrentStop(Number(activeTourId), Number(currentStop), Number(userId));
             return Response.json(updatedTour);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error updating current stop:', error);
-            return Response.json({ error: 'Failed to update current stop' }, { status: 500 });
+            return Response.json({ error: 'Failed to update current stop', details: error.message }, { status: 500 });
         }
     },
 

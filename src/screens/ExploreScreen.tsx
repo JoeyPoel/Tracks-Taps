@@ -145,7 +145,7 @@ export default function ExploreScreen() {
             activeTour={activeTour}
             user={user}
             onActiveTourPress={(id) => {
-              if (activeTour && activeTour.status === 'PRE_TOUR_LOBBY') {
+              if (activeTour && (activeTour.status === 'PRE_TOUR_LOBBY' || activeTour.status === 'WAITING')) {
                 router.push({ pathname: '/lobby', params: { activeTourId: id } });
               } else {
                 router.push({ pathname: '/active-tour/[id]' as any, params: { id } });

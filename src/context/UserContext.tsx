@@ -1,3 +1,4 @@
+import { supabase } from '@/utils/supabase';
 import React, { createContext, useContext, useEffect } from 'react';
 import { useStore } from '../store/store';
 import { User } from '../types/models';
@@ -33,6 +34,18 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             clearUser();
         }
     }, [email]);
+
+    // Handle inconsistent state: Session exists but backend User fetch failed
+    useEffect(() => {
+        if (email && error && !user && !loading) {
+            console.warn("User fetch failed with active session. Signing out to force re-login.");
+
+            const performSignOut = async () => {
+                await supabase.auth.signOut();
+            };
+            performSignOut();
+        }
+    }, [email, error, user, loading]);
 
     const refreshUser = async () => {
         if (email) {

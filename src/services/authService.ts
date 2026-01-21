@@ -27,16 +27,11 @@ try {
 
 export const AuthService = {
     configureGoogle: () => {
-        const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
-        if (!webClientId) {
-            console.error('Google Sign-In Error: EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID is missing in .env');
-            return;
-        }
-
         try {
             GoogleSignin.configure({
                 scopes: ['email', 'profile'],
-                webClientId: webClientId,
+                webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+                iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID, // Required for iOS
                 offlineAccess: true,
                 forceCodeForRefreshToken: true,
             });

@@ -39,9 +39,13 @@ export const userController = {
             }
 
             return Response.json(user);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching user:', error);
-            return Response.json({ error: 'Failed to fetch user' }, { status: 500 });
+            return Response.json({
+                error: 'Failed to fetch user',
+                details: error.message,
+                stack: error instanceof Error ? error.stack : undefined
+            }, { status: 500 });
         }
     },
 

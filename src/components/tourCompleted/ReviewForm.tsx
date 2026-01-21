@@ -1,4 +1,5 @@
 import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
+import { uploadOptimizedImage } from '@/src/utils/imageUtils'; // Fix: Import usage
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';

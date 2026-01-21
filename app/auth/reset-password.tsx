@@ -2,13 +2,12 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { supabase } from '@/utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
-import { Link, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { Lock } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
-    Dimensions,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -20,36 +19,39 @@ import {
 } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 
-const { width } = Dimensions.get('window');
-
-export default function ForgotPasswordScreen() {
+export default function ResetPasswordScreen() {
     const router = useRouter();
     const { theme } = useTheme();
     const { t } = useLanguage();
-    const [email, setEmail] = useState('');
-    const [loading, setLoading] = useState(false);
+    const { code } = useLocalSearchParams(); // Ensure we capture the code if passed in URL
 
-    const handleReset = async () => {
-        if (!email) {
-            Alert.alert(t('error') || 'Error', t('enterEmail'));
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    const handleUpdatePassword = async () => {
+        if (!password || !confirmPassword) {
+            Alert.alert('Error', t('enterPassword'));
             return;
         }
-        setLoading(true);
-        const redirectTo = Platform.select({
-            web: window.location.origin + '/auth/reset-password',
-            default: undefined // Supabase should handle this via configured redirect URLs, or we can explicity set the deep link 'tracks-taps://auth/reset-password'
-        });
+        if (password !== confirmPassword) {
+            Alert.alert('Error', t('passwordsDoNotMatch'));
+            return;
+        }
 
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo,
-        });
+        setLoading(true);
+
+        const { error } = await supabase.auth.updateUser({ password: password });
+
         setLoading(false);
 
         if (error) {
-            Alert.alert(t('failedToReset'), error.message);
+            Alert.alert(t('failedToUpdatePassword'), error.message);
         } else {
-            Alert.alert(t('checkEmailForReset'));
-            router.back();
+            Alert.alert(t('passwordUpdated'));
+            router.replace('/auth/login');
         }
     };
 
@@ -61,7 +63,7 @@ export default function ForgotPasswordScreen() {
             >
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-                    {/* Header Section matching Onboarding */}
+                    {/* Header Section */}
                     <View style={styles.header}>
                         <Animated.View
                             entering={FadeInUp.delay(200).springify()}
@@ -82,7 +84,7 @@ export default function ForgotPasswordScreen() {
                             entering={FadeInDown.delay(600).springify()}
                             style={[styles.subtitle, { color: theme.textSecondary }]}
                         >
-                            {t('forgotPasswordSubtitle')}
+                            {t('enterNewPasswordBelow')}
                         </Animated.Text>
                     </View>
 
@@ -92,30 +94,50 @@ export default function ForgotPasswordScreen() {
                         style={styles.form}
                     >
                         <View style={styles.inputContainer}>
-                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('email')}</Text>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('newPassword')}</Text>
                             <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderInput }]}>
-                                <Ionicons name="mail-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
+                                <Ionicons name="lock-closed-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
                                 <TextInput
                                     style={[styles.input, { color: theme.textPrimary }]}
-                                    placeholder={t('enterEmail')}
+                                    placeholder={t('enterNewPassword')}
                                     placeholderTextColor={theme.textTertiary}
-                                    value={email}
-                                    onChangeText={setEmail}
-                                    autoCapitalize="none"
-                                    keyboardType="email-address"
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    secureTextEntry={!showPassword}
                                 />
+                                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                                    <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={theme.textTertiary} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
+                        <View style={styles.inputContainer}>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('confirmNewPassword')}</Text>
+                            <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderInput }]}>
+                                <Ionicons name="lock-closed-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
+                                <TextInput
+                                    style={[styles.input, { color: theme.textPrimary }]}
+                                    placeholder={t('confirmNewPassword')}
+                                    placeholderTextColor={theme.textTertiary}
+                                    value={confirmPassword}
+                                    onChangeText={setConfirmPassword}
+                                    secureTextEntry={!showConfirmPassword}
+                                />
+                                <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                                    <Ionicons name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} size={20} color={theme.textTertiary} />
+                                </TouchableOpacity>
                             </View>
                         </View>
 
                         <TouchableOpacity
                             style={[styles.button, { backgroundColor: theme.primary }]}
-                            onPress={handleReset}
+                            onPress={handleUpdatePassword}
                             disabled={loading}
                         >
                             {loading ? (
                                 <ActivityIndicator color={theme.textOnPrimary} />
                             ) : (
-                                <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>{t('sendResetLink')}</Text>
+                                <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>{t('updatePassword')}</Text>
                             )}
                         </TouchableOpacity>
 
@@ -144,7 +166,7 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         justifyContent: 'center',
         paddingHorizontal: 24,
-        paddingTop: 120, // Increased top padding to center visually and push content down
+        paddingTop: 120,
         paddingBottom: 40,
     },
     header: {

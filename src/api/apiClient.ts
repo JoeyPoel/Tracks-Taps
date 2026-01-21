@@ -67,6 +67,9 @@ client.interceptors.response.use(
             // But usually the modal handles its own visibility state
             const { authEvents } = require('@/src/utils/authEvents');
             authEvents.emit();
+
+            // Force redirect to login
+            router.replace('/auth/login');
         }
 
         if (error.response?.status >= 500) {

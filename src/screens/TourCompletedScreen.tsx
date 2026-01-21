@@ -7,6 +7,7 @@ import * as StoreReview from 'expo-store-review';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context'; // Added import
 import Confetti from '../components/active-tour/animations/Confetti';
 import { AnimatedButton } from '../components/common/AnimatedButton';
 import FeedbackCard from '../components/tourCompleted/FeedbackCard';
@@ -21,6 +22,7 @@ type RevealState = 'CALCULATING' | 'REVEAL_3' | 'REVEAL_2' | 'REVEAL_1' | 'CELEB
 
 export default function TourCompletedScreen({ activeTourId, celebrate = false }: { activeTourId: number; celebrate?: boolean }) {
     const { theme } = useTheme();
+    const { top } = useSafeAreaInsets(); // Get safe area
     const { unlockAchievement, loadAchievements } = useAchievements();
     const { showToast } = useToast();
 
@@ -100,7 +102,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                             showToast({
                                 title: ach.title,
                                 message: ach.description,
-                                emoji: ach.icon || '🏆', // Fallback icon if emoji missing
+                                emoji: ach.emoji || ach.icon || '🏆', // Fallback icon if emoji missing
                                 backgroundColor: ach.color || theme.primary
                             });
                         }, index * 3500); // Stagger toasts if multiple
@@ -215,7 +217,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                 showsVerticalScrollIndicator={false}
             >
                 {/* Back Button (Floating) */}
-                <View style={[styles.topBar]}>
+                <View style={[styles.topBar, { paddingTop: Math.max(top, 20) + 10 }]}>
                     <TouchableOpacity
                         onPress={handleBackToHome}
                         style={[styles.backButton, { backgroundColor: 'rgba(0,0,0,0.2)' }]}
@@ -379,6 +381,8 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         letterSpacing: 0.5,
         marginBottom: 8,
+        lineHeight: 44, // Increased line height to prevent clipping
+        paddingTop: 10, // Added padding to prevent top clipping
     },
     winnerScorePill: {
         flexDirection: 'row',

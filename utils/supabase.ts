@@ -1,28 +1,43 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from "@supabase/supabase-js";
 import { AppState } from 'react-native';
 import 'react-native-url-polyfill/auto';
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
+const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || "placeholder-key";
 
-if (!supabaseUrl || !supabaseKey) {
-    console.warn("Supabase URL or Key is missing! Please check your .env file.");
+if (!process.env.EXPO_PUBLIC_SUPABASE_URL || !process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY) {
+    console.warn("Supabase URL or Key is missing! Using placeholders to prevent build crash.");
+} else {
+    console.log("Supabase URL:", process.env.EXPO_PUBLIC_SUPABASE_URL);
+    console.log("Supabase Key (first 10 chars):", process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY.substring(0, 10) + "...");
 }
-
-// Custom storage adapter to handle SSR/Node environments where AsyncStorage might fail or window is undefined
 const ExpoStorage = {
     getItem: (key: string) => {
         if (typeof window === 'undefined') return Promise.resolve(null);
-        return AsyncStorage.getItem(key);
+        try {
+            const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+            return AsyncStorage.getItem(key);
+        } catch (e) {
+            return Promise.resolve(null);
+        }
     },
     setItem: (key: string, value: string) => {
         if (typeof window === 'undefined') return Promise.resolve();
-        return AsyncStorage.setItem(key, value);
+        try {
+            const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+            return AsyncStorage.setItem(key, value);
+        } catch (e) {
+            return Promise.resolve();
+        }
     },
     removeItem: (key: string) => {
         if (typeof window === 'undefined') return Promise.resolve();
-        return AsyncStorage.removeItem(key);
+        try {
+            const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+            return AsyncStorage.removeItem(key);
+        } catch (e) {
+            return Promise.resolve();
+        }
     },
 };
 

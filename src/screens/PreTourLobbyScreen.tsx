@@ -26,7 +26,7 @@ export default function PreTourLobbyScreen() {
     const activeTourId = Number(params.activeTourId);
     const [showInviteModal, setShowInviteModal] = useState(false);
 
-    const { activeTour, userTeam, loading, loadLobbyDetails, startTour } = usePreTourLobby(activeTourId, user);
+    const { activeTour, userTeam, loading, isStarting, loadLobbyDetails, startTour } = usePreTourLobby(activeTourId, user);
 
     useFocusEffect(
         useCallback(() => {
@@ -42,6 +42,10 @@ export default function PreTourLobbyScreen() {
             router.replace(`/active-tour/${activeTourId}`);
         }
     }, [activeTour?.status, activeTourId]);
+
+    if (isStarting) {
+        return <TourLoadingScreen message="Loading Tour..." />;
+    }
 
     if (loading) {
         return <TourLoadingScreen message="Loading lobby..." />;

@@ -72,7 +72,34 @@ fs.writeFileSync(path.join(root, 'vercel.json'), JSON.stringify({
     version: 2,
     cleanUrls: true,
     functions: { "api/index.js": { includeFiles: "api/**/*.node" } },
-    rewrites: [{ source: "/api/(.*)", destination: "/api/index" }]
+    rewrites: [
+        { source: "/api/(.*)", destination: "/api/index" },
+        { source: "/(.*)", destination: "/index.html" }
+    ]
 }, null, 2));
+
+console.log('Organizing Static Files (Flattening dist)...');
+const tempDist = path.join(root, 'dist_temp');
+if (fs.existsSync(tempDist)) fs.rmSync(tempDist, { recursive: true });
+fs.renameSync(dist, tempDist);
+fs.mkdirSync(dist);
+
+// 1. Copy Client Static Assets (dist/client -> dist)
+const clientDir = path.join(tempDist, 'client');
+if (fs.existsSync(clientDir)) {
+    fs.cpSync(clientDir, dist, { recursive: true });
+}
+
+// 2. Copy Server HTML Pages (dist/server -> dist), excluding _expo (functions)
+const serverDir = path.join(tempDist, 'server');
+if (fs.existsSync(serverDir)) {
+    fs.readdirSync(serverDir).forEach(file => {
+        if (file !== '_expo') {
+            fs.cpSync(path.join(serverDir, file), path.join(dist, file), { recursive: true });
+        }
+    });
+}
+// Clean up temp
+fs.rmSync(tempDist, { recursive: true });
 
 console.log('Done. Ready to deploy.');

@@ -1,4 +1,5 @@
 import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
 import React, { useEffect } from 'react';
 import { Dimensions, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -112,7 +113,15 @@ export const ToastComponent: React.FC<ToastProps> = ({
                         >
                             {/* Icon / Emoji Section */}
                             <View style={[styles.iconContainer, { backgroundColor: `${accentColor}15` }]}>
-                                <Text style={styles.emoji}>{emoji}</Text>
+                                {emoji.startsWith('http') ? (
+                                    <Image
+                                        source={{ uri: emoji }}
+                                        style={styles.iconImage}
+                                        contentFit="contain"
+                                    />
+                                ) : (
+                                    <Text style={styles.emoji}>{emoji}</Text>
+                                )}
                             </View>
 
                             {/* Text Content */}
@@ -177,6 +186,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 12,
+    },
+    iconImage: {
+        width: 32,
+        height: 32,
     },
     emoji: {
         fontSize: 22,

@@ -61,16 +61,12 @@ export const useTeamSetup = () => {
             );
 
             setLoading(false);
-            setLoading(false);
 
-            if (router.canGoBack()) {
-                router.back();
-            } else {
-                router.replace({
-                    pathname: '/lobby',
-                    params: { activeTourId: activeTourId }
-                });
-            }
+            // Always route to lobby to ensure state is fresh and correct screen is shown
+            router.replace({
+                pathname: '/lobby',
+                params: { activeTourId: activeTourId }
+            });
 
             // Refresh store in background
             fetchActiveTours(user.id).catch(console.error);

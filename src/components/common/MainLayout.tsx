@@ -2,9 +2,10 @@ import AuthRequiredModal from '@/src/components/AuthRequiredModal';
 import ThemedStatusBar from '@/src/components/ThemedStatusBar';
 import { useAuth } from '@/src/context/AuthContext';
 import { useLevelUpListener } from '@/src/hooks/useLevelUpListener';
+import { supabase } from '@/utils/supabase';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Platform, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 
 export function MainLayout() {
@@ -15,19 +16,68 @@ export function MainLayout() {
 
     const [isReady, setIsReady] = useState(false);
     const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+    // const [initialRedirect, setInitialRedirect] = useState<{ pathname: string; params?: any } | null>(null);
 
     // Listen for level ups
     useLevelUpListener();
 
     useEffect(() => {
-        // Check onboarding status
-        const checkOnboarding = async () => {
-            // const value = await AsyncStorage.getItem('hasSeenOnboarding');
-            // setHasSeenOnboarding(value === 'true');
+        const checkInitialState = async () => {
+            // Web-specific: Check for hash redirects (Supabase Auth)
+            if (Platform.OS === 'web') {
+                try {
+                    const hash = window.location.hash;
+                    if (hash && (hash.includes('access_token') || hash.includes('error'))) {
+                        const params = new URLSearchParams(hash.substring(1));
+
+                        // Handle Email Confirmation / Recovery
+                        if (params.get('access_token')) {
+                            const accessToken = params.get('access_token');
+                            const refreshToken = params.get('refresh_token');
+                            const type = params.get('type');
+
+                            if (accessToken && refreshToken) {
+                                const { error } = await supabase.auth.setSession({
+                                    access_token: accessToken,
+                                    refresh_token: refreshToken,
+                                });
+                                if (error) console.error("Error setting session", error);
+
+                                const route = type === 'recovery' ? '/auth/reset-password' : '/auth/confirm-email';
+                                // setInitialRedirect({ pathname: route });
+                                // On second thought, immediate replace works fine usually, but let's try direct replace 
+                                // BUT ensuring we don't block.
+                                router.replace(route);
+                                setIsReady(true);
+                                return;
+                            }
+                        }
+                        // Handle Errors (link expired)
+                        else if (params.get('error')) {
+                            const errorCode = params.get('error_code');
+                            const errorDescription = params.get('error_description');
+
+                            // Log for debugging
+                            console.log("Link Expired detected:", errorCode, errorDescription);
+
+                            router.replace({
+                                pathname: '/auth/link-expired' as any,
+                                params: { error_description: errorDescription || '', code: errorCode || '' }
+                            });
+                            setIsReady(true);
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error parsing auth hash:", e);
+                }
+            }
+
+            // Fallthrough default
             setHasSeenOnboarding(false);
             setIsReady(true);
         };
-        checkOnboarding();
+        checkInitialState();
     }, []);
 
     useEffect(() => {
@@ -37,7 +87,10 @@ export function MainLayout() {
 
         if (session) {
             // If authenticated, go to home (unless already there, but Replace covers this)
-            if (inAuthGroup) {
+            // Exception: confirm-email, reset-password, and link-expired should be viewable even if logged in
+            const isException = segment[1] === 'confirm-email' || segment[1] === 'reset-password' || (segment[1] as string) === 'link-expired';
+
+            if (inAuthGroup && !isException) {
                 router.replace('/');
             }
         } else {
@@ -50,8 +103,6 @@ export function MainLayout() {
                     router.replace('/auth/login');
                 }
             } else if (segment[1] === 'login' && !hasSeenOnboarding) {
-                // Guard: If trying to access login but hasn't seen onboarding, redirect back
-                // This protects against deep links or manual navigation to /auth/login
                 // router.replace('/auth/onboarding' as any);
             }
         }
@@ -70,7 +121,7 @@ export function MainLayout() {
             <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bgPrimary } }}>
                 <Stack.Screen name="auth" options={{ headerShown: false }} />
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="tour" options={{ headerShown: false }} />
+                <Stack.Screen name="tour/[id]" options={{ headerShown: false }} />
                 <Stack.Screen name="+not-found" />
             </Stack>
             <ThemedStatusBar />

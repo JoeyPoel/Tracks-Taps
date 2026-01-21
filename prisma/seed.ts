@@ -4,13 +4,17 @@ import 'dotenv/config';
 import { Pool } from 'pg';
 
 console.log('DATABASE_URL connection string:', `"${process.env.DATABASE_URL}"`);
-console.log('DIRECT_URL connection string:', `"${process.env.DIRECT_URL}"`);
 
 if (!process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL is missing from environment variables');
 }
 
-const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL;
+const connectionString = process.env.DATABASE_URL;
+
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL;
+if (!SUPABASE_URL) {
+    throw new Error('SUPABASE_URL (or EXPO_PUBLIC_SUPABASE_URL) is missing from environment variables');
+}
 
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
@@ -166,7 +170,7 @@ async function main() {
             title: 'Tata Steel: Industrial Survival',
             location: 'IJmuiden',
             description: 'A dystopian journey through the smoke and steel. Navigate the blast furnaces, dodge the steam, and survive the wasteland.',
-            imageUrl: 'https://xnfqoclbqadloaimjujr.supabase.co/storage/v1/object/public/images/tours/TataSteel.png',
+            imageUrl: `${SUPABASE_URL}/storage/v1/object/public/images/tours/TataSteel.png`,
             distance: 14.5,
             duration: 120,
             points: 2000,
@@ -175,6 +179,7 @@ async function main() {
             authorId: alice.id,
             startLat: 52.465,
             startLng: 4.600,
+            status: 'PUBLISHED',
         },
     });
 
@@ -435,7 +440,7 @@ async function main() {
             title: 'Gaudi\'s Psychedelic Dream',
             location: 'Barcelona',
             description: 'A mind-bending journey through the organic shapes and colors of Antoni Gaudi. Includes a Sangria stop to enhance the visions.',
-            imageUrl: 'https://xnfqoclbqadloaimjujr.supabase.co/storage/v1/object/public/images/tours/barcelona-gaudi-park-guell-2.jpg',
+            imageUrl: `${SUPABASE_URL}/storage/v1/object/public/images/tours/barcelona-gaudi-park-guell-2.jpg`,
             distance: 6.5,
             duration: 180,
             points: 1800,
@@ -444,6 +449,7 @@ async function main() {
             authorId: bob.id,
             startLat: 41.4036,
             startLng: 2.1744,
+            status: 'PUBLISHED',
         },
     });
 
@@ -729,7 +735,7 @@ async function main() {
             title: 'Barcelona: Gothic & Gluttony',
             location: 'Barcelona',
             description: 'Medieval alleys, royal squares, and a lot of wine. This is the ultimate tapas crawl with a PubGolf twist.',
-            imageUrl: 'https://xnfqoclbqadloaimjujr.supabase.co/storage/v1/object/public/images/tours/Sagrada_Familia_Sculptures.jpg',
+            imageUrl: `${SUPABASE_URL}/storage/v1/object/public/images/tours/Sagrada_Familia_Sculptures.jpg`,
             distance: 4.0,
             duration: 150,
             points: 1500,
@@ -738,6 +744,7 @@ async function main() {
             authorId: joey.id,
             startLat: 41.3833,
             startLng: 2.1750,
+            status: 'PUBLISHED',
         },
     });
 
@@ -979,7 +986,7 @@ async function main() {
             title: 'Warsaw: Phoenix Rising',
             location: 'Warsaw',
             description: 'A city destroyed and reborn. Explore the history, the sewers of the uprising, and toast to freedom with local vodka.',
-            imageUrl: 'https://xnfqoclbqadloaimjujr.supabase.co/storage/v1/object/public/images/tours/Warsaw.png',
+            imageUrl: `${SUPABASE_URL}/storage/v1/object/public/images/tours/Warsaw.png`,
             distance: 5.5,
             duration: 140,
             points: 1600,
@@ -1261,7 +1268,7 @@ async function main() {
             title: 'Amsterdam Canals & Culture',
             location: 'Amsterdam',
             description: 'Go beyond the Red Light District and explore the diverse architecture, hidden gems, and new icons of Amsterdam.',
-            imageUrl: 'https://xnfqoclbqadloaimjujr.supabase.co/storage/v1/object/public/images/tours/RedLightDistrict.png',
+            imageUrl: `${SUPABASE_URL}/storage/v1/object/public/images/tours/RedLightDistrict.png`,
             distance: 7.5,
             duration: 180,
             points: 1300,
@@ -1542,7 +1549,7 @@ async function main() {
             title: 'Breda PubGolf Championship',
             location: 'Breda',
             description: 'The ultimate pub golf experience in the pearl of the south. 12 holes, 12 drinks, one champion.',
-            imageUrl: 'https://xnfqoclbqadloaimjujr.supabase.co/storage/v1/object/public/images/tours/PubgolfBreda.png',
+            imageUrl: `${SUPABASE_URL}/storage/v1/object/public/images/tours/PubgolfBreda.png`,
             distance: 3.5,
             duration: 240, // 4 hours
             points: 2000,
@@ -2096,6 +2103,8 @@ async function main() {
             const bingoCard = await prisma.bingoCard.create({
                 data: { teamId: team.id }
             });
+            /*
+            // BingoCell model does not exist in schema
             await prisma.bingoCell.createMany({
                 data: bingoChallenges.map(c => ({
                     bingoCardId: bingoCard.id,
@@ -2104,6 +2113,7 @@ async function main() {
                     col: c.bingoCol!
                 }))
             });
+            */
         }
 
         // Create PubGolf Stops
