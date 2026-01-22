@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
   Cog6ToothIcon,
   DocumentTextIcon,
@@ -131,12 +131,18 @@ export default function ProfileScreen() {
             <SettingsItem
               icon={<EnvelopeIcon size={22} color={theme.primary} />}
               title={t('contact')}
-              onPress={() => console.log('Contact pressed')}
+              onPress={async () => {
+                try {
+                  await Linking.openURL('mailto:Tracks.taps@gmail.com');
+                } catch (error) {
+                  console.error('Error opening email client:', error);
+                }
+              }}
             />
             <SettingsItem
               icon={<DocumentTextIcon size={22} color={theme.primary} />}
               title={t('terms')}
-              onPress={() => console.log('Terms & Conditions pressed')}
+              onPress={() => router.push('/profile/terms' as any)}
             />
             <SettingsItem
               icon={<QuestionMarkCircleIcon size={22} color={theme.primary} />}

@@ -90,7 +90,7 @@ export default function TourListScreen() {
                                 distance={item.distance ? `${item.distance} km` : '0 km'}
                                 duration={item.duration ? `${item.duration} min` : '0 min'}
                                 stops={item._count?.stops ?? item.stops?.length ?? 0}
-                                rating={item.rating || 0}
+                                rating={item.rating || (item.reviews?.length > 0 ? (item.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / item.reviews.length) : 0)}
                                 reviewCount={item._count?.reviews ?? item.reviews?.length ?? 0}
                                 points={item.points || 0}
                                 modes={item.modes || []}
@@ -104,7 +104,7 @@ export default function TourListScreen() {
                 }}
                 keyExtractor={(item) => {
                     if (typeof item === 'number') return `skeleton-${item}`;
-                    return item.uniqueKey || item.id.toString();
+                    return item.uniqueKey || (item.id ? item.id.toString() : Math.random().toString());
                 }}
                 contentContainerStyle={styles.listContent}
                 refreshControl={
@@ -124,7 +124,7 @@ export default function TourListScreen() {
                     ) : null
                 }
             />
-        </ScreenWrapper>
+        </ScreenWrapper >
     );
 }
 

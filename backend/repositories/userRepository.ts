@@ -182,7 +182,8 @@ export const userRepository = {
                             genre: true,
                             type: true,
                             author: { select: { name: true } },
-                            _count: { select: { stops: true, reviews: true } }
+                            _count: { select: { stops: true, reviews: true } },
+                            reviews: { select: { rating: true } }
                         }
                     }
                 },
@@ -207,7 +208,8 @@ export const userRepository = {
                     status: true,
                     createdAt: true,
                     author: { select: { name: true } },
-                    _count: { select: { stops: true, reviews: true } }
+                    _count: { select: { stops: true, reviews: true } },
+                    reviews: { select: { rating: true } }
                 },
                 orderBy: { createdAt: 'desc' },
             },

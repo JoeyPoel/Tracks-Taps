@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tracks&Taps",
     "slug": "tracks-and-taps",
-    "version": "2.0.0",
+    "version": "2.1.1",
     "orientation": "portrait",
     "icon": "./assets/images/App Icon Coloured.png",
     "scheme": "tracks-taps",
@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.joeypoel.trackstaps",
-      "buildNumber": "5",
+      "buildNumber": "6",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Tracks Taps uses your location to show your position on the map and verify location-based challenges.",
         "NSPhotoLibraryUsageDescription": "Tracks Taps needs access to your photo library to select images for tours and stops.",

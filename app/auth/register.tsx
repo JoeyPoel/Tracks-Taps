@@ -33,6 +33,7 @@ export default function RegisterScreen() {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [termsAccepted, setTermsAccepted] = useState(false);
 
 
     React.useEffect(() => {
@@ -46,6 +47,11 @@ export default function RegisterScreen() {
         }
         if (password !== confirmPassword) {
             Alert.alert('Error', t('passwordsDoNotMatch'));
+            return;
+        }
+
+        if (!termsAccepted) {
+            Alert.alert('Error', t('mustAcceptTerms' as any) || "You must accept the Terms and Conditions to sign up.");
             return;
         }
 
@@ -78,7 +84,7 @@ export default function RegisterScreen() {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${session?.access_token}`
                     },
-                    body: JSON.stringify({ action: 'create-user', email: email, password: password }),
+                    body: JSON.stringify({ action: 'create-user', email: email }),
                 });
             } catch (err) {
                 console.error("Failed to create user in DB:", err);
@@ -178,6 +184,20 @@ export default function RegisterScreen() {
                                 <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
                                     <Ionicons name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} size={20} color={theme.textTertiary} />
                                 </TouchableOpacity>
+                            </View>
+                        </View>
+
+                        <View style={styles.termsContainer}>
+                            <TouchableOpacity
+                                style={[styles.checkbox, { borderColor: termsAccepted ? theme.primary : theme.textTertiary }]}
+                                onPress={() => setTermsAccepted(!termsAccepted)}
+                            >
+                                {termsAccepted && <Ionicons name="checkmark" size={14} color={theme.primary} />}
+                            </TouchableOpacity>
+                            <View style={styles.termsTextContainer}>
+                                <Text style={[styles.termsText, { color: theme.textSecondary }]}>
+                                    {t('iAgreeTo' as any) || 'I agree to the'} <Text style={[styles.termsLink, { color: theme.primary }]} onPress={() => router.push('/auth/terms' as any)}>{t('termsAndConditions' as any) || 'Terms & Conditions'}</Text>
+                                </Text>
                             </View>
                         </View>
 
@@ -325,5 +345,31 @@ const styles = StyleSheet.create({
     link: {
         fontSize: 14,
         fontWeight: 'bold',
+        textDecorationLine: 'underline',
     },
+    termsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 24,
+        paddingHorizontal: 4,
+    },
+    checkbox: {
+        width: 20,
+        height: 20,
+        borderWidth: 2,
+        borderRadius: 4,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 10,
+    },
+    termsTextContainer: {
+        flex: 1,
+    },
+    termsText: {
+        fontSize: 14,
+        flexWrap: 'wrap',
+    },
+    termsLink: {
+        fontWeight: 'bold',
+    }
 });

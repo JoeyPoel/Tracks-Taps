@@ -11,6 +11,7 @@ export default function AuthLayout() {
             <Stack.Screen name="confirm-email" />
             <Stack.Screen name="link-expired" />
             <Stack.Screen name="onboarding" />
+            <Stack.Screen name="terms" />
         </Stack>
     );
 }
