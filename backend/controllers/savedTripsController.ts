@@ -77,6 +77,12 @@ export const savedTripsController = {
             const list = await savedTripsService.addTourToSavedTrip(parseInt(id), userId, parseInt(tourId));
             return Response.json(list);
         } catch (error: any) {
+            if (error.code === 'P2025' || error.message?.includes('not found')) {
+                return Response.json({ error: 'Saved trip list or tour not found' }, { status: 404 });
+            }
+            if (error.message?.includes('Unauthorized')) {
+                return Response.json({ error: 'Unauthorized' }, { status: 403 });
+            }
             return Response.json({ error: error.message }, { status: 500 });
         }
     },
@@ -86,6 +92,12 @@ export const savedTripsController = {
             const list = await savedTripsService.removeTourFromSavedTrip(parseInt(id), userId, parseInt(tourId));
             return Response.json(list);
         } catch (error: any) {
+            if (error.code === 'P2025' || error.message?.includes('not found')) {
+                return Response.json({ error: 'Saved trip list or tour not found' }, { status: 404 });
+            }
+            if (error.message?.includes('Unauthorized')) {
+                return Response.json({ error: 'Unauthorized' }, { status: 403 });
+            }
             return Response.json({ error: error.message }, { status: 500 });
         }
     },

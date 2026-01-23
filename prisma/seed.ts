@@ -2,6 +2,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { ChallengeType, Difficulty, PrismaClient, SessionStatus, StopType } from '@prisma/client';
 import 'dotenv/config';
 import { Pool } from 'pg';
+import { seedEgypt } from './seed_egypt';
 
 console.log('DATABASE_URL connection string:', `"${process.env.DATABASE_URL}"`);
 
@@ -2129,7 +2130,10 @@ async function main() {
         }
     }
 
-    console.log('Seed data created successfully with 6 high-quality tours.');
+    // Seed Egypt Tours
+    await seedEgypt(prisma, alice.id);
+
+    console.log('Seed data created successfully with 6 high-quality tours + Egypt expansion.');
 }
 
 main()

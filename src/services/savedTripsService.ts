@@ -39,7 +39,7 @@ export const savedTripsService = {
     },
 
     async addTour(listId: number, tourId: number) {
-        const response = await client.post(`/saved-trips/${listId}/tours/${tourId}`);
+        const response = await client.post(`/saved-trips/${listId}/tours/${tourId}`, {});
         return response.data;
     },
 
