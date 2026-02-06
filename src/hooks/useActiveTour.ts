@@ -1,7 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
 import { activeTourService } from '../services/activeTourService';
+import { syncService } from '../services/syncService';
 import { useStore } from '../store/store';
 import { ActiveChallenge, PubGolfStop, Stop, Team } from '../types/models';
+import { offlineStorage } from '../utils/offlineStorage';
 import { getScoreDetails } from '../utils/pubGolfUtils';
 
 export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?: (amount: number) => void) => {
@@ -15,14 +18,58 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
 
     const updateActiveTourLocal = useStore((state) => state.updateActiveTourLocal);
 
+    // Sync Ref
+    const appState = useRef(AppState.currentState);
+
+    // 1. Initial Load (Offline -> Online)
+    useEffect(() => {
+        const load = async () => {
+            // Create a temporary loading state locally if needed, but store handles it.
+            // Try load from offline first
+            if (activeTourId) {
+                const cached = await offlineStorage.getActiveTour(activeTourId);
+                if (cached) {
+                    console.log('[Offline] Loaded active tour from storage');
+                    updateActiveTourLocal(cached);
+                }
+
+                // Then fetch fresh data
+                fetchActiveTourById(activeTourId, userId);
+            }
+        };
+        load();
+    }, [activeTourId, userId, fetchActiveTourById]);
+
+    // 2. Persist State on Change
+    useEffect(() => {
+        if (activeTour && activeTour.id === activeTourId) {
+            offlineStorage.saveActiveTour(activeTour).catch(console.error);
+        }
+    }, [activeTour, activeTourId]);
+
+    // 3. Auto-Sync on App Resume
+    useEffect(() => {
+        const handleAppStateChange = (nextAppState: AppStateStatus) => {
+            if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+                console.log('[Offline] App resumed, triggering sync...');
+                syncService.syncPendingActions();
+            }
+            appState.current = nextAppState;
+        };
+
+        const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+        // Also trigger once on mount
+        setTimeout(() => syncService.syncPendingActions(), 5000);
+
+        return () => {
+            subscription.remove();
+        };
+    }, []);
+
     // Derived loading state
-    // Robust Logic: 
-    // 1. If we have the CORRECT tour data loaded, we are NOT loading (even if background refreshing).
-    // 2. If we do NOT have the correct tour data, we ARE loading (unless there is an error).
     const isDataLoaded = activeTour?.id === activeTourId;
     const loading = !isDataLoaded && (storeLoading || !activeTour || !error);
-    // Note: !error check ensures we don't get stuck in loading if there is an error.
-    // However, if !isDataLoaded and !error, we default to loading (initial state).
 
     // Resolve Team
     const currentTeam = useMemo(() =>
@@ -73,10 +120,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
 
     useEffect(() => {
         setShowConfetti(false);
-        if (activeTourId) {
-            fetchActiveTourById(activeTourId, userId);
-        }
-    }, [activeTourId, userId, fetchActiveTourById]);
+    }, [activeTourId]);
 
     const triggerFloatingPoints = (amount: number) => {
         setFloatingPointsAmount(amount);
@@ -94,7 +138,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         }
 
         const optimisticChallenge: ActiveChallenge = {
-            id: -1, // Temp ID
+            id: -Date.now(), // Temp ID
             teamId: currentTeam.id,
             challengeId: challenge.id,
             completed: true,
@@ -113,12 +157,15 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         updateActiveTourLocal({ teams: [updatedTeam] });
 
         try {
-            // FIRE AND FORGET - We trust our local state
             await activeTourService.completeChallenge(activeTourId, challenge.id, userId);
         } catch (err) {
-            console.error('Failed to complete challenge', err);
-            // Revert on error
-            updateActiveTourLocal({ teams: previousTeams });
+            console.warn('[Offline] Failed to complete challenge, queuing action.', err);
+            // Don't revert, assume success offline
+            await offlineStorage.addAction({
+                type: 'COMPLETE_CHALLENGE',
+                activeTourId,
+                payload: { challengeId: challenge.id, userId }
+            });
         }
     };
 
@@ -126,7 +173,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         if (!currentTeam || completedChallenges.has(challenge.id) || failedChallenges.has(challenge.id)) return;
 
         const optimisticChallenge: ActiveChallenge = {
-            id: -1,
+            id: -Date.now(),
             teamId: currentTeam.id,
             challengeId: challenge.id,
             completed: false,
@@ -144,12 +191,14 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         updateActiveTourLocal({ teams: [updatedTeam] });
 
         try {
-            // FIRE AND FORGET
             await activeTourService.failChallenge(activeTourId, challenge.id, userId);
         } catch (err) {
-            console.error('Failed to fail challenge', err);
-            // Revert
-            updateActiveTourLocal({ teams: previousTeams });
+            console.warn('[Offline] Failed to fail challenge, queuing action.', err);
+            await offlineStorage.addAction({
+                type: 'FAIL_CHALLENGE',
+                activeTourId,
+                payload: { challengeId: challenge.id, userId }
+            });
         }
     };
 
@@ -197,12 +246,14 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         updateActiveTourLocal({ teams: [optimisticTeam] });
 
         try {
-            // FIRE AND FORGET
             await activeTourService.updateCurrentStop(activeTourId, newStop, userId);
         } catch (error) {
-            console.error("Failed to update current stop", error);
-            // Revert
-            updateActiveTourLocal({ teams: previousTeams });
+            console.warn("[Offline] Failed to update current stop, queuing action", error);
+            await offlineStorage.addAction({
+                type: 'UPDATE_CURRENT_STOP',
+                activeTourId,
+                payload: { currentStop: newStop, userId }
+            });
         }
     }
 
@@ -234,7 +285,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
             }
         }
 
-        // If not found, add it? (Logic implies it exists from seed, but strictly might need to create)
+        // If not found, add it
         if (!updatedPubGolfStops.find((pg: any) => pg.stopId === stopId)) {
             updatedPubGolfStops.push({ stopId, sips, teamId: currentTeam.id });
         }
@@ -246,12 +297,14 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
 
         if (userId) {
             try {
-                // FIRE AND FORGET
                 await activeTourService.updatePubGolfScore(activeTourId, stopId, sips, userId);
             } catch (error) {
-                console.error("Failed to save sips:", error);
-                // Revert
-                updateActiveTourLocal({ teams: previousTeams });
+                console.warn("[Offline] Failed to save sips, queuing action:", error);
+                await offlineStorage.addAction({
+                    type: 'UPDATE_PUB_GOLF',
+                    activeTourId,
+                    payload: { stopId, sips, userId }
+                });
             }
         }
     };
@@ -263,7 +316,14 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
             setShowConfetti(true);
             return true;
         } catch (e) {
-            return false;
+            console.warn('[Offline] Failed to finish tour, queuing action', e);
+            await offlineStorage.addAction({
+                type: 'FINISH_TOUR',
+                activeTourId,
+                payload: { userId }
+            });
+            setShowConfetti(true); // Assume success
+            return true; // Assume success
         }
     };
 
