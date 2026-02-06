@@ -50,5 +50,18 @@ export const gameInviteController = {
             console.error('Controller Error (sendInvite):', error);
             return errorResponse(error.message || 'Failed to send invite');
         }
+    },
+
+    async inviteFriends(userEmail: string, friendIds: number[], activeTourId: number) {
+        try {
+            const dbUser = await userService.getUserByEmail(userEmail);
+            if (!dbUser) return errorResponse('User not found', 404);
+
+            const result = await gameInviteService.sendInvitesToUsers(dbUser.id, friendIds, activeTourId);
+            return jsonResponse(result);
+        } catch (error: any) {
+            console.error('Controller Error (inviteFriends):', error);
+            return errorResponse(error.message || 'Failed to invite friends');
+        }
     }
 };

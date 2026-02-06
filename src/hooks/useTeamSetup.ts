@@ -1,3 +1,4 @@
+import { supabase } from '@/utils/supabase';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
@@ -59,6 +60,17 @@ export const useTeamSetup = () => {
                 selectedColor,
                 selectedEmoji
             );
+
+            // Broadcast update to all lobby members
+            try {
+                await supabase.channel(`lobby_${activeTourId}`).send({
+                    type: 'broadcast',
+                    event: 'lobby_update',
+                    payload: { action: 'team_update' }
+                });
+            } catch (broadcastError) {
+                console.warn('Failed to broadcast lobby update', broadcastError);
+            }
 
             setLoading(false);
 

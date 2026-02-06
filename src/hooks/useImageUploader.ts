@@ -31,21 +31,26 @@ export const useImageUploader = ({
     const isAvatar = variant === 'avatar';
 
     const pickImage = async () => {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            Alert.alert(t('permissionNeeded'), t('cameraPermissionMsg'));
-            return;
-        }
+        try {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert(t('permissionNeeded'), t('cameraPermissionMsg'));
+                return;
+            }
 
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: 'images',
-            allowsEditing: true,
-            aspect: isAvatar ? [1, 1] : [16, 9],
-            quality: 1,
-        });
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: isAvatar ? [1, 1] : [16, 9],
+                quality: 1,
+            });
 
-        if (!result.canceled && result.assets[0].uri) {
-            handleUpload(result.assets[0].uri);
+            if (!result.canceled && result.assets[0].uri) {
+                handleUpload(result.assets[0].uri);
+            }
+        } catch (error) {
+            console.error('Error picking image:', error);
+            Alert.alert(t('error'), 'Failed to select image');
         }
     };
 

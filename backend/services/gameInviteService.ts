@@ -52,7 +52,7 @@ export const gameInviteService = {
     },
 
     async sendInvite(senderId: number, targetEmail: string, activeTourId: number) {
-        const sender = await userRepository.getUserById(senderId);
+        const sender = await userRepository.getUserProfile(senderId);
         const target = await userRepository.getUserByEmail(targetEmail);
         const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
 
@@ -71,5 +71,35 @@ export const gameInviteService = {
         });
 
         return { success: true };
+    },
+
+    async sendInvitesToUsers(senderId: number, targetUserIds: number[], activeTourId: number) {
+        if (!targetUserIds || targetUserIds.length === 0) return { success: true, count: 0 };
+
+        const sender = await userRepository.getUserProfile(senderId);
+        if (!sender) throw new Error("Sender not found");
+
+        const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
+        if (!activeTour) throw new Error("Tour not found");
+
+        // Filter out self if present
+        const validTargetIds = targetUserIds.filter(id => id !== senderId);
+
+        // Process invites in parallel
+        const results = await Promise.allSettled(validTargetIds.map(async (targetId) => {
+            // Check if user exists (optional optimization: findMany)
+            // For now, simpler to just create invite. Foreign key constraint will fail if user doesn't exist?
+            // Safer to check or rely on repository.
+            // Let's assume valid IDs for now or catch errors.
+
+            await gameInviteRepository.create({
+                activeTourId: activeTourId,
+                inviterId: senderId,
+                inviteeId: targetId
+            });
+        }));
+
+        const successCount = results.filter(r => r.status === 'fulfilled').length;
+        return { success: true, count: successCount };
     }
 };

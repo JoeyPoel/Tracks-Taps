@@ -2,7 +2,8 @@ import { savedTripsController } from '@/backend/controllers/savedTripsController
 import { userService } from '@/backend/services/userService';
 import { verifyAuth } from '@/backend/utils/auth';
 
-export async function POST(req: Request, { id, tourId }: { id: string, tourId: string }) {
+export async function POST(req: Request, { params }: { params: { id: string, tourId: string } }) {
+    const { id, tourId } = params;
     console.log(`[API] POST /saved-trips/${id}/tours/${tourId} request received`);
     const user = await verifyAuth(req);
     if (!user || !user.email) {
@@ -20,7 +21,8 @@ export async function POST(req: Request, { id, tourId }: { id: string, tourId: s
     return savedTripsController.addTour(req, { userId: dbUser.id, id, tourId });
 }
 
-export async function DELETE(req: Request, { id, tourId }: { id: string, tourId: string }) {
+export async function DELETE(req: Request, { params }: { params: { id: string, tourId: string } }) {
+    const { id, tourId } = params;
     const user = await verifyAuth(req);
     if (!user || !user.email) return new Response('Unauthorized', { status: 401 });
 
