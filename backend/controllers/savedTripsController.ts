@@ -74,7 +74,14 @@ export const savedTripsController = {
 
     async addTour(req: Request, { userId, id, tourId }: { userId: number, id: string, tourId: string }) {
         try {
-            const list = await savedTripsService.addTourToSavedTrip(parseInt(id), userId, parseInt(tourId));
+            const listId = parseInt(id);
+            const tId = parseInt(tourId);
+
+            if (isNaN(listId) || isNaN(tId)) {
+                return Response.json({ error: 'Invalid ID format' }, { status: 400 });
+            }
+
+            const list = await savedTripsService.addTourToSavedTrip(listId, userId, tId);
             return Response.json(list);
         } catch (error: any) {
             if (error.code === 'P2025' || error.message?.includes('not found')) {
@@ -83,13 +90,21 @@ export const savedTripsController = {
             if (error.message?.includes('Unauthorized')) {
                 return Response.json({ error: 'Unauthorized' }, { status: 403 });
             }
+            console.error('AddTour Error:', error);
             return Response.json({ error: error.message }, { status: 500 });
         }
     },
 
     async removeTour(req: Request, { userId, id, tourId }: { userId: number, id: string, tourId: string }) {
         try {
-            const list = await savedTripsService.removeTourFromSavedTrip(parseInt(id), userId, parseInt(tourId));
+            const listId = parseInt(id);
+            const tId = parseInt(tourId);
+
+            if (isNaN(listId) || isNaN(tId)) {
+                return Response.json({ error: 'Invalid ID format' }, { status: 400 });
+            }
+
+            const list = await savedTripsService.removeTourFromSavedTrip(listId, userId, tId);
             return Response.json(list);
         } catch (error: any) {
             if (error.code === 'P2025' || error.message?.includes('not found')) {
@@ -98,6 +113,7 @@ export const savedTripsController = {
             if (error.message?.includes('Unauthorized')) {
                 return Response.json({ error: 'Unauthorized' }, { status: 403 });
             }
+            console.error('RemoveTour Error:', error);
             return Response.json({ error: error.message }, { status: 500 });
         }
     },

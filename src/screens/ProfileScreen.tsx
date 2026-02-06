@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
   Cog6ToothIcon,
@@ -33,14 +33,18 @@ export default function ProfileScreen() {
   const [showBuyTokens, setShowBuyTokens] = useState(false);
   const [showReferralModal, setShowReferralModal] = useState(false);
 
-  const { user, loading } = useUserContext();
+
+  const { user, loading, refreshUser } = useUserContext();
   const { achievements, loadAchievements, loading: achievementsLoading } = useAchievements();
   const { loadFriends, friends } = useFriends();
 
-  useEffect(() => {
-    loadAchievements();
-    loadFriends();
-  }, [loadAchievements, loadFriends]);
+  useFocusEffect(
+    useCallback(() => {
+      refreshUser();
+      loadAchievements();
+      loadFriends();
+    }, [])
+  );
 
   if (loading && !user) {
     return (
