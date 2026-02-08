@@ -4,6 +4,7 @@ import { AdjustmentsHorizontalIcon, ListBulletIcon, MagnifyingGlassIcon, Squares
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { GENRES } from '../../utils/genres';
 import { ScreenHeader } from '../common/ScreenHeader';
 import { TextComponent } from '../common/TextComponent';
 import ActiveTourCard from './ActiveTourCard';
@@ -21,14 +22,6 @@ interface ExploreHeaderProps {
     user: any | null;
     onActiveTourPress: (tourId: string) => void;
 }
-
-const CATEGORIES = [
-    { id: 'PubGolf', label: 'Pub Golf', icon: '🍺' },
-    { id: 'History', label: 'History', icon: '🏛️' },
-    { id: 'Culture', label: 'Culture', icon: '🎨' },
-    { id: 'Nature', label: 'Nature', icon: '🌳' },
-    { id: 'Mystery', label: 'Mystery', icon: '🕵️' },
-];
 
 export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
     searchText,
@@ -101,8 +94,9 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.categoryContainer}
                 >
-                    {CATEGORIES.map((cat) => {
+                    {GENRES.map((cat) => {
                         const isSelected = selectedCategory === cat.id;
+                        const GenreIcon = cat.icon;
                         return (
                             <TouchableOpacity
                                 key={cat.id}
@@ -117,7 +111,11 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
                                 accessibilityRole="button"
                                 accessibilityState={{ selected: isSelected }}
                             >
-                                <TextComponent style={styles.categoryIcon} variant="body">{cat.icon}</TextComponent>
+                                <GenreIcon
+                                    size={16}
+                                    color={isSelected ? '#FFF' : theme.textPrimary}
+                                    style={{ marginRight: 8 }}
+                                />
                                 <TextComponent
                                     style={styles.categoryText}
                                     variant="label"

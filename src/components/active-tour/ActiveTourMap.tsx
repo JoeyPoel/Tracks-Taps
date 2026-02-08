@@ -81,6 +81,18 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
         }
     }, [previousStop?.id, currentStop.id]);
 
+    // Request Permissions on Mount
+    useEffect(() => {
+        (async () => {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            setPermissionStatus(status);
+            if (status === 'granted') {
+                const location = await Location.getCurrentPositionAsync({});
+                setUserLocation({ latitude: location.coords.latitude, longitude: location.coords.longitude });
+            }
+        })();
+    }, []);
+
     // Full Screen Logic: Get User Location & Route (User -> Stop B)
     useEffect(() => {
         let subscription: Location.LocationSubscription | null = null;
@@ -89,13 +101,14 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
         const startNavigation = async () => {
             if (!isFullScreen) return;
 
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            setPermissionStatus(status);
-
-            if (status !== 'granted') {
-                return;
+            // Permission status might already be set from mount, but double check
+            if (permissionStatus !== 'granted') {
+                const { status } = await Location.requestForegroundPermissionsAsync();
+                setPermissionStatus(status);
+                if (status !== 'granted') return;
             }
 
+            // ... (Rest of navigation logic)
             const location = await Location.getCurrentPositionAsync({});
             const userLatLng = { latitude: location.coords.latitude, longitude: location.coords.longitude };
             setUserLocation(userLatLng);
@@ -143,7 +156,7 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                 subscription.remove();
             }
         };
-    }, [isFullScreen, currentStop.id]);
+    }, [isFullScreen, currentStop.id, permissionStatus]); // Added permissionStatus dependency
 
     const handleExternalNavigation = () => {
         const scheme = Platform.select({ ios: 'maps:', android: 'geo:' });
@@ -161,7 +174,6 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
         }
     };
 
-
     return (
         <>
             {/* Small Preview Map */}
@@ -174,6 +186,7 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                     zoomEnabled={false}
                     rotateEnabled={false}
                     pitchEnabled={false}
+                    showsUserLocation={true}
                     initialRegion={{
                         latitude: currentStop.latitude,
                         longitude: currentStop.longitude,

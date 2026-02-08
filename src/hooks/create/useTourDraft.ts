@@ -85,12 +85,14 @@ export function useTourDraft() {
     // --- Actions ---
 
     const addStop = (stop: any) => {
-        const newStop = { ...stop, number: tourDraft.stops.length + 1 };
+        const newStop = { ...stop, number: tourDraft.stops.length + 1, _tempId: Math.random().toString(36).substring(7) };
         updateDraft('stops', [...tourDraft.stops, newStop]);
     };
 
     const removeStop = (index: number) => {
         const newStops = tourDraft.stops.filter((_, i) => i !== index).map((s, i) => ({ ...s, number: i + 1 }));
+        // Ensure _tempId persists, if not present assign one to prevent re-render issues
+        newStops.forEach(s => { if (!s._tempId && !s.id) s._tempId = Math.random().toString(36).substring(7); });
         updateDraft('stops', newStops);
     };
 
@@ -164,6 +166,15 @@ export function useTourDraft() {
         updateDraft('bingoChallenges', newChallenges);
     };
 
+    const reorderStops = (newStops: any[]) => {
+        const reordered = newStops.map((stop, index) => ({
+            ...stop,
+            number: index + 1
+        }));
+        // Ensure keys are stable? They are already objects with reference identity in react state, but _tempId helps.
+        updateDraft('stops', reordered);
+    };
+
     return {
         tourDraft,
         updateDraft,
@@ -181,7 +192,8 @@ export function useTourDraft() {
             removeBonusChallenge,
             editBonusChallenge,
             addBingoChallenge,
-            removeBingoChallenge
+            removeBingoChallenge,
+            reorderStops // Added
         }
     };
 }

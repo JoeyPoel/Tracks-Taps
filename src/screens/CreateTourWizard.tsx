@@ -33,7 +33,7 @@ export default function CreateTourWizard() {
         actions // Destructure actions
     } = useCreateTour();
 
-    const renderStep = () => {
+    const renderStep = (options?: { footer?: React.ReactNode }) => {
         // Step specific props can be passed here
         const stepProps = { draft: tourDraft, updateDraft, actions }; // Pass actions
 
@@ -51,7 +51,7 @@ export default function CreateTourWizard() {
             >
                 {stepName === 'Info' && <StepInfo {...stepProps} />}
                 {stepName === 'Gamemodes' && <StepGamemodes {...stepProps} />}
-                {stepName === 'Stops' && <StepStops {...stepProps} />}
+                {stepName === 'Stops' && <StepStops {...stepProps} footer={options?.footer} />}
                 {stepName === 'Bingo' && <StepBingo {...stepProps} />}
                 {stepName === 'Challenges' && <StepChallenges {...stepProps} />}
                 {stepName === 'Review' && <StepReview {...stepProps} />}
@@ -85,21 +85,38 @@ export default function CreateTourWizard() {
                 style={{ flex: 1 }}
                 keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
             >
-                <ScrollView
-                    contentContainerStyle={styles.content}
-                    showsVerticalScrollIndicator={false}
-                >
-                    {renderStep()}
-
-                    <View style={styles.inlineFooter}>
-                        <AnimatedButton
-                            title={isSubmitting ? t('sending') : (currentStep === STEPS.length - 1 ? t('createAndStart') : t('nextStep'))}
-                            onPress={handleNext}
-                            variant="primary"
-                            loading={isSubmitting}
-                        />
+                {stepName === 'Stops' ? (
+                    <View style={[styles.content, { paddingBottom: 0, paddingHorizontal: 0 }]}>
+                        {renderStep({
+                            footer: (
+                                <View style={styles.inlineFooter}>
+                                    <AnimatedButton
+                                        title={isSubmitting ? t('sending') : (currentStep === STEPS.length - 1 ? t('createAndStart') : t('nextStep'))}
+                                        onPress={handleNext}
+                                        variant="primary"
+                                        loading={isSubmitting}
+                                    />
+                                </View>
+                            )
+                        })}
                     </View>
-                </ScrollView>
+                ) : (
+                    <ScrollView
+                        contentContainerStyle={styles.content}
+                        showsVerticalScrollIndicator={false}
+                    >
+                        {renderStep()}
+
+                        <View style={styles.inlineFooter}>
+                            <AnimatedButton
+                                title={isSubmitting ? t('sending') : (currentStep === STEPS.length - 1 ? t('createAndStart') : t('nextStep'))}
+                                onPress={handleNext}
+                                variant="primary"
+                                loading={isSubmitting}
+                            />
+                        </View>
+                    </ScrollView>
+                )}
             </KeyboardAvoidingView>
         </ScreenWrapper>
     );

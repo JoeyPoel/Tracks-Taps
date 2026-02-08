@@ -1,7 +1,7 @@
 import { useLanguage } from '@/src/context/LanguageContext';
 import { ChallengeType } from '@/src/types/models';
 import { createChallengePayload, validateChallenge } from '@/src/utils/create/challengeUtils';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 
 export interface ChallengeFormState {
@@ -37,40 +37,7 @@ export function useChallengeForm(onSave: (challenge: any) => void, onClose: () =
         correctOption: 'A', // Default to A
     });
 
-    useEffect(() => {
-        if (initialData) {
-            // Determine correct option if editing
-            let correct = 'A';
-            if (initialData.type === ChallengeType.TRIVIA && initialData.answer) {
-                if (initialData.answer === initialData.options?.[1]) correct = 'B';
-                if (initialData.answer === initialData.options?.[2]) correct = 'C';
-                if (initialData.answer === initialData.options?.[3]) correct = 'D';
-            }
-
-            setFormState({
-                title: initialData.title || '',
-                content: initialData.content || '',
-                answer: initialData.answer || '',
-                points: initialData.points ? String(initialData.points) : '50',
-                hint: initialData.hint || '',
-                type: initialData.type || ChallengeType.TRIVIA,
-                tfAnswer: initialData.type === ChallengeType.TRUE_FALSE ? initialData.answer === 'true' : true,
-                optionA: initialData.options?.[0] || '',
-                optionB: initialData.options?.[1] || '',
-                optionC: initialData.options?.[2] || '',
-                optionD: initialData.options?.[3] || '',
-                correctOption: correct as 'A' | 'B' | 'C' | 'D',
-            });
-        } else {
-            resetForm();
-        }
-    }, [initialData]);
-
-    const updateField = <K extends keyof ChallengeFormState>(key: K, value: ChallengeFormState[K]) => {
-        setFormState(prev => ({ ...prev, [key]: value }));
-    };
-
-    const resetForm = () => {
+    const resetForm = useCallback(() => {
         setFormState({
             title: '',
             content: '',
@@ -85,6 +52,43 @@ export function useChallengeForm(onSave: (challenge: any) => void, onClose: () =
             optionD: '',
             correctOption: 'A',
         });
+    }, []);
+
+    useEffect(() => {
+        // console.log('useChallengeForm: initialData changed:', initialData);
+        if (initialData) {
+            // Determine correct option if editing
+            let correct: 'A' | 'B' | 'C' | 'D' = 'A';
+            if (initialData.type === ChallengeType.TRIVIA && initialData.answer && initialData.options) {
+                if (initialData.answer === initialData.options[1]) correct = 'B';
+                else if (initialData.answer === initialData.options[2]) correct = 'C';
+                else if (initialData.answer === initialData.options[3]) correct = 'D';
+                else correct = 'A';
+            }
+
+            setFormState({
+                title: initialData.title || '',
+                content: initialData.content || '',
+                // Ensure we use the correct answer field based on type if needed, but 'answer' is standard
+                answer: initialData.answer || '',
+                points: initialData.points !== undefined ? String(initialData.points) : '50',
+                hint: initialData.hint || '',
+                type: initialData.type || ChallengeType.TRIVIA,
+                // Fix case sensitivity: payload saves 'TRUE'/'FALSE', check against that
+                tfAnswer: initialData.type === ChallengeType.TRUE_FALSE ? initialData.answer === 'TRUE' : true,
+                optionA: initialData.options?.[0] || '',
+                optionB: initialData.options?.[1] || '',
+                optionC: initialData.options?.[2] || '',
+                optionD: initialData.options?.[3] || '',
+                correctOption: correct,
+            });
+        } else {
+            resetForm();
+        }
+    }, [initialData, resetForm]);
+
+    const updateField = <K extends keyof ChallengeFormState>(key: K, value: ChallengeFormState[K]) => {
+        setFormState(prev => ({ ...prev, [key]: value }));
     };
 
     const handleSave = () => {

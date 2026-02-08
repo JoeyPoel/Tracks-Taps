@@ -89,7 +89,12 @@ export const useStartTour = (tourId: number, authorId?: number) => {
         }
 
         // Check if author
-        const isAuthor = authorId !== undefined && user && String(user.id) === String(authorId);
+        let isAuthor = (authorId !== undefined && user && String(user.id) === String(authorId));
+
+        // Fallback: Check if tour is in user's created tours list
+        if (!isAuthor && user?.createdTours) {
+            isAuthor = user.createdTours.some(t => String(t.id) === String(tourId));
+        }
 
         if (!isAuthor && user.tokens < 1) {
             if (Platform.OS === 'web') {

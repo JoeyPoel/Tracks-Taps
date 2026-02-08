@@ -16,7 +16,7 @@ export function MainLayout() {
 
     const [isReady, setIsReady] = useState(false);
     const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
-    // const [initialRedirect, setInitialRedirect] = useState<{ pathname: string; params?: any } | null>(null);
+    const [isHandlingAuthRedirect, setIsHandlingAuthRedirect] = useState(false);
 
     // Listen for level ups
     useLevelUpListener();
@@ -44,9 +44,7 @@ export function MainLayout() {
                                 if (error) console.error("Error setting session", error);
 
                                 const route = type === 'recovery' ? '/auth/reset-password' : '/auth/confirm-email';
-                                // setInitialRedirect({ pathname: route });
-                                // On second thought, immediate replace works fine usually, but let's try direct replace 
-                                // BUT ensuring we don't block.
+                                setIsHandlingAuthRedirect(true);
                                 router.replace(route);
                                 setIsReady(true);
                                 return;
@@ -57,14 +55,21 @@ export function MainLayout() {
                             const errorCode = params.get('error_code');
                             const errorDescription = params.get('error_description');
 
-                            // Log for debugging
                             console.log("Link Expired detected:", errorCode, errorDescription);
 
-                            router.replace({
-                                pathname: '/auth/link-expired' as any,
-                                params: { error_description: errorDescription || '', code: errorCode || '' }
-                            });
-                            setIsReady(true);
+                            setIsHandlingAuthRedirect(true);
+
+                            // Use setTimeout to ensure state update propagates before navigation
+                            setTimeout(() => {
+                                router.replace({
+                                    pathname: '/auth/link-expired',
+                                    params: {
+                                        error_description: errorDescription?.replace(/\+/g, ' ') || '',
+                                        code: errorCode || ''
+                                    }
+                                });
+                                setIsReady(true);
+                            }, 100);
                             return;
                         }
                     }
@@ -82,6 +87,18 @@ export function MainLayout() {
 
     useEffect(() => {
         if (loading || !isReady) return;
+
+        // If we are handling a specific auth redirect (like link expired), 
+        // wait until we land on an auth page before enforcing protection logic.
+        if (isHandlingAuthRedirect) {
+            const path = segment.join('/');
+            // If we've arrived at an auth page (or we are deeply confirming we are in auth segment)
+            if (segment[0] === 'auth') {
+                // We arrived, allow normal logic to resume (though auth pages are exceptions below anyway)
+                setIsHandlingAuthRedirect(false);
+            }
+            return;
+        }
 
         const inAuthGroup = segment[0] === 'auth';
 
@@ -106,7 +123,7 @@ export function MainLayout() {
                 // router.replace('/auth/onboarding' as any);
             }
         }
-    }, [session, loading, isReady, segment, hasSeenOnboarding]);
+    }, [session, loading, isReady, segment, hasSeenOnboarding, isHandlingAuthRedirect]);
 
     if (!isReady || loading) {
         return (

@@ -19,20 +19,25 @@ interface StopCardProps {
     onAddChallenge: () => void;
     onEditChallenge: (challengeIndex: number) => void;
     onRemoveChallenge: (challengeIndex: number) => void;
+    drag?: () => void; // Added
+    isActive?: boolean; // Added
 }
 
 
-export function StopCard({ item, index, isLast, onRemove, onEdit, onAddChallenge, onEditChallenge, onRemoveChallenge }: StopCardProps) {
+export function StopCard({ item, index, isLast, onRemove, onEdit, onAddChallenge, onEditChallenge, onRemoveChallenge, drag, isActive }: StopCardProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
     return (
-        <View style={styles.timelineRow}>
-            <TimelineLeft index={index} isLast={isLast} />
+        <View style={[styles.timelineRow, { opacity: isActive ? 0.7 : 1 }]}>
+            {/* When dragging, hide the timeline so only the card floats */}
+            <View style={{ opacity: isActive ? 0 : 1 }}>
+                <TimelineLeft index={index} isLast={isLast} />
+            </View>
 
             <View style={{ flex: 1, paddingBottom: 24 }}>
                 <GenericCard style={styles.stopCard} padding="none">
-                    <StopCardHeader item={item} onRemove={onRemove} onEdit={onEdit} />
+                    <StopCardHeader item={item} onRemove={onRemove} onEdit={onEdit} onDrag={drag} />
 
                     <StopCardChallenges
                         challenges={item.challenges}

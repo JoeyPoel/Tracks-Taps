@@ -1,10 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 import { FlagIcon } from 'lucide-react-native';
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import Animated, { SlideInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -69,19 +69,35 @@ export default function MapScreen() {
                 onPress={() => handleTourSelect(tour)}
                 tracksViewChanges={false}
               >
-                <View style={styles.markerShadowContainer}>
-                  <LinearGradient
-                    colors={[theme.primary, theme.secondary]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.premiumMarker}
-                  >
+                <View style={styles.markerContainer}>
+                  <View style={[styles.markerImageWrapper, { borderColor: theme.fixedWhite || '#FFF', backgroundColor: theme.bgSecondary }]}>
+                    {tour.imageUrl ? (
+                      <ExpoImage
+                        source={{ uri: tour.imageUrl }}
+                        style={styles.markerImage}
+                        contentFit="cover"
+                        transition={200}
+                      />
+                    ) : (
+                      <View style={[styles.markerPlaceholder, { backgroundColor: theme.primary }]}>
+                        {(() => {
+                          const GenreIcon = getGenreIcon(tour.genre || 'Adventure');
+                          return <GenreIcon size={20} color="#FFF" />;
+                        })()}
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Genre Badge */}
+                  <View style={[styles.markerBadge, { backgroundColor: theme.primary, borderColor: theme.fixedWhite || '#FFF' }]}>
                     {(() => {
                       const GenreIcon = getGenreIcon(tour.genre || 'Adventure');
-                      return <GenreIcon size={18} color="white" />;
+                      return <GenreIcon size={12} color="#FFF" />;
                     })()}
-                  </LinearGradient>
-                  <View style={[styles.markerTail, { borderTopColor: '#FFF' }]} />
+                  </View>
+
+                  {/* Pointer */}
+                  <View style={[styles.markerPointer, { borderTopColor: theme.fixedWhite || '#FFF' }]} />
                 </View>
               </Marker>
             );
@@ -100,15 +116,12 @@ export default function MapScreen() {
                 tracksViewChanges={false}
               >
                 {stop.number === 1 ? (
-                  // START STOP: Premium Gradient Pin
+                  // START STOP: Solid Primary Pin
                   <View style={styles.markerShadowContainer}>
-                    <LinearGradient
-                      colors={[theme.primary, theme.secondary]}
-                      style={styles.premiumMarker}
-                    >
-                      <FlagIcon size={20} color="white" />
-                    </LinearGradient>
-                    <View style={[styles.markerTail, { borderTopColor: '#FFF' }]} />
+                    <View style={[styles.startMarker, { backgroundColor: theme.primary }]}>
+                      <FlagIcon size={20} color="#FFF" />
+                    </View>
+                    <View style={[styles.markerTail, { borderTopColor: theme.primary }]} />
                   </View>
                 ) : (
                   // REGULAR STOP: Glassmorphism Bubble
@@ -285,5 +298,67 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 10,
     fontWeight: 'bold',
-  }
+  },
+  markerContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 6,
+  },
+  markerImageWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    backgroundColor: '#333',
+  },
+  markerImage: {
+    width: '100%',
+    height: '100%',
+  },
+  markerPlaceholder: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  markerBadge: {
+    position: 'absolute',
+    bottom: 6,
+    right: 0,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  markerPointer: {
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderTopWidth: 8,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    marginTop: -2,
+  },
+  startMarker: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFF',
+  },
 });

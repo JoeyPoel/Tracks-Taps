@@ -131,6 +131,8 @@ export const strings = {
     selectGameModes: 'Select Game Modes',
     addStop: 'Add Stop',
     editStop: 'Edit Stop',
+    removeStop: 'Remove Stop', // Added
+    confirmRemoveStop: "Are you sure you want to remove this stop?", // Added
     playForFree: 'Creator plays for FREE!',
     createAndStart: 'Create & Start',
     stopName: 'Stop Name',
@@ -621,6 +623,8 @@ export const strings = {
     topPlayers: 'Mejores jugadores de la semana',
     tourWideChallenges: 'Bono',
     tourStops: 'Paradas del Tour',
+    removeStop: 'Eliminar Parada', // Added
+    confirmRemoveStop: "¿Estás seguro de que quieres eliminar esta parada?", // Added
     userReviews: 'Reseñas de usuarios',
     // New keys for tour components
     clickToViewRoute: 'Haga clic para ver la ruta',

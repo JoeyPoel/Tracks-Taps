@@ -13,7 +13,8 @@ if (!connectionString) {
 }
 
 // Reuse existing pool if available to prevent connection leaks during HMR
-const pool = globalForPrisma.pool || new Pool({ connectionString, max: 10 }); // Limit max connections
+// const pool = globalForPrisma.pool || new Pool({ connectionString, max: 10 }); // Limit max connections
+const pool = new Pool({ connectionString, max: 10 });
 const adapter = new PrismaPg(pool);
 
 export const prisma =
@@ -25,5 +26,5 @@ export const prisma =
 
 if (process.env.NODE_ENV !== 'production') {
     globalForPrisma.prisma = prisma;
-    globalForPrisma.pool = pool;
+    // globalForPrisma.pool = pool;
 }

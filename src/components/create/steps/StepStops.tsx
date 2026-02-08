@@ -8,7 +8,8 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { TourDraft } from '@/src/hooks/useCreateTour';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native'; // Updated import
+import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist'; // Added import
 import { EmptyStopState } from './EmptyStopState';
 import { StopCard } from './StopCard';
 
@@ -18,13 +19,15 @@ interface StepStopsProps {
         addStop: (stop: any) => void;
         editStop: (index: number, stop: any) => void;
         removeStop: (index: number) => void;
+        reorderStops: (stops: any[]) => void; // Added
         addChallengeToStop: (stopIndex: number, challenge: any) => void;
         removeChallengeFromStop: (stopIndex: number, challengeIndex: number) => void;
         editChallengeInStop: (stopIndex: number, challengeIndex: number, challenge: any) => void;
     };
+    footer?: React.ReactNode;
 }
 
-export default function StepStops({ draft, actions }: StepStopsProps) {
+export default function StepStops({ draft, actions, footer }: StepStopsProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
@@ -47,6 +50,21 @@ export default function StepStops({ draft, actions }: StepStopsProps) {
     const handleEditStop = (index: number) => {
         setEditingStopIndex(index);
         setIsStopModalVisible(true);
+    };
+
+    const handleRemoveStop = (index: number) => {
+        Alert.alert(
+            t('removeStop') || 'Remove Stop',
+            t('confirmRemoveStop') || 'Are you sure you want to remove this stop?',
+            [
+                { text: t('cancel') || 'Cancel', style: 'cancel' },
+                {
+                    text: t('remove') || 'Remove',
+                    style: 'destructive',
+                    onPress: () => actions.removeStop(index)
+                }
+            ]
+        );
     };
 
     const openChallengeModal = (index: number) => {
@@ -74,45 +92,62 @@ export default function StepStops({ draft, actions }: StepStopsProps) {
         setIsChallengeModalVisible(true);
     };
 
+    const renderItem = ({ item, getIndex, drag, isActive }: RenderItemParams<any>) => {
+        const index = getIndex();
+        if (index === undefined) return null;
+
+        return (
+            <ScaleDecorator>
+                <StopCard
+                    item={item}
+                    index={index}
+                    isLast={index === draft.stops.length - 1}
+                    onRemove={() => handleRemoveStop(index)}
+                    onEdit={() => handleEditStop(index)}
+                    onAddChallenge={() => openChallengeModal(index)}
+                    onEditChallenge={(cIdx) => handleEditChallenge(index, cIdx)}
+                    onRemoveChallenge={(cIdx) => actions.removeChallengeFromStop(index, cIdx)}
+                    drag={drag}
+                    isActive={isActive}
+                />
+            </ScaleDecorator>
+        );
+    };
+
     return (
         <View style={styles.container}>
-            <WizardStepHeader
-                title={t('stepStopsTitle')}
-                subtitle={t('stepStopsSubtitle')}
+            <DraggableFlatList
+                data={draft.stops}
+                onDragEnd={({ data }) => actions.reorderStops(data)}
+                contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 24 }} // Add padding for footer and sides
+                activationDistance={20}
+                keyExtractor={(item: any, index) => item.id ? `stop-id-${item.id}` : (item._tempId ? `stop-temp-${item._tempId}` : `stop-${index}`)}
+                renderItem={renderItem}
+                ListHeaderComponent={
+                    <WizardStepHeader
+                        title={t('stepStopsTitle')}
+                        subtitle={t('stepStopsSubtitle')}
+                    />
+                }
+                ListEmptyComponent={<EmptyStopState />}
+                ListFooterComponent={
+                    <View style={{ gap: 20 }}>
+                        <AnimatedPressable
+                            style={[styles.addButton, { borderColor: theme.borderPrimary, borderStyle: 'dashed' }]}
+                            onPress={() => {
+                                setEditingStopIndex(null);
+                                setIsStopModalVisible(true);
+                            }}
+                        >
+                            <Ionicons name="location" size={24} color={theme.primary} />
+                            <TextComponent style={styles.addButtonText} color={theme.primary} bold variant="label">
+                                {t('addStop')}
+                            </TextComponent>
+                        </AnimatedPressable>
+                        {footer}
+                    </View>
+                }
             />
-
-            {draft.stops.length === 0 ? (
-                <EmptyStopState />
-            ) : (
-                <View style={styles.listContainer}>
-                    {draft.stops.map((item, index) => (
-                        <StopCard
-                            key={index}
-                            item={item}
-                            index={index}
-                            isLast={index === draft.stops.length - 1}
-                            onRemove={() => actions.removeStop(index)}
-                            onEdit={() => handleEditStop(index)}
-                            onAddChallenge={() => openChallengeModal(index)}
-                            onEditChallenge={(cIdx) => handleEditChallenge(index, cIdx)}
-                            onRemoveChallenge={(cIdx) => actions.removeChallengeFromStop(index, cIdx)}
-                        />
-                    ))}
-                </View>
-            )}
-
-            <AnimatedPressable
-                style={[styles.addButton, { borderColor: theme.borderPrimary, borderStyle: 'dashed' }]}
-                onPress={() => {
-                    setEditingStopIndex(null);
-                    setIsStopModalVisible(true);
-                }}
-            >
-                <Ionicons name="location" size={24} color={theme.primary} />
-                <TextComponent style={styles.addButtonText} color={theme.primary} bold variant="label">
-                    {t('addStop')}
-                </TextComponent>
-            </AnimatedPressable>
 
             <StopCreationModal
                 visible={isStopModalVisible}
@@ -145,6 +180,7 @@ export default function StepStops({ draft, actions }: StepStopsProps) {
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1, // Ensure it takes full height
         gap: 8,
     },
     listContainer: {

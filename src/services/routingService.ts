@@ -1,6 +1,6 @@
 import type { LatLng } from 'react-native-maps';
 
-const OSRM_BASE_URL = 'http://router.project-osrm.org/route/v1/foot';
+const OSRM_BASE_URL = 'https://router.project-osrm.org/route/v1/foot';
 
 export interface RouteResult {
     coords: LatLng[];

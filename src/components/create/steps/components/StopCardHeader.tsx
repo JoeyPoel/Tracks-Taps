@@ -9,9 +9,10 @@ interface Props {
     item: any;
     onRemove: () => void;
     onEdit: () => void;
+    onDrag?: () => void; // Added
 }
 
-export function StopCardHeader({ item, onRemove, onEdit }: Props) {
+export function StopCardHeader({ item, onRemove, onEdit, onDrag }: Props) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
@@ -36,6 +37,11 @@ export function StopCardHeader({ item, onRemove, onEdit }: Props) {
                 </View>
             </View>
             <View style={styles.actionsRow}>
+                {onDrag && (
+                    <TouchableOpacity onPressIn={onDrag} style={[styles.iconBtn, { backgroundColor: 'transparent' }]}>
+                        <Ionicons name="reorder-two" size={24} color={theme.textSecondary} />
+                    </TouchableOpacity>
+                )}
                 <TouchableOpacity onPress={onEdit} style={[styles.iconBtn, { backgroundColor: theme.bgTertiary }]}>
                     <Ionicons name="pencil" size={18} color={theme.textSecondary} />
                 </TouchableOpacity>
