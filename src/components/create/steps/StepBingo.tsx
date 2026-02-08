@@ -66,11 +66,26 @@ export default function StepBingo({ draft, actions }: StepBingoProps) {
         }
     };
 
+    const getColor = (type: ChallengeType) => {
+        switch (type) {
+            case ChallengeType.LOCATION: return theme.challenges.location;
+            case ChallengeType.TRIVIA: return theme.challenges.trivia;
+            case ChallengeType.PICTURE: return theme.challenges.picture;
+            case ChallengeType.TRUE_FALSE: return theme.challenges.trueFalse;
+            case ChallengeType.DARE: return theme.challenges.dare;
+            case ChallengeType.RIDDLE: return theme.challenges.riddle;
+            case ChallengeType.CHECK_IN: return theme.challenges.checkIn;
+            default: return theme.challenges.default;
+        }
+    };
+
     const renderGrid = () => {
         const cells = [];
         for (let row = 0; row < 3; row++) {
             for (let col = 0; col < 3; col++) {
                 const challenge = getChallengeAt(row, col);
+                const color = challenge ? getColor(challenge.type) : theme.borderPrimary;
+
                 cells.push(
                     <TouchableOpacity
                         key={`${row}-${col}`}
@@ -81,17 +96,19 @@ export default function StepBingo({ draft, actions }: StepBingoProps) {
                             {
                                 width: CELL_SIZE,
                                 height: CELL_SIZE,
-                                backgroundColor: challenge ? theme.primary : theme.bgSecondary,
-                                borderColor: theme.borderPrimary
+                                backgroundColor: theme.bgSecondary,
+                                borderColor: color,
+                                borderWidth: challenge ? 2 : 1,
+                                borderStyle: challenge ? 'solid' : 'dashed'
                             }
                         ]}
                     >
                         {challenge ? (
                             <Animated.View entering={ZoomIn} style={styles.cellContent}>
-                                <Ionicons name={getIcon(challenge.type) as any} size={28} color="#FFF" />
+                                <Ionicons name={getIcon(challenge.type) as any} size={28} color={color} />
                                 <TextComponent
                                     variant="caption"
-                                    color="#FFF"
+                                    color={theme.textPrimary}
                                     numberOfLines={2}
                                     style={{ marginTop: 4, textAlign: 'center', fontSize: 10 }}
                                 >

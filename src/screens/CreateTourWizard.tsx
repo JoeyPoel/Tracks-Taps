@@ -17,25 +17,26 @@ import StepInfo from '@/src/components/create/steps/StepInfo';
 import StepReview from '@/src/components/create/steps/StepReview';
 import StepStops from '@/src/components/create/steps/StepStops';
 import { useLanguage } from '@/src/context/LanguageContext';
-import { STEPS, useCreateTour } from '@/src/hooks/useCreateTour';
+import { useCreateTour } from '@/src/hooks/useCreateTour';
 
 export default function CreateTourWizard() {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const {
         currentStep,
+        totalSteps, // Added
         stepName,
         tourDraft,
         isSubmitting,
         updateDraft,
         handleNext,
         handleBack,
-        actions // Destructure actions
+        actions
     } = useCreateTour();
 
     const renderStep = (options?: { footer?: React.ReactNode }) => {
-        // Step specific props can be passed here
-        const stepProps = { draft: tourDraft, updateDraft, actions }; // Pass actions
+        // ... (unchanged)
+        const stepProps = { draft: tourDraft, updateDraft, actions };
 
         // Only animate if not the first step on initial load
         const enteringAnim = currentStep === 0
@@ -63,7 +64,9 @@ export default function CreateTourWizard() {
 
     return (
         <ScreenWrapper animateEntry={false} includeTop={false} includeBottom={false}>
+            {/* Header ... */}
             <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+                {/* ... */}
                 <TouchableOpacity onPress={handleBack} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
                 </TouchableOpacity>
@@ -78,7 +81,7 @@ export default function CreateTourWizard() {
                 <View style={{ width: 40 }} />
             </View>
 
-            <CreateTourProgress currentStep={currentStep} totalSteps={STEPS.length} />
+            <CreateTourProgress currentStep={currentStep} totalSteps={totalSteps} />
 
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -91,7 +94,7 @@ export default function CreateTourWizard() {
                             footer: (
                                 <View style={styles.inlineFooter}>
                                     <AnimatedButton
-                                        title={isSubmitting ? t('sending') : (currentStep === STEPS.length - 1 ? t('createAndStart') : t('nextStep'))}
+                                        title={isSubmitting ? t('sending') : (currentStep === totalSteps - 1 ? t('createAndStart') : t('nextStep'))}
                                         onPress={handleNext}
                                         variant="primary"
                                         loading={isSubmitting}
@@ -109,7 +112,7 @@ export default function CreateTourWizard() {
 
                         <View style={styles.inlineFooter}>
                             <AnimatedButton
-                                title={isSubmitting ? t('sending') : (currentStep === STEPS.length - 1 ? t('createAndStart') : t('nextStep'))}
+                                title={isSubmitting ? t('sending') : (currentStep === totalSteps - 1 ? t('createAndStart') : t('nextStep'))}
                                 onPress={handleNext}
                                 variant="primary"
                                 loading={isSubmitting}

@@ -59,8 +59,12 @@ export function useCreateTour() {
                     startLat: tour.startLat,
                     startLng: tour.startLng,
                     type: tour.type,
-                    challenges: tour.challenges || [],
-                    bingoChallenges: tour.bingoChallenges || [] // Ensure DB has this or map it
+                    challenges: (tour.challenges || []).filter((c: any) =>
+                        (c.bingoRow === null || c.bingoRow === undefined) && !c.stopId
+                    ),
+                    bingoChallenges: (tour.challenges || [])
+                        .filter((c: any) => c.bingoRow !== null && c.bingoRow !== undefined)
+                        .map((c: any) => ({ ...c, row: c.bingoRow, col: c.bingoCol }))
                 };
                 setDraft(draft);
             }

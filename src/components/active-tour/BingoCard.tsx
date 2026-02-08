@@ -6,7 +6,7 @@ import { Challenge, ChallengeType, Team } from '@/src/types/models';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
-import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 interface BingoCardProps {
     team: Team;
@@ -46,6 +46,19 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
         return team.activeChallenges?.some(ac => ac.challengeId === challengeId && ac.failed);
     };
 
+    const getColor = (type: ChallengeType) => {
+        switch (type) {
+            case ChallengeType.LOCATION: return theme.challenges.location;
+            case ChallengeType.TRIVIA: return theme.challenges.trivia;
+            case ChallengeType.PICTURE: return theme.challenges.picture;
+            case ChallengeType.TRUE_FALSE: return theme.challenges.trueFalse;
+            case ChallengeType.DARE: return theme.challenges.dare;
+            case ChallengeType.RIDDLE: return theme.challenges.riddle;
+            case ChallengeType.CHECK_IN: return theme.challenges.checkIn;
+            default: return theme.challenges.default;
+        }
+    };
+
     const getIcon = (type: ChallengeType) => {
         switch (type) {
             case ChallengeType.LOCATION: return 'location';
@@ -64,7 +77,7 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
                 <TextComponent variant="h3" bold>{t('bingoCardTitle')}</TextComponent>
                 <View style={[styles.badge, { backgroundColor: theme.accent }]}>
                     <TextComponent variant="caption" color="#FFF" bold>
-                        {bingoCard.fullHouseAwarded ? t('fullHouse') : `${bingoCard.awardedLines.length} ${t('lines')}`}
+                        {team.bingoCard?.fullHouseAwarded ? t('fullHouse') : `${team.bingoCard?.awardedLines.length || 0} ${t('lines')}`}
                     </TextComponent>
                 </View>
             </View>
@@ -88,7 +101,8 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
                                         width: CELL_SIZE,
                                         height: CELL_SIZE,
                                         backgroundColor: theme.bgSecondary,
-                                        borderColor: theme.borderPrimary
+                                        borderColor: theme.borderPrimary,
+                                        borderStyle: 'dashed'
                                     }
                                 ]}
                             />
@@ -97,22 +111,28 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
 
                     const completed = isCompleted(challenge.id);
                     const failed = isFailed(challenge.id);
+                    const typeColor = getColor(challenge.type);
 
+                    // Default Style (Active/Unfinished)
                     let bgColor = theme.bgSecondary;
-                    let borderColor = theme.borderPrimary;
-                    let iconColor = theme.textSecondary;
+                    let borderColor = typeColor;
+                    let iconColor = typeColor;
                     let textColor = theme.textPrimary;
+                    let borderWidth = 2; // Match StepBingo
 
+                    // Overrides for Completed/Failed
                     if (completed) {
                         bgColor = theme.bgSuccess;
                         borderColor = theme.success;
                         iconColor = theme.success;
                         textColor = theme.success;
+                        borderWidth = 2; // Keep thick for consistent look
                     } else if (failed) {
                         bgColor = theme.challengeFailedBackground;
                         borderColor = theme.danger;
                         iconColor = theme.danger;
                         textColor = theme.danger;
+                        borderWidth = 2;
                     }
 
                     return (
@@ -129,34 +149,31 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
                                         width: CELL_SIZE,
                                         height: CELL_SIZE,
                                         backgroundColor: bgColor,
-                                        borderColor: borderColor
+                                        borderColor: borderColor,
+                                        borderWidth: borderWidth
                                     }
                                 ]}
                             >
-                                <Ionicons
-                                    name={getIcon(challenge.type) as any}
-                                    size={24}
-                                    color={iconColor}
-                                />
+                                {completed ? (
+                                    <Ionicons name="checkmark-circle" size={32} color={theme.success} />
+                                ) : failed ? (
+                                    <Ionicons name="close-circle" size={32} color={theme.danger} />
+                                ) : (
+                                    <Ionicons
+                                        name={getIcon(challenge.type) as any}
+                                        size={28}
+                                        color={iconColor}
+                                    />
+                                )}
+
                                 <TextComponent
                                     variant="caption"
                                     numberOfLines={2}
-                                    style={{ marginTop: 4, textAlign: 'center' }}
+                                    style={{ marginTop: 4, textAlign: 'center', fontSize: 10 }}
                                     color={textColor}
                                 >
                                     {challenge.title}
                                 </TextComponent>
-
-                                {completed && (
-                                    <Animated.View entering={ZoomIn} style={styles.check}>
-                                        <Ionicons name="checkmark-circle" size={16} color={theme.success} />
-                                    </Animated.View>
-                                )}
-                                {failed && (
-                                    <Animated.View entering={ZoomIn} style={styles.check}>
-                                        <Ionicons name="close-circle" size={16} color={theme.danger} />
-                                    </Animated.View>
-                                )}
                             </Animated.View>
                         </TouchableOpacity>
                     );

@@ -169,25 +169,42 @@ export const tourRepository = {
                         number: true,
                         name: true,
                         description: true,
+                        detailedDescription: true,
+                        imageUrl: true,
                         latitude: true,
                         longitude: true,
                         type: true,
+                        pubgolfPar: true,
+                        pubgolfDrink: true,
                         challenges: {
                             select: {
                                 id: true,
                                 title: true,
                                 type: true,
-                                points: true
+                                points: true,
+                                content: true,
+                                hint: true,
+                                answer: true,
+                                options: true,
+                                bingoRow: true,
+                                bingoCol: true
                             }
                         }
                     }
                 },
                 challenges: {
+                    where: { stopId: null },
                     select: {
                         id: true,
                         title: true,
                         type: true,
-                        points: true
+                        points: true,
+                        content: true,
+                        hint: true,
+                        answer: true,
+                        options: true,
+                        bingoRow: true,
+                        bingoCol: true
                     }
                 },
                 reviews: {
@@ -253,6 +270,21 @@ export const tourRepository = {
 
     async createTourByJson(data: Prisma.TourCreateInput) {
         return await prisma.tour.create({
+            data,
+            include: {
+                stops: {
+                    include: {
+                        challenges: true
+                    }
+                },
+                challenges: true
+            }
+        });
+    },
+
+    async updateTour(id: number, data: Prisma.TourUpdateInput) {
+        return await prisma.tour.update({
+            where: { id },
             data,
             include: {
                 stops: {

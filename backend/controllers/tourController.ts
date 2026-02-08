@@ -241,5 +241,28 @@ export const tourController = {
             console.error('Error creating tour by JSON:', error);
             return Response.json({ error: 'Failed to create tour from JSON', details: error.message }, { status: 500 });
         }
+    },
+    async updateTour(request: Request, params?: { id: string }) {
+        let id = params?.id;
+
+        if (!id) {
+            const url = new URL(request.url);
+            const segments = url.pathname.split('/');
+            id = segments[segments.length - 1];
+        }
+
+        const tourId = Number(id);
+        if (isNaN(tourId)) {
+            return Response.json({ error: 'Invalid tourId' }, { status: 400 });
+        }
+
+        try {
+            const data = await request.json();
+            const updatedTour = await tourService.updateTour(tourId, data);
+            return Response.json(updatedTour);
+        } catch (error: any) {
+            console.error('Error updating tour:', error);
+            return Response.json({ error: 'Failed to update tour', details: error.message }, { status: 500 });
+        }
     }
 };

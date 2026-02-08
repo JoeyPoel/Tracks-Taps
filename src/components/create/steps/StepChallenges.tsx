@@ -78,7 +78,7 @@ export default function StepChallenges({ draft, actions }: StepChallengesProps) 
 
                 {/* List of Challenges */}
                 <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: 12 }}>
-                    {(draft.challenges || []).filter((c: any) => !c.stopId).length === 0 && (
+                    {(draft.challenges || []).length === 0 && (
                         <View style={[styles.emptyState, { borderColor: theme.borderPrimary }]}>
                             <Ionicons name="trophy-outline" size={40} color={theme.textSecondary} />
                             <TextComponent style={{ marginTop: 10 }} color={theme.textSecondary} variant="body" center>
@@ -87,7 +87,7 @@ export default function StepChallenges({ draft, actions }: StepChallengesProps) 
                         </View>
                     )}
 
-                    {(draft.challenges || []).filter((c: any) => !c.stopId).map((challenge: any, index: number) => (
+                    {(draft.challenges || []).map((challenge: any, index: number) => (
                         <ActionCard
                             key={index}
                             title={challenge.title}
