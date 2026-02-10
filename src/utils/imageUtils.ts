@@ -89,45 +89,23 @@ export const uploadOptimizedImage = async (
 export const getOptimizedImageUrl = (url: string, width: number = 600, options?: { height?: number, resize?: string }): string => {
     if (!url) return url;
 
-    // 1. Identify if this is a Supabase Storage URL
-    // These can be either:
-    // - /object/public/ (original format)
-    // - /render/image/public/ (already optimized format)
-    const isSupabaseObjectUrl = url.includes('supabase.co/storage/v1/object/public');
-    const isSupabaseRenderUrl = url.includes('supabase.co/storage/v1/render/image/public');
+    // 1. Check if it's a Supabase Render URL (Image Transformation)
+    // We want to REVERT this to the standard /object/public/ URL because:
+    // a) We already optimize images client-side before upload (see uploadOptimizedImage).
+    // b) The /render/ endpoint can fail or be restricted on some plans/configurations.
+    if (url.includes('supabase.co/storage/v1/render/image/public')) {
+        const revertedUrl = url.replace('/render/image/public/', '/object/public/');
+        // Allow removing query params if needed, but usually simply replacing the path works for the base file.
+        // We strip query params to ensure we get the static file.
+        return revertedUrl.split('?')[0];
+    }
 
-    if (!isSupabaseObjectUrl && !isSupabaseRenderUrl) {
-        // Not a Supabase URL, return as-is
+    // 2. If it's already a standard object URL, return it as is.
+    // We do NOT want to convert it to /render/ anymore.
+    if (url.includes('supabase.co/storage/v1/object/public')) {
         return url;
     }
 
-    // 2. If already has transformation parameters, return as-is to avoid duplication
-    if (url.includes('width=') && url.includes('quality=')) {
-        return url;
-    }
-
-    // 3. Convert to render endpoint if needed
-    let optimizedUrl = url;
-    if (isSupabaseObjectUrl) {
-        // Switch to the Image Transformation Endpoint
-        optimizedUrl = url.replace('/object/public/', '/render/image/public/');
-    }
-    // If already using /render/image/public/, keep it as-is
-
-    // 4. Add Transformation Parameters
-    const hasParams = optimizedUrl.includes('?');
-    const separator = hasParams ? '&' : '?';
-
-    // 5. Build parameter string
-    let params = `width=${width}&quality=60`;
-
-    if (options?.height) {
-        params += `&height=${options.height}`;
-    }
-
-    if (options?.resize) {
-        params += `&resize=${options.resize}`;
-    }
-
-    return `${optimizedUrl}${separator}${params}`;
+    // 3. For any other URL (external, local, etc.), return as exists.
+    return url;
 };
