@@ -37,7 +37,7 @@ export const offlineStorage = {
         try {
             const json = await AsyncStorage.getItem(PENDING_ACTIONS_KEY);
             return json ? JSON.parse(json) : [];
-        } catch (e) {
+        } catch {
             return [];
         }
     },

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { Achievement, achievementService } from '../services/achievementService';
 import { activeTourService } from '../services/activeTourService';
 import { mapTourService } from '../services/mapTourService';
 import { tourService } from '../services/tourService';
@@ -7,9 +8,6 @@ import { userService } from '../services/userService';
 import { TourFilters } from '../types/filters';
 import { ActiveTour, SessionStatus, Tour, TourDetail, User } from '../types/models';
 import { LevelSystem } from '../utils/levelUtils';
-
-
-
 
 interface StoreState {
     // Tours Slice
@@ -38,6 +36,12 @@ interface StoreState {
     startTour: (tourId: number, userId: number, force?: boolean) => Promise<void>;
     finishTour: (activeTourId: number, userId: number) => Promise<boolean>;
     abandonTour: (activeTourId: number, userId: number) => Promise<void>;
+
+    // Achievements Slice
+    achievements: Achievement[];
+    loadingAchievements: boolean;
+    fetchAchievements: (userId: number) => Promise<void>;
+    unlockAchievement: (userId: number, code: string) => Promise<Achievement | null>;
 
     // --- UI/Global Slice ---
     isTabBarVisible: boolean;
@@ -201,10 +205,7 @@ export const useStore = create<StoreState>((set, get) => ({
     },
 
     fetchActiveTourById: async (id: number, userId?: number) => {
-        const state = get();
         // Always try to fetch fresh data
-
-
         set({ loadingActiveTours: true, errorActiveTours: null });
         try {
             const activeTour = await activeTourService.getActiveTourById(id);
@@ -311,6 +312,34 @@ export const useStore = create<StoreState>((set, get) => ({
         }
     },
 
+    // --- Achievements Slice ---
+    achievements: [],
+    loadingAchievements: false,
+    fetchAchievements: async (userId: number) => {
+        set({ loadingAchievements: true });
+        try {
+            const achievements = await achievementService.getUserAchievements(userId);
+            set({ achievements, loadingAchievements: false });
+        } catch (error) {
+            console.error('Failed to fetch achievements', error);
+            set({ loadingAchievements: false });
+        }
+    },
+    unlockAchievement: async (userId: number, code: string) => {
+        try {
+            const achievement = await achievementService.unlockAchievement(userId, code);
+            if (achievement) {
+                set((state) => ({
+                    achievements: [achievement, ...state.achievements]
+                }));
+                return achievement;
+            }
+        } catch (error) {
+            console.error('Failed to unlock achievement', error);
+        }
+        return null;
+    },
+
     // --- User Slice ---
     user: null,
     loadingUser: false,
@@ -363,6 +392,6 @@ export const useStore = create<StoreState>((set, get) => ({
     },
 
     clearUser: () => {
-        set({ user: null, activeTours: [], activeTour: null });
+        set({ user: null, activeTours: [], activeTour: null, achievements: [] });
     }
 }));

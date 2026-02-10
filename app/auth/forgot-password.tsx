@@ -8,7 +8,6 @@ import React, { useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
-    Dimensions,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -19,8 +18,6 @@ import {
     View
 } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
-
-const { width } = Dimensions.get('window');
 
 export default function ForgotPasswordScreen() {
     const router = useRouter();

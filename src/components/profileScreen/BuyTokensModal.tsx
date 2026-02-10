@@ -7,6 +7,7 @@ import { CheckIcon, CircleStackIcon, ClipboardDocumentIcon, GiftIcon } from 'rea
 import client from '../../api/apiClient';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserContext } from '../../context/UserContext';
+import { authEvents } from '../../utils/authEvents';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 import { AppModal } from '../common/AppModal';
 
@@ -21,8 +22,6 @@ const PACKAGES = [
     { tokens: 5, price: 12.50, bonus: 0, popular: true },
     { tokens: 10, price: 20.00, bonus: 0, popular: false },
 ];
-
-import { authEvents } from '../../utils/authEvents';
 
 export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps) {
     const { theme } = useTheme();

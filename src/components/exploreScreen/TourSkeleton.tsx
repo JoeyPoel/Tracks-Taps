@@ -2,14 +2,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
+import { Shimmer } from '../common/Shimmer';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface TourSkeletonProps {
     variant?: 'hero' | 'grid';
 }
-
-import { Shimmer } from '../common/Shimmer';
 
 export default function TourSkeleton({ variant = 'hero' }: TourSkeletonProps) {
     const { theme } = useTheme();

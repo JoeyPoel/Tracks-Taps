@@ -1,16 +1,14 @@
 import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
+import { useSafeNavigation } from '@/src/hooks/useSafeNavigation';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
 interface LobbyHeaderProps {
     onInvitePress: () => void;
 }
-
-import { useLanguage } from '../../context/LanguageContext';
-
-import { useSafeNavigation } from '@/src/hooks/useSafeNavigation';
 
 export const LobbyHeader: React.FC<LobbyHeaderProps> = ({ onInvitePress }) => {
     const { theme } = useTheme();

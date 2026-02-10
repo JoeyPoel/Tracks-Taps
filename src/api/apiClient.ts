@@ -1,3 +1,4 @@
+import { authEvents } from '@/src/utils/authEvents';
 import { supabase } from '@/utils/supabase';
 import axios from 'axios';
 import Constants from 'expo-constants';
@@ -65,7 +66,7 @@ client.interceptors.response.use(
             console.log("Unauthorized request:", error.config.url);
             // Verify if we are not already on an auth screen to avoid loops or unnecessary modals
             // But usually the modal handles its own visibility state
-            const { authEvents } = require('@/src/utils/authEvents');
+            // Import moved to top-level to avoid require
             authEvents.emit();
 
             // Force redirect to login

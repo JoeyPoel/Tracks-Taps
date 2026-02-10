@@ -5,7 +5,7 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { AuthService } from '@/src/services/authService';
 import { supabase } from '@/utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
-import { Link, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import React, { useState } from 'react';
 import {
     ActivityIndicator,
@@ -24,12 +24,11 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 
 export default function LoginScreen() {
-    const router = useRouter();
     const { theme } = useTheme();
     const { t } = useLanguage();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loadingType, setLoadingType] = useState<'email' | 'google' | null>(null);
     const [showPassword, setShowPassword] = useState(false);
 
     React.useEffect(() => {
@@ -41,12 +40,12 @@ export default function LoginScreen() {
             Alert.alert('Error', t('enterEmail') + ' & ' + t('enterPassword'));
             return;
         }
-        setLoading(true);
+        setLoadingType('email');
         const { error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
-        setLoading(false);
+        setLoadingType(null);
 
         if (error) {
             Alert.alert(t('failedToLogin'), error.message);
@@ -54,9 +53,9 @@ export default function LoginScreen() {
     };
 
     const handleGoogleLogin = async () => {
-        setLoading(true);
+        setLoadingType('google');
         const data = await AuthService.signInWithGoogle();
-        setLoading(false);
+        setLoadingType(null);
         if (data?.session) {
             // Logged in
         }
@@ -133,9 +132,9 @@ export default function LoginScreen() {
                         <TouchableOpacity
                             style={[styles.button, { backgroundColor: theme.primary }]}
                             onPress={handleLogin}
-                            disabled={loading}
+                            disabled={!!loadingType}
                         >
-                            {loading ? (
+                            {loadingType === 'email' ? (
                                 <ActivityIndicator color={theme.textOnPrimary} />
                             ) : (
                                 <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>{t('login')}</Text>
@@ -152,7 +151,7 @@ export default function LoginScreen() {
                             text={t('googleSignIn')}
                             onPress={handleGoogleLogin}
                             icon="google"
-                            loading={loading}
+                            loading={loadingType === 'google'}
                         />
 
                         <View style={styles.footer}>

@@ -29,16 +29,16 @@ export const TourLoadingScreen: React.FC<TourLoadingScreenProps> = ({
     // Animation Values
     const rotation = useSharedValue(0);
     const scale = useSharedValue(1);
-    const opacity = useSharedValue(0.5);
 
     useEffect(() => {
         // 1. Compass Rotation (continuous spin/adjust)
-        // Use a very large value to simulate infinite rotation without resetting
-        // This prevents the "jump" artifact on Web when withRepeat resets from 360 to 0
-        rotation.value = withTiming(360000, {
-            duration: 8000000, // 1000 loops * 8000ms = ~2.2 hours
-            easing: Easing.linear
-        });
+        rotation.value = withRepeat(
+            withTiming(360, {
+                duration: 8000,
+                easing: Easing.linear
+            }),
+            -1
+        );
 
         // 2. Pulse Effect
         scale.value = withRepeat(
@@ -49,7 +49,7 @@ export const TourLoadingScreen: React.FC<TourLoadingScreenProps> = ({
             -1,
             true
         );
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const compassStyle = useAnimatedStyle(() => ({
         transform: [{ rotate: `${rotation.value}deg` }, { scale: scale.value }]
@@ -65,26 +65,37 @@ export const TourLoadingScreen: React.FC<TourLoadingScreenProps> = ({
         };
     });
 
-    const dotStyle = (index: number) => useAnimatedStyle(() => {
-        // Simulate orbiting dots
-        const offset = index * (360 / 3);
-        const currentDeg = (rotation.value * 2 + offset) % 360;
-        const rad = currentDeg * (Math.PI / 180);
-        const radius = 85; // Increased Orbit radius
+    const OrbitDot = ({ index }: { index: number }) => {
+        const style = useAnimatedStyle(() => {
+            // Simulate orbiting dots
+            const offset = index * (360 / 3);
+            const currentDeg = (rotation.value + offset) % 360;
+            const rad = currentDeg * (Math.PI / 180);
+            const radius = 85; // Increased Orbit radius
 
-        // Center is (0,0) relative to the dot's own position (because we centered it with top/left)
-        // We just need to move it OUT by radius
-        const translateX = radius * Math.cos(rad);
-        const translateY = radius * Math.sin(rad);
+            // Center is (0,0) relative to the dot's own position
+            const translateX = radius * Math.cos(rad);
+            const translateY = radius * Math.sin(rad);
 
-        return {
-            transform: [
-                { translateX: translateX },
-                { translateY: translateY }
-            ],
-            opacity: 0.8
-        };
-    });
+            return {
+                transform: [
+                    { translateX: translateX },
+                    { translateY: translateY }
+                ],
+                opacity: 0.8
+            };
+        });
+
+        return (
+            <Animated.View
+                style={[
+                    styles.orbitDot,
+                    { backgroundColor: theme.secondary },
+                    style
+                ]}
+            />
+        );
+    };
 
     const Container = fullScreen ? View : View;
     const containerStyle = fullScreen ? [styles.container, { backgroundColor: theme.bgPrimary }] : styles.embeddedContainer;
@@ -97,14 +108,7 @@ export const TourLoadingScreen: React.FC<TourLoadingScreenProps> = ({
 
                 {/* Orbiting Dots */}
                 {[0, 1, 2].map((i) => (
-                    <Animated.View
-                        key={i}
-                        style={[
-                            styles.orbitDot,
-                            { backgroundColor: theme.secondary },
-                            dotStyle(i)
-                        ]}
-                    />
+                    <OrbitDot key={i} index={i} />
                 ))}
 
                 {/* Central Compass/Icon */}

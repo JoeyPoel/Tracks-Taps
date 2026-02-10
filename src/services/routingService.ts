@@ -104,8 +104,7 @@ export const routingService = {
 
             if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) throw new Error('No route');
 
-            const route = data.routes[0];
-            const legs = route.legs; // Array of leg objects, each containing steps, distance, duration...
+            // Array of leg objects, each containing steps, distance, duration...
             // IMPORTANT: OSRM with overview=simplified returns ONE geometry for the whole route, OR per leg?
             // Actually, with overview=simplified, the `geometry` property is for the *entire* route.
             // Getting geometry per leg with `geometries=geojson` is not standard in 'legs' array usually.
@@ -121,7 +120,6 @@ export const routingService = {
             // Given N is small (~12), doing parallel requests is probably fine and much easier to manage for "per-leg styling".
             // Also avoids the "matching geometry to leg" complexity.
 
-            const segments: RouteResult[] = [];
             const promises = [];
 
             for (let i = 0; i < stops.length - 1; i++) {

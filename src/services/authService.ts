@@ -6,10 +6,11 @@ let GoogleSignin: any;
 let statusCodes: any;
 
 try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const GoogleSigninModule = require('@react-native-google-signin/google-signin');
     GoogleSignin = GoogleSigninModule.GoogleSignin;
     statusCodes = GoogleSigninModule.statusCodes;
-} catch (e) {
+} catch {
     console.warn('GoogleSignin module not found. This is expected in Expo Go.');
     // Mocking to prevent crash on access, but functionality will fail/alert
     GoogleSignin = {

@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
   Cog6ToothIcon,
@@ -22,8 +22,8 @@ import UserProfileCard from '../components/profileScreen/UserProfileCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
-import { useAchievements } from '../hooks/useAchievements';
 import { useFriends } from '../hooks/useFriends';
+import { useStore } from '../store/store';
 import { LevelSystem } from '../utils/levelUtils';
 
 export default function ProfileScreen() {
@@ -33,15 +33,20 @@ export default function ProfileScreen() {
   const [showBuyTokens, setShowBuyTokens] = useState(false);
   const [showReferralModal, setShowReferralModal] = useState(false);
 
-
   const { user, loading, refreshUser } = useUserContext();
-  const { achievements, loadAchievements, loading: achievementsLoading } = useAchievements();
+  const { achievements, fetchAchievements, loadingAchievements } = useStore();
   const { loadFriends, friends } = useFriends();
+
+  // Load achievements once when profile loads (if not already loaded)
+  useEffect(() => {
+    if (user?.id && achievements.length === 0) {
+      fetchAchievements(user.id);
+    }
+  }, [user?.id]); // Only dependency is user.id, so it runs once per user login essentially
 
   useFocusEffect(
     useCallback(() => {
       refreshUser();
-      loadAchievements();
       loadFriends();
     }, [])
   );
@@ -55,8 +60,6 @@ export default function ProfileScreen() {
   }
 
   const progress = LevelSystem.getProgress(user?.xp || 0);
-
-
 
   return (
     <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} includeBottom={false} animateEntry={false}>
@@ -101,7 +104,7 @@ export default function ProfileScreen() {
         <Animated.View style={{ marginTop: 32 }}>
           <RecentAchievements
             achievements={achievements}
-            loading={achievementsLoading}
+            loading={loadingAchievements}
             onSeeAll={() => router.push('/profile/achievements')}
           />
         </Animated.View>

@@ -6,11 +6,10 @@ import { useLanguage } from '../context/LanguageContext';
 import { tourService } from '../services/tourService';
 import { TourDraft, useTourDraft } from './create/useTourDraft';
 import { useTourSubmission } from './create/useTourSubmission';
+import { useSafeNavigation } from './useSafeNavigation';
 
 export const STEPS = ['Info', 'Gamemodes', 'Stops', 'Challenges', 'Review'];
 export type { TourDraft }; // Re-export for compatibility
-
-import { useSafeNavigation } from './useSafeNavigation';
 
 export function useCreateTour() {
     const { t } = useLanguage();

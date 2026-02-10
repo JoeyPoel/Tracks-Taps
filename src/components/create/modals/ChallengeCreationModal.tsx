@@ -35,7 +35,7 @@ export default function ChallengeCreationModal({ visible, onClose, onSave, initi
             onClose={onClose}
             title={initialData ? t('editChallenge') : t('addChallenge')}
             alignment={alignment}
-            height="90%"
+            height="80%"
         >
             <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
                 <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>

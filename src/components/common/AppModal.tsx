@@ -1,8 +1,8 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import React from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Dimensions, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { XMarkIcon } from 'react-native-heroicons/outline';
-import Animated, { SlideInDown, ZoomOut } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AnimatedPressable } from './AnimatedPressable';
 import { TextComponent } from './TextComponent';
@@ -20,63 +20,81 @@ interface AppModalProps {
     alignment?: 'bottom' | 'center';
 }
 
-export function AppModal({ visible, onClose, title, icon, children, subtitle, headerRight, height, modalStyle, alignment = 'bottom' }: AppModalProps) {
+export function AppModal({
+    visible,
+    onClose,
+    title,
+    icon,
+    children,
+    subtitle,
+    headerRight,
+    height,
+    modalStyle,
+    alignment = 'bottom'
+}: AppModalProps) {
     const { theme } = useTheme();
     const insets = useSafeAreaInsets();
     const isBottom = alignment === 'bottom';
+    const screenHeight = Dimensions.get('window').height;
+
+    // Default height logic
+    const computedHeight = height || (isBottom ? '90%' : undefined);
 
     return (
         <Modal
             visible={visible}
-            animationType="fade"
             transparent={true}
+            animationType="none" // We use Reanimated
             onRequestClose={onClose}
         >
-            <Pressable
-                style={[
-                    styles.modalOverlay,
-                    {
-                        backgroundColor: theme.overlay,
-                        justifyContent: isBottom ? 'flex-end' : 'center',
-                        padding: isBottom ? 0 : 20
-                    }
-                ]}
-                onPress={onClose}
-            >
-                <Pressable onPress={(e) => e.stopPropagation()}>
+            <View style={styles.overlayContainer}>
+                {/* Backdrop */}
+                <Pressable
+                    style={[styles.backdrop, { backgroundColor: theme.overlay }]}
+                    onPress={onClose}
+                >
                     <Animated.View
-                        entering={SlideInDown.duration(450)}
-                        exiting={ZoomOut.duration(200)}
+                        entering={FadeIn.duration(500)}
+                        exiting={FadeOut.duration(400)}
+                        style={StyleSheet.absoluteFill}
+                    />
+                </Pressable>
+
+                {/* Modal Window */}
+                <View
+                    style={[
+                        styles.windowWrapper,
+                        isBottom ? styles.wrapperBottom : styles.wrapperCenter,
+                    ]}
+                    pointerEvents="box-none"
+                >
+                    <Animated.View
+                        entering={SlideInDown.duration(600)}
+                        exiting={SlideOutDown.duration(600)}
                         style={[
-                            isBottom ? styles.modalContentBottom : styles.modalContent,
+                            styles.card,
                             {
                                 backgroundColor: theme.bgPrimary,
-                                ...(height ? { height } : { maxHeight: '90%' }),
-                                ...(isBottom ? {
-                                    borderTopLeftRadius: 24,
-                                    borderTopRightRadius: 24,
-                                    borderBottomLeftRadius: 0,
-                                    borderBottomRightRadius: 0,
-                                } : {
-                                    borderRadius: 24
-                                }),
-                                ...modalStyle
+                                maxHeight: isBottom ? '95%' : '80%',
+                                height: computedHeight,
+                                paddingBottom: isBottom ? Math.max(insets.bottom, 20) : 20,
+                                ...(isBottom ? styles.cardBottom : styles.cardCenter)
                             },
+                            modalStyle
                         ]}
                     >
-                        <View style={isBottom ? {
-                            paddingHorizontal: 24,
-                            paddingTop: 24,
-                            paddingBottom: Math.max(insets.bottom, 24)
-                        } : undefined}>
-                            <View style={styles.header}>
+                        {/* Header */}
+                        <View style={styles.header}>
+                            <View style={styles.headerTop}>
                                 <View style={styles.titleRow}>
                                     {icon}
-                                    <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">{title}</TextComponent>
+                                    <TextComponent style={styles.titleText} color={theme.textPrimary} bold variant="h2" numberOfLines={1}>
+                                        {title}
+                                    </TextComponent>
                                 </View>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                                <View style={styles.headerActions}>
                                     {headerRight}
-                                    <AnimatedPressable onPress={onClose} interactionScale="subtle" haptic="light">
+                                    <AnimatedPressable onPress={onClose} interactionScale="subtle" haptic="light" style={styles.closeBtn}>
                                         <XMarkIcon size={24} color={theme.textSecondary} />
                                     </AnimatedPressable>
                                 </View>
@@ -87,28 +105,64 @@ export function AppModal({ visible, onClose, title, icon, children, subtitle, he
                                     {subtitle}
                                 </TextComponent>
                             )}
+                        </View>
 
+                        {/* Content */}
+                        <View style={[styles.content, { paddingHorizontal: 24 }]}>
                             {children}
                         </View>
                     </Animated.View>
-                </Pressable>
-            </Pressable>
+                </View>
+            </View>
         </Modal>
     );
 }
 
 const styles = StyleSheet.create({
-    modalOverlay: {
+    overlayContainer: {
         flex: 1,
-        height: '100%',
+        // zIndex: 1000, // Modals are top level anyway
     },
-    modalContent: {
-        padding: 24,
+    backdrop: {
+        ...StyleSheet.absoluteFillObject,
     },
-    modalContentBottom: {
-        // No padding - will be applied to inner wrapper with safe area
+    windowWrapper: {
+        flex: 1,
+        pointerEvents: 'box-none', // Allow touches to pass through empty areas to backdrop
+    },
+    wrapperBottom: {
+        justifyContent: 'flex-end',
+    },
+    wrapperCenter: {
+        justifyContent: 'center',
+        padding: 20,
+    },
+    card: {
+        overflow: 'hidden', // Clip content to radius
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: -2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 5,
+    },
+    cardBottom: {
+        width: '100%',
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+    },
+    cardCenter: {
+        width: '100%',
+        borderRadius: 24,
     },
     header: {
+        paddingHorizontal: 24,
+        paddingTop: 24,
+        paddingBottom: 16,
+    },
+    headerTop: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -117,12 +171,24 @@ const styles = StyleSheet.create({
     titleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: 12,
+        flex: 1,
     },
-    title: {
-        // handled
+    titleText: {
+        flex: 1,
+    },
+    headerActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    closeBtn: {
+        padding: 4,
     },
     subtitle: {
-        marginBottom: 24,
+        marginTop: -4,
     },
+    content: {
+        flex: 1,
+    }
 });

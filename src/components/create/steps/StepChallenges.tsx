@@ -105,6 +105,7 @@ export default function StepChallenges({ draft, actions }: StepChallengesProps) 
 
                 {/* Modal */}
                 <ChallengeCreationModal
+                    key={editingIndex !== null ? `edit-${editingIndex}` : 'create-new'}
                     visible={modalVisible}
                     onClose={() => setModalVisible(false)}
                     onSave={handleAddChallenge}

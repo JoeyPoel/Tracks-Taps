@@ -30,7 +30,7 @@ export default function RegisterScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loadingType, setLoadingType] = useState<'register' | 'google' | null>(null);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
@@ -55,7 +55,7 @@ export default function RegisterScreen() {
             return;
         }
 
-        setLoading(true);
+        setLoadingType('register');
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
@@ -66,7 +66,7 @@ export default function RegisterScreen() {
                 }),
             }
         });
-        setLoading(false);
+        setLoadingType(null);
 
         if (error) {
             Alert.alert(t('failedToRegister'), error.message);
@@ -96,9 +96,9 @@ export default function RegisterScreen() {
     };
 
     const handleGoogleLogin = async () => {
-        setLoading(true);
+        setLoadingType('google');
         const data = await AuthService.signInWithGoogle();
-        setLoading(false);
+        setLoadingType(null);
         if (data?.session) {
             // Logged in
         }
@@ -204,9 +204,9 @@ export default function RegisterScreen() {
                         <TouchableOpacity
                             style={[styles.button, { backgroundColor: theme.primary }]}
                             onPress={handleRegister}
-                            disabled={loading}
+                            disabled={!!loadingType}
                         >
-                            {loading ? (
+                            {loadingType === 'register' ? (
                                 <ActivityIndicator color={theme.textOnPrimary} />
                             ) : (
                                 <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>{t('signUp')}</Text>
@@ -223,7 +223,7 @@ export default function RegisterScreen() {
                             text={t('googleSignIn')}
                             onPress={handleGoogleLogin}
                             icon="google"
-                            loading={loading}
+                            loading={loadingType === 'google'}
                         />
 
                         <View style={styles.footer}>

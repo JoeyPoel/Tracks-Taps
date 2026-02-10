@@ -1,3 +1,5 @@
+import { GenericCard } from '@/src/components/common/GenericCard';
+import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
@@ -10,9 +12,6 @@ import { StyleSheet, View } from 'react-native';
 interface FriendCardProps {
     friend: any;
 }
-
-import { GenericCard } from '@/src/components/common/GenericCard';
-import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 
 export function FriendCard({ friend }: FriendCardProps) {
     const { theme } = useTheme();

@@ -1,30 +1,34 @@
 import { useCallback, useState } from 'react';
 import { useUserContext } from '../context/UserContext';
-import { Achievement, achievementService } from '../services/achievementService';
+import { achievementService } from '../services/achievementService';
+import { useStore } from '../store/store';
 
 export const useAchievements = () => {
     const { user } = useUserContext();
-    const [achievements, setAchievements] = useState<Achievement[]>([]);
-    const [loading, setLoading] = useState(false);
+    const {
+        achievements,
+        loadingAchievements,
+        fetchAchievements,
+        unlockAchievement: storeUnlockAchievement
+    } = useStore();
+
+    // We can keep local error state or add to store if needed. 
+    // For now, simple error handling wrapper or just use console.
     const [error, setError] = useState<string | null>(null);
 
     const loadAchievements = useCallback(async () => {
-        if (!user?.id) return;
+        if (!user?.id) return [];
 
-        setLoading(true);
-        setError(null);
         try {
-            const data = await achievementService.getUserAchievements(user.id);
-            setAchievements(data);
-            return data;
+            await fetchAchievements(user.id);
+            // Return the updated state from store
+            return useStore.getState().achievements;
         } catch (err) {
             console.error('Failed to load achievements:', err);
             setError('Failed to load achievements');
             return [];
-        } finally {
-            setLoading(false);
         }
-    }, [user?.id]);
+    }, [user?.id, fetchAchievements]);
 
     const loadAllAchievements = useCallback(async () => {
         if (!user?.id) return [];
@@ -37,23 +41,19 @@ export const useAchievements = () => {
     }, [user?.id]);
 
     const unlockAchievement = useCallback(async (code: string) => {
-        if (!user?.id) return;
+        if (!user?.id) return null;
 
         try {
-            const achievement = await achievementService.unlockAchievement(user.id, code);
-            if (achievement) {
-                // Return details for toast to be handled by caller or handle here if we pass toast context
-                return achievement;
-            }
+            return await storeUnlockAchievement(user.id, code);
         } catch (err) {
             console.error('Failed to unlock achievement:', err);
         }
         return null;
-    }, [user?.id]);
+    }, [user?.id, storeUnlockAchievement]);
 
     return {
         achievements,
-        loading,
+        loading: loadingAchievements,
         error,
         loadAchievements,
         loadAllAchievements,

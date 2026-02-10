@@ -23,7 +23,7 @@ export default function ResetPasswordScreen() {
     const router = useRouter();
     const { theme } = useTheme();
     const { t } = useLanguage();
-    const { code } = useLocalSearchParams(); // Ensure we capture the code if passed in URL
+    useLocalSearchParams(); // Ensure we capture the code if passed in URL
 
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
