@@ -32,7 +32,6 @@ export default function ExploreScreen() {
   const tourFilters = useStore((state) => state.tourFilters);
   const [filterVisible, setFilterVisible] = useState(false);
   const [searchText, setSearchText] = useState(tourFilters.searchQuery || '');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -72,10 +71,11 @@ export default function ExploreScreen() {
 
 
   const handleCategoryPress = (categoryId: string) => {
-    const newCategory = selectedCategory === categoryId ? null : categoryId;
-    setSelectedCategory(newCategory);
-    setTourFilters({ ...tourFilters, searchQuery: newCategory ? categoryId : '', page: 1 });
-    setSearchText(newCategory ? categoryId : '');
+    const currentGenres = tourFilters.genres || [];
+    const newGenres = currentGenres.includes(categoryId)
+      ? currentGenres.filter(g => g !== categoryId)
+      : [...currentGenres, categoryId];
+    setTourFilters({ ...tourFilters, genres: newGenres, page: 1 });
   };
 
   // Data Preparation
@@ -86,13 +86,6 @@ export default function ExploreScreen() {
 
   // Grid Logic helper
   const isGrid = viewMode === 'grid';
-  // If grid, we need to chunk data pairs? SectionList grid support is tricky.
-  // We will just render items normally and use flex wrap style if needed?
-  // Or since we use a custom list, we'll keep it simple: List for now.
-  // Actually, standard SectionList doesn't support numColumns easily. 
-  // It's better to format the data into rows if grid is active, OR use `key` prop to force re-render with numColumns (but SectionList doesn't usually support `numColumns` as nicely across sections on all versions).
-  // React Native SectionList DOES NOT support `numColumns`.
-  // Workaround: Pre-format data into pairs if grid.
 
   const formatData = (data: any[]) => {
     if (!isGrid) return data;
@@ -140,7 +133,7 @@ export default function ExploreScreen() {
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             onFilterPress={() => setFilterVisible(true)}
-            selectedCategory={selectedCategory}
+            selectedGenres={tourFilters.genres || []}
             onCategoryPress={handleCategoryPress}
             activeTour={activeTour}
             user={user}

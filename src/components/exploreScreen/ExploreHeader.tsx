@@ -16,7 +16,7 @@ interface ExploreHeaderProps {
     viewMode: 'list' | 'grid';
     onViewModeChange: (mode: 'list' | 'grid') => void;
     onFilterPress: () => void;
-    selectedCategory: string | null;
+    selectedGenres: string[];
     onCategoryPress: (id: string) => void;
     activeTour: any | null;
     user: any | null;
@@ -30,7 +30,7 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
     viewMode,
     onViewModeChange,
     onFilterPress,
-    selectedCategory,
+    selectedGenres,
     onCategoryPress,
     activeTour,
     user,
@@ -95,7 +95,7 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
                     contentContainerStyle={styles.categoryContainer}
                 >
                     {GENRES.map((cat) => {
-                        const isSelected = selectedCategory === cat.id;
+                        const isSelected = selectedGenres.includes(cat.id);
                         const GenreIcon = cat.icon;
                         return (
                             <TouchableOpacity
