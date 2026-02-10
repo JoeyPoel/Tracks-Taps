@@ -334,11 +334,23 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         await abandonTour(activeTourId, userId);
     };
 
+    // Safeguard for deleted stops (Active Tour Persistence)
+    const stops = activeTour?.tour?.stops || [];
+    const stopCount = stops.length;
+    let safeCurrentStop = currentStop || 1;
+
+    // If we're past the end (e.g. stops were deleted), clamp to the last stop
+    if (stopCount > 0 && safeCurrentStop > stopCount) {
+        safeCurrentStop = stopCount;
+    }
+
+    const currentStopIndex = Math.max(0, safeCurrentStop - 1);
+
     return {
         activeTour,
         loading,
         error,
-        currentStopIndex: (currentStop || 1) - 1,
+        currentStopIndex,
         completedChallenges,
         failedChallenges,
         triviaSelected,
@@ -361,4 +373,5 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         setFloatingPointsAmount,
         handleSaveSips
     };
+
 };
