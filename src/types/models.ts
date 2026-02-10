@@ -90,6 +90,7 @@ export interface Tour {
     updatedAt: Date;
     authorId: number;
     author?: {
+        id?: number;
         name: string;
         avatarUrl?: string;
     };
@@ -228,6 +229,7 @@ export interface TourDetail extends Tour {
     stops: Stop[];
     challenges: Challenge[];
     author: {
+        id?: number;
         name: string;
         avatarUrl?: string;
     };

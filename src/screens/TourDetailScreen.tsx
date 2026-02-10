@@ -41,7 +41,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
     formattedReviews
   } = useTourDetails(tourId);
 
-  const { startTour, loadingMode } = useStartTour(tourId, tour?.authorId);
+  const { startTour, loadingMode } = useStartTour(tourId, tour?.author?.id);
   const { lists, loadLists, checkIsSaved, createList, addTourToList, removeTourFromList } = useSavedTrips();
   const isSaved = checkIsSaved(tourId);
 
@@ -137,7 +137,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           </TouchableOpacity>
 
           {/* Edit Button (Only for Author) */}
-          {user && tour.authorId && String(user.id) === String(tour.authorId) && (
+          {user && tour.author?.id && String(user.id) === String(tour.author.id) && (
             <TouchableOpacity
               onPress={() => router.push({ pathname: '/(tabs)/create', params: { tourId: tour.id } })}
               style={[styles.editFab, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}

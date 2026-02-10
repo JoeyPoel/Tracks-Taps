@@ -151,6 +151,8 @@ export const strings = {
     prevStep: 'Previous',
     finalReview: 'Final Review',
     tourCreatedSuccess: 'Tour Created Successfully!',
+    success: 'Success',
+    tourUpdated: 'Tour updated successfully!',
     fillAllFields: 'Please fill in all required fields',
     discardChanges: 'Discard Changes?',
     discardChangesMessage: 'Are you sure you want to leave? All unsaved changes will be lost.',
@@ -692,6 +694,8 @@ export const strings = {
     discardChanges: '¿Descartar cambios?',
     discardChangesMessage: '¿Estás seguro de que quieres salir? Se perderán todos los cambios no guardados.',
     discard: 'Descartar',
+    success: 'Éxito',
+    tourUpdated: '¡Tour actualizado con éxito!',
     tourNotFound: 'Tour no encontrado',
     noToursFound: 'No se encontraron tours',
     noToursFoundDesc: 'Explora otras áreas o intenta cambiar tus filtros.', // Added
@@ -1501,6 +1505,8 @@ export const strings = {
     discardChanges: 'Wijzigingen verwerpen?',
     discardChangesMessage: 'Weet je zeker dat je wilt vertrekken? Alle niet-opgeslagen wijzigingen gaan verloren.',
     discard: 'Verwerpen',
+    success: 'Succes',
+    tourUpdated: 'Tour succesvol bijgewerkt!',
     host: "HOST",
     myTeam: "MIJN TEAM",
 
