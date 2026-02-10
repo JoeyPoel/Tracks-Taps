@@ -1,6 +1,6 @@
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
-import { Link, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { MailCheck } from 'lucide-react-native';
 import React from 'react';
 import {
@@ -12,7 +12,6 @@ import {
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 
 export default function ConfirmEmailScreen() {
-    const router = useRouter();
     const { theme } = useTheme();
     const { t } = useLanguage();
 

@@ -60,7 +60,7 @@ const PodiumBar = ({
         let c: any;
         if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
             c = hex.substring(1).split('');
-            if (c.length == 3) {
+            if (c.length === 3) {
                 c = [c[0], c[0], c[1], c[1], c[2], c[2]];
             }
             c = '0x' + c.join('');
@@ -116,8 +116,6 @@ const PodiumBar = ({
 };
 
 export default function Podium({ teams, visibleRanks = [1, 2, 3] }: PodiumProps) {
-    const { theme } = useTheme();
-
     const sortedTeams = [...teams].sort((a, b) => (b.score || 0) - (a.score || 0));
 
     const first = sortedTeams[0];

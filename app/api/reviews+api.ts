@@ -21,7 +21,7 @@ export async function POST(request: Request) {
         }
 
         return await reviewController.createReview(request, body);
-    } catch (error) {
+    } catch (_error) {
         return Response.json({ error: 'Invalid Request' }, { status: 400 });
     }
 }

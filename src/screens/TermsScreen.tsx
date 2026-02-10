@@ -82,7 +82,7 @@ export default function TermsScreen() {
                         • To impersonate or attempt to impersonate the Company, a Company employee, another user, or any other person or entity (including, without limitation, by using email addresses or screen names associated with any of the foregoing).
                     </TextComponent>
                     <TextComponent color={theme.textSecondary} style={styles.paragraph}>
-                        • To engage in any other conduct that restricts or inhibits anyone's use or enjoyment of the App, or which, as determined by us, may harm the Company or users of the App or expose them to liability.
+                        • To engage in any other conduct that restricts or inhibits anyone&apos;s use or enjoyment of the App, or which, as determined by us, may harm the Company or users of the App or expose them to liability.
                     </TextComponent>
 
                     <TextComponent variant="h3" style={styles.sectionHeader}>6. User Contributions</TextComponent>

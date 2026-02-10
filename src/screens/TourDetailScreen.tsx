@@ -15,7 +15,6 @@ import AddToSavedTripsModal from '../components/saved-trips/AddToSavedTripsModal
 import TourGallery from '../components/tourdetailScreen/TourGallery';
 import TourReviews from '../components/tourdetailScreen/TourReviews';
 import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useSavedTrips } from '../hooks/useSavedTrips';
 import { useStartTour } from '../hooks/useStartTour';
@@ -26,7 +25,6 @@ import { useSafeNavigation } from '../hooks/useSafeNavigation';
 
 export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
-  const { t } = useLanguage();
   const { user } = useAuth();
   const router = useRouter();
   const { goBack } = useSafeNavigation();

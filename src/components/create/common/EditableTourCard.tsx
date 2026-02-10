@@ -1,7 +1,6 @@
 import { TourCardBase } from '@/src/components/exploreScreen/TourCardBase';
 import { useLanguage } from '@/src/context/LanguageContext';
-import { useTheme } from '@/src/context/ThemeContext';
-import { getGenreIcon } from '@/src/utils/genres';
+import { GENRES, getGenreIcon } from '@/src/utils/genres';
 import { getTourTypeLabel } from '@/src/utils/tourUtils';
 import React from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
@@ -20,7 +19,6 @@ export function EditableTourCard({
     draft,
     updateDraft
 }: EditableTourCardProps) {
-    const { theme } = useTheme();
     const { t } = useLanguage();
 
     const cardHeight = 320;
@@ -88,7 +86,6 @@ export function EditableTourCard({
     const genre = draft.genre;
 
     const [pickerType, setPickerType] = React.useState<'genre' | 'difficulty' | 'tourType' | null>(null);
-    const { GENRES } = require('@/src/utils/genres');
 
     return (
         <>

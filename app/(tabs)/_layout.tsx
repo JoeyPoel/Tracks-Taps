@@ -1,7 +1,5 @@
 import { useLanguage } from '@/src/context/LanguageContext';
-import { useTheme } from '@/src/context/ThemeContext';
 import { Tabs } from 'expo-router';
-import React from 'react';
 import {
     MagnifyingGlassIcon as MagnifyingGlassOutline,
     MapIcon as MapOutline,
@@ -20,7 +18,6 @@ import {
 import { TabBar } from '@/src/components/navigation/TabBar';
 
 export default function TabLayout() {
-    const { theme } = useTheme();
     const { t } = useLanguage();
 
     return (

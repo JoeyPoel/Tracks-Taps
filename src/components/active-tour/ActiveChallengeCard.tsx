@@ -85,7 +85,7 @@ export default function ActiveChallengeCard({
         try {
             const challengeIconDetails = getChallengeIconProps(type.toUpperCase() as any, theme, t);
             return challengeIconDetails.color || theme.primary;
-        } catch (e) {
+        } catch (_e) {
             return theme.primary;
         }
     };
@@ -94,7 +94,7 @@ export default function ActiveChallengeCard({
         try {
             const challengeIconDetails = getChallengeIconProps(type.toUpperCase() as any, theme, t);
             return challengeIconDetails.icon || 'help-circle-outline';
-        } catch (e) {
+        } catch (_e) {
             return 'help-circle-outline';
         }
     };
