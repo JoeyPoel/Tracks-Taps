@@ -48,7 +48,7 @@ export function AppModal({ visible, onClose, title, icon, children, subtitle, he
                         entering={SlideInDown.duration(450)}
                         exiting={ZoomOut.duration(200)}
                         style={[
-                            styles.modalContent,
+                            isBottom ? styles.modalContentBottom : styles.modalContent,
                             {
                                 backgroundColor: theme.bgPrimary,
                                 ...(height ? { height } : { maxHeight: '90%' }),
@@ -57,7 +57,6 @@ export function AppModal({ visible, onClose, title, icon, children, subtitle, he
                                     borderTopRightRadius: 24,
                                     borderBottomLeftRadius: 0,
                                     borderBottomRightRadius: 0,
-                                    paddingBottom: Math.max(insets.bottom, 24), // Ensure content above safe area
                                 } : {
                                     borderRadius: 24
                                 }),
@@ -65,26 +64,32 @@ export function AppModal({ visible, onClose, title, icon, children, subtitle, he
                             },
                         ]}
                     >
-                        <View style={styles.header}>
-                            <View style={styles.titleRow}>
-                                {icon}
-                                <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">{title}</TextComponent>
+                        <View style={isBottom ? {
+                            paddingHorizontal: 24,
+                            paddingTop: 24,
+                            paddingBottom: Math.max(insets.bottom, 24)
+                        } : undefined}>
+                            <View style={styles.header}>
+                                <View style={styles.titleRow}>
+                                    {icon}
+                                    <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">{title}</TextComponent>
+                                </View>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                                    {headerRight}
+                                    <AnimatedPressable onPress={onClose} interactionScale="subtle" haptic="light">
+                                        <XMarkIcon size={24} color={theme.textSecondary} />
+                                    </AnimatedPressable>
+                                </View>
                             </View>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                                {headerRight}
-                                <AnimatedPressable onPress={onClose} interactionScale="subtle" haptic="light">
-                                    <XMarkIcon size={24} color={theme.textSecondary} />
-                                </AnimatedPressable>
-                            </View>
+
+                            {subtitle && (
+                                <TextComponent style={styles.subtitle} color={theme.textSecondary} variant="body">
+                                    {subtitle}
+                                </TextComponent>
+                            )}
+
+                            {children}
                         </View>
-
-                        {subtitle && (
-                            <TextComponent style={styles.subtitle} color={theme.textSecondary} variant="body">
-                                {subtitle}
-                            </TextComponent>
-                        )}
-
-                        {children}
                     </Animated.View>
                 </Pressable>
             </Pressable>
@@ -99,6 +104,9 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         padding: 24,
+    },
+    modalContentBottom: {
+        // No padding - will be applied to inner wrapper with safe area
     },
     header: {
         flexDirection: 'row',

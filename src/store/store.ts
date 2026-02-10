@@ -202,10 +202,8 @@ export const useStore = create<StoreState>((set, get) => ({
 
     fetchActiveTourById: async (id: number, userId?: number) => {
         const state = get();
-        // Avoid re-fetching if we already have the correct active tour loaded with full details
-        if (state.activeTour?.id === id && state.activeTour.tour?.stops && !state.errorActiveTours) {
-            return;
-        }
+        // Always try to fetch fresh data
+
 
         set({ loadingActiveTours: true, errorActiveTours: null });
         try {

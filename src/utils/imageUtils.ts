@@ -90,44 +90,44 @@ export const getOptimizedImageUrl = (url: string, width: number = 600, options?:
     if (!url) return url;
 
     // 1. Identify if this is a Supabase Storage URL
-    // These typically look like: https://[project].supabase.co/storage/v1/object/public/[bucket]/[file]
-    const isSupabaseUrl = url.includes('supabase.co/storage/v1/object/public');
+    // These can be either:
+    // - /object/public/ (original format)
+    // - /render/image/public/ (already optimized format)
+    const isSupabaseObjectUrl = url.includes('supabase.co/storage/v1/object/public');
+    const isSupabaseRenderUrl = url.includes('supabase.co/storage/v1/render/image/public');
 
-    if (isSupabaseUrl) {
-        // 2. Switch to the Image Transformation Endpoint
-        // We replace '/object/public/' with '/render/image/public/'.
-        // This tells Supabase: "Don't just give me the file; process it first."
-        let optimizedUrl = url.replace('/object/public/', '/render/image/public/');
-
-        // 3. Add Transformation Parameters
-        // Check if params already exist (rare, but good safety)
-        const hasParams = optimizedUrl.includes('?');
-        const separator = hasParams ? '&' : '?';
-
-        // prevent duplicate parameters if called multiple times
-        if (optimizedUrl.includes('width=')) {
-            return optimizedUrl;
-        }
-
-        // 4. Append Settings
-        // width={width}   -> specific size (e.g. 600px)
-        // quality=60      -> compress to 60% quality (visually fine for mobile, huge savings)
-        // resize=cover    -> ensures the image fills the dimensions without distortion
-        let params = `width=${width}&quality=60`;
-
-        if (options?.height) {
-            params += `&height=${options.height}`;
-        }
-
-        // Default to 'contain' if not specified to prevent server-side cropping on resize
-        // (unless height is provided, in which case we might want cover, but let caller decide)
-        if (options?.resize) {
-            params += `&resize=${options.resize}`;
-        }
-
-        return `${optimizedUrl}${separator}${params}`;
+    if (!isSupabaseObjectUrl && !isSupabaseRenderUrl) {
+        // Not a Supabase URL, return as-is
+        return url;
     }
 
-    // Return original URL for non-Supabase images
-    return url;
+    // 2. If already has transformation parameters, return as-is to avoid duplication
+    if (url.includes('width=') && url.includes('quality=')) {
+        return url;
+    }
+
+    // 3. Convert to render endpoint if needed
+    let optimizedUrl = url;
+    if (isSupabaseObjectUrl) {
+        // Switch to the Image Transformation Endpoint
+        optimizedUrl = url.replace('/object/public/', '/render/image/public/');
+    }
+    // If already using /render/image/public/, keep it as-is
+
+    // 4. Add Transformation Parameters
+    const hasParams = optimizedUrl.includes('?');
+    const separator = hasParams ? '&' : '?';
+
+    // 5. Build parameter string
+    let params = `width=${width}&quality=60`;
+
+    if (options?.height) {
+        params += `&height=${options.height}`;
+    }
+
+    if (options?.resize) {
+        params += `&resize=${options.resize}`;
+    }
+
+    return `${optimizedUrl}${separator}${params}`;
 };

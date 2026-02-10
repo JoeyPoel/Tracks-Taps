@@ -11,7 +11,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     // Global State
     const activeTour = useStore((state) => state.activeTour);
     const storeLoading = useStore((state) => state.loadingActiveTours);
-    const error = useStore((state) => state.errorActiveTours);
+    const errorActiveTours = useStore((state) => state.errorActiveTours);
     const fetchActiveTourById = useStore((state) => state.fetchActiveTourById);
     const finishTour = useStore((state) => state.finishTour);
     const abandonTour = useStore((state) => state.abandonTour);
@@ -20,6 +20,10 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
 
     // Sync Ref
     const appState = useRef(AppState.currentState);
+
+    // Derived error state: If we have the active tour loaded locally, ignore network errors
+    const isDataLoaded = activeTour?.id === activeTourId;
+    const error = isDataLoaded ? null : errorActiveTours;
 
     // 1. Initial Load (Offline -> Online)
     useEffect(() => {
@@ -68,7 +72,6 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     }, []);
 
     // Derived loading state
-    const isDataLoaded = activeTour?.id === activeTourId;
     const loading = !isDataLoaded && (storeLoading || !activeTour || !error);
 
     // Resolve Team

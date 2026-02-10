@@ -37,9 +37,11 @@ export default function UserProfileCard({
             <View style={styles.avatarWrapper}>
                 <Image
                     source={avatarUrl ? { uri: getOptimizedImageUrl(avatarUrl, 200) } : require('../../../assets/images/profilePictureFallback.png')}
+                    placeholder={require('../../../assets/images/profilePictureFallback.png')}
                     style={[styles.avatar, { borderColor: theme.bgSecondary }]}
                     contentFit="cover"
                     cachePolicy="disk"
+                    transition={200}
                 />
 
                 {onEditPress && (

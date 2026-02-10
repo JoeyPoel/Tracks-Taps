@@ -48,9 +48,11 @@ export function ImageUploader({
         <View style={[styles.previewContainer, styles.standardContainer]}>
             <Image
                 source={{ uri: getOptimizedImageUrl(image!, 600) }}
+                placeholder={require('../../../assets/images/profilePictureFallback.png')}
                 style={styles.image}
                 contentFit="cover"
                 cachePolicy="disk"
+                transition={200}
             />
             {uploading && (
                 <View style={[styles.loadingOverlay, { backgroundColor: 'rgba(0,0,0,0.4)' }]}>
@@ -79,9 +81,11 @@ export function ImageUploader({
             <View style={[styles.previewContainer, styles.avatarContainer]}>
                 <Image
                     source={{ uri: getOptimizedImageUrl(image!, 200) }}
+                    placeholder={require('../../../assets/images/profilePictureFallback.png')}
                     style={styles.avatarImage}
                     contentFit="cover"
                     cachePolicy="disk"
+                    transition={200}
                 />
                 {uploading && (
                     <View style={[styles.loadingOverlay, { backgroundColor: 'rgba(0,0,0,0.4)' }]}>
