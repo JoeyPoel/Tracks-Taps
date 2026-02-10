@@ -147,6 +147,7 @@ export default function StepBingo({ draft, actions }: StepBingoProps) {
                 visible={isModalVisible}
                 onClose={() => setModalVisible(false)}
                 onSave={handleSaveChallenge}
+                initialData={selectedCell ? getChallengeAt(selectedCell.row, selectedCell.col) : undefined}
             />
         </View>
     );
