@@ -89,14 +89,20 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     } = useActiveTour(activeTourId, user.id, updateUserXp);
 
     React.useEffect(() => {
-        if (!loading) {
-            if (activeTour?.status === 'PRE_TOUR_LOBBY') {
+        if (!loading && activeTour) {
+            if (activeTour.status === 'PRE_TOUR_LOBBY') {
                 router.replace({ pathname: '/(tabs)/lobby', params: { activeTourId } });
-            } else if (activeTour?.status === 'POST_TOUR_LOBBY' || currentTeam?.finishedAt) {
-                router.replace({ pathname: '/tour-waiting-lobby/[id]', params: { id: activeTourId } });
+            } else if (activeTour.status === 'POST_TOUR_LOBBY' || activeTour.status === 'COMPLETED' || currentTeam?.finishedAt) {
+                // Check if we should skip the lobby for single player
+                const teamCount = activeTour.teams?.length || 0;
+                if (teamCount <= 1) {
+                    router.replace({ pathname: '/tour-completed/[id]', params: { id: activeTourId } });
+                } else {
+                    router.replace({ pathname: '/tour-waiting-lobby/[id]', params: { id: activeTourId } });
+                }
             }
         }
-    }, [activeTourId, currentTeam, loading, activeTour?.status]);
+    }, [activeTourId, currentTeam?.finishedAt, loading, activeTour?.status, activeTour?.teams?.length]);
 
     // Derived PubGolf Scores
     const pubGolfScores: Record<number, number> = {};
@@ -302,14 +308,8 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                     onFinishTour={async () => {
                         const success = await handleFinishTour();
                         if (success) {
-                            setTimeout(async () => {
-                                await refreshUser(); // Refresh user data to update participations
-                                if ((activeTour.teams?.length || 0) > 1) {
-                                    router.replace({ pathname: '/tour-waiting-lobby/[id]', params: { id: activeTourId } });
-                                } else {
-                                    router.replace({ pathname: '/tour-completed/[id]', params: { id: activeTourId } });
-                                }
-                            }, 3000);
+                            await refreshUser(); // Refresh user data to update participations
+                            // Navigation is handled by useEffect when state updates
                         }
                     }}
                 />
