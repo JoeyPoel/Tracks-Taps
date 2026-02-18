@@ -13,7 +13,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 import { TextComponent } from '../common/TextComponent';
 
-export type ChallengeType = 'location' | 'trivia' | 'camera' | 'picture' | 'true_false' | 'dare' | 'riddle';
+export type ChallengeType = 'location' | 'trivia' | 'camera' | 'picture' | 'true_false' | 'dare' | 'riddle' | 'check_in';
 
 interface ActiveChallengeCardProps {
     title: string;

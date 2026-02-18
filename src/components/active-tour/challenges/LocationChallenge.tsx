@@ -33,7 +33,7 @@ const LocationChallenge: React.FC<LocationChallengeProps> = ({
         <ActiveChallengeCard
             title={challenge.title}
             points={challenge.points}
-            type="location"
+            type={challenge.type && challenge.type.toLowerCase() === 'check_in' ? 'check_in' : 'location'}
             isCompleted={isCompleted}
             isFailed={isFailed}
             onPress={handlePress}

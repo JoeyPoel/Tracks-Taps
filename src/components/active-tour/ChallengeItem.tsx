@@ -118,10 +118,23 @@ const ChallengeItem: React.FC<ChallengeItemProps> = ({
                     isBonus={isBonus}
                 />
             );
+        case 'check_in':
+            return (
+                <LocationChallenge
+                    challenge={challenge}
+                    isCompleted={isCompleted}
+                    isFailed={isFailed}
+                    onComplete={handleComplete}
+                    index={index}
+                    isBonus={isBonus}
+                />
+            );
         default:
             return (
-                <View>
-                    <TextComponent>{t('unknownChallengeType')} {type}</TextComponent>
+                <View style={{ padding: 20, alignItems: 'center' }}>
+                    <TextComponent variant="body" color="red">
+                        {t('unknownChallengeType') || 'Unknown Challenge Type:'} {type}
+                    </TextComponent>
                 </View>
             );
     }
