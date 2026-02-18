@@ -216,5 +216,39 @@ export const userRepository = {
             page,
             limit
         );
+    },
+
+    async getPurchase(transactionId: string) {
+        return await prisma.purchase.findUnique({
+            where: { transactionId }
+        });
+    },
+
+    async createPurchase(userId: number, data: {
+        transactionId: string;
+        productId: string;
+        tokens: number;
+        price?: number | null;
+        currency?: string | null;
+    }) {
+        return await prisma.$transaction(async (tx) => {
+            const purchase = await tx.purchase.create({
+                data: {
+                    userId,
+                    transactionId: data.transactionId,
+                    productId: data.productId,
+                    tokens: data.tokens,
+                    price: data.price,
+                    currency: data.currency
+                }
+            });
+
+            await tx.user.update({
+                where: { id: userId },
+                data: { tokens: { increment: data.tokens } }
+            });
+
+            return purchase;
+        });
     }
 };

@@ -4,7 +4,6 @@ import * as Clipboard from 'expo-clipboard';
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { CheckIcon, CircleStackIcon, ClipboardDocumentIcon, GiftIcon } from 'react-native-heroicons/outline';
-import client from '../../api/apiClient';
 import { useTheme } from '../../context/ThemeContext';
 import { useUserContext } from '../../context/UserContext';
 import { authEvents } from '../../utils/authEvents';
@@ -17,18 +16,46 @@ interface BuyTokensModalProps {
 }
 
 const PACKAGES = [
-    { tokens: 1, price: 3.00, bonus: 0, popular: false },
-    { tokens: 2, price: 5.50, bonus: 0, popular: false },
-    { tokens: 5, price: 12.50, bonus: 0, popular: true },
-    { tokens: 10, price: 20.00, bonus: 0, popular: false },
+    { tokens: 1, price: 2.49, bonus: 0, popular: false },
+    { tokens: 2, price: 5.49, bonus: 0, popular: false },
+    { tokens: 5, price: 12.49, bonus: 0, popular: true },
+    { tokens: 10, price: 19.99, bonus: 0, popular: false },
 ];
+
+
+// ... imports
+import { PurchasesPackage } from 'react-native-purchases';
+import { usePurchases } from '../../hooks/usePurchases';
+
+// ... inside component
 
 export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const { user, refreshUser } = useUserContext();
+    const { purchasePackage, packages } = usePurchases(); // Use hook directly
     const [isLoading, setIsLoading] = React.useState(false);
     const [copied, setCopied] = React.useState(false);
+
+    // Map local definitions to RevenueCat packages
+    // We assume package identifiers contain '1_token', '2_tokens', etc. or match by price/metadata
+    // For simplicity, we'll try to find a package where identifier contains explicitly the token amount
+    // or fall back to manual mapping if we knew the exact IDs.
+    // Let's assume the IDs are: 'tokens_1', 'tokens_2', 'tokens_5', 'tokens_10'
+
+    const getRcPackage = (tokens: number): PurchasesPackage | undefined => {
+        return packages.find(p => p.identifier.includes(`tokens_${tokens}`) || p.product.identifier.includes(`tokens_${tokens}`));
+    };
+
+    const displayPackages = PACKAGES.map(pkg => {
+        const rcPkg = getRcPackage(pkg.tokens);
+        return {
+            ...pkg,
+            rcPackage: rcPkg,
+            priceString: rcPkg?.product.priceString || `€${pkg.price.toFixed(2)}`,
+            // If RC package exists, use its price, otherwise fallback
+        };
+    });
 
     const handleCopy = async () => {
         if (user?.referralCode) {
@@ -38,7 +65,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
         }
     };
 
-    const handleBuy = async (pkg: typeof PACKAGES[0]) => {
+    const handleBuy = async (pkg: typeof PACKAGES[0] & { rcPackage?: PurchasesPackage }) => {
         if (!user) {
             authEvents.emit();
             return;
@@ -47,19 +74,20 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
 
         setIsLoading(true);
         try {
-            const totalTokens = pkg.tokens + pkg.bonus;
 
-            await client.post('/user', {
-                action: 'buy-tokens',
-                userId: user.id,
-                amount: totalTokens
-            });
+            if (pkg.rcPackage) {
+                // Purchase via RevenueCat
+                const success = await purchasePackage(pkg.rcPackage);
 
-            await refreshUser();
-            onClose();
+                if (success) {
+                    await refreshUser();
+                    onClose();
+                }
+            } else {
+                alert('Configuration Error: Package not found in Store.');
+            }
         } catch (error) {
             console.error('Error buying tokens:', error);
-            // simple alert for now
             alert('Failed to purchase. Please try again.');
         } finally {
             setIsLoading(false);
@@ -75,9 +103,9 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
             subtitle={t('chooseTokenPackage')}
         >
             <ScrollView contentContainerStyle={styles.packagesContainer}>
-                {PACKAGES.map((pkg, index) => {
+                {displayPackages.map((pkg, index) => {
                     const totalTokens = pkg.tokens + pkg.bonus;
-                    const pricePerToken = (pkg.price / totalTokens).toFixed(2);
+                    const pricePerToken = (pkg.price / totalTokens).toFixed(2); // Keep logic for now, or calculate from RC price
 
                     return (
                         <AnimatedPressable
@@ -118,11 +146,11 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
 
                             <View style={styles.priceInfo}>
                                 <TextComponent style={styles.price} color={pkg.popular ? theme.danger : theme.textPrimary} bold variant="h3">
-                                    €{pkg.price}
+                                    {pkg.priceString}
                                 </TextComponent>
-                                <TextComponent style={styles.pricePerToken} color={theme.textSecondary} variant="caption">
-                                    €{pricePerToken}/token
-                                </TextComponent>
+                                {/* <TextComponent style={styles.pricePerToken} color={theme.textSecondary} variant="caption">
+                                        €{pricePerToken}/token
+                                    </TextComponent> */}
                             </View>
                         </AnimatedPressable>
                     );

@@ -96,8 +96,24 @@ model User {
   // Achievements
   achievements UserAchievement[]
   tourLists    TourList[]
+  purchases    Purchase[]
 
   @@index([email])
+}
+
+model Purchase {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  transactionId String   @unique
+  productId     String
+  tokens        Int
+  price         Float?
+  currency      String?
+  purchasedAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([transactionId])
 }
 
 model Friendship {

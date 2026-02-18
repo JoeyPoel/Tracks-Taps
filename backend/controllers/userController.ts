@@ -69,14 +69,86 @@ export const userController = {
     async addTokens(request: Request, parsedBody?: any) {
         try {
             const body = parsedBody || await request.json();
-            const { userId, amount } = body;
+            const { userId, amount, transactionId } = body;
 
-            if (!userId || !amount) {
-                return Response.json({ error: 'Missing userId or amount' }, { status: 400 });
+            // INTERNAL/DEBUG BYPASS: Allow manual add if explicitly requested by a trusted source (or if amount is small/from referral?). 
+            // For now, if no transactionId is provided, we BLOCK it to ensure security for purchases.
+            // Referrals use 'userRepository.addTokens' directly in 'claimReferral' so they are not affected by this controller lock-down 
+            // UNLESS the 'claimReferral' controller calls this? No, it calls 'userService.claimReferral'.
+
+            if (!transactionId) {
+                // If this is for testing, you might want to uncomment this, but for "totally secure", we reject.
+                return Response.json({ error: 'Transaction verification required' }, { status: 400 });
             }
 
-            const updatedUser = await userService.addTokens(Number(userId), Number(amount));
-            return Response.json(updatedUser);
+            // 1. Idempotency Check
+            const existingPurchase = await userService.getPurchase(transactionId);
+            if (existingPurchase) {
+                return Response.json({ error: 'Transaction already processed' }, { status: 409 });
+            }
+
+            // 2. RevenueCat Verification
+            const RC_SECRET = process.env.REVENUECAT_SECRET_KEY;
+
+            // Allow bypassing verification ONLY if secret key is missing (Dev Mode) AND it's explicitly handled, 
+            // but for "secure" request we must fail if no key.
+            if (!RC_SECRET) {
+                console.error('REVENUECAT_SECRET_KEY not set');
+                return Response.json({ error: 'Server configuration error: REVENUECAT_SECRET_KEY missing' }, { status: 500 });
+            }
+
+            const response = await fetch(`https://api.revenuecat.com/v1/subscribers/${userId}`, {
+                headers: {
+                    'Authorization': `Bearer ${RC_SECRET}`,
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (!response.ok) {
+                console.error('RevenueCat API Error', await response.text());
+                return Response.json({ error: 'Failed to verify transaction with provider' }, { status: 502 });
+            }
+
+            const data = await response.json();
+            const subscriber = data.subscriber;
+
+            let transactionFound = false;
+            let verifiedProductId = '';
+
+            // Search in non_subscriptions for the transaction string
+            if (subscriber.non_subscriptions) {
+                Object.keys(subscriber.non_subscriptions).forEach(pid => {
+                    const transactions = subscriber.non_subscriptions[pid];
+                    const match = transactions.find((t: any) => t.id === transactionId || t.original_transaction_id === transactionId);
+                    if (match) {
+                        transactionFound = true;
+                        verifiedProductId = pid;
+                    }
+                });
+            }
+
+            if (!transactionFound) {
+                return Response.json({ error: 'Transaction not found in RevenueCat history' }, { status: 400 });
+            }
+
+            // 3. Determine Tokens (Server-side Source of Truth)
+            let tokensToAward = 0;
+            // Flexible matching for product IDs like 'tokens_10_consumable' or just 'tokens_10'
+            if (verifiedProductId.includes('tokens_10')) tokensToAward = 10;
+            else if (verifiedProductId.includes('tokens_5')) tokensToAward = 5;
+            else if (verifiedProductId.includes('tokens_2')) tokensToAward = 2;
+            else if (verifiedProductId.includes('tokens_1')) tokensToAward = 1;
+            else {
+                return Response.json({ error: `Unknown product identifier: ${verifiedProductId}` }, { status: 400 });
+            }
+
+            const purchase = await userService.createPurchase(Number(userId), {
+                transactionId,
+                productId: verifiedProductId,
+                tokens: tokensToAward
+            });
+
+            return Response.json(purchase);
         } catch (error) {
             console.error('Error adding tokens:', error);
             return Response.json({ error: 'Failed to add tokens' }, { status: 500 });

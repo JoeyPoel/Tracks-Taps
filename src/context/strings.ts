@@ -7,6 +7,8 @@ export const strings = {
     editTransportMode: 'Edit Transport Mode',
     profile: 'Profile',
     manageAccount: 'Manage your account',
+    manageSubscription: 'Manage Subscription',
+    becomePro: 'Become a Pro Member',
     personalInfo: 'Personal Information',
     appPreferences: 'App Preferences',
     contact: 'Contact',
@@ -599,6 +601,8 @@ export const strings = {
     profile: 'Perfil',
 
     manageAccount: 'Administrar su cuenta',
+    manageSubscription: 'Gestionar Suscripción',
+    becomePro: 'Hazte Miembro Pro',
     personalInfo: 'Información personal',
     appPreferences: 'Preferencias de la app',
     contact: 'Contacto',

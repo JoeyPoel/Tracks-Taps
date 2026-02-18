@@ -20,6 +20,7 @@ import ReferralClaimModal from '../components/profileScreen/ReferralClaimModal';
 import TokenCard from '../components/profileScreen/TokenCard';
 import UserProfileCard from '../components/profileScreen/UserProfileCard';
 import { useLanguage } from '../context/LanguageContext';
+import { useRevenueCat } from '../context/RevenueCatContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 import { useFriends } from '../hooks/useFriends';
@@ -36,6 +37,7 @@ export default function ProfileScreen() {
   const { user, loading, refreshUser } = useUserContext();
   const { achievements, fetchAchievements, loadingAchievements } = useStore();
   const { loadFriends, friends } = useFriends();
+  const { isPro } = useRevenueCat();
 
   // Load achievements once when profile loads (if not already loaded)
   useEffect(() => {
@@ -113,7 +115,15 @@ export default function ProfileScreen() {
         <Animated.View style={{ marginTop: 40 }}>
           <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('manageAccount')?.toUpperCase() || 'MANAGE ACCOUNT'}</Text>
 
+
           <View style={[styles.settingsGroup, { backgroundColor: theme.bgSecondary }]}>
+            {/* Subscription Logic Removed as per user request */}
+            {/* <SettingsItem
+              icon={<SparklesIcon size={22} color={theme.accent} />}
+              title={isPro ? ((t('manageSubscription') as string) || 'Manage Subscription') : ((t('becomePro') as string) || 'Become a Pro Member')}
+              onPress={() => router.push(isPro ? '/customer-center' : '/paywall' as any)}
+            /> */}
+
             <SettingsItem
               icon={<TicketIcon size={22} color={theme.accent} />}
               title={t('enterReferralCode') || 'Enter Referral Code'}

@@ -29,5 +29,11 @@ export const userService = {
     async updateUser(userId: number, data: { name?: string; avatarUrl?: string }) {
         const response = await client.post('/user', { action: 'update-user', userId, ...data });
         return response.data;
+    },
+
+    async verifyPurchase(userId: number, appUserId: string) {
+        // Updated to use the new route we created
+        const response = await client.post('/user/verify-purchase', { userId, appUserId });
+        return response.data;
     }
 };

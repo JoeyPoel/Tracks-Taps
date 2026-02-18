@@ -2,6 +2,7 @@ import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthProvider } from './AuthContext';
 import { LanguageProvider } from './LanguageContext';
+import { RevenueCatProvider } from './RevenueCatContext';
 import { ThemeProvider } from './ThemeContext';
 import { ToastProvider } from './ToastContext';
 import { UserProvider } from './UserContext';
@@ -13,9 +14,11 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
                 <LanguageProvider>
                     <ThemeProvider>
                         <UserProvider>
-                            <ToastProvider>
-                                {children}
-                            </ToastProvider>
+                            <RevenueCatProvider>
+                                <ToastProvider>
+                                    {children}
+                                </ToastProvider>
+                            </RevenueCatProvider>
                         </UserProvider>
                     </ThemeProvider>
                 </LanguageProvider>

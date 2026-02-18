@@ -86,5 +86,13 @@ export const userService = {
 
     async getUserCreatedTours(userId: number, page: number = 1, limit: number = 10) {
         return await userRepository.getUserCreatedTours(userId, page, limit);
-    }
-};
+    },
+
+    async getPurchase(transactionId: string) {
+            return await userRepository.getPurchase(transactionId);
+        },
+
+    async createPurchase(userId: number, data: any) {
+            return await userRepository.createPurchase(userId, data);
+        }
+    };
