@@ -7,11 +7,11 @@ import { useStore } from '../store/store'; // Keep for user context
 
 // Use env variables for keys
 // Falls back to the shared key if platform-specific ones aren't set
-const SHARED_KEY = process.env.EXPO_PUBLIC_REVENUECAT_KEY || 'test_taLApHZCoJTqPGUoTNvXCVlgGxq';
+const SHARED_KEY = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY || 'test_taLApHZCoJTqPGUoTNvXCVlgGxq'; // Default to android test key if generic shared key missing
 
 const API_KEYS = {
-    apple: process.env.EXPO_PUBLIC_REVENUECAT_APPLE_KEY || SHARED_KEY,
-    google: process.env.EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY || SHARED_KEY,
+    apple: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY || SHARED_KEY,
+    google: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY || SHARED_KEY,
 };
 
 const ENTITLEMENT_ID = 'Tracks & Taps Pro'; // Matches user request

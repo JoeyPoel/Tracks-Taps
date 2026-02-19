@@ -3,8 +3,13 @@ import { Alert, Platform } from 'react-native';
 import Purchases, { CustomerInfo, LOG_LEVEL, PurchasesPackage, PurchasesStoreTransaction } from 'react-native-purchases';
 import { useUserContext } from './UserContext';
 
-// Your API Key
-const API_KEY = 'test_wwsKPWQWYbkAswYCWwRyIrDevWw';
+const API_KEY_IOS = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY;
+const API_KEY_ANDROID = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY;
+
+if (!API_KEY_IOS || !API_KEY_ANDROID) {
+    console.error('RevenueCat API keys are missing! Check your .env file.');
+}
+
 
 interface RevenueCatContextType {
     isPro: boolean;
@@ -28,12 +33,13 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
         const init = async () => {
             try {
                 if (Platform.OS === 'android') {
-                    // Purchases.configure({ apiKey: API_KEY_GOOGLE }); 
-                    // Assuming same key or user didn't provide Google key yet. 
-                    // Using the provided key for both for now, but typically they differ.
-                    Purchases.configure({ apiKey: API_KEY });
+                    if (API_KEY_ANDROID) {
+                        Purchases.configure({ apiKey: API_KEY_ANDROID });
+                    }
                 } else {
-                    Purchases.configure({ apiKey: API_KEY });
+                    if (API_KEY_IOS) {
+                        Purchases.configure({ apiKey: API_KEY_IOS });
+                    }
                 }
 
                 if (user?.id) {
