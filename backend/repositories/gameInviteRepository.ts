@@ -5,7 +5,12 @@ export const gameInviteRepository = {
         return await prisma.gameInvite.findMany({
             where: {
                 inviteeId: userId,
-                status: 'PENDING'
+                status: 'PENDING',
+                activeTour: {
+                    status: {
+                        in: ['WAITING', 'IN_PROGRESS']
+                    }
+                }
             },
             include: {
                 activeTour: {

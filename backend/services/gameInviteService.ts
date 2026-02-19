@@ -59,6 +59,9 @@ export const gameInviteService = {
         if (!sender) throw new Error("Sender not found");
         if (!target) throw new Error("User not found");
         if (!activeTour) throw new Error("Tour not found");
+        if (activeTour.status !== 'WAITING' && activeTour.status !== 'IN_PROGRESS') {
+            throw new Error("Cannot invite to an expired or finished tour");
+        }
 
         // Prevent self-invite
         if (sender.id === target.id) throw new Error("Cannot invite yourself");
@@ -81,6 +84,10 @@ export const gameInviteService = {
 
         const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
         if (!activeTour) throw new Error("Tour not found");
+        if (activeTour.status !== 'WAITING' && activeTour.status !== 'IN_PROGRESS') {
+            // Or just return success: false? But throwing is clearer for the caller
+            throw new Error("Cannot invite to an expired or finished tour");
+        }
 
         // Filter out self if present
         const validTargetIds = targetUserIds.filter(id => id !== senderId);

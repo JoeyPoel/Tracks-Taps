@@ -109,7 +109,12 @@ export const activeTourRepository = {
     async joinActiveTour(activeTourId: number, userId: number, teamName?: string, teamColor?: string, teamEmoji?: string) {
         // Fetch tour to get stops for PubGolf
         const activeTour = await prisma.activeTour.findUnique({
-            where: { id: activeTourId },
+            where: {
+                id: activeTourId,
+                status: {
+                    in: [SessionStatus.WAITING, SessionStatus.IN_PROGRESS]
+                }
+            },
             include: { tour: { include: { stops: true } } }
         });
 

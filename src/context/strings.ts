@@ -433,7 +433,7 @@ export const strings = {
     nature: 'Nature',
     mystery: 'Mystery',
     findYourNextAdventure: 'Find your next adventure',
-    whereToNext: 'Where to next?',
+    whereToNext: 'Where to next? Search by city, tour, or author...',
     curatedAdventures: 'Curated adventures just for you',
     unknown: 'Unknown',
     userNotFound: 'User not found',
