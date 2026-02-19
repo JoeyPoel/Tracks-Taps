@@ -39,7 +39,7 @@ export const useImageUploader = ({
             }
 
             const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ['images'],
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
                 aspect: isAvatar ? [1, 1] : [16, 9],
                 quality: 1,

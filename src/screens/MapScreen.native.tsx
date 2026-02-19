@@ -51,7 +51,7 @@ export default function MapScreen() {
         onRegionChangeComplete={onRegionChangeComplete}
       >
         {!selectedTour ? (
-          tours.map((tour: any, index: number) => {
+          (tours || []).map((tour: any, index: number) => {
             const lat = tour.startLat ?? (tour.stops?.find((s: Stop) => s.number === 1) || tour.stops?.[0])?.latitude;
             const lng = tour.startLng ?? (tour.stops?.find((s: Stop) => s.number === 1) || tour.stops?.[0])?.longitude;
 

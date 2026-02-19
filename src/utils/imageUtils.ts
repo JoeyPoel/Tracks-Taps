@@ -15,7 +15,7 @@
  * @returns The optimized URL
  */
 import { decode } from 'base64-arraybuffer';
-import * as FileSystem from 'expo-file-system/legacy';
+import * as FileSystem from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { supabase } from '../../utils/supabase';
 

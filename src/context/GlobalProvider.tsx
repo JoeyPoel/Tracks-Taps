@@ -5,6 +5,7 @@ import { LanguageProvider } from './LanguageContext';
 import { RevenueCatProvider } from './RevenueCatContext';
 import { ThemeProvider } from './ThemeContext';
 import { ToastProvider } from './ToastContext';
+import { TutorialProvider } from './TutorialContext';
 import { UserProvider } from './UserContext';
 
 export function GlobalProvider({ children }: { children: React.ReactNode }) {
@@ -14,11 +15,13 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
                 <LanguageProvider>
                     <ThemeProvider>
                         <UserProvider>
-                            <RevenueCatProvider>
-                                <ToastProvider>
-                                    {children}
-                                </ToastProvider>
-                            </RevenueCatProvider>
+                            <TutorialProvider>
+                                <RevenueCatProvider>
+                                    <ToastProvider>
+                                        {children}
+                                    </ToastProvider>
+                                </RevenueCatProvider>
+                            </TutorialProvider>
                         </UserProvider>
                     </ThemeProvider>
                 </LanguageProvider>

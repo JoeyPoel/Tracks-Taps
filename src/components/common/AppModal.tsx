@@ -88,7 +88,7 @@ export function AppModal({
                             <View style={styles.headerTop}>
                                 <View style={styles.titleRow}>
                                     {icon}
-                                    <TextComponent style={styles.titleText} color={theme.textPrimary} bold variant="h2" numberOfLines={1}>
+                                    <TextComponent style={styles.titleText} color={theme.textPrimary} bold variant="h2">
                                         {title}
                                     </TextComponent>
                                 </View>
@@ -108,7 +108,7 @@ export function AppModal({
                         </View>
 
                         {/* Content */}
-                        <View style={[styles.content, { paddingHorizontal: 24 }]}>
+                        <View style={[computedHeight ? styles.content : undefined, { paddingHorizontal: 24 }]}>
                             {children}
                         </View>
                     </Animated.View>

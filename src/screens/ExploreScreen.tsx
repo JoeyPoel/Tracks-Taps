@@ -51,21 +51,26 @@ export default function ExploreScreen() {
         }
         if (user?.id) {
           await fetchAllData(user.id);
+        } else {
+          // Guest mode: fetch tours only
+          await fetchTours();
         }
         setHasInitialized(true);
       };
       init();
-    }, [user?.id, fetchAllData])
+    }, [user?.id, fetchAllData, fetchTours])
   );
 
   const onRefresh = useCallback(async () => {
-    if (user?.id) {
-      setIsRefreshing(true);
-      try {
+    setIsRefreshing(true);
+    try {
+      if (user?.id) {
         await Promise.all([fetchTours(), fetchActiveTours(user.id)]);
-      } finally {
-        setIsRefreshing(false);
+      } else {
+        await fetchTours();
       }
+    } finally {
+      setIsRefreshing(false);
     }
   }, [user?.id, fetchTours, fetchActiveTours]);
 

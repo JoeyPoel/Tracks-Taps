@@ -1,4 +1,3 @@
-import { authEvents } from '@/src/utils/authEvents';
 import { supabase } from '@/utils/supabase';
 import axios from 'axios';
 import Constants from 'expo-constants';
@@ -67,10 +66,10 @@ client.interceptors.response.use(
             // Verify if we are not already on an auth screen to avoid loops or unnecessary modals
             // But usually the modal handles its own visibility state
             // Import moved to top-level to avoid require
-            authEvents.emit();
+            // authEvents.emit(); // Removed global trigger for guest mode
 
-            // Force redirect to login
-            router.replace('/auth/login');
+            // For fetching data, we just return empty/null in the calling functions if 401
+            // For actions (POST/PUT), we should check auth before calling API
         }
 
         if (error.response?.status >= 500) {

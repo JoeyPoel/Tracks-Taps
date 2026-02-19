@@ -58,7 +58,7 @@ export const useMapScreenLogic = () => {
                         (err.response?.data?.error && err.response.data.error.toLowerCase().includes('not found'));
 
                     if (isNotFound) {
-                        router.replace('/+not-found');
+                        router.replace('/+not-found' as any);
                     }
                 });
             }
@@ -244,6 +244,12 @@ export const useMapScreenLogic = () => {
             refetch(bounds);
         }, 500);
     };
+
+    // Initial fetch for guests if needed
+    useEffect(() => {
+        // Trigger initial fetch of map tours
+        refetch();
+    }, []);
 
     return {
         mapRef,

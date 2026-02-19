@@ -27,11 +27,11 @@ export const paymentService = {
             );
 
             const subscriber = response.data.subscriber;
-            
+
             // 2. Look for non-subscription transactions (Consumables)
             // RevenueCat returns `non_subscriptions` as a map of productId -> array of transactions
             const nonSubscriptions = subscriber.non_subscriptions;
-            
+
             let totalNewTokens = 0;
             const newTransactions: { txId: string; amount: number }[] = [];
 
@@ -41,8 +41,8 @@ export const paymentService = {
                 const txs = transactions as any[];
                 for (const tx of txs) {
                     // Check if we have already processed this transaction
-                    const existingTx = await prisma.transaction.findUnique({
-                        where: { txId: tx.id }
+                    const existingTx = await prisma.purchase.findUnique({
+                        where: { transactionId: tx.id }
                     });
 
                     if (!existingTx) {
@@ -60,14 +60,14 @@ export const paymentService = {
                             else amount = 100; // Default
                         }
 
-                        // Record transaction
-                        await prisma.transaction.create({
+                        // Record transaction (Purchase)
+                        await prisma.purchase.create({
                             data: {
                                 userId,
-                                txId: tx.id,
-                                amount,
+                                transactionId: tx.id,
+                                tokens: amount,
                                 productId,
-                                provider: tx.store, // 'app_store', 'play_store'
+                                // provider is not in schema, ignoring
                             }
                         });
 

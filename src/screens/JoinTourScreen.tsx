@@ -8,23 +8,34 @@ import Animated, { FadeInDown, FadeInUp, useAnimatedStyle, useSharedValue, withR
 import { AnimatedButton } from '../components/common/AnimatedButton';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
+import { useAuth } from '../context/AuthContext'; // Added import
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useInvites } from '../hooks/useInvites';
 import { useJoinTour } from '../hooks/useJoinTour';
+import { authEvents } from '../utils/authEvents'; // Added import
 
 export default function JoinTourScreen() {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const router = useRouter();
+    const { user } = useAuth(); // Added useAuth
     const {
         tourCode,
         setTourCode,
         loading: joining,
         error,
         setError,
-        handleJoinTour
+        handleJoinTour: originalHandleJoin
     } = useJoinTour();
+
+    const handleJoinTour = () => {
+        if (!user) {
+            authEvents.emit();
+            return;
+        }
+        originalHandleJoin();
+    };
 
     const { invites, loading: loadingInvites, acceptInvite, declineInvite, processingId } = useInvites();
 
@@ -111,7 +122,7 @@ export default function JoinTourScreen() {
                                 }}
                                 keyboardType="number-pad"
                                 maxLength={11} // 9 digits + 2 spaces
-                                autoFocus={true}
+                                // autoFocus={true} // Removed for better UX
                                 caretHidden={true}
                                 cursorColor="transparent" // Android-specific to hide cursor
                                 selectionColor="transparent" // Hide selection
@@ -150,7 +161,7 @@ export default function JoinTourScreen() {
                     />
 
                     {/* Section 2: Pending Invites */}
-                    {invites.length > 0 && (
+                    {(invites || []).length > 0 && (
                         <Animated.View entering={FadeInUp.delay(300).springify()} style={{ marginTop: 48, width: '100%' }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
                                 <View style={{ height: 1, flex: 1, backgroundColor: theme.borderSecondary }} />
@@ -160,7 +171,7 @@ export default function JoinTourScreen() {
                                 <View style={{ height: 1, flex: 1, backgroundColor: theme.borderSecondary }} />
                             </View>
 
-                            {invites.map((invite) => (
+                            {(invites || []).map((invite) => (
                                 <View key={invite.id} style={[styles.inviteCard, { backgroundColor: theme.bgSecondary }]}>
                                     <View style={[styles.inviteIcon, { backgroundColor: theme.primary + '20' }]}>
                                         <TicketIcon size={24} color={theme.primary} />

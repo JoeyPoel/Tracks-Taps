@@ -5,7 +5,7 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { AuthService } from '@/src/services/authService';
 import { supabase } from '@/utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
     ActivityIndicator,
@@ -24,6 +24,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 
 export default function LoginScreen() {
+    const router = useRouter();
     const { theme } = useTheme();
     const { t } = useLanguage();
     const [email, setEmail] = useState('');
@@ -162,6 +163,15 @@ export default function LoginScreen() {
                                 </TouchableOpacity>
                             </Link>
                         </View>
+
+                        <TouchableOpacity
+                            onPress={() => router.replace('/(tabs)/explore')}
+                            style={{ alignSelf: 'center', marginTop: 24, padding: 8 }}
+                        >
+                            <Text style={{ color: theme.textTertiary, fontSize: 14 }}>
+                                {t('continueAsGuest')}
+                            </Text>
+                        </TouchableOpacity>
                     </Animated.View>
                 </ScrollView>
             </KeyboardAvoidingView>

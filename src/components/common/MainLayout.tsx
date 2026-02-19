@@ -1,6 +1,8 @@
 import AuthRequiredModal from '@/src/components/AuthRequiredModal';
 import ThemedStatusBar from '@/src/components/ThemedStatusBar';
+import { TutorialOverlay } from '@/src/components/tutorial/TutorialOverlay';
 import { useAuth } from '@/src/context/AuthContext';
+import { useTutorial } from '@/src/context/TutorialContext';
 import { useLevelUpListener } from '@/src/hooks/useLevelUpListener';
 import { supabase } from '@/utils/supabase';
 import { Stack, useRouter, useSegments } from 'expo-router';
@@ -17,6 +19,8 @@ export function MainLayout() {
     const [isReady, setIsReady] = useState(false);
     const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
     const [isHandlingAuthRedirect, setIsHandlingAuthRedirect] = useState(false);
+
+    const { hasSeenTutorial, isLoading: isTutorialLoading, startTutorial, isActive } = useTutorial();
 
     // Listen for level ups
     useLevelUpListener();
@@ -110,20 +114,24 @@ export function MainLayout() {
             if (inAuthGroup && !isException) {
                 router.replace('/');
             }
-        } else {
-            // Not authenticated
+        }
+        // Guest users are allowed in Main Layout (Tabs)
+    }, [session, loading, isReady, segment, hasSeenOnboarding, isHandlingAuthRedirect]);
+
+    // Handle Tutorial Trigger
+    useEffect(() => {
+        if (!loading && !isTutorialLoading && !hasSeenTutorial && !isActive && isReady) {
+            // Check if we are in the main app (not auth screens)
+            const inAuthGroup = segment[0] === 'auth';
             if (!inAuthGroup) {
-                // Initial redirect logic
-                if (!hasSeenOnboarding) {
-                    router.replace('/auth/onboarding' as any);
-                } else {
-                    router.replace('/auth/login');
-                }
-            } else if (segment[1] === 'login' && !hasSeenOnboarding) {
-                // router.replace('/auth/onboarding' as any);
+                const timer = setTimeout(() => {
+                    startTutorial();
+                }, 1500);
+                return () => clearTimeout(timer);
             }
         }
-    }, [session, loading, isReady, segment, hasSeenOnboarding, isHandlingAuthRedirect]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [session, loading, isTutorialLoading, hasSeenTutorial, isActive, isReady, segment]);
 
     if (!isReady || loading) {
         return (
@@ -143,6 +151,7 @@ export function MainLayout() {
             </Stack>
             <ThemedStatusBar />
             <AuthRequiredModal />
+            <TutorialOverlay />
         </>
     );
 }

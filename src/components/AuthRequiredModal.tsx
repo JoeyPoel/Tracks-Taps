@@ -94,7 +94,9 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         width: '100%',
-        gap: 12,
+        gap: 16, // Increased gap for better touch targets
+        flexDirection: 'column', // Explicitly vertical
+        paddingBottom: 24, // Add padding at bottom
     },
     fullWidthButton: {
         width: '100%',

@@ -22,6 +22,7 @@ import { useTourDetails } from '../hooks/useTourDetails';
 import { getOptimizedImageUrl } from '../utils/imageUtils';
 
 import { useSafeNavigation } from '../hooks/useSafeNavigation';
+import { authEvents } from '../utils/authEvents';
 
 export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
@@ -124,7 +125,13 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
           {/* Saved Trip Button */}
           <TouchableOpacity
-            onPress={() => setShowSavedTripModal(true)}
+            onPress={() => {
+              if (!user) {
+                authEvents.emit();
+                return;
+              }
+              setShowSavedTripModal(true);
+            }}
             style={[styles.savedTripFab, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
           >
             <Ionicons
@@ -197,6 +204,10 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           <AnimatedButton
             title="Solo"
             onPress={() => {
+              if (!user) {
+                authEvents.emit();
+                return;
+              }
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
               startTour(false, false);
             }}
@@ -210,6 +221,10 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           <AnimatedButton
             title="With Friends"
             onPress={() => {
+              if (!user) {
+                authEvents.emit();
+                return;
+              }
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
               startTour(false, true);
             }}

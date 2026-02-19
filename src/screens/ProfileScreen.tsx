@@ -2,6 +2,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
+  AcademicCapIcon,
   Cog6ToothIcon,
   DocumentTextIcon,
   EnvelopeIcon,
@@ -11,6 +12,7 @@ import {
   UserIcon
 } from 'react-native-heroicons/outline';
 import Animated from 'react-native-reanimated';
+import { AnimatedButton } from '../components/common/AnimatedButton';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { SettingsItem } from '../components/common/SettingsItem';
 import BuyTokensModal from '../components/profileScreen/BuyTokensModal';
@@ -22,6 +24,7 @@ import UserProfileCard from '../components/profileScreen/UserProfileCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useRevenueCat } from '../context/RevenueCatContext';
 import { useTheme } from '../context/ThemeContext';
+import { useTutorial } from '../context/TutorialContext';
 import { useUserContext } from '../context/UserContext';
 import { useFriends } from '../hooks/useFriends';
 import { useStore } from '../store/store';
@@ -38,6 +41,7 @@ export default function ProfileScreen() {
   const { achievements, fetchAchievements, loadingAchievements } = useStore();
   const { loadFriends, friends } = useFriends();
   const { isPro } = useRevenueCat();
+  const { startTutorial } = useTutorial();
 
   // Load achievements once when profile loads (if not already loaded)
   useEffect(() => {
@@ -48,9 +52,11 @@ export default function ProfileScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      refreshUser();
-      loadFriends();
-    }, [])
+      if (user) {
+        refreshUser();
+        loadFriends();
+      }
+    }, [user]) // Added user dependency
   );
 
   if (loading && !user) {
@@ -75,41 +81,63 @@ export default function ProfileScreen() {
             currentXP={progress.currentLevelXp}
             maxXP={progress.nextLevelXpStart}
             avatarUrl={user?.avatarUrl}
-            onEditPress={() => router.push('/profile/personal-info')}
+            onEditPress={() => {
+              if (user) {
+                router.push('/profile/personal-info');
+              } else {
+                // Trigger Auth Modal or Navigate to Auth
+                router.push('/auth/login');
+              }
+            }}
           />
         </Animated.View>
 
-        {/* Horizontal Stats or Tokens */}
-        <Animated.View style={{ marginTop: 24 }}>
-          <View style={{ flexDirection: 'row', gap: 12 }}>
-            {/* We can put small stats here if needed, or keeping the horizontal stats component */}
-          </View>
+        {!user && (
+          <Animated.View style={{ marginTop: 24, padding: 20, backgroundColor: theme.bgSecondary, borderRadius: 16, alignItems: 'center' }}>
+            <Text style={{ color: theme.textPrimary, fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>{t('createAccount') || 'Create Account'}</Text>
+            <Text style={{ color: theme.textSecondary, marginBottom: 16, textAlign: 'center' }}>
+              Join to track your progress, save tours, and compete with friends!
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 12, width: '100%' }}>
+              <AnimatedButton title={t('login') || "Log In"} onPress={() => router.push('/auth/login')} style={{ flex: 1 }} variant="primary" />
+              <AnimatedButton title="Sign Up" onPress={() => router.push('/auth/register')} style={{ flex: 1 }} variant="outline" />
+            </View>
+          </Animated.View>
+        )}
 
-          <ProfileStats
-            toursDone={user?.stats?.toursDone || 0}
-            toursCreated={user?.stats?.toursCreated || 0}
-            friends={friends.length}
-            onPressToursDone={() => router.push({ pathname: '/profile/tours-done', params: { type: 'done', title: t('toursDone') } })}
-            onPressToursCreated={() => router.push({ pathname: '/profile/tours-created', params: { type: 'created', title: t('toursCreated') } })}
-            onPressFriends={() => router.push('/profile/friends')}
-          />
-        </Animated.View>
+        {/* Horizontal Stats or Tokens - Only for Users */}
+        {user && (
+          <Animated.View style={{ marginTop: 24 }}>
+            <ProfileStats
+              toursDone={user?.stats?.toursDone || 0}
+              toursCreated={user?.stats?.toursCreated || 0}
+              friends={friends.length}
+              onPressToursDone={() => router.push({ pathname: '/profile/tours-done', params: { type: 'done', title: t('toursDone') } })}
+              onPressToursCreated={() => router.push({ pathname: '/profile/tours-created', params: { type: 'created', title: t('toursCreated') } })}
+              onPressFriends={() => router.push('/profile/friends')}
+            />
+          </Animated.View>
+        )}
 
-        <Animated.View style={{ marginTop: 32 }}>
-          <TokenCard
-            tokens={user?.tokens || 0}
-            onBuyPress={() => setShowBuyTokens(true)}
-            onInvitePress={() => setShowBuyTokens(true)}
-          />
-        </Animated.View>
+        {user && (
+          <Animated.View style={{ marginTop: 32 }}>
+            <TokenCard
+              tokens={user?.tokens || 0}
+              onBuyPress={() => setShowBuyTokens(true)}
+              onInvitePress={() => setShowBuyTokens(true)}
+            />
+          </Animated.View>
+        )}
 
-        <Animated.View style={{ marginTop: 32 }}>
-          <RecentAchievements
-            achievements={achievements}
-            loading={loadingAchievements}
-            onSeeAll={() => router.push('/profile/achievements')}
-          />
-        </Animated.View>
+        {user && (
+          <Animated.View style={{ marginTop: 32 }}>
+            <RecentAchievements
+              achievements={achievements}
+              loading={loadingAchievements}
+              onSeeAll={() => router.push('/profile/achievements')}
+            />
+          </Animated.View>
+        )}
 
         {/* Grouped Settings Section */}
         <Animated.View style={{ marginTop: 40 }}>
@@ -124,27 +152,32 @@ export default function ProfileScreen() {
               onPress={() => router.push(isPro ? '/customer-center' : '/paywall' as any)}
             /> */}
 
-            <SettingsItem
-              icon={<TicketIcon size={22} color={theme.accent} />}
-              title={t('enterReferralCode') || 'Enter Referral Code'}
-              onPress={() => setShowReferralModal(true)}
-            />
+            {user && (
+              <>
+                <SettingsItem
+                  icon={<TicketIcon size={22} color={theme.accent} />}
+                  title={t('enterReferralCode') || 'Enter Referral Code'}
+                  onPress={() => setShowReferralModal(true)}
+                />
 
-            <SettingsItem
-              icon={<UserIcon size={22} color={theme.primary} />}
-              title={t('personalInfo')}
-              onPress={() => router.push('/profile/personal-info')}
-            />
-            <SettingsItem
-              icon={<HeartIcon size={22} color={theme.primary} />}
-              title={t('savedTrips') || 'Saved Trips'}
-              onPress={() => router.push('/profile/saved-trips' as any)}
-            />
-            <SettingsItem
-              icon={<Cog6ToothIcon size={22} color={theme.primary} />}
-              title={t('appPreferences')}
-              onPress={() => router.push('/profile/preferences')}
-            />
+                <SettingsItem
+                  icon={<UserIcon size={22} color={theme.primary} />}
+                  title={t('personalInfo')}
+                  onPress={() => router.push('/profile/personal-info')}
+                />
+                <SettingsItem
+                  icon={<HeartIcon size={22} color={theme.primary} />}
+                  title={t('savedTrips') || 'Saved Trips'}
+                  onPress={() => router.push('/profile/saved-trips' as any)}
+                />
+                <SettingsItem
+                  icon={<Cog6ToothIcon size={22} color={theme.primary} />}
+                  title={t('appPreferences')}
+                  onPress={() => router.push('/profile/preferences')}
+                />
+              </>
+            )}
+
             <SettingsItem
               icon={<EnvelopeIcon size={22} color={theme.primary} />}
               title={t('contact')}
@@ -165,6 +198,11 @@ export default function ProfileScreen() {
               icon={<QuestionMarkCircleIcon size={22} color={theme.primary} />}
               title={t('faq')}
               onPress={() => router.push('/profile/faq')}
+            />
+            <SettingsItem
+              icon={<AcademicCapIcon size={22} color={theme.primary} />}
+              title={t('replayTutorial') || 'Replay Tutorial'}
+              onPress={startTutorial}
               showBorder={false}
             />
           </View>

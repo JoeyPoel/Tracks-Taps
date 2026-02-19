@@ -234,6 +234,15 @@ export default function RegisterScreen() {
                                 </TouchableOpacity>
                             </Link>
                         </View>
+
+                        <TouchableOpacity
+                            onPress={() => router.replace('/(tabs)/explore')}
+                            style={{ alignSelf: 'center', marginTop: 24, padding: 8 }}
+                        >
+                            <Text style={{ color: theme.textTertiary, fontSize: 14 }}>
+                                {t('continueAsGuest')}
+                            </Text>
+                        </TouchableOpacity>
                     </Animated.View>
                 </ScrollView>
             </KeyboardAvoidingView>

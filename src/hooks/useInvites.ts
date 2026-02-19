@@ -16,7 +16,12 @@ export const useInvites = () => {
         try {
             setLoading(true);
             const data = await inviteService.fetchInvites();
-            setInvites(data);
+            if (Array.isArray(data)) {
+                setInvites(data);
+            } else {
+                console.warn('fetchInvites returned non-array:', data);
+                setInvites([]);
+            }
         } catch (error) {
             console.error('Failed to fetch invites:', error);
         } finally {

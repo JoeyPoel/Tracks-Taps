@@ -8,6 +8,10 @@
     "scheme": "tracks-taps",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "web": {
+      "bundler": "metro",
+      "output": "server"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.joeypoel.trackstaps",
@@ -30,10 +34,6 @@
       "predictiveBackGestureEnabled": false,
       "googleServicesFile": "./google-services.json"
     },
-    "web": {
-      "output": "server",
-      "favicon": "./assets/images/App Icon Coloured.png"
-    },
     "plugins": [
       "expo-router",
       [
@@ -49,7 +49,6 @@
           }
         }
       ],
-      "expo-web-browser",
       "expo-font",
       [
         "@react-native-google-signin/google-signin",
@@ -60,7 +59,7 @@
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true
+      "reactCompiler": false
     },
     "extra": {
       "router": {},
