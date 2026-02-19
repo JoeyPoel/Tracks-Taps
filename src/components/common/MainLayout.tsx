@@ -17,7 +17,6 @@ export function MainLayout() {
     const router = useRouter();
 
     const [isReady, setIsReady] = useState(false);
-    const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
     const [isHandlingAuthRedirect, setIsHandlingAuthRedirect] = useState(false);
 
     const { hasSeenTutorial, isLoading: isTutorialLoading, startTutorial, isActive } = useTutorial();
@@ -83,7 +82,6 @@ export function MainLayout() {
             }
 
             // Fallthrough default
-            setHasSeenOnboarding(false);
             setIsReady(true);
         };
         checkInitialState();
@@ -116,7 +114,7 @@ export function MainLayout() {
             }
         }
         // Guest users are allowed in Main Layout (Tabs)
-    }, [session, loading, isReady, segment, hasSeenOnboarding, isHandlingAuthRedirect]);
+    }, [session, loading, isReady, segment, isHandlingAuthRedirect]);
 
     // Handle Tutorial Trigger
     useEffect(() => {
