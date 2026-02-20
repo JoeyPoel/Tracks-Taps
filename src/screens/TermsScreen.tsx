@@ -146,17 +146,22 @@ export default function TermsScreen() {
                         TO THE FULLEST EXTENT PROVIDED BY LAW, THE COMPANY HEREBY DISCLAIMS ALL WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF MERCHANTABILITY, NON-INFRINGEMENT, AND FITNESS FOR PARTICULAR PURPOSE.
                     </TextComponent>
 
-                    <TextComponent variant="h3" style={styles.sectionHeader}>11. Limitation on Liability</TextComponent>
+                    <TextComponent variant="h3" style={styles.sectionHeader}>11. Disclaimer Regarding Alcohol Consumption</TextComponent>
+                    <TextComponent color={theme.textSecondary} style={styles.paragraph}>
+                        Tracks & Taps and its app features (such as the PubGolf game mode) may involve or suggest locations where alcohol is served. Tracks & Taps is not responsible for inappropriate alcohol usage, overconsumption, or any behavior or incidents resulting from the consumption of alcohol. You must be of legal drinking age in your jurisdiction to participate in such game modes, and you consume alcohol completely at your own risk. Please drink responsibly and do not drink and drive.
+                    </TextComponent>
+
+                    <TextComponent variant="h3" style={styles.sectionHeader}>12. Limitation on Liability</TextComponent>
                     <TextComponent color={theme.textSecondary} style={styles.paragraph}>
                         TO THE FULLEST EXTENT PROVIDED BY LAW, IN NO EVENT WILL THE COMPANY, ITS AFFILIATES, OR THEIR LICENSORS, SERVICE PROVIDERS, EMPLOYEES, AGENTS, OFFICERS, OR DIRECTORS BE LIABLE FOR DAMAGES OF ANY KIND, UNDER ANY LEGAL THEORY, ARISING OUT OF OR IN CONNECTION WITH YOUR USE, OR INABILITY TO USE, THE APP, ANY WEBSITES LINKED TO IT, ANY CONTENT ON THE APP OR SUCH OTHER WEBSITES, INCLUDING ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO, PERSONAL INJURY, PAIN AND SUFFERING, EMOTIONAL DISTRESS, LOSS OF REVENUE, LOSS OF PROFITS, LOSS OF BUSINESS OR ANTICIPATED SAVINGS, LOSS OF USE, LOSS OF GOODWILL, LOSS OF DATA, AND WHETHER CAUSED BY TORT (INCLUDING NEGLIGENCE), BREACH OF CONTRACT, OR OTHERWISE, EVEN IF FORESEEABLE.
                     </TextComponent>
 
-                    <TextComponent variant="h3" style={styles.sectionHeader}>12. Indemnification</TextComponent>
+                    <TextComponent variant="h3" style={styles.sectionHeader}>13. Indemnification</TextComponent>
                     <TextComponent color={theme.textSecondary} style={styles.paragraph}>
                         You agree to defend, indemnify, and hold harmless the Company, its affiliates, licensors, and service providers, and its and their respective officers, directors, employees, contractors, agents, licensors, suppliers, successors, and assigns from and against any claims, liabilities, damages, judgments, awards, losses, costs, expenses, or fees (including reasonable attorneys&apos; fees) arising out of or relating to your violation of these Terms of Use or your use of the App, including, but not limited to, your User Contributions, any use of the App&apos;s content, services, and products other than as expressly authorized in these Terms of Use, or your use of any information obtained from the App.
                     </TextComponent>
 
-                    <TextComponent variant="h3" style={styles.sectionHeader}>13. Governing Law and Jurisdiction</TextComponent>
+                    <TextComponent variant="h3" style={styles.sectionHeader}>14. Governing Law and Jurisdiction</TextComponent>
                     <TextComponent color={theme.textSecondary} style={styles.paragraph}>
                         All matters relating to the App and these Terms of Use, and any dispute or claim arising therefrom or related thereto (in each case, including non-contractual disputes or claims), shall be governed by and construed in accordance with the internal laws of the Netherlands without giving effect to any choice or conflict of law provision or rule.
                     </TextComponent>
@@ -164,7 +169,7 @@ export default function TermsScreen() {
                         Any legal suit, action, or proceeding arising out of, or related to, these Terms of Use or the App shall be instituted exclusively in the federal courts of the Netherlands. You waive any and all objections to the exercise of jurisdiction over you by such courts and to venue in such courts.
                     </TextComponent>
 
-                    <TextComponent variant="h3" style={styles.sectionHeader}>14. Waiver and Severability</TextComponent>
+                    <TextComponent variant="h3" style={styles.sectionHeader}>15. Waiver and Severability</TextComponent>
                     <TextComponent color={theme.textSecondary} style={styles.paragraph}>
                         No waiver by the Company of any term or condition set out in these Terms of Use shall be deemed a further or continuing waiver of such term or condition or a waiver of any other term or condition, and any failure of the Company to assert a right or provision under these Terms of Use shall not constitute a waiver of such right or provision.
                     </TextComponent>
@@ -172,12 +177,12 @@ export default function TermsScreen() {
                         If any provision of these Terms of Use is held by a court or other tribunal of competent jurisdiction to be invalid, illegal, or unenforceable for any reason, such provision shall be eliminated or limited to the minimum extent such that the remaining provisions of the Terms of Use will continue in full force and effect.
                     </TextComponent>
 
-                    <TextComponent variant="h3" style={styles.sectionHeader}>15. Entire Agreement</TextComponent>
+                    <TextComponent variant="h3" style={styles.sectionHeader}>16. Entire Agreement</TextComponent>
                     <TextComponent color={theme.textSecondary} style={styles.paragraph}>
                         The Terms of Use and our Privacy Policy constitute the sole and entire agreement between you and Tracks & Taps regarding the App and supersede all prior and contemporaneous understandings, agreements, representations, and warranties, both written and oral, regarding the App.
                     </TextComponent>
 
-                    <TextComponent variant="h3" style={styles.sectionHeader}>16. Your Comments and Concerns</TextComponent>
+                    <TextComponent variant="h3" style={styles.sectionHeader}>17. Your Comments and Concerns</TextComponent>
                     <TextComponent color={theme.textSecondary} style={styles.paragraph}>
                         This website is operated by Tracks & Taps. All notices of copyright infringement claims should be sent to the copyright agent designated in our Copyright Policy in the manner and by the means set out therein.
                     </TextComponent>

@@ -32,8 +32,16 @@ export const savedTripsController = {
         }
     },
 
-    async getSavedTrip(req: Request, { id }: { id: string }) {
+    async getSavedTrip(req: Request, params?: { id: string }) {
         try {
+            let id = params?.id;
+            if (!id) {
+                const url = new URL(req.url);
+                const segments = url.pathname.split('/');
+                id = segments[segments.length - 1];
+            }
+            if (!id) return Response.json({ error: 'Missing id' }, { status: 400 });
+
             const list = await savedTripsService.getSavedTrip(parseInt(id));
             if (!list) return Response.json({ error: 'Saved trip list not found' }, { status: 404 });
             return Response.json(list);
@@ -42,9 +50,17 @@ export const savedTripsController = {
         }
     },
 
-    async deleteSavedTrip(req: Request, { userId, id }: { userId: number, id: string }) {
+    async deleteSavedTrip(req: Request, params: { userId: number, id?: string }) {
         try {
-            await savedTripsService.deleteSavedTrip(parseInt(id), userId);
+            let id = params?.id;
+            if (!id) {
+                const url = new URL(req.url);
+                const segments = url.pathname.split('/');
+                id = segments[segments.length - 1];
+            }
+            if (!id) return Response.json({ error: 'Missing id' }, { status: 400 });
+
+            await savedTripsService.deleteSavedTrip(parseInt(id), params.userId);
             return Response.json({ success: true });
         } catch (error: any) {
             const status = error.message === 'Unauthorized' ? 403 : 500;
@@ -52,17 +68,25 @@ export const savedTripsController = {
         }
     },
 
-    async updateSavedTrip(req: Request, { userId, id }: { userId: number, id: string }) {
+    async updateSavedTrip(req: Request, params: { userId: number, id?: string }) {
         try {
+            let id = params?.id;
+            if (!id) {
+                const url = new URL(req.url);
+                const segments = url.pathname.split('/');
+                id = segments[segments.length - 1];
+            }
+            if (!id) return Response.json({ error: 'Missing id' }, { status: 400 });
+
             const body = await req.json();
 
             if (body.tourIds && Array.isArray(body.tourIds)) {
-                const list = await savedTripsService.updateTourOrder(parseInt(id), userId, body.tourIds);
+                const list = await savedTripsService.updateTourOrder(parseInt(id), params.userId, body.tourIds);
                 return Response.json(list);
             }
 
             if (body.name) {
-                const list = await savedTripsService.updateSavedTripName(parseInt(id), userId, body.name);
+                const list = await savedTripsService.updateSavedTripName(parseInt(id), params.userId, body.name);
                 return Response.json(list);
             }
 
@@ -72,16 +96,26 @@ export const savedTripsController = {
         }
     },
 
-    async addTour(req: Request, { userId, id, tourId }: { userId: number, id: string, tourId: string }) {
+    async addTour(req: Request, params: { userId: number, id?: string, tourId?: string }) {
         try {
-            const listId = parseInt(id);
-            const tId = parseInt(tourId);
+            let id = params?.id;
+            let tourId = params?.tourId;
+
+            if (!id || !tourId) {
+                const url = new URL(req.url);
+                const segments = url.pathname.split('/');
+                if (!tourId) tourId = segments[segments.length - 1];
+                if (!id) id = segments[segments.length - 3] === 'tour' ? segments[segments.length - 2] : segments[segments.length - 3] || segments[segments.length - 2];
+            }
+
+            const listId = parseInt(id || '');
+            const tId = parseInt(tourId || '');
 
             if (isNaN(listId) || isNaN(tId)) {
                 return Response.json({ error: 'Invalid ID format' }, { status: 400 });
             }
 
-            const list = await savedTripsService.addTourToSavedTrip(listId, userId, tId);
+            const list = await savedTripsService.addTourToSavedTrip(listId, params.userId, tId);
             return Response.json(list);
         } catch (error: any) {
             if (error.code === 'P2025' || error.message?.includes('not found')) {
@@ -95,16 +129,26 @@ export const savedTripsController = {
         }
     },
 
-    async removeTour(req: Request, { userId, id, tourId }: { userId: number, id: string, tourId: string }) {
+    async removeTour(req: Request, params: { userId: number, id?: string, tourId?: string }) {
         try {
-            const listId = parseInt(id);
-            const tId = parseInt(tourId);
+            let id = params?.id;
+            let tourId = params?.tourId;
+
+            if (!id || !tourId) {
+                const url = new URL(req.url);
+                const segments = url.pathname.split('/');
+                if (!tourId) tourId = segments[segments.length - 1];
+                if (!id) id = segments[segments.length - 3] === 'tour' ? segments[segments.length - 2] : segments[segments.length - 3] || segments[segments.length - 2];
+            }
+
+            const listId = parseInt(id || '');
+            const tId = parseInt(tourId || '');
 
             if (isNaN(listId) || isNaN(tId)) {
                 return Response.json({ error: 'Invalid ID format' }, { status: 400 });
             }
 
-            const list = await savedTripsService.removeTourFromSavedTrip(listId, userId, tId);
+            const list = await savedTripsService.removeTourFromSavedTrip(listId, params.userId, tId);
             return Response.json(list);
         } catch (error: any) {
             if (error.code === 'P2025' || error.message?.includes('not found')) {

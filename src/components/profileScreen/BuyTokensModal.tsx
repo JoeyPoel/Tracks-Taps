@@ -114,7 +114,8 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                                 styles.packageCard,
                                 { borderColor: pkg.popular ? theme.danger : theme.borderPrimary },
                                 pkg.popular && { borderWidth: 2 },
-                                isLoading && { opacity: 0.5 }
+                                isLoading && { opacity: 0.5 },
+                                index === displayPackages.length - 1 && { marginBottom: 0 }
                             ]}
                             onPress={() => handleBuy(pkg)}
                             disabled={isLoading}
@@ -189,7 +190,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
 
 const styles = StyleSheet.create({
     packagesContainer: {
-        paddingBottom: 24,
+        paddingBottom: 12,
     },
     packageCard: {
         flexDirection: 'row',

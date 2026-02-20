@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { AnimatedButton } from '../components/common/AnimatedButton';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
@@ -208,8 +208,23 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
                 authEvents.emit();
                 return;
               }
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              startTour(false, false);
+              const startSoloTour = () => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                startTour(false, false);
+              };
+
+              if (tour.modes?.includes('pubgolf') || tour.modes?.includes('pubGolf') || tour.genre?.toLowerCase() === 'pubgolf') {
+                Alert.alert(
+                  "Age Restriction & Disclaimer",
+                  "This game mode involves locations that serve alcohol. You must be of legal drinking age (18+ in most regions) to play this mode. Tracks & Taps is not responsible for inappropriate alcohol usage. Do you agree and confirm you meet the age requirement?",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    { text: "I Confirm (18+)", onPress: startSoloTour }
+                  ]
+                );
+              } else {
+                startSoloTour();
+              }
             }}
             disabled={loadingMode !== null}
             variant="secondary"
@@ -225,8 +240,23 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
                 authEvents.emit();
                 return;
               }
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-              startTour(false, true);
+              const startGroupTour = () => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                startTour(false, true);
+              };
+
+              if (tour.modes?.includes('pubgolf') || tour.modes?.includes('pubGolf') || tour.genre?.toLowerCase() === 'pubgolf') {
+                Alert.alert(
+                  "Age Restriction & Disclaimer",
+                  "This game mode involves locations that serve alcohol. You must be of legal drinking age (18+ in most regions) to play this mode. Tracks & Taps is not responsible for inappropriate alcohol usage. Do you agree and confirm you meet the age requirement?",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    { text: "I Confirm (18+)", onPress: startGroupTour }
+                  ]
+                );
+              } else {
+                startGroupTour();
+              }
             }}
             disabled={loadingMode !== null}
             variant="primary"
