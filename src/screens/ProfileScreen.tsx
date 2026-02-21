@@ -52,11 +52,11 @@ export default function ProfileScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      if (user) {
+      if (user?.id) {
         refreshUser();
         loadFriends();
       }
-    }, [user]) // Added user dependency
+    }, [user?.id, refreshUser, loadFriends])
   );
 
   if (loading && !user) {

@@ -197,13 +197,15 @@ export default function SavedTripDetailScreen() {
                     }
                     ListFooterComponent={
                         isEditing ? (
-                            <TouchableOpacity
-                                style={[styles.deleteCollectionBtn, { borderColor: theme.error }]}
-                                onPress={handleDeleteList}
-                            >
-                                <TextComponent style={{ fontWeight: '600' }} color={theme.error} bold variant="body">Delete Collection</TextComponent>
-                            </TouchableOpacity>
-                        ) : null
+                            <View style={{ paddingBottom: 80 }}>
+                                <TouchableOpacity
+                                    style={[styles.deleteCollectionBtn, { borderColor: theme.error }]}
+                                    onPress={handleDeleteList}
+                                >
+                                    <TextComponent style={{ fontWeight: '600' }} color={theme.error} bold variant="body">Delete Collection</TextComponent>
+                                </TouchableOpacity>
+                            </View>
+                        ) : <View style={{ height: 80 }} />
                     }
                     ListEmptyComponent={
                         !loading ? (

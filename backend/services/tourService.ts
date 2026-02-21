@@ -25,6 +25,7 @@ export const tourService = {
     async createTourByJson(data: any, userId: number) {
         // Ensure strictly necessary fields match Prisma Input
         // This is a minimal mapping. Further validation might be needed depending on the JSON source.
+        console.log("INCOMING JSON CHALLENGES:", data.challenges ? data.challenges.length : 'undefined', "BINGO:", data.modes?.includes("BINGO"));
         const tourInput: Prisma.TourCreateInput = {
             title: data.title,
             location: data.location,
@@ -48,9 +49,13 @@ export const tourService = {
                     number: stop.number,
                     name: stop.name,
                     description: stop.description || '',
+                    detailedDescription: stop.detailedDescription || '',
+                    imageUrl: stop.imageUrl || '',
                     latitude: stop.latitude,
                     longitude: stop.longitude,
                     type: stop.type || 'Viewpoint',
+                    pubgolfPar: stop.pubgolfPar || null,
+                    pubgolfDrink: stop.pubgolfDrink || null,
                     // Map nested challenges for this stop
                     challenges: {
                         create: Array.isArray(stop.challenges) ? stop.challenges.map((c: any) => ({
@@ -75,7 +80,9 @@ export const tourService = {
                     content: c.content || '',
                     hint: c.hint || '',
                     answer: c.answer || '',
-                    options: c.options || []
+                    options: c.options || [],
+                    bingoRow: c.bingoRow !== undefined ? c.bingoRow : null,
+                    bingoCol: c.bingoCol !== undefined ? c.bingoCol : null
                 })) : []
             }
         };

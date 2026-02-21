@@ -1,6 +1,6 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { Alert, ScrollView, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import InviteFriendsModal from '../components/common/InviteFriendsModal';
@@ -83,9 +83,25 @@ export default function PreTourLobbyScreen() {
                 user={user}
                 userTeam={userTeam}
                 onStartTour={async () => {
-                    const result: any = await startTour();
-                    if (result && !result.success) {
-                        alert(result.error); // Simple alert for web/native compatibility or import Alert
+                    const start = async () => {
+                        const result: any = await startTour();
+                        if (result && !result.success) {
+                            Alert.alert('Error', result.error);
+                        }
+                    };
+
+                    const tourData = activeTour?.tour;
+                    if (tourData && (tourData.modes?.includes('pubgolf') || tourData.modes?.includes('pubGolf') || tourData.genre?.toLowerCase() === 'pubgolf')) {
+                        Alert.alert(
+                            "Age Restriction & Disclaimer",
+                            "This game mode involves locations that serve alcohol. You must be of legal drinking age (18+ in most regions) to play this mode. Tracks & Taps is not responsible for inappropriate alcohol usage. Do you agree and confirm you meet the age requirement?",
+                            [
+                                { text: "Cancel", style: "cancel" },
+                                { text: "I Confirm (18+)", onPress: start }
+                            ]
+                        );
+                    } else {
+                        start();
                     }
                 }}
                 activeTourId={activeTourId}

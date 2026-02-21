@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useCallback, useContext, useEffect } from 'react';
 import { useStore } from '../store/store';
 import { User } from '../types/models';
 import { useAuth } from './AuthContext';
@@ -47,15 +47,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
     }, [email, error, user, loading]);
 
-    const refreshUser = async () => {
+    const refreshUser = useCallback(async () => {
         if (email) {
             await fetchUserByEmail(email);
         }
-    };
+    }, [email, fetchUserByEmail]);
 
-    const updateUserXp = async (amount: number) => {
+    const updateUserXp = useCallback(async (amount: number) => {
         addXp(amount);
-    };
+    }, [addXp]);
 
     return (
         <UserContext.Provider value={{ user, loading, error, refreshUser, updateUserXp, updateUser }}>

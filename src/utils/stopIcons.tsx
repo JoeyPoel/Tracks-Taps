@@ -27,7 +27,7 @@ export const getStopIcon = (type: StopType, size: number = 24, color: string = '
         case StopType.Info_Point:
             return <MaterialCommunityIcons name="information" size={size} color={color} />;
         case StopType.Facilities:
-            return <MaterialCommunityIcons name="toilet" size={size} color={color} />;
+            return <MaterialCommunityIcons name="human-male-female" size={size} color={color} />;
         default:
             return <MaterialCommunityIcons name="map-marker" size={size} color={color} />;
     }

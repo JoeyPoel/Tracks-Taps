@@ -564,7 +564,7 @@ export const strings = {
     myTeam: "MY TEAM",
 
     // Profile Unique Keys
-    reviewerLevel: "Explorer",
+    reviewerLevel: "Explorer Level",
     topUp: "Top Up",
 
     // Team Setup Unique Keys
@@ -1079,7 +1079,7 @@ export const strings = {
     myTeam: "MI EQUIPO",
 
     // Profile Unique Keys
-    reviewerLevel: "Explorador",
+    reviewerLevel: "Explorador de Reseñas",
     topUp: "Recargar",
     readyToJoin: "¡Listo para unirse!",
 
@@ -1536,7 +1536,7 @@ export const strings = {
     myTeam: "MIJN TEAM",
 
     // Profile Unique Keys
-    reviewerLevel: "Verkenner",
+    reviewerLevel: "Verkenner Level",
     topUp: "Opwaarderen",
     readyToJoin: "Klaar om mee te doen!",
 
