@@ -70,8 +70,8 @@ export default function JoinTourScreen() {
                 <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
                     <ScreenHeader
-                        title={t('joinTourButton')}
-                        showBackButton
+                        title=" "
+                        showBackButton={false}
                         style={{ paddingHorizontal: 0, paddingTop: 0 }}
                     />
 

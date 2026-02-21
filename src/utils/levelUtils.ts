@@ -8,7 +8,7 @@ export class LevelSystem {
      * Formula: BASE_XP * (MULTIPLIER ^ (level - 1))
      */
     static getXpForLevel(level: number): number {
-        if (level <= 1) return 0;
+        if (level < 1) return 0;
 
         const rawXp = this.BASE_XP * Math.pow(this.MULTIPLIER, level - 1);
 

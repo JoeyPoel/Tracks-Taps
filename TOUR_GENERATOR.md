@@ -28,12 +28,15 @@ The JSON contains two completely separate arrays for challenges. Do NOT duplicat
 - **Modes**: Always include "WALKING" (or "BIKING"). If Bingo is enabled, include "BINGO" in the `modes` array.
 - **Pubgolf Mode**: If enabled, every stop needs a `pubgolfPar` (1-5) and a `pubgolfDrink`. If disabled, set to `null`.
 
-# 5. DATA INTEGRITY & SMART ID GENERATION
-- **Collision-Proof IDs**: To prevent database collisions, generate highly random 6-digit integers (e.g., 492817) for EVERY `id` field (Tour, Stops, Challenges, Reviews). Do NOT use small sequential numbers.
+# 5. DATA INTEGRITY, MEDIA & SMART ID GENERATION
+- **Collision-Proof IDs**: To prevent database collisions, generate highly random 6-digit integers (e.g., 492817) for EVERY `id` field (Tour, Stops, Challenges). Do NOT use small sequential numbers.
 - **Math Consistency**: The top-level `points` field MUST be the mathematical sum of all challenge points (both nested and root-level). 
-- **Count Objects**: Ensure `_count.stops` and `_count.reviews` match the actual array lengths. Ensure `reviewCount` matches the array length.
+- **Image Verification**: If you add an `imageUrl` anywhere, you MUST verify it is a live, working link. If you cannot guarantee the URL's validity or permanence, you must leave the string entirely empty (`""`). Do not guess or hallucinate image links.
+- **Reviews**: The `reviews` array must be left completely empty (`[]`). Consequently, `_count.reviews` and `reviewCount` must be exactly `0`, and `averageRating` should be `0.0`.
+- **Count Objects**: Ensure `_count.stops` matches the actual stop array length. 
 
 # MASTER JSON TEMPLATE
+```json
 {
   "id": [Random 6-Digit Int],
   "title": "",
@@ -95,23 +98,15 @@ The JSON contains two completely separate arrays for challenges. Do NOT duplicat
         "bingoCol": 1
     }
   ],
-  "reviews": [ 
-    { 
-      "id": [Random 6-Digit Int], 
-      "content": "Masterpiece!", 
-      "rating": 5, 
-      "createdAt": "2026-02-20T12:00:00.000Z",
-      "photos": [],
-      "author": { "name": "ProWalker", "avatarUrl": null } 
-    } 
-  ],
+  "reviews": [],
   "_count": {
-    "reviews": 1,
+    "reviews": 0,
     "stops": [Match Array Length]
   },
-  "averageRating": 5.0,
-  "reviewCount": 1
+  "averageRating": 0.0,
+  "reviewCount": 0
 }
+```
 
 # USER INPUT
 - City: 

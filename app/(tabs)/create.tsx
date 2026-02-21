@@ -15,7 +15,7 @@ export default function CreateTourScreen() {
     if (!user) {
         return (
             <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
-                <View style={[styles.iconContainer, { backgroundColor: 'rgba(var(--primary-rgb), 0.1)' }]}>
+                <View style={[styles.iconContainer, { backgroundColor: theme.primary + '15' }]}>
                     <LockClosedIcon size={48} color={theme.primary} />
                 </View>
                 <TextComponent variant="h2" style={[styles.title, { color: theme.textPrimary }]}>
