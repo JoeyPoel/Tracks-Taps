@@ -13,7 +13,7 @@
       "output": "server"
     },
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.joeypoel.trackstaps",
       "buildNumber": "6",
       "infoPlist": {
