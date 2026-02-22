@@ -91,7 +91,8 @@ export default function PreTourLobbyScreen() {
                     };
 
                     const tourData = activeTour?.tour;
-                    if (tourData && (tourData.modes?.includes('pubgolf') || tourData.modes?.includes('pubGolf') || tourData.genre?.toLowerCase() === 'pubgolf')) {
+                    const isPubGolf = tourData?.modes?.some((m: string) => m.toLowerCase() === 'pubgolf') || tourData?.genre?.toLowerCase() === 'pubgolf';
+                    if (isPubGolf) {
                         Alert.alert(
                             "Age Restriction & Disclaimer",
                             "This game mode involves locations that serve alcohol. You must be of legal drinking age (18+ in most regions) to play this mode. Tracks & Taps is not responsible for inappropriate alcohol usage. Do you agree and confirm you meet the age requirement?",

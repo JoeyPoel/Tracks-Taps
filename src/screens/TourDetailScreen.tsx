@@ -213,7 +213,8 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
                 startTour(false, false);
               };
 
-              if (tour.modes?.includes('pubgolf') || tour.modes?.includes('pubGolf') || tour.genre?.toLowerCase() === 'pubgolf') {
+              const isPubGolf = tour.modes?.some((m: string) => m.toLowerCase() === 'pubgolf') || tour.genre?.toLowerCase() === 'pubgolf';
+              if (isPubGolf) {
                 Alert.alert(
                   "Age Restriction & Disclaimer",
                   "This game mode involves locations that serve alcohol. You must be of legal drinking age (18+ in most regions) to play this mode. Tracks & Taps is not responsible for inappropriate alcohol usage. Do you agree and confirm you meet the age requirement?",
@@ -245,7 +246,8 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
                 startTour(false, true);
               };
 
-              if (tour.modes?.includes('pubgolf') || tour.modes?.includes('pubGolf') || tour.genre?.toLowerCase() === 'pubgolf') {
+              const isPubGolf = tour.modes?.some((m: string) => m.toLowerCase() === 'pubgolf') || tour.genre?.toLowerCase() === 'pubgolf';
+              if (isPubGolf) {
                 Alert.alert(
                   "Age Restriction & Disclaimer",
                   "This game mode involves locations that serve alcohol. You must be of legal drinking age (18+ in most regions) to play this mode. Tracks & Taps is not responsible for inappropriate alcohol usage. Do you agree and confirm you meet the age requirement?",
