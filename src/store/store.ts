@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Achievement, achievementService } from '../services/achievementService';
 import { activeTourService } from '../services/activeTourService';
+import { friendService } from '../services/friendsService';
 import { mapTourService } from '../services/mapTourService';
 import { tourService } from '../services/tourService';
 import { userService } from '../services/userService';
@@ -56,6 +57,16 @@ interface StoreState {
     updateUser: (userId: number, data: { name?: string; avatarUrl?: string }) => Promise<void>;
     addXp: (amount: number) => void; // Optimistic update
     clearUser: () => void;
+
+    // --- Friends Slice ---
+    friends: any[];
+    requests: any[];
+    loadingFriends: boolean;
+    loadingRequests: boolean;
+    lastFetchedFriends: number;
+    lastFetchedRequests: number;
+    fetchFriends: (force?: boolean) => Promise<void>;
+    fetchRequests: (force?: boolean) => Promise<void>;
 }
 
 export const useStore = create<StoreState>((set, get) => ({
@@ -392,6 +403,64 @@ export const useStore = create<StoreState>((set, get) => ({
     },
 
     clearUser: () => {
-        set({ user: null, activeTours: [], activeTour: null, achievements: [] });
+        set({
+            user: null,
+            activeTours: [],
+            activeTour: null,
+            achievements: [],
+            friends: [],
+            requests: [],
+            lastFetchedFriends: 0,
+            lastFetchedRequests: 0,
+        });
+    },
+
+    // --- Friends Slice ---
+    friends: [],
+    requests: [],
+    loadingFriends: false,
+    loadingRequests: false,
+    lastFetchedFriends: 0,
+    lastFetchedRequests: 0,
+
+    fetchFriends: async (force = false) => {
+        const { loadingFriends, lastFetchedFriends } = get();
+
+        if (loadingFriends) return;
+        if (!force && (Date.now() - lastFetchedFriends < 60000)) return;
+
+        set({ loadingFriends: true });
+        try {
+            const response: any = await friendService.getFriends();
+            const data = (response.data && Array.isArray(response.data)) ? response.data : response;
+            set({
+                friends: Array.isArray(data) ? data : [],
+                loadingFriends: false,
+                lastFetchedFriends: Date.now()
+            });
+        } catch (error) {
+            console.error('Error loading friends:', error);
+            set({ loadingFriends: false });
+        }
+    },
+
+    fetchRequests: async (force = false) => {
+        const { loadingRequests, lastFetchedRequests } = get();
+
+        if (loadingRequests) return;
+        if (!force && (Date.now() - lastFetchedRequests < 60000)) return;
+
+        set({ loadingRequests: true });
+        try {
+            const data = await friendService.getFriendRequests();
+            set({
+                requests: data || [],
+                loadingRequests: false,
+                lastFetchedRequests: Date.now()
+            });
+        } catch (error) {
+            console.error('Error loading requests:', error);
+            set({ loadingRequests: false });
+        }
     }
 }));

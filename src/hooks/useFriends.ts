@@ -2,44 +2,29 @@ import { friendService } from '@/src/services/friendsService';
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import { useToast } from '../context/ToastContext';
+import { useStore } from '../store/store';
 import { useAchievements } from './useAchievements';
 
 export function useFriends() {
-    const [friends, setFriends] = useState<any[]>([]);
-    const [requests, setRequests] = useState<any[]>([]);
-    const [loading, setLoading] = useState(false);
+    const {
+        friends, requests, loadingFriends, loadingRequests,
+        fetchFriends, fetchRequests
+    } = useStore();
     const [actionLoading, setActionLoading] = useState(false);
 
-    const loadFriends = useCallback(async () => {
-        setLoading(true);
-        try {
-            const response = await friendService.getFriends();
-            const data = (response.data && Array.isArray(response.data)) ? response.data : response;
-            setFriends(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error('Error loading friends:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+    const loading = loadingFriends || loadingRequests;
 
-    const loadRequests = useCallback(async () => {
-        setLoading(true);
-        try {
-            const data = await friendService.getFriendRequests();
-            setRequests(data || []);
-        } catch (error) {
-            console.error('Error loading requests:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+    const loadFriends = useCallback(async (force = false) => {
+        await fetchFriends(force);
+    }, [fetchFriends]);
+
+    const loadRequests = useCallback(async (force = false) => {
+        await fetchRequests(force);
+    }, [fetchRequests]);
 
     // Hooks
     const { unlockAchievement } = useAchievements();
     const { showToast } = useToast();
-
-    // ... existing load functions ...
 
     const sendFriendRequest = async (email: string) => {
         if (!email) return;
@@ -60,9 +45,9 @@ export function useFriends() {
         try {
             await friendService.respondToRequest(requestId, action);
             // Refresh requests list locally or re-fetch
-            await loadRequests();
+            await loadRequests(true);
             if (action === 'ACCEPT') {
-                await loadFriends();
+                await loadFriends(true);
 
                 // Unlock Achievement: Social Butterfly
                 const achievement = await unlockAchievement('social-butterfly');

@@ -40,9 +40,9 @@ export default function FriendsScreen() {
 
     const handleRefresh = React.useCallback(() => {
         if (activeTab === 'friends') {
-            loadFriends();
+            loadFriends(true);
         } else {
-            loadRequests();
+            loadRequests(true);
         }
     }, [activeTab, loadFriends, loadRequests]);
 
