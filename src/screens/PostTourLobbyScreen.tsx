@@ -54,6 +54,8 @@ export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: nu
                     <PostTourTeamList
                         teams={teams}
                         userTeamId={userTeam?.id}
+                        isPubGolf={activeTour?.tour?.modes?.includes('pubgolf')}
+                        stops={activeTour?.tour?.stops}
                     />
 
                     <PostTourFooter

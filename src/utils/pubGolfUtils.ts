@@ -89,3 +89,26 @@ export const PUB_GOLF_LEGEND_DATA = [
     { nameKey: 'tripleBogeyPlus', xp: 0, emoji: '💀', colorKey: 'tripleBogey' },
 ];
 
+export const getPubGolfStats = (stops?: any[], pubGolfStops?: any[]) => {
+    let totalSips = 0;
+    let totalPar = 0;
+
+    if (!stops || !pubGolfStops || !Array.isArray(stops) || !Array.isArray(pubGolfStops)) {
+        return { totalSips, totalPar, currentScore: 0 };
+    }
+
+    pubGolfStops.forEach(pgs => {
+        const stop = stops.find(s => s.id === pgs.stopId);
+        if (stop && stop.pubgolfPar) {
+            totalSips += pgs.sips || 0;
+            totalPar += stop.pubgolfPar;
+        }
+    });
+
+    return {
+        totalSips,
+        totalPar,
+        currentScore: totalSips - totalPar
+    };
+};
+

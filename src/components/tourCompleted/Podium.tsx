@@ -10,20 +10,27 @@ import Animated, {
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Team } from '../../types/models';
+import { getPubGolfStats } from '../../utils/pubGolfUtils';
 
 interface PodiumProps {
     teams: Team[];
     visibleRanks?: number[]; // [1, 2, 3] to show all, [] to show none
+    isPubGolf?: boolean;
+    stops?: any[];
 }
 
 const PodiumBar = ({
     team,
     place,
-    isVisible
+    isVisible,
+    isPubGolf,
+    stops
 }: {
     team: Team | null,
     place: number,
-    isVisible: boolean
+    isVisible: boolean,
+    isPubGolf?: boolean,
+    stops?: any[]
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
@@ -72,6 +79,13 @@ const PodiumBar = ({
     const barColor = hexToRgba(teamColor, 0.25);
     const borderColor = hexToRgba(teamColor, 0.6);
 
+    let pgText = '';
+    if (isPubGolf) {
+        const stats = getPubGolfStats(stops, team.pubGolfStops);
+        const score = stats.currentScore;
+        pgText = score === 0 ? ' (E PG)' : score > 0 ? ` (+${score} PG)` : ` (${score} PG)`;
+    }
+
     return (
         <View style={styles.stepContainer}>
             {/* Info floats above the bar */}
@@ -79,10 +93,17 @@ const PodiumBar = ({
                 <TextComponent style={styles.teamName} color={theme.textPrimary} bold variant="caption" numberOfLines={1}>
                     {displayName}
                 </TextComponent>
-                <View style={[styles.scoreBadge, { backgroundColor: theme.bgSecondary }]}>
-                    <TextComponent style={styles.score} color={teamColor} bold variant="caption">
-                        {team.score}
-                    </TextComponent>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={[styles.scoreBadge, { backgroundColor: theme.bgSecondary }]}>
+                        <TextComponent style={styles.score} color={teamColor} bold variant="caption">
+                            {team.score}
+                        </TextComponent>
+                    </View>
+                    {isPubGolf && (
+                        <TextComponent style={[styles.score, { color: theme.textSecondary, marginLeft: 4 }]} bold variant="caption">
+                            {pgText}
+                        </TextComponent>
+                    )}
                 </View>
             </Animated.View>
 
@@ -115,7 +136,7 @@ const PodiumBar = ({
     );
 };
 
-export default function Podium({ teams, visibleRanks = [1, 2, 3] }: PodiumProps) {
+export default function Podium({ teams, visibleRanks = [1, 2, 3], isPubGolf, stops }: PodiumProps) {
     const sortedTeams = [...teams].sort((a, b) => (b.score || 0) - (a.score || 0));
 
     const first = sortedTeams[0];
@@ -125,9 +146,9 @@ export default function Podium({ teams, visibleRanks = [1, 2, 3] }: PodiumProps)
     return (
         <View style={styles.container}>
             <View style={styles.podiumWrapper}>
-                <PodiumBar team={second} place={2} isVisible={visibleRanks.includes(2)} />
-                <PodiumBar team={first} place={1} isVisible={visibleRanks.includes(1)} />
-                <PodiumBar team={third} place={3} isVisible={visibleRanks.includes(3)} />
+                <PodiumBar team={second} place={2} isVisible={visibleRanks.includes(2)} isPubGolf={isPubGolf} stops={stops} />
+                <PodiumBar team={first} place={1} isVisible={visibleRanks.includes(1)} isPubGolf={isPubGolf} stops={stops} />
+                <PodiumBar team={third} place={3} isVisible={visibleRanks.includes(3)} isPubGolf={isPubGolf} stops={stops} />
             </View>
         </View>
     );

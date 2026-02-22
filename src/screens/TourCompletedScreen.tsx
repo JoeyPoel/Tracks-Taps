@@ -17,6 +17,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { useAchievements } from '../hooks/useAchievements';
 import { useTourCompleted } from '../hooks/useTourCompleted';
+import { getPubGolfStats } from '../utils/pubGolfUtils';
 
 type RevealState = 'CALCULATING' | 'REVEAL_3' | 'REVEAL_2' | 'REVEAL_1' | 'CELEBRATE';
 
@@ -159,6 +160,8 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
     const podiumTeams = activeTeams.slice(0, 3);
     const runnerUps = activeTeams.slice(3);
     const winnerName = winner?.name || winner?.user?.name || t('you');
+    const isPubGolf = activeTour?.tour?.modes?.includes('pubgolf');
+    const stops = activeTour?.tour?.stops;
 
     // Determine which ranks to show based on state
     const getVisibleRanks = () => {
@@ -245,6 +248,16 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                                     <TextComponent style={styles.winnerScoreText} color={theme.primary} bold variant="caption">
                                         {winner?.score || 0} PTS
                                     </TextComponent>
+                                    {isPubGolf && winner && (() => {
+                                        const stats = getPubGolfStats(stops, winner.pubGolfStops);
+                                        const score = stats.currentScore;
+                                        const pgText = score === 0 ? 'E PG' : score > 0 ? `+${score} PG` : `${score} PG`;
+                                        return (
+                                            <TextComponent style={[styles.winnerScoreText, { color: theme.textSecondary, marginLeft: 4 }]} bold variant="caption">
+                                                {pgText}
+                                            </TextComponent>
+                                        );
+                                    })()}
                                 </View>
                             </Animated.View>
                         )}
@@ -252,7 +265,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
 
                     <View style={styles.podiumContainer}>
                         {activeTeams.length > 0 && (
-                            <Podium teams={podiumTeams} visibleRanks={getVisibleRanks()} />
+                            <Podium teams={podiumTeams} visibleRanks={getVisibleRanks()} isPubGolf={isPubGolf} stops={stops} />
                         )}
                     </View>
                 </View>
@@ -281,7 +294,19 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                                 <View key={team.id} style={[styles.runnerUpRow, { borderColor: theme.borderPrimary }]}>
                                     <TextComponent style={styles.runnerUpRank} color={theme.textSecondary} bold variant="body">{index + 4}</TextComponent>
                                     <TextComponent style={styles.runnerUpName} color={theme.textPrimary} bold variant="body">{team.name || team.user?.name}</TextComponent>
-                                    <TextComponent style={styles.runnerUpScore} color={theme.textPrimary} bold variant="body">{team.score} pts</TextComponent>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <TextComponent style={styles.runnerUpScore} color={theme.textPrimary} bold variant="body">{team.score} pts</TextComponent>
+                                        {isPubGolf && (() => {
+                                            const stats = getPubGolfStats(stops, team.pubGolfStops);
+                                            const score = stats.currentScore;
+                                            const pgText = score === 0 ? 'E PG' : score > 0 ? `+${score} PG` : `${score} PG`;
+                                            return (
+                                                <TextComponent style={[styles.runnerUpScore, { color: theme.textSecondary, marginLeft: 8 }]} bold variant="caption">
+                                                    {pgText}
+                                                </TextComponent>
+                                            );
+                                        })()}
+                                    </View>
                                 </View>
                             ))}
                         </Animated.View>

@@ -1,6 +1,7 @@
 import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
+import { getPubGolfStats } from '@/src/utils/pubGolfUtils';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
@@ -9,9 +10,11 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 interface PostTourTeamListProps {
     teams: any[];
     userTeamId?: number;
+    isPubGolf?: boolean;
+    stops?: any[];
 }
 
-export default function PostTourTeamList({ teams, userTeamId }: PostTourTeamListProps) {
+export default function PostTourTeamList({ teams, userTeamId, isPubGolf, stops }: PostTourTeamListProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
@@ -52,9 +55,21 @@ export default function PostTourTeamList({ teams, userTeamId }: PostTourTeamList
                             <TextComponent style={styles.teamName} color={theme.textPrimary} bold variant="body">
                                 {team.name}
                             </TextComponent>
-                            <TextComponent style={styles.teamStatusText} color={isFinished ? theme.success : theme.textSecondary} variant="caption">
-                                {isFinished ? t('finished') : t('walking')}...
-                            </TextComponent>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <TextComponent style={styles.teamStatusText} color={isFinished ? theme.success : theme.textSecondary} variant="caption">
+                                    {isFinished ? t('finished') : t('walking')}...
+                                </TextComponent>
+                                {isPubGolf && (() => {
+                                    const stats = getPubGolfStats(stops, team.pubGolfStops);
+                                    const score = stats.currentScore;
+                                    const pgText = score === 0 ? 'E PG' : score > 0 ? `+${score} PG` : `${score} PG`;
+                                    return (
+                                        <TextComponent style={[styles.teamStatusText, { color: theme.textSecondary, marginLeft: 8 }]} variant="caption">
+                                            {pgText}
+                                        </TextComponent>
+                                    );
+                                })()}
+                            </View>
                         </View>
 
                         {/* Status Indicator */}
