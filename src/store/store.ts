@@ -1,4 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import { Achievement, achievementService } from '../services/achievementService';
 import { activeTourService } from '../services/activeTourService';
 import { friendService } from '../services/friendsService';
@@ -69,398 +71,412 @@ interface StoreState {
     fetchRequests: (force?: boolean) => Promise<void>;
 }
 
-export const useStore = create<StoreState>((set, get) => ({
-    // --- UI/Global Slice ---
-    isTabBarVisible: true,
-    setTabBarVisible: (visible: boolean) => set({ isTabBarVisible: visible }),
+export const useStore = create<StoreState>()(
+    persist(
+        (set, get) => ({
+            // --- UI/Global Slice ---
+            isTabBarVisible: true,
+            setTabBarVisible: (visible: boolean) => set({ isTabBarVisible: visible }),
 
-    // --- Tours Slice ---
-    tours: [],
-    tourFilters: {},
-    tourDetails: {},
-    mapTours: [],
-    loadingTours: true, // Start as true to show skeleton immediately
-    errorTours: null,
-
-    fetchTours: async () => {
-        const { tourFilters, tours } = get();
-        // If appending, don't set global loadingTours (maybe add a loadingMore state? For now, we use loadingTours)
-        set({ loadingTours: true, errorTours: null });
-        try {
-            const response: any = await tourService.getAllTours(tourFilters);
-            let newTours: Tour[] = [];
-
-            // Check if response is a PaginatedResult (has data property equal to array)
-            if (response.data && Array.isArray(response.data)) {
-                newTours = response.data;
-            }
-            // Check if response itself is an array (legacy or unpaginated)
-            else if (Array.isArray(response)) {
-                newTours = response;
-            } else {
-                // If neither, we might have an issue, but let's try to infer or fallback
-                console.warn('fetchTours: Invalid response format', response);
-            }
-
-            if (tourFilters.page && tourFilters.page > 1) {
-                set({ tours: [...tours, ...newTours], loadingTours: false });
-            } else {
-                set({ tours: newTours, loadingTours: false });
-            }
-        } catch (error: any) {
-            set({ errorTours: error.message || 'Failed to fetch tours', loadingTours: false });
-        }
-    },
-
-    setTourFilters: (filters: TourFilters) => {
-        set({ tourFilters: filters });
-        get().fetchTours();
-    },
-
-    fetchAllData: async (userId: number) => {
-        const state = get();
-        const shouldFetchTours = state.tours.length === 0;
-
-        set({
-            loadingTours: shouldFetchTours,
-            loadingActiveTours: true,
+            // --- Tours Slice ---
+            tours: [],
+            tourFilters: {},
+            tourDetails: {},
+            mapTours: [],
+            loadingTours: true, // Start as true to show skeleton immediately
             errorTours: null,
-            errorActiveTours: null
-        });
 
-        try {
-            const promises: Promise<any>[] = [
-                activeTourService.getActiveToursForUser(userId)
-            ];
+            fetchTours: async () => {
+                const { tourFilters, tours } = get();
+                // If appending, don't set global loadingTours (maybe add a loadingMore state? For now, we use loadingTours)
+                set({ loadingTours: true, errorTours: null });
+                try {
+                    const response: any = await tourService.getAllTours(tourFilters);
+                    let newTours: Tour[] = [];
 
-            if (shouldFetchTours) {
-                promises.push(tourService.getAllTours(get().tourFilters));
-            }
+                    // Check if response is a PaginatedResult (has data property equal to array)
+                    if (response.data && Array.isArray(response.data)) {
+                        newTours = response.data;
+                    }
+                    // Check if response itself is an array (legacy or unpaginated)
+                    else if (Array.isArray(response)) {
+                        newTours = response;
+                    } else {
+                        // If neither, we might have an issue, but let's try to infer or fallback
+                        console.warn('fetchTours: Invalid response format', response);
+                    }
 
-            const results = await Promise.all(promises);
-            const activeTours = results[0];
-            let toursData = shouldFetchTours ? results[1] : state.tours;
-
-            if (shouldFetchTours && toursData && !Array.isArray(toursData) && toursData.data && Array.isArray(toursData.data)) {
-                toursData = toursData.data;
-            }
-
-            set({ tours: toursData, activeTours, loadingTours: false, loadingActiveTours: false });
-        } catch (error: any) {
-            console.error("Failed to fetch all data", error);
-            set({
-                errorTours: error.message || 'Failed to fetch data',
-                errorActiveTours: error.message || 'Failed to fetch data',
-                loadingTours: false,
-                loadingActiveTours: false
-            });
-        }
-    },
-
-    fetchTourDetails: async (id: number, placeholder?: Tour, force?: boolean) => {
-        // Check cache first if not forced
-        if (!force && get().tourDetails[id]) return;
-
-        // If placeholder provided, set it immediately to allow instant navigation
-        if (placeholder) {
-            const placeholderDetail: TourDetail = {
-                ...placeholder,
-                reviews: [],
-                stops: [],
-                challenges: [],
-                author: placeholder.author || { name: 'Unknown' }
-            };
-            set((state) => ({
-                tourDetails: { ...state.tourDetails, [id]: placeholderDetail }
-            }));
-        } else {
-            // Only set loading if no placeholder (e.g. deep link)
-            set({ loadingTours: true, errorTours: null });
-        }
-
-        try {
-            const tour = await tourService.getTourById(id);
-            set((state) => ({
-                tourDetails: { ...state.tourDetails, [id]: tour },
-                loadingTours: false
-            }));
-        } catch (error: any) {
-            set({ errorTours: error.message || 'Failed to fetch tour details', loadingTours: false });
-        }
-    },
-
-    fetchMapTours: async (bounds?: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => {
-        set({ loadingTours: true, errorTours: null });
-        try {
-            const tours = await mapTourService.getTours(bounds);
-            set({ mapTours: tours, loadingTours: false });
-        } catch (error: any) {
-            set({ errorTours: error.message || 'Failed to fetch map tours', loadingTours: false });
-        }
-    },
-
-    // --- Active Tours Slice ---
-    activeTours: [],
-    activeTour: null,
-    loadingActiveTours: false,
-    errorActiveTours: null,
-
-    fetchActiveTours: async (userId: number) => {
-        set({ loadingActiveTours: true, errorActiveTours: null });
-        try {
-            const activeTours = await activeTourService.getActiveToursForUser(userId);
-            set({ activeTours, loadingActiveTours: false });
-        } catch (error: any) {
-            set({ errorActiveTours: error.message || 'Failed to fetch active tours', loadingActiveTours: false });
-        }
-    },
-
-    fetchActiveTourById: async (id: number, userId?: number) => {
-        // Always try to fetch fresh data
-        set({ loadingActiveTours: true, errorActiveTours: null });
-        try {
-            const activeTour = await activeTourService.getActiveTourById(id);
-            if (!activeTour) {
-                set({ errorActiveTours: 'Tour not found', loadingActiveTours: false, activeTour: null });
-            } else {
-                set({ activeTour, loadingActiveTours: false });
-            }
-        } catch (error: any) {
-            set({ errorActiveTours: error.message || 'Failed to fetch active tour', loadingActiveTours: false });
-        }
-    },
-
-    fetchActiveTourProgress: async (id: number, userId?: number) => {
-        // Do not set global loading for lightweight updates
-        try {
-            const updatedProgress = await activeTourService.getActiveTourProgress(id, userId);
-            get().updateActiveTourLocal(updatedProgress);
-        } catch (error: any) {
-            console.error('Failed to update active tour progress', error);
-        }
-    },
-
-    fetchActiveTourLobby: async (id: number) => {
-        try {
-            const updatedLobby = await activeTourService.getActiveTourLobby(id);
-            get().updateActiveTourLocal(updatedLobby);
-        } catch (error: any) {
-            console.error('Failed to update active tour lobby', error);
-        }
-    },
-
-    updateActiveTourLocal: (updates: Partial<ActiveTour>) => {
-        set((state) => {
-            if (!state.activeTour) return {};
-
-            let finalTeams = state.activeTour.teams || [];
-            if (updates.teams && updates.teams.length > 0) {
-                const updatesMap = new Map(updates.teams.map(t => [t.id, t]));
-                // Update existing
-                finalTeams = finalTeams.map(t => updatesMap.get(t.id) || t);
-                // Add new
-                const existingIds = new Set(finalTeams.map(t => t.id));
-                const newTeams = updates.teams.filter(t => !existingIds.has(t.id));
-                finalTeams = [...finalTeams, ...newTeams];
-            }
-
-            // Remove teams from updates to avoid overwriting the merged array
-            const { teams, ...otherUpdates } = updates;
-
-            return {
-                activeTour: {
-                    ...state.activeTour,
-                    ...otherUpdates,
-                    teams: finalTeams,
-                    tour: state.activeTour.tour // Ensure tour is kept
+                    if (tourFilters.page && tourFilters.page > 1) {
+                        set({ tours: [...tours, ...newTours], loadingTours: false });
+                    } else {
+                        set({ tours: newTours, loadingTours: false });
+                    }
+                } catch (error: any) {
+                    set({ errorTours: error.message || 'Failed to fetch tours', loadingTours: false });
                 }
-            };
-        });
-    },
+            },
 
-    startTour: async (tourId: number, userId: number, force = false) => {
-        set({ loadingActiveTours: true, errorActiveTours: null });
-        try {
-            await activeTourService.startTour(tourId, userId, force);
-            // Refresh active tours
-            await get().fetchActiveTours(userId);
-            set({ loadingActiveTours: false });
-        } catch (error: any) {
-            set({ errorActiveTours: error.message || 'Failed to start tour', loadingActiveTours: false });
-            throw error; // Re-throw to let component handle specific UI logic (like showing conflict dialog)
-        }
-    },
+            setTourFilters: (filters: TourFilters) => {
+                set({ tourFilters: filters });
+                get().fetchTours();
+            },
 
-    finishTour: async (activeTourId: number, userId: number) => {
-        try {
-            await activeTourService.finishTour(activeTourId, userId);
-            // Update local state
-            set((state) => {
-                if (state.activeTour && state.activeTour.id === activeTourId) {
-                    return { activeTour: { ...state.activeTour, status: SessionStatus.COMPLETED } };
+            fetchAllData: async (userId: number) => {
+                const state = get();
+                const shouldFetchTours = state.tours.length === 0;
+
+                set({
+                    loadingTours: shouldFetchTours,
+                    loadingActiveTours: true,
+                    errorTours: null,
+                    errorActiveTours: null
+                });
+
+                try {
+                    const promises: Promise<any>[] = [
+                        activeTourService.getActiveToursForUser(userId)
+                    ];
+
+                    if (shouldFetchTours) {
+                        promises.push(tourService.getAllTours(get().tourFilters));
+                    }
+
+                    const results = await Promise.all(promises);
+                    const activeTours = results[0];
+                    let toursData = shouldFetchTours ? results[1] : state.tours;
+
+                    if (shouldFetchTours && toursData && !Array.isArray(toursData) && toursData.data && Array.isArray(toursData.data)) {
+                        toursData = toursData.data;
+                    }
+
+                    set({ tours: toursData, activeTours, loadingTours: false, loadingActiveTours: false });
+                } catch (error: any) {
+                    console.error("Failed to fetch all data", error);
+                    set({
+                        errorTours: error.message || 'Failed to fetch data',
+                        errorActiveTours: error.message || 'Failed to fetch data',
+                        loadingTours: false,
+                        loadingActiveTours: false
+                    });
                 }
-                return {};
-            });
-            return true;
-        } catch (error) {
-            console.error('Failed to finish tour', error);
-            return false;
-        }
-    },
+            },
 
-    abandonTour: async (activeTourId: number, userId: number) => {
-        try {
-            await activeTourService.abandonTour(activeTourId, userId);
-            // Update local state
-            set((state) => {
-                if (state.activeTour && state.activeTour.id === activeTourId) {
-                    return { activeTour: { ...state.activeTour, status: SessionStatus.ABANDONED } };
+            fetchTourDetails: async (id: number, placeholder?: Tour, force?: boolean) => {
+                // Check cache first if not forced
+                if (!force && get().tourDetails[id]) return;
+
+                // If placeholder provided, set it immediately to allow instant navigation
+                if (placeholder) {
+                    const placeholderDetail: TourDetail = {
+                        ...placeholder,
+                        reviews: [],
+                        stops: [],
+                        challenges: [],
+                        author: placeholder.author || { name: 'Unknown' }
+                    };
+                    set((state) => ({
+                        tourDetails: { ...state.tourDetails, [id]: placeholderDetail }
+                    }));
+                } else {
+                    // Only set loading if no placeholder (e.g. deep link)
+                    set({ loadingTours: true, errorTours: null });
                 }
-                return {};
-            });
-        } catch (error) {
-            console.error('Failed to abandon tour', error);
-        }
-    },
 
-    // --- Achievements Slice ---
-    achievements: [],
-    loadingAchievements: false,
-    fetchAchievements: async (userId: number) => {
-        set({ loadingAchievements: true });
-        try {
-            const achievements = await achievementService.getUserAchievements(userId);
-            set({ achievements, loadingAchievements: false });
-        } catch (error) {
-            console.error('Failed to fetch achievements', error);
-            set({ loadingAchievements: false });
-        }
-    },
-    unlockAchievement: async (userId: number, code: string) => {
-        try {
-            const achievement = await achievementService.unlockAchievement(userId, code);
-            if (achievement) {
-                set((state) => ({
-                    achievements: [achievement, ...state.achievements]
-                }));
-                return achievement;
-            }
-        } catch (error) {
-            console.error('Failed to unlock achievement', error);
-        }
-        return null;
-    },
-
-    // --- User Slice ---
-    user: null,
-    loadingUser: false,
-    errorUser: null,
-
-    fetchUser: async (userId: number) => {
-        set({ loadingUser: true, errorUser: null });
-        try {
-            const user = await userService.getUserProfile(userId);
-            set({ user, loadingUser: false });
-        } catch (error: any) {
-            set({ errorUser: error.message || 'Failed to fetch user', loadingUser: false });
-        }
-    },
-
-    fetchUserByEmail: async (email: string) => {
-        set({ loadingUser: true, errorUser: null });
-        try {
-            const user = await userService.getUserByEmail(email);
-            set({ user, loadingUser: false });
-        } catch (error: any) {
-            set({ errorUser: error.message || 'Failed to fetch user', loadingUser: false });
-        }
-    },
-
-    updateUser: async (userId: number, data: { name?: string; avatarUrl?: string }) => {
-        set({ loadingUser: true, errorUser: null });
-        try {
-            const user = await userService.updateUser(userId, data);
-            set({ user, loadingUser: false });
-        } catch (error: any) {
-            set({ errorUser: error.message || 'Failed to update user', loadingUser: false });
-            throw error;
-        }
-    },
-
-    addXp: (amount: number) => {
-        set((state) => {
-            if (!state.user) return {};
-            const newXp = state.user.xp + amount;
-            const newLevel = LevelSystem.getLevel(newXp);
-            return {
-                user: {
-                    ...state.user,
-                    xp: newXp,
-                    level: newLevel
+                try {
+                    const tour = await tourService.getTourById(id);
+                    set((state) => ({
+                        tourDetails: { ...state.tourDetails, [id]: tour },
+                        loadingTours: false
+                    }));
+                } catch (error: any) {
+                    set({ errorTours: error.message || 'Failed to fetch tour details', loadingTours: false });
                 }
-            };
-        });
-    },
+            },
 
-    clearUser: () => {
-        set({
-            user: null,
+            fetchMapTours: async (bounds?: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => {
+                set({ loadingTours: true, errorTours: null });
+                try {
+                    const tours = await mapTourService.getTours(bounds);
+                    set({ mapTours: tours, loadingTours: false });
+                } catch (error: any) {
+                    set({ errorTours: error.message || 'Failed to fetch map tours', loadingTours: false });
+                }
+            },
+
+            // --- Active Tours Slice ---
             activeTours: [],
             activeTour: null,
+            loadingActiveTours: false,
+            errorActiveTours: null,
+
+            fetchActiveTours: async (userId: number) => {
+                set({ loadingActiveTours: true, errorActiveTours: null });
+                try {
+                    const activeTours = await activeTourService.getActiveToursForUser(userId);
+                    set({ activeTours, loadingActiveTours: false });
+                } catch (error: any) {
+                    set({ errorActiveTours: error.message || 'Failed to fetch active tours', loadingActiveTours: false });
+                }
+            },
+
+            fetchActiveTourById: async (id: number, userId?: number) => {
+                // Always try to fetch fresh data
+                set({ loadingActiveTours: true, errorActiveTours: null });
+                try {
+                    const activeTour = await activeTourService.getActiveTourById(id);
+                    if (!activeTour) {
+                        set({ errorActiveTours: 'Tour not found', loadingActiveTours: false, activeTour: null });
+                    } else {
+                        set({ activeTour, loadingActiveTours: false });
+                    }
+                } catch (error: any) {
+                    set({ errorActiveTours: error.message || 'Failed to fetch active tour', loadingActiveTours: false });
+                }
+            },
+
+            fetchActiveTourProgress: async (id: number, userId?: number) => {
+                // Do not set global loading for lightweight updates
+                try {
+                    const updatedProgress = await activeTourService.getActiveTourProgress(id, userId);
+                    get().updateActiveTourLocal(updatedProgress);
+                } catch (error: any) {
+                    console.error('Failed to update active tour progress', error);
+                }
+            },
+
+            fetchActiveTourLobby: async (id: number) => {
+                try {
+                    const updatedLobby = await activeTourService.getActiveTourLobby(id);
+                    get().updateActiveTourLocal(updatedLobby);
+                } catch (error: any) {
+                    console.error('Failed to update active tour lobby', error);
+                }
+            },
+
+            updateActiveTourLocal: (updates: Partial<ActiveTour>) => {
+                set((state) => {
+                    if (!state.activeTour) return {};
+
+                    let finalTeams = state.activeTour.teams || [];
+                    if (updates.teams && updates.teams.length > 0) {
+                        const updatesMap = new Map(updates.teams.map(t => [t.id, t]));
+                        // Update existing
+                        finalTeams = finalTeams.map(t => updatesMap.get(t.id) || t);
+                        // Add new
+                        const existingIds = new Set(finalTeams.map(t => t.id));
+                        const newTeams = updates.teams.filter(t => !existingIds.has(t.id));
+                        finalTeams = [...finalTeams, ...newTeams];
+                    }
+
+                    // Remove teams from updates to avoid overwriting the merged array
+                    const { teams, ...otherUpdates } = updates;
+
+                    return {
+                        activeTour: {
+                            ...state.activeTour,
+                            ...otherUpdates,
+                            teams: finalTeams,
+                            tour: state.activeTour.tour // Ensure tour is kept
+                        }
+                    };
+                });
+            },
+
+            startTour: async (tourId: number, userId: number, force = false) => {
+                set({ loadingActiveTours: true, errorActiveTours: null });
+                try {
+                    await activeTourService.startTour(tourId, userId, force);
+                    // Refresh active tours
+                    await get().fetchActiveTours(userId);
+                    set({ loadingActiveTours: false });
+                } catch (error: any) {
+                    set({ errorActiveTours: error.message || 'Failed to start tour', loadingActiveTours: false });
+                    throw error; // Re-throw to let component handle specific UI logic (like showing conflict dialog)
+                }
+            },
+
+            finishTour: async (activeTourId: number, userId: number) => {
+                try {
+                    await activeTourService.finishTour(activeTourId, userId);
+                    // Update local state
+                    set((state) => {
+                        if (state.activeTour && state.activeTour.id === activeTourId) {
+                            return { activeTour: { ...state.activeTour, status: SessionStatus.COMPLETED } };
+                        }
+                        return {};
+                    });
+                    return true;
+                } catch (error) {
+                    console.error('Failed to finish tour', error);
+                    return false;
+                }
+            },
+
+            abandonTour: async (activeTourId: number, userId: number) => {
+                try {
+                    await activeTourService.abandonTour(activeTourId, userId);
+                    // Update local state
+                    set((state) => {
+                        if (state.activeTour && state.activeTour.id === activeTourId) {
+                            return { activeTour: { ...state.activeTour, status: SessionStatus.ABANDONED } };
+                        }
+                        return {};
+                    });
+                } catch (error) {
+                    console.error('Failed to abandon tour', error);
+                }
+            },
+
+            // --- Achievements Slice ---
             achievements: [],
+            loadingAchievements: false,
+            fetchAchievements: async (userId: number) => {
+                set({ loadingAchievements: true });
+                try {
+                    const achievements = await achievementService.getUserAchievements(userId);
+                    set({ achievements, loadingAchievements: false });
+                } catch (error) {
+                    console.error('Failed to fetch achievements', error);
+                    set({ loadingAchievements: false });
+                }
+            },
+            unlockAchievement: async (userId: number, code: string) => {
+                try {
+                    const achievement = await achievementService.unlockAchievement(userId, code);
+                    if (achievement) {
+                        set((state) => ({
+                            achievements: [achievement, ...state.achievements]
+                        }));
+                        return achievement;
+                    }
+                } catch (error) {
+                    console.error('Failed to unlock achievement', error);
+                }
+                return null;
+            },
+
+            // --- User Slice ---
+            user: null,
+            loadingUser: false,
+            errorUser: null,
+
+            fetchUser: async (userId: number) => {
+                set({ loadingUser: true, errorUser: null });
+                try {
+                    const user = await userService.getUserProfile(userId);
+                    set({ user, loadingUser: false });
+                } catch (error: any) {
+                    set({ errorUser: error.message || 'Failed to fetch user', loadingUser: false });
+                }
+            },
+
+            fetchUserByEmail: async (email: string) => {
+                set({ loadingUser: true, errorUser: null });
+                try {
+                    const user = await userService.getUserByEmail(email);
+                    set({ user, loadingUser: false });
+                } catch (error: any) {
+                    set({ errorUser: error.message || 'Failed to fetch user', loadingUser: false });
+                }
+            },
+
+            updateUser: async (userId: number, data: { name?: string; avatarUrl?: string }) => {
+                set({ loadingUser: true, errorUser: null });
+                try {
+                    const user = await userService.updateUser(userId, data);
+                    set({ user, loadingUser: false });
+                } catch (error: any) {
+                    set({ errorUser: error.message || 'Failed to update user', loadingUser: false });
+                    throw error;
+                }
+            },
+
+            addXp: (amount: number) => {
+                set((state) => {
+                    if (!state.user) return {};
+                    const newXp = state.user.xp + amount;
+                    const newLevel = LevelSystem.getLevel(newXp);
+                    return {
+                        user: {
+                            ...state.user,
+                            xp: newXp,
+                            level: newLevel
+                        }
+                    };
+                });
+            },
+
+            clearUser: () => {
+                set({
+                    user: null,
+                    activeTours: [],
+                    activeTour: null,
+                    achievements: [],
+                    friends: [],
+                    requests: [],
+                    lastFetchedFriends: 0,
+                    lastFetchedRequests: 0,
+                });
+            },
+
+            // --- Friends Slice ---
             friends: [],
             requests: [],
+            loadingFriends: false,
+            loadingRequests: false,
             lastFetchedFriends: 0,
             lastFetchedRequests: 0,
-        });
-    },
 
-    // --- Friends Slice ---
-    friends: [],
-    requests: [],
-    loadingFriends: false,
-    loadingRequests: false,
-    lastFetchedFriends: 0,
-    lastFetchedRequests: 0,
+            fetchFriends: async (force = false) => {
+                const { loadingFriends, lastFetchedFriends } = get();
 
-    fetchFriends: async (force = false) => {
-        const { loadingFriends, lastFetchedFriends } = get();
+                if (loadingFriends) return;
+                if (!force && (Date.now() - lastFetchedFriends < 60000)) return;
 
-        if (loadingFriends) return;
-        if (!force && (Date.now() - lastFetchedFriends < 60000)) return;
+                set({ loadingFriends: true });
+                try {
+                    const response: any = await friendService.getFriends();
+                    const data = (response.data && Array.isArray(response.data)) ? response.data : response;
+                    set({
+                        friends: Array.isArray(data) ? data : [],
+                        loadingFriends: false,
+                        lastFetchedFriends: Date.now()
+                    });
+                } catch (error) {
+                    console.error('Error loading friends:', error);
+                    set({ loadingFriends: false });
+                }
+            },
 
-        set({ loadingFriends: true });
-        try {
-            const response: any = await friendService.getFriends();
-            const data = (response.data && Array.isArray(response.data)) ? response.data : response;
-            set({
-                friends: Array.isArray(data) ? data : [],
-                loadingFriends: false,
-                lastFetchedFriends: Date.now()
-            });
-        } catch (error) {
-            console.error('Error loading friends:', error);
-            set({ loadingFriends: false });
+            fetchRequests: async (force = false) => {
+                const { loadingRequests, lastFetchedRequests } = get();
+
+                if (loadingRequests) return;
+                if (!force && (Date.now() - lastFetchedRequests < 60000)) return;
+
+                set({ loadingRequests: true });
+                try {
+                    const data = await friendService.getFriendRequests();
+                    set({
+                        requests: data || [],
+                        loadingRequests: false,
+                        lastFetchedRequests: Date.now()
+                    });
+                } catch (error) {
+                    console.error('Error loading requests:', error);
+                    set({ loadingRequests: false });
+                }
+            }
+        }),
+        {
+            name: 'tracks-taps-storage',
+            storage: createJSONStorage(() => AsyncStorage),
+            partialize: (state) => ({
+                activeTour: state.activeTour,
+                activeTours: state.activeTours,
+                user: state.user,
+                tourDetails: state.tourDetails
+            }),
         }
-    },
-
-    fetchRequests: async (force = false) => {
-        const { loadingRequests, lastFetchedRequests } = get();
-
-        if (loadingRequests) return;
-        if (!force && (Date.now() - lastFetchedRequests < 60000)) return;
-
-        set({ loadingRequests: true });
-        try {
-            const data = await friendService.getFriendRequests();
-            set({
-                requests: data || [],
-                loadingRequests: false,
-                lastFetchedRequests: Date.now()
-            });
-        } catch (error) {
-            console.error('Error loading requests:', error);
-            set({ loadingRequests: false });
-        }
-    }
-}));
+    )
+);
