@@ -6,6 +6,14 @@ export const savedTripsService = {
     },
 
     async getUserSavedTrips(userId: number, page: number = 1, limit: number = 10) {
+        // Ensure "Favourites" list exists
+        const lists = await savedTripsRepository.findByUserId(userId, 1, 100);
+        const hasFavourites = lists.data.some((l: any) => l.name === 'Favourites');
+
+        if (!hasFavourites) {
+            await savedTripsRepository.create(userId, 'Favourites');
+        }
+
         return savedTripsRepository.findByUserId(userId, page, limit);
     },
 

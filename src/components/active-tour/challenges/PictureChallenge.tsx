@@ -40,8 +40,7 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
             }
 
             const result = await ImagePicker.launchCameraAsync({
-                // @ts-ignore - Expo types might be outdated, but runtime warning says to use MediaType
-                mediaTypes: (ImagePicker as any).MediaType?.Images || ImagePicker.MediaTypeOptions.Images,
+                mediaTypes: ['images'],
                 allowsEditing: true,
                 aspect: [4, 3],
                 quality: 0.5, // Compression as requested

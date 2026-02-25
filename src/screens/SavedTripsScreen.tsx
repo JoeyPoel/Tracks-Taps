@@ -33,10 +33,16 @@ export default function SavedTripsScreen() {
         const thumbnails = item.tours?.slice(0, 3).map(t => t.imageUrl) || [];
         const tourCount = item._count?.tours ?? item.tours?.length ?? 0;
 
+        const isFavourites = item.name === 'Favourites';
+
         return (
             <Animated.View entering={FadeInDown.delay(index * 100).springify()}>
                 <TouchableOpacity
-                    style={[styles.card, { backgroundColor: theme.bgSecondary }]}
+                    style={[
+                        styles.card,
+                        { backgroundColor: theme.bgSecondary },
+                        isFavourites && { borderColor: theme.primary + '30', borderWidth: 1 }
+                    ]}
                     onPress={() => router.push(`/profile/saved-trips/${item.id}` as any)}
                     activeOpacity={0.9}
                 >
@@ -75,10 +81,10 @@ export default function SavedTripsScreen() {
                             )
                         ) : (
                             <View style={[styles.placeholder, { backgroundColor: theme.bgTertiary }]}>
-                                <Ionicons name="map" size={32} color={theme.textSecondary} style={{ opacity: 0.5 }} />
+                                <Ionicons name={isFavourites ? "heart" : "map"} size={32} color={isFavourites ? theme.primary : theme.textSecondary} style={{ opacity: 0.5 }} />
                             </View>
                         )}
-                        <View style={[styles.badge, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
+                        <View style={[styles.badge, { backgroundColor: isFavourites ? theme.primary : 'rgba(0,0,0,0.6)' }]}>
                             <TextComponent style={styles.badgeText} variant="caption" color="white" bold>
                                 {tourCount} {tourCount === 1 ? 'tour' : 'tours'}
                             </TextComponent>
@@ -87,15 +93,18 @@ export default function SavedTripsScreen() {
 
                     <View style={styles.content}>
                         <View style={styles.textContainer}>
-                            <TextComponent style={styles.name} variant="h3" numberOfLines={1}>
-                                {item.name}
-                            </TextComponent>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                {isFavourites && <Ionicons name="heart" size={16} color={theme.primary} style={{ marginRight: 6 }} />}
+                                <TextComponent style={styles.name} variant="h3" numberOfLines={1} bold={isFavourites}>
+                                    {isFavourites ? t('favourites') : item.name}
+                                </TextComponent>
+                            </View>
                             <TextComponent style={styles.updated} variant="caption" color={theme.textSecondary}>
                                 {item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : 'Just now'}
                             </TextComponent>
                         </View>
-                        <View style={[styles.actionIcon, { backgroundColor: theme.bgTertiary }]}>
-                            <Ionicons name="arrow-forward" size={20} color={theme.primary} />
+                        <View style={[styles.actionIcon, { backgroundColor: isFavourites ? theme.primary + '15' : theme.bgTertiary }]}>
+                            <Ionicons name={isFavourites ? "heart" : "arrow-forward"} size={20} color={isFavourites ? theme.primary : theme.primary} />
                         </View>
                     </View>
                 </TouchableOpacity>
@@ -118,7 +127,12 @@ export default function SavedTripsScreen() {
             />
 
             <FlatList
-                data={!loading || lists.length > 0 ? lists : ([1, 2, 3] as any)}
+                data={(!loading || lists.length > 0) ? [...lists].sort((a, b) => {
+                    if (typeof a === 'number' || typeof b === 'number') return 0;
+                    if (a.name === 'Favourites') return -1;
+                    if (b.name === 'Favourites') return 1;
+                    return 0;
+                }) : ([1, 2, 3] as any)}
                 renderItem={({ item, index }) => {
                     if (typeof item === 'number') {
                         return (

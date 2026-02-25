@@ -41,7 +41,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   } = useTourDetails(tourId);
 
   const { startTour, loadingMode } = useStartTour(tourId, tour?.author?.id);
-  const { lists, loadLists, checkIsSaved, createList, addTourToList, removeTourFromList } = useSavedTrips();
+  const { lists, loadLists, checkIsSaved, createList, addTourToList, removeTourFromList, isFavourite, toggleFavourite } = useSavedTrips();
   const isSaved = checkIsSaved(tourId);
 
   React.useEffect(() => {
@@ -130,14 +130,23 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
                 authEvents.emit();
                 return;
               }
+              toggleFavourite(tourId);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }}
+            onLongPress={() => {
+              if (!user) {
+                authEvents.emit();
+                return;
+              }
               setShowSavedTripModal(true);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             }}
             style={[styles.savedTripFab, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
           >
             <Ionicons
-              name={isSaved ? "heart" : "heart-outline"}
+              name={isFavourite(tourId) ? "heart" : "heart-outline"}
               size={24}
-              color={isSaved ? theme.primary : theme.textPrimary}
+              color={isFavourite(tourId) ? theme.primary : theme.textPrimary}
             />
           </TouchableOpacity>
 

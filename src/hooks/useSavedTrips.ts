@@ -111,6 +111,21 @@ export function useSavedTrips() {
         return lists.some(list => list.tours?.some(t => t.id === tourId));
     }, [lists]);
 
+    const favouritesList = lists.find(l => l.name === 'Favourites');
+    const isFavourite = useCallback((tourId: number) => {
+        return favouritesList?.tours?.some(t => t.id === tourId) || false;
+    }, [favouritesList]);
+
+    const toggleFavourite = useCallback(async (tourId: number) => {
+        if (!favouritesList) return;
+        const tourIsFavourite = isFavourite(tourId);
+        if (tourIsFavourite) {
+            await removeTourFromList(favouritesList.id, tourId);
+        } else {
+            await addTourToList(favouritesList.id, tourId);
+        }
+    }, [favouritesList, isFavourite, addTourToList, removeTourFromList]);
+
     return {
         lists,
         loading,
@@ -121,6 +136,9 @@ export function useSavedTrips() {
         createList,
         addTourToList,
         removeTourFromList,
-        checkIsSaved
+        checkIsSaved,
+        favouritesList,
+        isFavourite,
+        toggleFavourite
     };
 }
