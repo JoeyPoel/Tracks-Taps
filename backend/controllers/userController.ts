@@ -1,26 +1,62 @@
+import { verifyAuth } from '@/backend/utils/auth';
+import { friendService } from '../services/friendService';
 import { userService } from '../services/userService';
 
 export const userController = {
     async getUser(request: Request) {
         const { searchParams } = new URL(request.url);
         const email = searchParams.get('email');
+        const username = searchParams.get('username');
         const userId = searchParams.get('userId');
+        const query = searchParams.get('query');
         const type = searchParams.get('type');
         const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
         const limit = searchParams.get('limit') ? Number(searchParams.get('limit')) : 20;
 
         try {
+            if (query) {
+                const users = await userService.searchUsers(query, limit, page);
+
+                // If authenticated, check friendship status for each user
+                try {
+                    const requester = await verifyAuth(request);
+                    if (requester && requester.email) {
+                        const usersWithStatus = await Promise.all(users.map(async (u: any) => {
+                            const friendship = await friendService.checkFriendshipStatus(requester.email!, u.id);
+                            return { ...u, friendshipStatus: friendship };
+                        }));
+                        return Response.json(usersWithStatus);
+                    }
+                } catch (e) {
+                    // Not authenticated, just return users
+                }
+
+                return Response.json(users);
+            }
+
+            const parsedUserId = userId ? parseInt(userId, 10) : NaN;
+
             if (userId && type === 'played') {
-                const tours = await userService.getUserPlayedTours(parseInt(userId), page, limit);
+                if (isNaN(parsedUserId)) {
+                    console.error('[userController] Invalid userId requested:', userId);
+                    return Response.json({ error: 'Invalid userId' }, { status: 400 });
+                }
+                const tours = await userService.getUserPlayedTours(parsedUserId, page, limit);
                 return Response.json(tours);
             } else if (userId && type === 'created') {
-                const tours = await userService.getUserCreatedTours(parseInt(userId), page, limit);
+                if (isNaN(parsedUserId)) {
+                    console.error('[userController] Invalid userId requested (created):', userId);
+                    return Response.json({ error: 'Invalid userId' }, { status: 400 });
+                }
+                const tours = await userService.getUserCreatedTours(parsedUserId, page, limit);
                 return Response.json(tours);
             }
 
             let user;
-            if (userId) {
-                user = await userService.getUserProfile(parseInt(userId));
+            if (userId && !isNaN(parsedUserId)) {
+                user = await userService.getUserProfile(parsedUserId);
+            } else if (username) {
+                user = await userService.getUserByUsername(username);
             } else if (email) {
                 user = await userService.getUserByEmail(email);
 
@@ -36,6 +72,16 @@ export const userController = {
 
             if (!user) {
                 return Response.json({ error: 'User not found' }, { status: 404 });
+            }
+            // Check friendship status relative to current user
+            try {
+                const requester = await verifyAuth(request);
+                if (requester && requester.email && user.id !== (requester as any).userId) {
+                    const friendship = await friendService.checkFriendshipStatus(requester.email, user.id);
+                    (user as any).friendshipStatus = friendship;
+                }
+            } catch (e) {
+                // Not authenticated or error, ignore
             }
 
             return Response.json(user);
@@ -183,18 +229,22 @@ export const userController = {
     async updateUser(request: Request, parsedBody?: any) {
         try {
             const body = parsedBody || await request.json();
-            const { userId, name, avatarUrl } = body;
+            const { userId, name, avatarUrl, username } = body;
 
             if (!userId) {
                 return Response.json({ error: 'Missing userId' }, { status: 400 });
             }
 
             if (name && name.length > 25) return Response.json({ error: 'Name exceeds 25 characters' }, { status: 400 });
+            if (username && (username.length < 3 || username.length > 20)) return Response.json({ error: 'Username must be between 3 and 20 characters' }, { status: 400 });
 
-            const updatedUser = await userService.updateUser(Number(userId), { name, avatarUrl });
+            const updatedUser = await userService.updateUser(Number(userId), { name, avatarUrl, username });
             return Response.json(updatedUser);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error updating user:', error);
+            if (error.message.includes('Unique constraint failed on the fields: (`username`)')) {
+                return Response.json({ error: 'Username already taken' }, { status: 400 });
+            }
             return Response.json({ error: 'Failed to update user' }, { status: 500 });
         }
     },
@@ -213,6 +263,23 @@ export const userController = {
         } catch (error: any) {
             console.error('Error claiming referral:', error);
             return Response.json({ error: error.message || 'Failed to claim referral' }, { status: 400 });
+        }
+    },
+
+    async deleteUser(request: Request, parsedBody?: any) {
+        try {
+            const body = parsedBody || await request.json();
+            const { userId } = body;
+
+            if (!userId) {
+                return Response.json({ error: 'Missing userId' }, { status: 400 });
+            }
+
+            const result = await userService.deleteUser(Number(userId));
+            return Response.json({ success: true, message: 'User deleted successfully' });
+        } catch (error: any) {
+            console.error('Error deleting user:', error);
+            return Response.json({ error: 'Failed to delete user' }, { status: 500 });
         }
     }
 };

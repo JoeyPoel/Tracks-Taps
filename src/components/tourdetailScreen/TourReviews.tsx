@@ -1,6 +1,7 @@
 import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { LayoutAnimation, Platform, ScrollView, StyleSheet, TouchableOpacity, UIManager, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
@@ -31,6 +32,7 @@ interface TourReviewsProps {
 export default function TourReviews({ reviews, averageRating, totalReviews }: TourReviewsProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const router = useRouter();
     const [expanded, setExpanded] = useState(false);
 
     // sorting and pagination
@@ -152,10 +154,26 @@ export default function TourReviews({ reviews, averageRating, totalReviews }: To
                     {visibleReviews.map((review) => (
                         <View
                             key={review.id}
-                            style={[styles.reviewCard, { backgroundColor: theme.bgSecondary }]}
+                            style={[styles.reviewCard, { backgroundColor: theme.bgSecondary, overflow: 'hidden' }]}
                         >
-                            <View style={styles.reviewHeader}>
-                                <Image source={{ uri: getOptimizedImageUrl(review.userAvatar, 40) }} style={styles.avatar} cachePolicy="disk" />
+                            <TouchableOpacity
+                                activeOpacity={0.4}
+                                style={styles.reviewHeader}
+                                onPress={() => {
+                                    if (review.userId && review.userId !== 'unknown') {
+                                        router.push({
+                                            pathname: '/(tabs)/profile/friend-profile',
+                                            params: { userId: review.userId }
+                                        });
+                                    }
+                                }}
+                            >
+                                <Image
+                                    source={review.userAvatar ? { uri: getOptimizedImageUrl(review.userAvatar, 40) } : require('../../../assets/images/profilePictureFallback.png')}
+                                    style={[styles.avatar, { backgroundColor: theme.bgPrimary }]}
+                                    cachePolicy="disk"
+                                    contentFit="cover"
+                                />
                                 <View style={styles.userInfo}>
                                     <TextComponent style={styles.userName} color={theme.textPrimary} bold variant="body">
                                         {review.userName}
@@ -167,27 +185,29 @@ export default function TourReviews({ reviews, averageRating, totalReviews }: To
                                         </TextComponent>
                                     </View>
                                 </View>
-                            </View>
+                            </TouchableOpacity>
 
                             <TextComponent style={styles.comment} color={theme.textPrimary} variant="body">
                                 {review.comment}
                             </TextComponent>
 
-                            {review.images && review.images.length > 0 && (
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imagesContainer}>
-                                    {review.images.map((img, index) => (
-                                        <TouchableOpacity key={index} activeOpacity={0.9} onPress={() => { /* Handle maximize? */ }}>
-                                            <Image
-                                                source={{ uri: getOptimizedImageUrl(img, 200) }}
-                                                style={styles.reviewImage}
-                                                contentFit="cover"
-                                                cachePolicy="disk"
-                                                transition={300}
-                                            />
-                                        </TouchableOpacity>
-                                    ))}
-                                </ScrollView>
-                            )}
+                            {
+                                review.images && review.images.length > 0 && (
+                                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imagesContainer}>
+                                        {review.images.map((img, index) => (
+                                            <TouchableOpacity key={index} activeOpacity={0.9} onPress={() => { /* Handle maximize? */ }}>
+                                                <Image
+                                                    source={{ uri: getOptimizedImageUrl(img, 200) }}
+                                                    style={styles.reviewImage}
+                                                    contentFit="cover"
+                                                    cachePolicy="disk"
+                                                    transition={300}
+                                                />
+                                            </TouchableOpacity>
+                                        ))}
+                                    </ScrollView>
+                                )
+                            }
                         </View>
                     ))}
 
@@ -211,8 +231,9 @@ export default function TourReviews({ reviews, averageRating, totalReviews }: To
                         </TextComponent>
                     )}
                 </View>
-            )}
-        </View>
+            )
+            }
+        </View >
     );
 }
 

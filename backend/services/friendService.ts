@@ -3,8 +3,14 @@ import { userRepository } from '../repositories/userRepository';
 import { achievementService } from './achievementService';
 
 export const friendService = {
-    async getFriends(email: string, page: number = 1, limit: number = 10) {
-        const user = await userRepository.getUserByEmail(email);
+    async getFriends(email: string, page: number = 1, limit: number = 10, userId?: number) {
+        let user;
+        if (userId) {
+            user = await userRepository.getUserProfile(userId);
+        } else {
+            user = await userRepository.getUserByEmail(email);
+        }
+
         if (!user) {
             throw new Error('User not found');
         }
@@ -34,9 +40,17 @@ export const friendService = {
         return await friendRepository.findPendingRequests(user.id);
     },
 
-    async sendRequest(requesterEmail: string, targetEmail: string) {
+    async sendRequest(requesterEmail: string, targetIdentifier: string) {
         const requester = await userRepository.getUserByEmail(requesterEmail);
-        const target = await userRepository.getUserByEmail(targetEmail);
+
+        // Find target - try username first (case-insensitive)
+        let target = await userRepository.getUserByUsername(targetIdentifier);
+
+        // Fallback to email if not found and identifier looks like an email
+        // This handles users without usernames who are added from search
+        if (!target && targetIdentifier.includes('@')) {
+            target = await userRepository.getUserByEmail(targetIdentifier);
+        }
 
         if (!requester || !target) {
             throw new Error('User not found');
@@ -54,10 +68,19 @@ export const friendService = {
             if (existing.status === 'PENDING') {
                 throw new Error('Request already pending');
             }
-            // If declined/deleted logic existed, handle here.
         }
 
         return await friendRepository.createFriendship(requester.id, target.id);
+    },
+
+    async removeFriend(userEmail: string, friendId: number) {
+        const user = await userRepository.getUserByEmail(userEmail);
+        if (!user) throw new Error('User not found');
+
+        const friendship = await friendRepository.findFriendship(user.id, friendId);
+        if (!friendship) throw new Error('Friendship not found');
+
+        return await friendRepository.deleteFriendship(friendship.id);
     },
 
     async respondToRequest(requestId: number, action: 'ACCEPT' | 'DECLINE') {
@@ -74,5 +97,13 @@ export const friendService = {
             // For decline, typically we remove the pending request or mark declined
             return await friendRepository.deleteFriendship(requestId);
         }
+    },
+
+    async checkFriendshipStatus(userEmail: string, otherUserId: number) {
+        const user = await userRepository.getUserByEmail(userEmail);
+        if (!user) return null;
+
+        const friendship = await friendRepository.findFriendship(user.id, otherUserId);
+        return friendship ? (friendship.status as any) : null;
     }
 };

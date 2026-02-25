@@ -8,7 +8,8 @@ export const useTourDetails = (tourId: number) => {
     const fetchTourDetails = useStore((state) => state.fetchTourDetails);
 
     useEffect(() => {
-        if (tourId && !tour) {
+        const isIncomplete = tour && (!tour.reviews || (tour.reviews.length > 0 && !tour.reviews[0].author));
+        if (tourId && (!tour || isIncomplete)) {
             fetchTourDetails(tourId);
         }
     }, [tourId, tour, fetchTourDetails]);
@@ -28,10 +29,9 @@ export const useTourDetails = (tourId: number) => {
 
         const mappedReviews = (tour.reviews || []).map((review: any) => ({
             id: review.id.toString(),
-            userId: review.authorId ? review.authorId.toString() : 'unknown',
+            userId: (review.author?.id || review.authorId || '').toString() || 'unknown',
             userName: review.author?.name || 'Unknown',
-            // Simple deterministic avatar based on name
-            userAvatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(review.author?.name || 'User')}&background=random`,
+            userAvatar: review.author?.avatarUrl || null,
             rating: review.rating,
             date: new Date(review.createdAt).toLocaleDateString(),
             comment: review.content,

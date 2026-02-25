@@ -1,5 +1,5 @@
 
-import { useNavigation, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 
 /**
@@ -8,17 +8,16 @@ import { useCallback } from 'react';
  */
 export function useSafeNavigation() {
     const router = useRouter();
-    const navigation = useNavigation();
 
     const goBack = useCallback(() => {
-        if (navigation.canGoBack()) {
+        if (router.canGoBack()) {
             router.back();
         } else {
             // Fallback to home / explore if no history
             // Using replace to reset stack effectively
             router.replace('/');
         }
-    }, [navigation, router]);
+    }, [router]);
 
     return { goBack };
 }

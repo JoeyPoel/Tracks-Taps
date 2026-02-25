@@ -12,8 +12,9 @@ export const friendController = {
             const { searchParams } = new URL(request.url);
             const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
             const limit = searchParams.get('limit') ? Number(searchParams.get('limit')) : 20;
+            const targetUserId = searchParams.get('userId') ? Number(searchParams.get('userId')) : undefined;
 
-            const friends = await friendService.getFriends(user.email, page, limit);
+            const friends = await friendService.getFriends(user.email, page, limit, targetUserId);
             return Response.json(friends);
         } catch (error: any) {
             console.error('Error fetching friends:', error);
@@ -50,17 +51,42 @@ export const friendController = {
             }
 
             const body = await request.json();
-            const { email: targetEmail } = body;
+            const { identifier } = body;
 
-            if (!targetEmail) {
-                return Response.json({ error: 'Target email is required' }, { status: 400 });
+            if (!identifier) {
+                return Response.json({ error: 'Username is required' }, { status: 400 });
             }
 
-            const result = await friendService.sendRequest(user.email, targetEmail);
+            const result = await friendService.sendRequest(user.email, identifier);
             return Response.json(result);
         } catch (error: any) {
             console.error('Error sending request:', error);
             if (error.message === 'User not found' || error.message === 'Cannot add yourself' || error.message === 'Already friends' || error.message === 'Request already pending') {
+                return Response.json({ error: error.message }, { status: 400 });
+            }
+            return Response.json({ error: 'Internal Server Error' }, { status: 500 });
+        }
+    },
+
+    async removeFriend(request: Request) {
+        try {
+            const user = await verifyAuth(request);
+            if (!user || !user.email) {
+                return Response.json({ error: 'Unauthorized' }, { status: 401 });
+            }
+
+            const body = await request.json();
+            const { friendId } = body;
+
+            if (!friendId) {
+                return Response.json({ error: 'Friend ID is required' }, { status: 400 });
+            }
+
+            const result = await friendService.removeFriend(user.email, Number(friendId));
+            return Response.json(result);
+        } catch (error: any) {
+            console.error('Error removing friend:', error);
+            if (error.message === 'User not found' || error.message === 'Friendship not found') {
                 return Response.json({ error: error.message }, { status: 400 });
             }
             return Response.json({ error: 'Internal Server Error' }, { status: 500 });

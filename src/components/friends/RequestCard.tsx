@@ -31,9 +31,16 @@ export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) 
                     <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">
                         {request.requester.name}
                     </TextComponent>
-                    <TextComponent style={styles.subText} color={theme.textSecondary} variant="caption">
-                        {t('wantsToBeFriend')}
-                    </TextComponent>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>
+                        <View style={[styles.badge, { backgroundColor: theme.bgSecondary }]}>
+                            <TextComponent style={styles.badgeText} color={theme.primary} bold variant="caption">
+                                Lvl {request.requester.level || 1}
+                            </TextComponent>
+                        </View>
+                        <TextComponent style={styles.subText} color={theme.textSecondary} variant="caption">
+                            {t('wantsToBeFriend')}
+                        </TextComponent>
+                    </View>
                 </View>
             </View>
 
@@ -94,5 +101,14 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    badge: {
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 6,
+    },
+    badgeText: {
+        fontSize: 11,
+        fontWeight: '700',
     },
 });

@@ -107,10 +107,14 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
               <TextComponent style={styles.tagText} variant="caption" bold color="#FFF">{tour.genre}</TextComponent>
             </View>
             <TextComponent style={styles.title} variant="h1" bold color={theme.fixedWhite}>{tour.title}</TextComponent>
-            <View style={styles.authorRow}>
+            <TouchableOpacity
+              style={styles.authorRow}
+              activeOpacity={0.7}
+              onPress={() => tour.author?.id && router.push({ pathname: '/(tabs)/profile/friend-profile', params: { userId: tour.author.id } })}
+            >
               <TextComponent style={{ marginRight: 4 }} color={theme.fixedWhite} variant="body">by</TextComponent>
-              <TextComponent style={{ fontWeight: 'bold' }} color={theme.fixedWhite} variant="body" bold>{tour.author?.name || 'Unknown'}</TextComponent>
-            </View>
+              <TextComponent style={{ textDecorationLine: 'underline' }} color={theme.fixedWhite} variant="body" bold>{tour.author?.name || 'Unknown'}</TextComponent>
+            </TouchableOpacity>
           </Animated.View>
 
           {/* View on Map FAB */}
@@ -122,6 +126,21 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             <TextComponent style={styles.mapFabText} variant="label" bold color={theme.textPrimary}>Map</TextComponent>
           </TouchableOpacity>
 
+
+          {/* Add to List Button */}
+          <TouchableOpacity
+            onPress={() => {
+              if (!user) {
+                authEvents.emit();
+                return;
+              }
+              setShowSavedTripModal(true);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            }}
+            style={[styles.addToListFab, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
+          >
+            <Ionicons name={isSaved ? "bookmark" : "bookmark-outline"} size={24} color={isSaved ? "#FFD700" : theme.textPrimary} />
+          </TouchableOpacity>
 
           {/* Saved Trip Button */}
           <TouchableOpacity
@@ -468,6 +487,21 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 6,
     zIndex: 20, // ensure it's above hero image
+  },
+  addToListFab: {
+    position: 'absolute',
+    top: 60,
+    right: 76,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
+    zIndex: 20,
   },
   editFab: {
     position: 'absolute',

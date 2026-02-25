@@ -1,8 +1,13 @@
 import { randomInt } from 'crypto';
 import { LevelSystem } from '../../src/utils/levelUtils';
 import { userRepository } from '../repositories/userRepository';
+import { friendService } from './friendService';
 
 export const userService = {
+    async getUserIdByEmail(email: string) {
+        return await userRepository.getUserIdByEmail(email);
+    },
+
     async getUserProfile(userId: number) {
         const user = await userRepository.getUserProfile(userId);
         if (user) {
@@ -13,13 +18,19 @@ export const userService = {
                 await userRepository.updateUser(user.id, { referralCode });
                 user.referralCode = referralCode;
             }
+
+            // Get friend count
+            const friendsResult = await friendService.getFriends('', 1, 1, user.id);
+            const friendCount = friendsResult.meta.total;
+
             const { _count, ...rest } = user as any;
             return {
                 ...rest,
                 level: LevelSystem.getLevel(user.xp),
                 stats: {
                     toursDone: _count?.playedTours || 0,
-                    toursCreated: _count?.createdTours || 0
+                    toursCreated: _count?.createdTours || 0,
+                    friends: friendCount
                 }
             };
         }
@@ -35,17 +46,48 @@ export const userService = {
                 await userRepository.updateUser(user.id, { referralCode });
                 user.referralCode = referralCode;
             }
+
+            // Get friend count
+            const friendsResult = await friendService.getFriends('', 1, 1, user.id);
+            const friendCount = friendsResult.meta.total;
+
             const { _count, ...rest } = user as any;
             return {
                 ...rest,
                 level: LevelSystem.getLevel(user.xp),
                 stats: {
                     toursDone: _count?.playedTours || 0,
-                    toursCreated: _count?.createdTours || 0
+                    toursCreated: _count?.createdTours || 0,
+                    friends: friendCount
                 }
             };
         }
         return user;
+    },
+
+    async getUserByUsername(username: string) {
+        const user = await userRepository.getUserByUsername(username);
+        if (user) {
+            // Get friend count
+            const friendsResult = await friendService.getFriends('', 1, 1, user.id);
+            const friendCount = friendsResult.meta.total;
+
+            const { _count, ...rest } = user as any;
+            return {
+                ...rest,
+                level: LevelSystem.getLevel(user.xp),
+                stats: {
+                    toursDone: _count?.playedTours || 0,
+                    toursCreated: _count?.createdTours || 0,
+                    friends: friendCount
+                }
+            };
+        }
+        return user;
+    },
+
+    async searchUsers(query: string, limit: number = 10, page: number = 1) {
+        return await userRepository.searchUsers(query, limit, page);
     },
 
     async createUserByEmail(email: string) {
@@ -71,7 +113,7 @@ export const userService = {
         return await userRepository.addTokens(userId, amount);
     },
 
-    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; referralCode?: string }) {
+    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; username?: string; referralCode?: string }) {
         const user = await userRepository.updateUser(userId, data);
         return { ...user, level: LevelSystem.getLevel(user.xp) };
     },
@@ -89,10 +131,14 @@ export const userService = {
     },
 
     async getPurchase(transactionId: string) {
-            return await userRepository.getPurchase(transactionId);
-        },
+        return await userRepository.getPurchase(transactionId);
+    },
 
     async createPurchase(userId: number, data: any) {
-            return await userRepository.createPurchase(userId, data);
-        }
-    };
+        return await userRepository.createPurchase(userId, data);
+    },
+
+    async deleteUser(userId: number) {
+        return await userRepository.deleteUser(userId);
+    }
+};

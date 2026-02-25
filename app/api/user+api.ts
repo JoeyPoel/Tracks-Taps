@@ -48,6 +48,13 @@ export async function POST(request: Request) {
                 return Response.json({ error: 'Forbidden' }, { status: 403 });
             }
             return await userController.createUser(request, body);
+        } else if (body.action === 'delete-user') {
+            // Check ownership
+            const dbUser = await userService.getUserByEmail(user.email);
+            if (!dbUser || dbUser.id !== Number(body.userId)) {
+                return Response.json({ error: 'Forbidden' }, { status: 403 });
+            }
+            return await userController.deleteUser(request, body);
         }
 
         return Response.json({ error: 'Invalid action' }, { status: 400 });

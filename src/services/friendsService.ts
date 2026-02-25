@@ -15,8 +15,9 @@ export interface FriendRequest {
 }
 
 export const friendService = {
-    async getFriends(page: number = 1, limit: number = 10): Promise<any> {
-        const response = await client.get(`/friends?page=${page}&limit=${limit}`);
+    async getFriends(page: number = 1, limit: number = 10, userId?: number): Promise<any> {
+        const url = userId ? `/friends?userId=${userId}&page=${page}&limit=${limit}` : `/friends?page=${page}&limit=${limit}`;
+        const response = await client.get(url);
         return response.data;
     },
 
@@ -25,8 +26,13 @@ export const friendService = {
         return response.data;
     },
 
-    async sendFriendRequest(email: string): Promise<{ message: string; requestId?: number }> {
-        const response = await client.post('/friends/request', { email });
+    async sendFriendRequest(identifier: string): Promise<{ message: string; requestId?: number }> {
+        const response = await client.post('/friends/request', { identifier });
+        return response.data;
+    },
+
+    async removeFriend(friendId: number): Promise<{ message: string }> {
+        const response = await client.delete('/friends', { data: { friendId } });
         return response.data;
     },
 

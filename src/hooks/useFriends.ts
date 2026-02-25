@@ -26,15 +26,34 @@ export function useFriends() {
     const { unlockAchievement } = useAchievements();
     const { showToast } = useToast();
 
-    const sendFriendRequest = async (email: string) => {
-        if (!email) return;
+    const sendFriendRequest = async (identifier: string) => {
+        if (!identifier) return;
         setActionLoading(true);
         try {
-            await friendService.sendFriendRequest(email);
+            await friendService.sendFriendRequest(identifier);
             Alert.alert('Success', 'Friend request sent!');
             return true;
         } catch (error: any) {
             Alert.alert('Error', error.response?.data?.error || 'Failed to send request');
+            return false;
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const removeFriend = async (friendId: number) => {
+        setActionLoading(true);
+        try {
+            await friendService.removeFriend(friendId);
+            await loadFriends(true); // Re-fetch friends list
+            showToast({
+                title: 'Friend Removed',
+                message: 'You are no longer friends.',
+                emoji: '👋'
+            });
+            return true;
+        } catch (error: any) {
+            Alert.alert('Error', error.response?.data?.error || 'Failed to remove friend');
             return false;
         } finally {
             setActionLoading(false);
@@ -85,10 +104,13 @@ export function useFriends() {
         friends,
         requests,
         loading,
+        loadingFriends,
+        loadingRequests,
         actionLoading,
         loadFriends,
         loadRequests,
         sendFriendRequest,
+        removeFriend,
         respondToRequest,
         inviteFriendsToLobby
     };

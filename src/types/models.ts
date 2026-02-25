@@ -219,8 +219,9 @@ export interface Review {
     tourId: number;
     authorId: number;
     author: {
+        id: number;
         name: string;
-        avatar?: string;
+        avatarUrl?: string;
     };
 }
 

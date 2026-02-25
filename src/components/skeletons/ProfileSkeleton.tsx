@@ -8,41 +8,67 @@ export default function ProfileSkeleton() {
 
     return (
         <View style={styles.container}>
-            {/* Header Image Area */}
-            <View style={[styles.headerImage, { backgroundColor: theme.bgSecondary }]}>
-                <Shimmer width="100%" height="100%" />
-            </View>
-
             <View style={styles.content}>
-                {/* Profile Card */}
-                <View style={[styles.profileCard, { backgroundColor: theme.bgSecondary }]}>
-                    <View style={styles.avatarRow}>
-                        <Shimmer width={80} height={80} borderRadius={24} style={{ marginRight: 16 }} />
-                        <View style={{ gap: 8 }}>
-                            <Shimmer width={160} height={24} borderRadius={8} />
-                            <Shimmer width={100} height={16} borderRadius={4} />
-                        </View>
+                {/* UserProfileCard Skeleton */}
+                <View style={styles.profileSection}>
+                    <View style={styles.avatarWrapper}>
+                        <Shimmer width={100} height={100} borderRadius={50} />
                     </View>
 
-                    <View style={{ marginTop: 24, flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Shimmer width={80} height={40} borderRadius={12} />
-                        <Shimmer width={80} height={40} borderRadius={12} />
-                        <Shimmer width={80} height={40} borderRadius={12} />
+                    <View style={styles.infoCenter}>
+                        <Shimmer width={180} height={28} borderRadius={8} style={{ marginBottom: 12 }} />
+                        <Shimmer width={120} height={24} borderRadius={100} />
+                    </View>
+
+                    <View style={styles.xpContainer}>
+                        <Shimmer width={100} height={14} borderRadius={4} style={{ marginBottom: 8 }} />
+                        <Shimmer width="100%" height={6} borderRadius={3} />
                     </View>
                 </View>
 
-                {/* Activity Section */}
-                <View style={{ marginTop: 32, gap: 16 }}>
-                    <Shimmer width={180} height={24} borderRadius={8} />
+                {/* Action Button */}
+                <View style={styles.actionButtonContainer}>
+                    <Shimmer width="100%" height={50} borderRadius={25} />
+                </View>
+
+                {/* ProfileStats Skeleton */}
+                <View style={[styles.statsCard, { backgroundColor: theme.bgSecondary }]}>
                     {[1, 2, 3].map((i) => (
-                        <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-                            <Shimmer width={48} height={48} borderRadius={24} />
-                            <View style={{ gap: 6 }}>
-                                <Shimmer width={200} height={16} borderRadius={4} />
-                                <Shimmer width={100} height={12} borderRadius={4} />
-                            </View>
+                        <View key={i} style={{ alignItems: 'center', gap: 6 }}>
+                            <Shimmer width={40} height={24} borderRadius={6} />
+                            <Shimmer width={60} height={14} borderRadius={4} />
                         </View>
                     ))}
+                </View>
+
+                {/* Recent Activity Section */}
+                <View style={styles.section}>
+                    <Shimmer width={150} height={24} borderRadius={8} style={{ marginBottom: 24 }} />
+
+                    {/* Latest Created */}
+                    <View style={{ marginBottom: 24 }}>
+                        <Shimmer width={120} height={16} borderRadius={6} style={{ marginBottom: 12 }} />
+                        <Shimmer width="100%" height={240} borderRadius={24} />
+                    </View>
+
+                    {/* Latest Played */}
+                    <View style={{ marginBottom: 24 }}>
+                        <Shimmer width={120} height={16} borderRadius={6} style={{ marginBottom: 12 }} />
+                        <Shimmer width="100%" height={240} borderRadius={24} />
+                    </View>
+                </View>
+
+                {/* Friends List Skeleton */}
+                <View style={styles.section}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 }}>
+                        <Shimmer width={120} height={24} borderRadius={8} />
+                        <Shimmer width={60} height={20} borderRadius={6} />
+                    </View>
+                    <View style={{ gap: 12 }}>
+                        {[1, 2, 3].map((i) => (
+                            <Shimmer key={i} width="100%" height={80} borderRadius={20} />
+                        ))}
+                    </View>
                 </View>
             </View>
         </View>
@@ -53,25 +79,35 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    headerImage: {
-        height: 300,
-        width: '100%',
-        marginBottom: -80,
-    },
     content: {
-        paddingHorizontal: 20,
     },
-    profileCard: {
-        borderRadius: 24,
-        padding: 24,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        elevation: 5,
+    profileSection: {
+        alignItems: 'center',
+        marginBottom: 32,
     },
-    avatarRow: {
+    avatarWrapper: {
+        marginBottom: 24,
+    },
+    infoCenter: {
+        alignItems: 'center',
+        marginBottom: 24,
+    },
+    xpContainer: {
+        width: '80%',
+        alignItems: 'center',
+    },
+    actionButtonContainer: {
+        marginBottom: 28,
+    },
+    statsCard: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-evenly',
+        paddingVertical: 20,
+        borderRadius: 16,
+        marginBottom: 32,
+    },
+    section: {
+        marginBottom: 32,
     },
 });

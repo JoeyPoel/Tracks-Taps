@@ -35,6 +35,7 @@ The JSON contains two completely separate arrays for challenges. Do NOT duplicat
 - **Image Verification**: If you add an `imageUrl` anywhere, you MUST verify it is a live, working link. If you cannot guarantee the URL's validity or permanence, you must leave the string entirely empty (`""`). Do not guess or hallucinate image links.
 - **Reviews**: The `reviews` array must be left completely empty (`[]`). Consequently, `_count.reviews` and `reviewCount` must be exactly `0`, and `averageRating` should be `0.0`.
 - **Count Objects**: Ensure `_count.stops` matches the actual stop array length. 
+- **Start Latitude & Longitude**: Ensure Start Latitude & Longitude matches the first stop's latitude & longitude. 
 
 # MASTER JSON TEMPLATE
 ```json
@@ -52,6 +53,8 @@ The JSON contains two completely separate arrays for challenges. Do NOT duplicat
   "status": "PENDING_REVIEW",
   "type": "QUICK_TRIP",
   "genre": "Adventure",
+  "startLat": 0.00000,
+  "startLng": 0.00000,
   "createdAt": "2026-02-20T12:00:00.000Z",
   "author": { "id": 11, "name": "Expert Architect", "avatarUrl": "", "level": 5 },
   "stops": [

@@ -6,8 +6,8 @@ export const achievementController = {
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('userId');
 
-        if (!userId) {
-            return Response.json({ error: 'Missing userId' }, { status: 400 });
+        if (!userId || isNaN(parseInt(userId))) {
+            return Response.json({ error: 'Missing or invalid userId' }, { status: 400 });
         }
 
         try {
@@ -55,8 +55,8 @@ export const achievementController = {
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('userId');
 
-        if (!userId) {
-            return Response.json({ error: 'Missing userId' }, { status: 400 });
+        if (!userId || isNaN(parseInt(userId))) {
+            return Response.json({ error: 'Missing or invalid userId' }, { status: 400 });
         }
 
         try {

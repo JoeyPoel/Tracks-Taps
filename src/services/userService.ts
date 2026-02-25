@@ -21,6 +21,11 @@ export const userService = {
         return response.data;
     },
 
+    async searchUsers(query: string, page: number = 1, limit: number = 20) {
+        const response = await client.get(`/user?query=${query}&page=${page}&limit=${limit}`);
+        return response.data;
+    },
+
     async addXp(userId: number, amount: number) {
         const response = await client.post('/user/xp', { userId, amount });
         return response.data;
@@ -34,6 +39,11 @@ export const userService = {
     async verifyPurchase(userId: number, appUserId: string) {
         // Updated to use the new route we created
         const response = await client.post('/user/verify-purchase', { userId, appUserId });
+        return response.data;
+    },
+
+    async deleteUser(userId: number) {
+        const response = await client.post('/user', { action: 'delete-user', userId });
         return response.data;
     }
 };

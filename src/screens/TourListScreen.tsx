@@ -17,15 +17,18 @@ export default function TourListScreen() {
     const { theme } = useTheme();
     const router = useRouter();
     const { t } = useLanguage();
-    const { type, title } = useLocalSearchParams<{ type: ListType, title: string }>();
+    const { type, title, targetUserId } = useLocalSearchParams<{ type: ListType, title: string, targetUserId?: string }>();
     const { user } = useUserContext();
 
     const [tours, setTours] = useState<any[]>([]);
 
-    // Improved Skeleton Logic: Only show skeleton if we expect data based on user context
+    // If targetUserId is provided, use that, otherwise use logged in user's ID
+    const effectiveUserId = targetUserId ? Number(targetUserId) : user?.id;
+
+    // Improved Skeleton Logic: Only show skeleton if we expect data
     const hasExpectedData = type === 'done'
-        ? (user?.playedTours?.length || 0) > 0
-        : (user?.createdTours?.length || 0) > 0;
+        ? (user?.playedTours?.length || 0) > 0 || !!targetUserId
+        : (user?.createdTours?.length || 0) > 0 || !!targetUserId;
 
     // If we don't expect data, don't start with loading=true that triggers skeleton. 
     // We still fetch to be sure, but visually we start empty.
@@ -33,32 +36,29 @@ export default function TourListScreen() {
 
     useEffect(() => {
         loadTours();
-    }, [type]);
+    }, [type, targetUserId]);
 
     const loadTours = async () => {
+        if (!effectiveUserId) return;
         setLoading(true);
         try {
-            // In a real app, you might fetch specific lists from an API
-            // For now, we'll assume we checking the current user's lists from context or service
-            if (user) {
-                if (type === 'done') {
-                    const response: any = await userService.getUserPlayedTours(user.id);
-                    const data = (response.data && Array.isArray(response.data)) ? response.data : response;
+            if (type === 'done') {
+                const response: any = await userService.getUserPlayedTours(effectiveUserId);
+                const data = (response.data && Array.isArray(response.data)) ? response.data : response;
 
-                    // data from API is UserPlayedTour[] with nested tour
-                    setTours(Array.isArray(data) ? data.map((pt: any) => ({
-                        ...pt.tour,
-                        uniqueKey: pt.id.toString() // UserPlayedTour ID
-                    })) : []);
-                } else if (type === 'created') {
-                    const response: any = await userService.getUserCreatedTours(user.id);
-                    const data = (response.data && Array.isArray(response.data)) ? response.data : response;
+                // data from API is UserPlayedTour[] with nested tour
+                setTours(Array.isArray(data) ? data.map((pt: any) => ({
+                    ...pt.tour,
+                    uniqueKey: pt.id.toString() // UserPlayedTour ID
+                })) : []);
+            } else if (type === 'created') {
+                const response: any = await userService.getUserCreatedTours(effectiveUserId);
+                const data = (response.data && Array.isArray(response.data)) ? response.data : response;
 
-                    setTours(Array.isArray(data) ? data.map((t: any) => ({
-                        ...t,
-                        uniqueKey: t.id.toString()
-                    })) : []);
-                }
+                setTours(Array.isArray(data) ? data.map((t: any) => ({
+                    ...t,
+                    uniqueKey: t.id.toString()
+                })) : []);
             }
         } catch (error) {
             console.error('Error loading tours', error);

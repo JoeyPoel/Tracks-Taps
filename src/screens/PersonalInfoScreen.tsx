@@ -29,7 +29,7 @@ export default function PersonalInfoScreen() {
     const { t } = useLanguage();
     const router = useRouter();
     const { signOut, user: authUser } = useAuth();
-    const { user: dbUser, updateUser } = useUserContext();
+    const { user: dbUser, updateUser, deleteUser } = useUserContext();
 
     const [name, setName] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
@@ -89,6 +89,44 @@ export default function PersonalInfoScreen() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleDeleteAccount = async () => {
+        if (!dbUser) return;
+
+        Alert.alert(
+            t('deleteAccount'),
+            t('deleteAccountWarning'),
+            [
+                { text: t('cancel'), style: 'cancel' },
+                {
+                    text: t('deleteAccountConfirm'),
+                    style: 'destructive',
+                    onPress: async () => {
+                        setLoading(true);
+                        try {
+                            // 1. Delete from our database (this anonymizes tours)
+                            await deleteUser(dbUser.id);
+
+                            // 2. Ideally delete from Supabase Auth as well
+                            // Note: supabase.auth.admin.deleteUser requires service role key which we don't have on frontend
+                            // For now, we just sign out and let the backend handle the DB part.
+                            // The user will no longer have a DB record, but their Supabase Auth might remain unless we have a webhook.
+                            // However, signing out prevents them from accessing the app.
+                            await signOut();
+
+                            Alert.alert(t('success'), t('deleteAccountConfirm'));
+                            router.replace('/auth/login');
+                        } catch (error: any) {
+                            console.error('Delete account error:', error);
+                            Alert.alert(t('error'), error.message || t('updateError'));
+                        } finally {
+                            setLoading(false);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     const renderSectionHeader = (title: string, icon: string) => (
@@ -221,6 +259,14 @@ export default function PersonalInfoScreen() {
                         >
                             <TextComponent style={styles.logoutText} color={theme.danger} bold variant="body">{t('logout')}</TextComponent>
                         </AnimatedPressable>
+
+                        <AnimatedPressable
+                            style={[styles.deleteButton, { marginTop: 8 }]}
+                            onPress={handleDeleteAccount}
+                            disabled={loading}
+                        >
+                            <TextComponent style={styles.deleteText} color={theme.danger + '80'} variant="caption" center bold>{t('deleteAccount')}</TextComponent>
+                        </AnimatedPressable>
                     </View>
 
                 </ScrollView>
@@ -342,4 +388,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
+    deleteButton: {
+        paddingVertical: 8,
+        alignItems: 'center',
+    },
+    deleteText: {
+        textDecorationLine: 'underline',
+    }
 });

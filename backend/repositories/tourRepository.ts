@@ -216,8 +216,10 @@ export const tourRepository = {
                         rating: true,
                         createdAt: true,
                         photos: true,
+                        authorId: true,
                         author: {
                             select: {
+                                id: true,
                                 name: true,
                                 avatarUrl: true
                             }

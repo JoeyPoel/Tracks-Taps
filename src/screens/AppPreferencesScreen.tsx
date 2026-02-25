@@ -105,7 +105,7 @@ export default function AppPreferencesScreen() {
           </View>
         </View>
 
-        {/* Notifications Mockup (Future Proofing) */}
+        {/* Notifications Mockup (Future Proofing) - Hidden for now
         {renderSectionHeader('Notifications', 'notifications-outline')}
         <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
           <View style={[styles.row, { borderBottomColor: theme.borderSecondary, borderBottomWidth: 1 }]}>
@@ -131,6 +131,7 @@ export default function AppPreferencesScreen() {
             />
           </View>
         </View>
+        */}
 
         <TextComponent style={styles.versionText} color={theme.textTertiary} variant="caption" center>
           Version 1.0.0

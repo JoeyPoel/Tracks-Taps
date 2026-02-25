@@ -11,9 +11,10 @@ import { StyleSheet, View } from 'react-native';
 
 interface FriendCardProps {
     friend: any;
+    onPress?: () => void;
 }
 
-export function FriendCard({ friend }: FriendCardProps) {
+export function FriendCard({ friend, onPress }: FriendCardProps) {
     const { theme } = useTheme();
     const router = useRouter();
     const { t } = useLanguage();
@@ -21,7 +22,7 @@ export function FriendCard({ friend }: FriendCardProps) {
     return (
         <GenericCard
             style={styles.container}
-            onPress={() => router.push({ pathname: '/profile/friend-profile', params: { userId: friend.id } })}
+            onPress={onPress || (() => router.push({ pathname: '/profile/friend-profile', params: { userId: friend.id } }))}
             variant="flat"
             padding="small"
         >
@@ -34,22 +35,16 @@ export function FriendCard({ friend }: FriendCardProps) {
                 />
 
                 <View style={styles.content}>
-                    <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">
-                        {friend.name}
-                    </TextComponent>
+                    <View style={styles.nameRow}>
+                        <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">
+                            {friend.name}
+                        </TextComponent>
 
-                    <View style={styles.statsRow}>
                         <View style={[styles.badge, { backgroundColor: theme.bgSecondary }]}>
                             <TextComponent style={styles.badgeText} color={theme.primary} bold variant="caption">
                                 Lvl {friend.level}
                             </TextComponent>
                         </View>
-                        <TextComponent style={styles.xpText} color={theme.textTertiary} variant="caption">
-                            •
-                        </TextComponent>
-                        <TextComponent style={styles.xpText} color={theme.textSecondary} variant="caption">
-                            {friend.xp || 0} {t('xp')}
-                        </TextComponent>
                     </View>
                 </View>
 
@@ -75,16 +70,16 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
-        gap: 4,
+        justifyContent: 'center',
+    },
+    nameRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
     },
     name: {
         fontSize: 16,
         fontWeight: '600',
-    },
-    statsRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
     },
     badge: {
         paddingHorizontal: 6,

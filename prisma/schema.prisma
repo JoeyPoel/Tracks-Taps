@@ -1,14 +1,11 @@
 generator client {
-  provider        = "prisma-client-js"
-  binaryTargets   = ["native", "rhel-openssl-3.0.x"]
-  previewFeatures = ["driverAdapters"]
-  engineType      = "library"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  engineType    = "library"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
 }
 
 enum StopType {
@@ -59,6 +56,7 @@ model User {
   id           Int     @id @default(autoincrement())
   email        String  @unique
   name         String
+  username     String? @unique
   avatarUrl    String?
   level        Int     @default(1)
   xp           Int     @default(0)

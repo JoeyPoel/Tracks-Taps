@@ -14,6 +14,11 @@ export const savedTripsRepository = {
         });
     },
 
+    async checkOwnership(id: number, userId: number) {
+        const list = await prisma.tourList.findUnique({ where: { id }, select: { userId: true } });
+        return list?.userId === userId;
+    },
+
     async findByUserId(userId: number, page: number = 1, limit: number = 10) {
         return paginate(
             prisma.tourList,

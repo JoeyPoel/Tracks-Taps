@@ -4,12 +4,20 @@ import { prisma } from '../../src/lib/prisma';
 import { paginate } from '../utils/pagination';
 
 export const userRepository = {
+    async getUserIdByEmail(email: string) {
+        return await prisma.user.findUnique({
+            where: { email },
+            select: { id: true }
+        });
+    },
+
     async getUserProfile(userId: number) {
         return await prisma.user.findUnique({
             where: { id: userId },
             select: {
                 id: true,
                 name: true,
+                username: true,
                 email: true,
                 avatarUrl: true,
                 xp: true,
@@ -33,6 +41,7 @@ export const userRepository = {
             select: {
                 id: true,
                 name: true,
+                username: true,
                 email: true,
                 avatarUrl: true,
                 xp: true,
@@ -49,16 +58,67 @@ export const userRepository = {
             }
         });
     },
-    async createUser(data: { email: string; name: string }) {
+
+    async getUserByUsername(username: string) {
+        return await prisma.user.findFirst({
+            where: { username: { equals: username, mode: 'insensitive' } },
+            select: {
+                id: true,
+                name: true,
+                username: true,
+                email: true,
+                avatarUrl: true,
+                xp: true,
+                level: true,
+                tokens: true,
+                referralCode: true,
+                createdAt: true,
+                _count: {
+                    select: {
+                        createdTours: true,
+                        playedTours: true
+                    }
+                }
+            }
+        });
+    },
+
+    async searchUsers(query: string, limit: number = 10, page: number = 1) {
+        const skip = (page - 1) * limit;
+        return await prisma.user.findMany({
+            where: {
+                OR: [
+                    { username: { contains: query, mode: 'insensitive' } },
+                    { name: { contains: query, mode: 'insensitive' } }
+                ]
+            },
+            select: {
+                id: true,
+                name: true,
+                username: true,
+                email: true,
+                avatarUrl: true,
+                level: true
+            },
+            skip,
+            take: limit
+        });
+    },
+
+    async createUser(data: { email: string; name: string; username?: string }) {
         if (data.name.length > 25) {
             throw new Error('Name cannot exceed 25 characters');
         }
         // Generate secure 9-digit numeric code
         const referralCode = randomInt(100000000, 1000000000).toString();
+
+        // Use name as initial username if not provided, ensuring it's unique might be tricky
+        // For now, we'll let it be null or provided
         return await prisma.user.create({
             data: {
                 email: data.email,
                 name: data.name,
+                username: data.username || null,
                 xp: 0,
                 tokens: 0,
                 level: 1,
@@ -147,9 +207,12 @@ export const userRepository = {
         });
     },
 
-    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; referralCode?: string }) {
+    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; username?: string; referralCode?: string }) {
         if (data.name && data.name.length > 25) {
             throw new Error('Name cannot exceed 25 characters');
+        }
+        if (data.username && (data.username.length < 3 || data.username.length > 20)) {
+            throw new Error('Username must be between 3 and 20 characters');
         }
         return await prisma.user.update({
             where: { id: userId },
@@ -249,6 +312,99 @@ export const userRepository = {
             });
 
             return purchase;
+        });
+    },
+
+    async deleteUser(userId: number) {
+        // 1. Get or create the "Deleted User" (system account)
+        const DELETED_USER_EMAIL = 'deleted@tracksandtaps.com';
+
+        return await prisma.$transaction(async (tx) => {
+            let ghostUser = await tx.user.findUnique({
+                where: { email: DELETED_USER_EMAIL }
+            });
+
+            if (!ghostUser) {
+                ghostUser = await tx.user.create({
+                    data: {
+                        email: DELETED_USER_EMAIL,
+                        name: 'Deleted User',
+                        username: 'deleted_user_' + Date.now(),
+                        xp: 0,
+                        tokens: 0,
+                        level: 1,
+                        referralCode: 'DELETED' + randomInt(1000, 9999)
+                    }
+                });
+            }
+
+            // 2. Reassign created tours to the ghost user
+            await tx.tour.updateMany({
+                where: { authorId: userId },
+                data: { authorId: ghostUser.id }
+            });
+
+            // 3. Delete related data that shouldn't persist
+            // Friendships
+            await tx.friendship.deleteMany({
+                where: {
+                    OR: [
+                        { requesterId: userId },
+                        { addresseeId: userId }
+                    ]
+                }
+            });
+
+            // Invites
+            await tx.gameInvite.deleteMany({
+                where: {
+                    OR: [
+                        { inviterId: userId },
+                        { inviteeId: userId }
+                    ]
+                }
+            });
+
+            // Reviews (Delete as requested, "everything else should be deleted")
+            await tx.review.deleteMany({
+                where: { authorId: userId }
+            });
+
+            // User Played Tours history
+            await tx.userPlayedTour.deleteMany({
+                where: { userId: userId }
+            });
+
+            // Achievements
+            await tx.userAchievement.deleteMany({
+                where: { userId: userId }
+            });
+
+            // Feedback
+            await tx.feedback.deleteMany({
+                where: { userId: userId }
+            });
+
+            // Active Tours (where user is host)
+            await tx.activeTour.deleteMany({
+                where: { userId: userId }
+            });
+
+            // Teams (where user is participant)
+            await tx.team.deleteMany({
+                where: { userId: userId }
+            });
+
+            // Purchases (Anonymize or delete? "everything else should be deleted")
+            // Reassign to ghost user or delete. Deleting might be cleaner for privacy.
+            await tx.purchase.deleteMany({
+                where: { userId: userId }
+            });
+
+            // 4. Finally delete the user
+            return await tx.user.delete({
+                where: { id: userId }
+            });
         });
     }
 };

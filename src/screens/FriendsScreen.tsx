@@ -1,32 +1,33 @@
 import { EmptyState } from '@/src/components/common/EmptyState';
 import { FadeInItem } from '@/src/components/common/FadeInList';
+import { ScreenHeader } from '@/src/components/common/ScreenHeader';
 import { ScreenWrapper } from '@/src/components/common/ScreenWrapper';
+import { AddFriendModal } from '@/src/components/friends/AddFriendModal';
 import { FriendCard } from '@/src/components/friends/FriendCard';
-import { FriendSearchInput } from '@/src/components/friends/FriendSearchInput';
 import { FriendsTabs } from '@/src/components/friends/FriendsTabs';
 import { RequestCard } from '@/src/components/friends/RequestCard';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useFriends } from '@/src/hooks/useFriends';
+import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
-import { ScreenHeader } from '../components/common/ScreenHeader';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function FriendsScreen() {
     const { theme } = useTheme();
     const router = useRouter();
     const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState<'friends' | 'requests'>('friends');
-    const [searchEmail, setSearchEmail] = useState('');
+    const [addModalVisible, setAddModalVisible] = useState(false);
 
     const {
         friends,
         requests,
-        loading,
+        loadingFriends,
+        loadingRequests,
         loadFriends,
         loadRequests,
-        sendFriendRequest,
         respondToRequest
     } = useFriends();
 
@@ -38,19 +39,13 @@ export default function FriendsScreen() {
         }
     }, [activeTab]);
 
-    const handleRefresh = React.useCallback(() => {
+    const handleRefresh = useCallback(() => {
         if (activeTab === 'friends') {
             loadFriends(true);
         } else {
             loadRequests(true);
         }
     }, [activeTab, loadFriends, loadRequests]);
-
-    const handleSend = async () => {
-        if (await sendFriendRequest(searchEmail)) {
-            setSearchEmail('');
-        }
-    };
 
     const renderItem = ({ item, index }: { item: any, index: number }) => (
         <FadeInItem index={index}>
@@ -72,6 +67,14 @@ export default function FriendsScreen() {
             <ScreenHeader
                 showBackButton
                 title={activeTab === 'friends' ? t('friends') : t('requests')}
+                rightElement={
+                    <TouchableOpacity
+                        onPress={() => setAddModalVisible(true)}
+                        style={[styles.addButton, { backgroundColor: theme.primary }]}
+                    >
+                        <Ionicons name="person-add" size={20} color="#FFF" />
+                    </TouchableOpacity>
+                }
             />
 
             <View style={styles.container}>
@@ -81,14 +84,6 @@ export default function FriendsScreen() {
                         onTabChange={setActiveTab}
                         requestCount={requests.length}
                     />
-
-                    {activeTab === 'friends' && (
-                        <FriendSearchInput
-                            value={searchEmail}
-                            onChangeText={setSearchEmail}
-                            onSend={handleSend}
-                        />
-                    )}
                 </View>
 
                 <FlatList
@@ -99,22 +94,27 @@ export default function FriendsScreen() {
                     showsVerticalScrollIndicator={false}
                     refreshControl={
                         <RefreshControl
-                            refreshing={loading}
+                            refreshing={activeTab === 'friends' ? loadingFriends : loadingRequests}
                             onRefresh={handleRefresh}
                             tintColor={theme.primary}
                         />
                     }
                     ListEmptyComponent={
-                        !loading ? (
+                        (activeTab === 'friends' ? loadingFriends : loadingRequests) ? null : (
                             <EmptyState
                                 icon={activeTab === 'friends' ? "people" : "mail-unread"}
                                 title={activeTab === 'friends' ? t('noFriendsYet') : t('noRequests')}
                                 message={activeTab === 'friends' ? t('searchFriendsText') : t('noRequestsText')}
                             />
-                        ) : null
+                        )
                     }
                 />
             </View>
+
+            <AddFriendModal
+                visible={addModalVisible}
+                onClose={() => setAddModalVisible(false)}
+            />
         </ScreenWrapper>
     );
 }
@@ -126,12 +126,18 @@ const styles = StyleSheet.create({
     headerSection: {
         paddingHorizontal: 20,
         marginBottom: 8,
-        gap: 12,
+    },
+    addButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     listContent: {
         paddingHorizontal: 20,
         paddingBottom: 120,
-        gap: 0, // Cards handle their own spacing/border
+        gap: 0,
     },
     emptyState: {
         alignItems: 'center',
