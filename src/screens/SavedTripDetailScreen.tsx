@@ -4,7 +4,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
@@ -169,7 +168,7 @@ export default function SavedTripDetailScreen() {
             animateEntry={false}
             withBottomTabs={true}
         >
-            <GestureHandlerRootView style={{ flex: 1 }}>
+            <View style={{ flex: 1 }}>
                 <ScreenHeader
                     title={list?.name || 'Loading...'}
                     subtitle={`${localTours.length} ${(localTours.length === 1) ? 'tour' : 'tours'} collected`}
@@ -218,7 +217,7 @@ export default function SavedTripDetailScreen() {
                         ) : null
                     }
                 />
-            </GestureHandlerRootView>
+            </View>
         </ScreenWrapper>
     );
 }

@@ -70,7 +70,8 @@ const FloatingPoints = ({ pointAmount, onAnimationComplete }: { pointAmount: num
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    zIndex: 100,
+    zIndex: 100000,
+    elevation: 100000,
   },
   text: {
     color: '#FFD700',

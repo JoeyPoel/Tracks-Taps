@@ -79,8 +79,11 @@ export const checkBingo = (
     }
 
     // 4. Check Full House
-    // Full house is effectively if all 9 cells are completed
-    isFullHouse = cells.length === 9 && cells.every(c => c.completed);
+    // Full house is achieved if all 9 unique positions (0,0 to 2,2) are completed.
+    const completedPositions = new Set(
+        cells.filter(c => c.completed).map(c => `${c.row}-${c.col}`)
+    );
+    isFullHouse = completedPositions.size === 9;
 
     return {
         newAwardedLines: newLines,

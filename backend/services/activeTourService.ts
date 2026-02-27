@@ -81,9 +81,6 @@ export const activeTourService = {
             await achievementService.checkUniqueStops(userId);
         }
 
-        // Check for Bingo Progress
-        await this.checkBingo(userId, activeTourId);
-
         // Update Team streak and score
         await activeTourRepository.updateStreak(team.id, (team.streak || 0) + 1);
         await activeTourRepository.updateTeamScore(team.id, (team.score || 0) + challenge.points);
@@ -92,6 +89,9 @@ export const activeTourService = {
             completed: true,
             completedAt: new Date(),
         });
+
+        // Check for Bingo Progress
+        await this.checkBingo(userId, activeTourId);
 
         // Return updated progress
         return await activeTourService.getActiveTourProgress(activeTourId, userId);
@@ -265,30 +265,43 @@ export const activeTourService = {
         if (!bingoCard) return; // Not a bingo tour or no card
 
         // 3. Get Completed Challenges for Team
-        const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
-        const teamData = activeTour?.teams.find(t => t.id === team.id);
+        // Fetch fresh data for this specific user's team to ensure accurate progress check
+        const activeTour = await activeTourRepository.findActiveTourById(activeTourId, userId);
+        const teamData = activeTour?.teams?.find(t => t.id === team.id);
         if (!teamData) return;
 
-        const completedChallengeIds = teamData.activeChallenges
-            .filter(ac => ac.completed)
-            .map(ac => ac.challengeId);
+        const completedChallengeIds = new Set(
+            teamData.activeChallenges
+                .filter(ac => ac.completed)
+                .map(ac => ac.challengeId)
+        );
 
-        // 4. Map cells from Challenges directly (since BingoCell model is removed)
+        // 4. Map cells from Challenges directly
+        // We use a map keyed by "row-col" to handle many-to-one or one-to-many mappings cleanly.
+        // A position is considered COMPLETED if ANY challenge assigned to that position is completed.
+        const cellMap = new Map<string, boolean>();
+
         const allChallenges = [
             ...(activeTour?.tour.challenges || []),
             ...(activeTour?.tour.stops?.flatMap(s => s.challenges) || [])
         ];
 
-        const cells = allChallenges
-            .filter((c: any) => typeof c.bingoRow === 'number' && typeof c.bingoCol === 'number')
-            .map((c: any) => ({
-                row: c.bingoRow,
-                col: c.bingoCol,
-                completed: completedChallengeIds.includes(c.id)
-            }));
+        allChallenges.forEach((c: any) => {
+            if (typeof c.bingoRow === 'number' && typeof c.bingoCol === 'number') {
+                const key = `${c.bingoRow}-${c.bingoCol}`;
+                const isCompleted = completedChallengeIds.has(c.id);
+                // Merge completion state: if it was already true, it stays true.
+                cellMap.set(key, cellMap.get(key) || isCompleted);
+            }
+        });
+
+        const cells = Array.from(cellMap.entries()).map(([key, completed]) => {
+            const [row, col] = key.split('-').map(Number);
+            return { row, col, completed };
+        });
 
         // 5. Check Logic
-        const { newAwardedLines, isFullHouse } = checkBingo(cells, bingoCard.awardedLines);
+        const { newAwardedLines, isFullHouse } = checkBingo(cells, bingoCard.awardedLines || []);
 
         if (newAwardedLines.length === 0 && (!isFullHouse || bingoCard.fullHouseAwarded)) {
             return; // No change
@@ -307,7 +320,7 @@ export const activeTourService = {
             // Update Card
             await activeTourRepository.updateBingoCard(
                 bingoCard.id,
-                [...bingoCard.awardedLines, ...newAwardedLines],
+                [...(bingoCard.awardedLines || []), ...newAwardedLines],
                 isFullHouse || bingoCard.fullHouseAwarded
             );
 

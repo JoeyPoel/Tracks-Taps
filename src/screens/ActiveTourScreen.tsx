@@ -315,17 +315,17 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                 />
             </ScrollView>
 
+            {showConfetti && <Confetti />}
+
+            {/* Render Modal Overlay */}
+            {activeBingoChallengeItem}
+
             {showFloatingPoints && (
                 <FloatingPoints
                     pointAmount={floatingPointsAmount}
                     onAnimationComplete={() => setShowFloatingPoints(false)}
                 />
             )}
-
-            {showConfetti && <Confetti />}
-
-            {/* Render Modal Overlay */}
-            {activeBingoChallengeItem}
         </View>
     );
 }

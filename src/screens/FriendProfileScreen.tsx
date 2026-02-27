@@ -118,12 +118,6 @@ export default function FriendProfileScreen() {
                     </ImageBackground>
                 </View>
 
-                <View style={[styles.backButtonContainer, { top: insets.top + 10 }]} pointerEvents="box-none">
-                    <AnimatedPressable onPress={goBack} style={styles.backButton}>
-                        <Ionicons name="arrow-back" size={24} color="#FFF" />
-                    </AnimatedPressable>
-                </View>
-
                 <ScrollView
                     contentContainerStyle={styles.scrollContent}
                     showsVerticalScrollIndicator={false}
@@ -131,6 +125,12 @@ export default function FriendProfileScreen() {
                 >
                     <ProfileSkeleton />
                 </ScrollView>
+
+                <View style={[styles.backButtonContainer, { top: insets.top + 10 }]} pointerEvents="box-none">
+                    <AnimatedPressable onPress={goBack} style={styles.backButton}>
+                        <Ionicons name="arrow-back" size={24} color="#FFF" />
+                    </AnimatedPressable>
+                </View>
             </ScreenWrapper>
         );
     }
@@ -162,12 +162,6 @@ export default function FriendProfileScreen() {
                         locations={[0, 1]}
                     />
                 </ImageBackground>
-            </View>
-
-            <View style={[styles.backButtonContainer, { top: insets.top + 10 }]} pointerEvents="box-none">
-                <AnimatedPressable onPress={goBack} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="#FFF" />
-                </AnimatedPressable>
             </View>
 
             <ScrollView
@@ -298,6 +292,12 @@ export default function FriendProfileScreen() {
                     />
                 </View>
             </ScrollView>
+
+            <View style={[styles.backButtonContainer, { top: insets.top + 10 }]} pointerEvents="box-none">
+                <AnimatedPressable onPress={goBack} style={styles.backButton}>
+                    <Ionicons name="arrow-back" size={24} color="#FFF" />
+                </AnimatedPressable>
+            </View>
         </ScreenWrapper>
     );
 }
