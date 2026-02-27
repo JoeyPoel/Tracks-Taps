@@ -1,4 +1,5 @@
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { strings as allStrings } from './strings';
 
 type Language = 'en' | 'es' | 'nl'; // Supported languages
@@ -9,14 +10,44 @@ interface LanguageContextType {
   t: (key: keyof typeof allStrings['en']) => string;
 }
 
+const LANGUAGE_STORAGE_KEY = '@app_language';
+
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>('en');
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadLanguage = async () => {
+      try {
+        const storedLang = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
+        if (storedLang === 'en' || storedLang === 'es' || storedLang === 'nl') {
+          setLanguageState(storedLang as Language);
+        }
+      } catch (e) {
+        console.error('Failed to load language', e);
+      } finally {
+        setIsLoaded(true);
+      }
+    };
+    loadLanguage();
+  }, []);
+
+  const setLanguage = async (lang: Language) => {
+    setLanguageState(lang);
+    try {
+      await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+    } catch (e) {
+      console.error('Failed to save language', e);
+    }
+  };
 
   const t = (key: keyof typeof allStrings['en']) => {
     return (allStrings[language] as any)[key] || key;
   };
+
+  if (!isLoaded) return null;
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>

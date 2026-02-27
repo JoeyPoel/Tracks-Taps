@@ -13,6 +13,9 @@ import { ActiveTour, SessionStatus, Tour, TourDetail, User } from '../types/mode
 import { LevelSystem } from '../utils/levelUtils';
 
 interface StoreState {
+    _hasHydrated: boolean;
+    setHasHydrated: (state: boolean) => void;
+
     // Tours Slice
     tours: Tour[];
     tourFilters: TourFilters;
@@ -75,6 +78,9 @@ interface StoreState {
 export const useStore = create<StoreState>()(
     persist(
         (set, get) => ({
+            _hasHydrated: false,
+            setHasHydrated: (state: boolean) => set({ _hasHydrated: state }),
+
             // --- UI/Global Slice ---
             isTabBarVisible: true,
             setTabBarVisible: (visible: boolean) => set({ isTabBarVisible: visible }),
@@ -484,11 +490,18 @@ export const useStore = create<StoreState>()(
         {
             name: 'tracks-taps-storage',
             storage: createJSONStorage(() => AsyncStorage),
+            onRehydrateStorage: () => (state) => {
+                state?.setHasHydrated(true);
+            },
             partialize: (state) => ({
                 activeTour: state.activeTour,
                 activeTours: state.activeTours,
                 user: state.user,
-                tourDetails: state.tourDetails
+                tourDetails: state.tourDetails,
+                achievements: state.achievements,
+                friends: state.friends,
+                requests: state.requests,
+                tourFilters: state.tourFilters
             }),
         }
     )
