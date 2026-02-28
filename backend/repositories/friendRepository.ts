@@ -106,4 +106,15 @@ export const friendRepository = {
             where: { id }
         });
     },
+
+    async getFriendCount(userId: number) {
+        return await prisma.friendship.count({
+            where: {
+                OR: [
+                    { requesterId: userId, status: 'ACCEPTED' },
+                    { addresseeId: userId, status: 'ACCEPTED' },
+                ],
+            },
+        });
+    },
 };

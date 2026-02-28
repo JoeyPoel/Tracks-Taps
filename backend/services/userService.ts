@@ -1,7 +1,7 @@
 import { randomInt } from 'crypto';
 import { LevelSystem } from '../../src/utils/levelUtils';
+import { friendRepository } from '../repositories/friendRepository';
 import { userRepository } from '../repositories/userRepository';
-import { friendService } from './friendService';
 
 export const userService = {
     async getUserIdByEmail(email: string) {
@@ -20,8 +20,7 @@ export const userService = {
             }
 
             // Get friend count
-            const friendsResult = await friendService.getFriends('', 1, 1, user.id);
-            const friendCount = friendsResult.meta.total;
+            const friendCount = await friendRepository.getFriendCount(user.id);
 
             const { _count, ...rest } = user as any;
             return {
@@ -48,8 +47,7 @@ export const userService = {
             }
 
             // Get friend count
-            const friendsResult = await friendService.getFriends('', 1, 1, user.id);
-            const friendCount = friendsResult.meta.total;
+            const friendCount = await friendRepository.getFriendCount(user.id);
 
             const { _count, ...rest } = user as any;
             return {
@@ -69,8 +67,7 @@ export const userService = {
         const user = await userRepository.getUserByUsername(username);
         if (user) {
             // Get friend count
-            const friendsResult = await friendService.getFriends('', 1, 1, user.id);
-            const friendCount = friendsResult.meta.total;
+            const friendCount = await friendRepository.getFriendCount(user.id);
 
             const { _count, ...rest } = user as any;
             return {

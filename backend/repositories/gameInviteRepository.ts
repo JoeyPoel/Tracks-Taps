@@ -15,7 +15,9 @@ export const gameInviteRepository = {
             include: {
                 activeTour: {
                     include: {
-                        tour: true
+                        tour: {
+                            select: { title: true }
+                        }
                     }
                 },
                 inviter: {
