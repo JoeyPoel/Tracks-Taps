@@ -20,8 +20,7 @@ import {
     View
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RegisterScreen() {
     const router = useRouter();
@@ -114,7 +113,7 @@ export default function RegisterScreen() {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardView}
@@ -264,7 +263,7 @@ export default function RegisterScreen() {
                     </Animated.View>
                 </ScrollView>
             </KeyboardAvoidingView>
-        </View>
+        </SafeAreaView>
     );
 }
 
