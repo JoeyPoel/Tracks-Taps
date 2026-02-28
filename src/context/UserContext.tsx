@@ -20,7 +20,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const user = useStore((state) => state.user);
     const loading = useStore((state) => state.loadingUser);
     const error = useStore((state) => state.errorUser);
-    const fetchUserByEmail = useStore((state) => state.fetchUserByEmail);
+    const fetchUserByAuth = useStore((state) => (state as any).fetchUserByAuth);
     const addXp = useStore((state) => state.addXp);
     const clearUser = useStore((state) => state.clearUser);
     const updateUser = useStore((state) => state.updateUser);
@@ -28,18 +28,19 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
     const { session } = useAuth();
     const email = session?.user?.email;
+    const authId = session?.user?.id;
 
     useEffect(() => {
-        if (email) {
-            fetchUserByEmail(email);
+        if (authId) {
+            fetchUserByAuth(authId, email);
         } else {
             clearUser();
         }
-    }, [email]);
+    }, [authId, email]);
 
     // Handle inconsistent state: Session exists but backend User fetch failed
     useEffect(() => {
-        if (email && error && !user && !loading) {
+        if (authId && error && !user && !loading) {
             console.warn("User fetch failed with active session. Signing out to force re-login.");
 
             const performSignOut = async () => {
@@ -47,13 +48,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             };
             performSignOut();
         }
-    }, [email, error, user, loading]);
+    }, [authId, error, user, loading]);
 
     const refreshUser = useCallback(async () => {
-        if (email) {
-            await fetchUserByEmail(email);
+        if (authId) {
+            await fetchUserByAuth(authId, email);
         }
-    }, [email, fetchUserByEmail]);
+    }, [authId, email, fetchUserByAuth]);
 
     const updateUserXp = useCallback(async (amount: number) => {
         addXp(amount);

@@ -30,7 +30,7 @@ export default function RegisterScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [loadingType, setLoadingType] = useState<'register' | 'google' | null>(null);
+    const [loadingType, setLoadingType] = useState<'register' | 'google' | 'apple' | null>(null);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
@@ -98,6 +98,15 @@ export default function RegisterScreen() {
     const handleGoogleLogin = async () => {
         setLoadingType('google');
         const data = await AuthService.signInWithGoogle();
+        setLoadingType(null);
+        if (data?.session) {
+            // Logged in
+        }
+    };
+
+    const handleAppleLogin = async () => {
+        setLoadingType('apple');
+        const data = await AuthService.signInWithApple();
         setLoadingType(null);
         if (data?.session) {
             // Logged in
@@ -225,6 +234,15 @@ export default function RegisterScreen() {
                             icon="google"
                             loading={loadingType === 'google'}
                         />
+
+                        {Platform.OS === 'ios' && (
+                            <SocialButton
+                                text={t('appleSignIn' as any) || "Sign in with Apple"}
+                                onPress={handleAppleLogin}
+                                icon="apple"
+                                loading={loadingType === 'apple'}
+                            />
+                        )}
 
                         <View style={styles.footer}>
                             <Text style={[styles.footerText, { color: theme.textSecondary }]}>{t('haveAccount')} </Text>

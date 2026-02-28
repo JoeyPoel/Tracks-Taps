@@ -29,7 +29,7 @@ export default function LoginScreen() {
     const { t } = useLanguage();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loadingType, setLoadingType] = useState<'email' | 'google' | null>(null);
+    const [loadingType, setLoadingType] = useState<'email' | 'google' | 'apple' | null>(null);
     const [showPassword, setShowPassword] = useState(false);
 
     React.useEffect(() => {
@@ -56,6 +56,15 @@ export default function LoginScreen() {
     const handleGoogleLogin = async () => {
         setLoadingType('google');
         const data = await AuthService.signInWithGoogle();
+        setLoadingType(null);
+        if (data?.session) {
+            // Logged in
+        }
+    };
+
+    const handleAppleLogin = async () => {
+        setLoadingType('apple');
+        const data = await AuthService.signInWithApple();
         setLoadingType(null);
         if (data?.session) {
             // Logged in
@@ -154,6 +163,15 @@ export default function LoginScreen() {
                             icon="google"
                             loading={loadingType === 'google'}
                         />
+
+                        {Platform.OS === 'ios' && (
+                            <SocialButton
+                                text={t('appleSignIn' as any) || "Sign in with Apple"}
+                                onPress={handleAppleLogin}
+                                icon="apple"
+                                loading={loadingType === 'apple'}
+                            />
+                        )}
 
                         <View style={styles.footer}>
                             <Text style={[styles.footerText, { color: theme.textSecondary }]}>{t('noAccount')} </Text>

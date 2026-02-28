@@ -54,7 +54,8 @@ enum SessionStatus {
 
 model User {
   id           Int     @id @default(autoincrement())
-  email        String  @unique
+  authId       String? @unique // Supabase Auth UUID
+  email        String? @unique
   name         String
   username     String? @unique
   avatarUrl    String?

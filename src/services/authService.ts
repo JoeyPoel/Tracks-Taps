@@ -1,4 +1,6 @@
 import { supabase } from '@/utils/supabase';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import * as Crypto from 'expo-crypto';
 import { Alert } from 'react-native';
 
 // Lazy load GoogleSignin to avoid crash in Expo Go or dev clients without native module
@@ -81,6 +83,63 @@ export const AuthService = {
             } else {
                 console.error("Google Sign-In logic error:", error);
                 Alert.alert("Google Sign-In Error", error.message || "An unknown error occurred during Google Sign-In.");
+            }
+            return null;
+        }
+    },
+
+    signInWithApple: async () => {
+        try {
+            const nonce = Crypto.randomUUID();
+            const appleAuthRequestResponse = await AppleAuthentication.signInAsync({
+                requestedScopes: [
+                    AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+                    AppleAuthentication.AppleAuthenticationScope.EMAIL,
+                ],
+                nonce,
+            });
+
+            if (appleAuthRequestResponse.identityToken) {
+                const { data, error } = await supabase.auth.signInWithIdToken({
+                    provider: 'apple',
+                    token: appleAuthRequestResponse.identityToken,
+                    nonce,
+                });
+
+                if (error) {
+                    console.error('Error signing in with Apple:', error);
+                    throw error;
+                }
+
+                if (data) {
+                    // Update user metadata with name if available (first login only)
+                    if (appleAuthRequestResponse.fullName) {
+                        const nameParts = [];
+                        if (appleAuthRequestResponse.fullName.givenName) nameParts.push(appleAuthRequestResponse.fullName.givenName);
+                        if (appleAuthRequestResponse.fullName.middleName) nameParts.push(appleAuthRequestResponse.fullName.middleName);
+                        if (appleAuthRequestResponse.fullName.familyName) nameParts.push(appleAuthRequestResponse.fullName.familyName);
+
+                        const fullName = nameParts.join(' ');
+
+                        await supabase.auth.updateUser({
+                            data: {
+                                full_name: fullName,
+                                given_name: appleAuthRequestResponse.fullName.givenName,
+                                family_name: appleAuthRequestResponse.fullName.familyName,
+                            }
+                        });
+                    }
+                    return data;
+                }
+            } else {
+                throw new Error('No identityToken received from Apple.');
+            }
+        } catch (e: any) {
+            if (e.code === 'ERR_REQUEST_CANCELED') {
+                console.log('Apple Sign-In cancelled by user');
+            } else {
+                console.error('Apple Sign-In error:', e);
+                Alert.alert('Apple Sign-In Error', e.message || 'An unknown error occurred during Apple Sign-In.');
             }
             return null;
         }

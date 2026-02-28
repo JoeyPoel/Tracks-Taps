@@ -8,6 +8,7 @@ export const userController = {
         const email = searchParams.get('email');
         const username = searchParams.get('username');
         const userId = searchParams.get('userId');
+        const authId = searchParams.get('authId');
         const query = searchParams.get('query');
         const type = searchParams.get('type');
         const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
@@ -57,17 +58,32 @@ export const userController = {
                 user = await userService.getUserProfile(parsedUserId);
             } else if (username) {
                 user = await userService.getUserByUsername(username);
+            } else if (authId) {
+                user = await userService.getUserByAuthId(authId);
+
+                // If user doesn't exist by authId but we have an email, fallback to email lookup (legacy linkage)
+                if (!user && email) {
+                    user = await userService.getUserByEmail(email);
+                    if (user && !user.authId) {
+                        // Link existing user to this authId
+                        user = await userService.updateUserAuthId(user.id, authId);
+                    }
+                }
+
+                // Auto-create user if they don't exist in our DB but authenticated successfully
+                if (!user) {
+                    // We might not have an email (Apple Sign-in), fallback to authId proxy
+                    const creationEmail = email || `${authId}@apple-hidden.tracksandtaps.com`;
+                    user = await userService.createUserByAuthId(authId, creationEmail);
+                }
             } else if (email) {
                 user = await userService.getUserByEmail(email);
 
-                // If user doesn't exist in our DB but is authenticated (we assume this based on the flow),
-                // create or return a default user structure so the app doesn't crash.
-                // In a real app, you would sync this with Supabase webhooks or explicit creation.
                 if (!user) {
                     user = await userService.createUserByEmail(email);
                 }
             } else {
-                return Response.json({ error: 'Missing userId or email' }, { status: 400 });
+                return Response.json({ error: 'Missing userId, authId, or email' }, { status: 400 });
             }
 
             if (!user) {
@@ -204,21 +220,28 @@ export const userController = {
     async createUser(request: Request, parsedBody?: any) {
         try {
             const body = parsedBody || await request.json();
-            const { email } = body;
+            const { email, authId } = body;
 
-            if (!email) {
-                return Response.json({ error: 'Missing email' }, { status: 400 });
+            if (!email && !authId) {
+                return Response.json({ error: 'Missing email or authId' }, { status: 400 });
             }
 
-            if (email.length > 254) return Response.json({ error: 'Email exceeds 254 characters' }, { status: 400 });
+            if (email && email.length > 254) return Response.json({ error: 'Email exceeds 254 characters' }, { status: 400 });
 
-            // Check if exists first to avoid duplicate errors
-            const existing = await userService.getUserByEmail(email);
+            // Check if exists first
+            let existing = null;
+            if (authId) {
+                existing = await userService.getUserByAuthId(authId);
+            }
+            if (!existing && email) {
+                existing = await userService.getUserByEmail(email);
+            }
             if (existing) {
                 return Response.json(existing);
             }
 
-            const newUser = await userService.createUserByEmail(email);
+            // Create using authId safely
+            const newUser = await userService.createUserByAuthId(authId || '', email || `${authId}@apple-hidden.tracksandtaps.com`);
             return Response.json(newUser);
         } catch (error) {
             console.error('Error creating user:', error);

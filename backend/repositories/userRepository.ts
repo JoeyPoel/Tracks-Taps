@@ -43,6 +43,32 @@ export const userRepository = {
                 name: true,
                 username: true,
                 email: true,
+                authId: true,
+                avatarUrl: true,
+                xp: true,
+                level: true,
+                tokens: true,
+                referralCode: true,
+                createdAt: true,
+                _count: {
+                    select: {
+                        createdTours: true,
+                        playedTours: true
+                    }
+                }
+            }
+        });
+    },
+
+    async getUserByAuthId(authId: string) {
+        return await prisma.user.findUnique({
+            where: { authId },
+            select: {
+                id: true,
+                name: true,
+                username: true,
+                email: true,
+                authId: true,
                 avatarUrl: true,
                 xp: true,
                 level: true,
@@ -105,7 +131,7 @@ export const userRepository = {
         });
     },
 
-    async createUser(data: { email: string; name: string; username?: string }) {
+    async createUser(data: { email: string; name: string; username?: string; authId?: string }) {
         if (data.name.length > 25) {
             throw new Error('Name cannot exceed 25 characters');
         }
@@ -117,6 +143,7 @@ export const userRepository = {
         return await prisma.user.create({
             data: {
                 email: data.email,
+                authId: data.authId,
                 name: data.name,
                 username: data.username || null,
                 xp: 0,
@@ -207,7 +234,7 @@ export const userRepository = {
         });
     },
 
-    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; username?: string; referralCode?: string }) {
+    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; username?: string; referralCode?: string; authId?: string }) {
         if (data.name && data.name.length > 25) {
             throw new Error('Name cannot exceed 25 characters');
         }

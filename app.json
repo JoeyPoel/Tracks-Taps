@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tracks&Taps",
     "slug": "tracks-and-taps",
-    "version": "2.2.5",
+    "version": "2.2.6",
     "orientation": "portrait",
     "icon": "./assets/images/App Icon Coloured.png",
     "scheme": "tracks-taps",
@@ -22,7 +22,8 @@
         "NSCameraUsageDescription": "Tracks Taps needs access to your camera to take photos for challenges and tour images.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "usesAppleSignIn": true
     },
     "android": {
       "adaptiveIcon": {
@@ -55,7 +56,8 @@
         {
           "iosUrlScheme": "com.googleusercontent.apps.200375813162-21etd79sc2q5276t3aer5c5f7kfg1aqb"
         }
-      ]
+      ],
+      "expo-apple-authentication"
     ],
     "experiments": {
       "typedRoutes": true,

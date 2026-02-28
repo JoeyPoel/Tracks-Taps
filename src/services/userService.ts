@@ -21,6 +21,13 @@ export const userService = {
         return response.data;
     },
 
+    async getUserByAuthId(authId: string, email?: string) {
+        // If email is provided, pass it so the backend can create the user using authId + email. If not, just authId.
+        const url = email ? `/user?authId=${authId}&email=${encodeURIComponent(email)}` : `/user?authId=${authId}`;
+        const response = await client.get(url);
+        return response.data;
+    },
+
     async searchUsers(query: string, page: number = 1, limit: number = 20) {
         const response = await client.get(`/user?query=${query}&page=${page}&limit=${limit}`);
         return response.data;
