@@ -1,4 +1,5 @@
 
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { useEffect, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import Purchases, { CustomerInfo, LOG_LEVEL, PurchasesPackage } from 'react-native-purchases';
@@ -16,21 +17,31 @@ const API_KEYS = {
 
 const ENTITLEMENT_ID = 'Tracks & Taps Pro'; // Matches user request
 
+const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
 export const usePurchases = () => {
     const [packages, setPackages] = useState<PurchasesPackage[]>([]);
     const [isPurchasing, setIsPurchasing] = useState(false);
     const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
     const [isPro, setIsPro] = useState(false);
+    const [isConfigured, setIsConfigured] = useState(false);
     const { user, fetchUser } = useStore();
 
     useEffect(() => {
         const initPurchases = async () => {
+            if (isExpoGo || Platform.OS === 'web') {
+                console.warn("Skipping RevenueCat configuration: Not supported in Expo Go or Web. Please create a development build to test in-app purchases.");
+                return;
+            }
+
             try {
                 if (Platform.OS === 'android') {
                     if (API_KEYS.google) await Purchases.configure({ apiKey: API_KEYS.google });
                 } else {
                     if (API_KEYS.apple) await Purchases.configure({ apiKey: API_KEYS.apple });
                 }
+
+                setIsConfigured(true);
 
                 // Enable debug logs
                 await Purchases.setLogLevel(LOG_LEVEL.DEBUG);
@@ -73,6 +84,16 @@ export const usePurchases = () => {
     };
 
     const purchasePackage = async (pack: PurchasesPackage) => {
+        if (isExpoGo) {
+            Alert.alert("Development Build Required", "In-app purchases are not available in Expo Go. You must create a development build to test this feature.");
+            return false;
+        }
+
+        if (!isConfigured) {
+            Alert.alert("Store Unavailable", "RevenueCat is not configured correctly.");
+            return false;
+        }
+
         if (!user) {
             Alert.alert("Error", "You must be logged in to purchase.");
             return false;
@@ -115,6 +136,16 @@ export const usePurchases = () => {
     };
 
     const restorePurchases = async () => {
+        if (isExpoGo) {
+            Alert.alert("Development Build Required", "In-app purchases are not available in Expo Go. You must create a development build to test this feature.");
+            return;
+        }
+
+        if (!isConfigured) {
+            Alert.alert("Store Unavailable", "RevenueCat is not configured correctly.");
+            return;
+        }
+
         try {
             const info = await Purchases.restorePurchases();
             setCustomerInfo(info);
