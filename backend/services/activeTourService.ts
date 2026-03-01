@@ -72,23 +72,27 @@ export const activeTourService = {
         const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
         if (!team) throw new Error("Team not found for this tour");
 
-        await userRepository.addXp(userId, challenge.points);
-        await achievementService.checkLevel(userId);
-
         // Check for Stop Visit achievements (Explorer)
         // Only if challenge is linked to a stop (which it normally is)
         if (challenge.stopId) {
             await achievementService.checkUniqueStops(userId);
         }
 
-        // Update Team streak and score
-        await activeTourRepository.updateStreak(team.id, (team.streak || 0) + 1);
-        await activeTourRepository.updateTeamScore(team.id, (team.score || 0) + challenge.points);
+        // Run independent updates in parallel: XP, Streak, Score, ActiveChallengeupsert
+        // We still need to await achievement check separately since it might depend on the XP result, 
+        // though technically they could overlap if carefully managed. For safety, keep achievements separate.
+        const updateQueries = [
+            userRepository.addXp(userId, challenge.points),
+            activeTourRepository.updateStreak(team.id, (team.streak || 0) + 1),
+            activeTourRepository.updateTeamScore(team.id, (team.score || 0) + challenge.points),
+            activeTourRepository.upsertActiveChallenge(team.id, challengeId, {
+                completed: true,
+                completedAt: new Date(),
+            })
+        ];
 
-        const updateResult = await activeTourRepository.upsertActiveChallenge(team.id, challengeId, {
-            completed: true,
-            completedAt: new Date(),
-        });
+        await Promise.all(updateQueries);
+        await achievementService.checkLevel(userId);
 
         // Check for Bingo Progress
         await this.checkBingo(userId, activeTourId);
@@ -264,50 +268,17 @@ export const activeTourService = {
         const bingoCard = await activeTourRepository.getBingoCard(team.id);
         if (!bingoCard) return; // Not a bingo tour or no card
 
-        // 3. Get Completed Challenges for Team
-        // Fetch fresh data for this specific user's team to ensure accurate progress check
-        const activeTour = await activeTourRepository.findActiveTourById(activeTourId, userId);
-        const teamData = activeTour?.teams?.find(t => t.id === team.id);
-        if (!teamData) return;
+        // 3. Get Completed Bingo Cells directly (Optimized query)
+        const cells = await activeTourRepository.getCompletedBingoCells(team.id);
 
-        const completedChallengeIds = new Set(
-            teamData.activeChallenges
-                .filter(ac => ac.completed)
-                .map(ac => ac.challengeId)
-        );
-
-        // 4. Map cells from Challenges directly
-        // We use a map keyed by "row-col" to handle many-to-one or one-to-many mappings cleanly.
-        // A position is considered COMPLETED if ANY challenge assigned to that position is completed.
-        const cellMap = new Map<string, boolean>();
-
-        const allChallenges = [
-            ...(activeTour?.tour.challenges || []),
-            ...(activeTour?.tour.stops?.flatMap(s => s.challenges) || [])
-        ];
-
-        allChallenges.forEach((c: any) => {
-            if (typeof c.bingoRow === 'number' && typeof c.bingoCol === 'number') {
-                const key = `${c.bingoRow}-${c.bingoCol}`;
-                const isCompleted = completedChallengeIds.has(c.id);
-                // Merge completion state: if it was already true, it stays true.
-                cellMap.set(key, cellMap.get(key) || isCompleted);
-            }
-        });
-
-        const cells = Array.from(cellMap.entries()).map(([key, completed]) => {
-            const [row, col] = key.split('-').map(Number);
-            return { row, col, completed };
-        });
-
-        // 5. Check Logic
+        // 4. Check Logic
         const { newAwardedLines, isFullHouse } = checkBingo(cells, bingoCard.awardedLines || []);
 
         if (newAwardedLines.length === 0 && (!isFullHouse || bingoCard.fullHouseAwarded)) {
             return; // No change
         }
 
-        // 6. Calculate Points
+        // 5. Calculate Points
         // Standardized points: 100 per line, 250 for full house
         let pointsToAdd = 0;
         pointsToAdd += newAwardedLines.length * 100;
@@ -317,16 +288,21 @@ export const activeTourService = {
         }
 
         if (pointsToAdd > 0) {
-            // Update Card
-            await activeTourRepository.updateBingoCard(
-                bingoCard.id,
-                [...(bingoCard.awardedLines || []), ...newAwardedLines],
-                isFullHouse || bingoCard.fullHouseAwarded
-            );
+            // Check if we can batch these queries
+            const queries = [
+                // Update Card
+                activeTourRepository.updateBingoCard(
+                    bingoCard.id,
+                    [...(bingoCard.awardedLines || []), ...newAwardedLines],
+                    isFullHouse || bingoCard.fullHouseAwarded
+                ),
+                // Award Points (Team Score)
+                activeTourRepository.updateTeamScore(team.id, (team.score || 0) + pointsToAdd),
+                // Award Points (User XP)
+                userRepository.addXp(userId, pointsToAdd)
+            ];
 
-            // Award Points (Team Score + User XP)
-            await activeTourRepository.updateTeamScore(team.id, (team.score || 0) + pointsToAdd);
-            await userRepository.addXp(userId, pointsToAdd);
+            await Promise.all(queries);
             await achievementService.checkLevel(userId);
         }
     }

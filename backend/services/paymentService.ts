@@ -20,7 +20,7 @@ export const paymentService = {
                 `https://api.revenuecat.com/v1/subscribers/${appUserId}`,
                 {
                     headers: {
-                        'Authorization': `Bearer ${REVENUECAT_SECRET}`,
+                        'Authorization': `${REVENUECAT_SECRET}`,
                         'Content-Type': 'application/json',
                     }
                 }
@@ -30,7 +30,7 @@ export const paymentService = {
 
             // 2. Look for non-subscription transactions (Consumables)
             // RevenueCat returns `non_subscriptions` as a map of productId -> array of transactions
-            const nonSubscriptions = subscriber.non_subscriptions;
+            const nonSubscriptions = subscriber.non_subscriptions || {};
 
             let totalNewTokens = 0;
             const newTransactions: { txId: string; amount: number }[] = [];

@@ -516,6 +516,35 @@ export const activeTourRepository = {
         return await prisma.bingoCard.deleteMany({
             where: { teamId }
         });
+    },
+
+    async getCompletedBingoCells(teamId: number) {
+        // Fetch only completed challenges for this team that have bingoRow and bingoCol
+        const activeChallenges = await prisma.activeChallenge.findMany({
+            where: {
+                teamId,
+                completed: true,
+                challenge: {
+                    bingoRow: { not: null },
+                    bingoCol: { not: null }
+                }
+            },
+            select: {
+                challenge: {
+                    select: {
+                        bingoRow: true,
+                        bingoCol: true
+                    }
+                }
+            }
+        });
+
+        // Map them cleanly to { row, col, completed: true }
+        return activeChallenges.map(ac => ({
+            row: ac.challenge.bingoRow as number,
+            col: ac.challenge.bingoCol as number,
+            completed: true
+        }));
     }
 };
 

@@ -60,8 +60,8 @@ export const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
         {
             paddingTop: includeTop ? insets.top : 0,
             paddingBottom: bottomPadding,
-            paddingLeft: insets.left,
-            paddingRight: insets.right,
+            paddingLeft: insets.left + 20, // Added 20px horizontal padding to fix missing side padding
+            paddingRight: insets.right + 20,
             backgroundColor: theme.bgPrimary
         },
         style
