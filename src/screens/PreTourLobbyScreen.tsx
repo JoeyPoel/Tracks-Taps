@@ -56,7 +56,7 @@ export default function PreTourLobbyScreen() {
 
             <LobbyHeader onInvitePress={() => setShowInviteModal(true)} />
 
-            <ScrollView contentContainerStyle={{ paddingVertical: 20 }} showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={{ padding: 20 }} showsVerticalScrollIndicator={false}>
 
                 <LobbyTourInfo activeTour={activeTour} />
 
