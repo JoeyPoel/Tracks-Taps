@@ -1,3 +1,4 @@
+import NetInfo from '@react-native-community/netinfo';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import { activeTourService } from '../services/activeTourService';
@@ -51,7 +52,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         }
     }, [activeTour, activeTourId]);
 
-    // 3. Auto-Sync on App Resume
+    // 3. Auto-Sync on App Resume and Network Reconnect
     useEffect(() => {
         const handleAppStateChange = (nextAppState: AppStateStatus) => {
             if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
@@ -63,11 +64,20 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
 
         const subscription = AppState.addEventListener('change', handleAppStateChange);
 
+        // Network State Listener
+        const unsubscribeNetInfo = NetInfo.addEventListener(state => {
+            if (state.isConnected && state.isInternetReachable !== false) {
+                console.log('[Offline] Network connection restored, triggering sync...');
+                syncService.syncPendingActions();
+            }
+        });
+
         // Also trigger once on mount
         setTimeout(() => syncService.syncPendingActions(), 5000);
 
         return () => {
             subscription.remove();
+            unsubscribeNetInfo();
         };
     }, []);
 
@@ -160,7 +170,22 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         updateActiveTourLocal({ teams: [updatedTeam] });
 
         try {
-            await activeTourService.completeChallenge(activeTourId, challenge.id, userId);
+            const updatedProgress = await activeTourService.completeChallenge(activeTourId, challenge.id, userId);
+
+            // Check if backend awarded extra bingo points
+            const backendTeam = updatedProgress?.teams?.find((t: any) => t.id === currentTeam.id);
+            if (backendTeam && updatedTeam.score !== undefined) {
+                const diff = (backendTeam.score || 0) - updatedTeam.score;
+                if (diff > 0) {
+                    setTimeout(() => {
+                        triggerFloatingPoints(diff); // Show the bonus points animation!
+                        if (onXpEarned) onXpEarned(diff);
+                    }, 1000);
+                }
+            }
+
+            // Sync any newly awarded bingo lines by updating the local store with response payload
+            updateActiveTourLocal(updatedProgress);
         } catch (err) {
             console.warn('[Offline] Failed to complete challenge, queuing action.', err);
             // Don't revert, assume success offline

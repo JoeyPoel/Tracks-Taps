@@ -209,6 +209,8 @@ export const tourController = {
                                 hint: c.hint || '',
                                 answer: c.answer || '',
                                 options: c.options || [],
+                                bingoRow: c.bingoRow !== undefined ? c.bingoRow : null,
+                                bingoCol: c.bingoCol !== undefined ? c.bingoCol : null
                             }))
                         : []
                 }

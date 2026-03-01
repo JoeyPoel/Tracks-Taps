@@ -1,6 +1,6 @@
 import { TextComponent } from '@/src/components/common/TextComponent';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
@@ -168,6 +168,7 @@ export default function SavedTripDetailScreen() {
             animateEntry={false}
             withBottomTabs={true}
         >
+            <Stack.Screen options={{ headerShown: false, gestureEnabled: true }} />
             <View style={{ flex: 1 }}>
                 <ScreenHeader
                     title={list?.name || 'Loading...'}
@@ -190,6 +191,7 @@ export default function SavedTripDetailScreen() {
                     renderItem={renderItem}
                     keyExtractor={item => item.id.toString()}
                     onDragEnd={({ data }) => setLocalTours(data)}
+                    activationDistance={20}
                     contentContainerStyle={styles.listContent}
                     refreshControl={
                         <RefreshControl refreshing={loading} onRefresh={loadList} tintColor={theme.primary} />

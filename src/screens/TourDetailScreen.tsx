@@ -76,7 +76,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
   return (
     <ScreenWrapper key={tourId} style={{ backgroundColor: theme.bgPrimary }} animateEntry={false} includeTop={false} includeBottom={false}>
-      <Stack.Screen options={{ headerShown: false }} />
+      <Stack.Screen options={{ headerShown: false, gestureEnabled: true, fullScreenGestureEnabled: true }} />
 
       {/* Back Button Overlay */}
       <TouchableOpacity

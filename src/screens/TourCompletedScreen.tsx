@@ -40,6 +40,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
         submitFeedback, // extracted from hook
         submittingReview,
         handleBackToHome,
+        handleGoBack,
         t
     } = useTourCompleted(activeTourId);
 
@@ -222,7 +223,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                 {/* Back Button (Floating) */}
                 <View style={[styles.topBar, { paddingTop: Math.max(top, 20) + 10 }]}>
                     <TouchableOpacity
-                        onPress={handleBackToHome}
+                        onPress={handleGoBack}
                         style={[styles.backButton, { backgroundColor: 'rgba(0,0,0,0.2)' }]}
                     >
                         <Ionicons name="arrow-back" size={24} color="#FFF" />

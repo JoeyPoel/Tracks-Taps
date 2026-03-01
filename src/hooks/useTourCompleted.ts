@@ -66,6 +66,27 @@ export const useTourCompleted = (activeTourId: number) => {
         router.navigate('/(tabs)/explore');
     };
 
+    const confirmAndExit = () => {
+        Alert.alert(
+            t('removeTour') || 'Remove Tour?',
+            t('removeTourWarning') || 'If you go home now, this tour will be removed from your active tours list. Are you sure?',
+            [
+                { text: t('cancel'), style: 'cancel' },
+                { text: t('goHome') || 'Go Home', style: 'destructive', onPress: cleanupAndExit }
+            ]
+        );
+    };
+
+    const handleGoBack = () => {
+        // If it's a multiplayer tour, we return to the post-tour lobby.
+        // If single player, we can just trigger the exit confirmation since there is no lobby.
+        if (activeTour?.teams && activeTour.teams.length > 1) {
+            router.replace({ pathname: '/tour-waiting-lobby/[id]', params: { id: activeTourId } });
+        } else {
+            confirmAndExit();
+        }
+    };
+
     const handleCreateReview = async (rating: number, content: string, photos: string[]) => {
         if (!user) {
             Alert.alert(t('error'), t('mustBeLoggedIn'));
@@ -119,8 +140,8 @@ export const useTourCompleted = (activeTourId: number) => {
     };
 
 
-    const handleBackToHome = async () => {
-        await cleanupAndExit();
+    const handleBackToHome = () => {
+        confirmAndExit();
     };
 
     return {
@@ -135,6 +156,7 @@ export const useTourCompleted = (activeTourId: number) => {
         submitFeedback,
         submittingReview,
         handleBackToHome,
+        handleGoBack,
         t
     };
 };

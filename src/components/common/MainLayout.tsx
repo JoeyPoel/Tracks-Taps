@@ -144,7 +144,7 @@ export function MainLayout() {
             <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bgPrimary } }}>
                 <Stack.Screen name="auth" options={{ headerShown: false }} />
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="tour/[id]" options={{ headerShown: false }} />
+                <Stack.Screen name="tour/[id]" options={{ headerShown: false, gestureEnabled: true, fullScreenGestureEnabled: true }} />
                 <Stack.Screen name="+not-found" />
             </Stack>
             <ThemedStatusBar />

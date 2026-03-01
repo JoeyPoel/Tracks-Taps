@@ -27,17 +27,24 @@ export const LobbyPlayerList: React.FC<LobbyPlayerListProps> = ({ activeTour, cu
                 <Animated.View
                     key={team.id}
                     entering={FadeInDown.delay(300 + (index * 100))}
-                    style={[styles.playerRow, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}
+                    style={[
+                        styles.playerRow,
+                        {
+                            backgroundColor: theme.bgSecondary,
+                            borderColor: team.color || theme.borderPrimary,
+                            borderWidth: team.color ? 2 : 1
+                        }
+                    ]}
                 >
                     <LinearGradient
-                        colors={[theme.bgTertiary, theme.bgTertiary]}
-                        style={styles.avatarContainer}
+                        colors={team.color ? [theme.bgTertiary, team.color + '40'] : [theme.bgTertiary, theme.bgTertiary]}
+                        style={[styles.avatarContainer, team.color ? { borderColor: team.color, borderWidth: 1 } : null]}
                     >
                         <TextComponent style={styles.avatarEmoji} size={26}>{team.emoji || "👤"}</TextComponent>
                     </LinearGradient>
 
                     <View style={styles.playerInfo}>
-                        <TextComponent style={styles.playerName} color={theme.textPrimary} bold variant="body">
+                        <TextComponent style={styles.playerName} color={team.color || theme.textPrimary} bold variant="body">
                             {team.name || team.user.name}
                         </TextComponent>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>

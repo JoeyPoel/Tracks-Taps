@@ -595,7 +595,10 @@ export const strings = {
     deleteAccount: "Delete Account",
     deleteAccountWarning: "Are you sure you want to delete your account? This action is permanent and cannot be undone. Your created tours will remain but will be anonymized.",
     deleteAccountConfirm: "Delete My Account",
-    deleteAccountSubtitle: "Permanently remove your data"
+    deleteAccountSubtitle: "Permanently remove your data",
+    removeTour: "Remove Tour?",
+    removeTourWarning: "If you go home now, this tour will be removed from your active tours list. Are you sure?",
+    goHome: "Go Home"
   },
   es: {
     modes: 'Modos',
