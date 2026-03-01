@@ -508,6 +508,7 @@ export const useStore = create<StoreState>()(
                 activeTour: state.activeTour,
                 activeTours: state.activeTours,
                 user: state.user,
+                tours: state.tours,
                 tourDetails: state.tourDetails,
                 achievements: state.achievements,
                 friends: state.friends,

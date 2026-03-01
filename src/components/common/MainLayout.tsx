@@ -9,12 +9,14 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
+import { useStore } from '../../store/store';
 
 export function MainLayout() {
     const { session, loading } = useAuth();
     const { theme } = useTheme();
     const segment = useSegments();
     const router = useRouter();
+    const hasHydrated = useStore((state) => state._hasHydrated);
 
     const [isReady, setIsReady] = useState(false);
     const [isHandlingAuthRedirect, setIsHandlingAuthRedirect] = useState(false);
@@ -131,7 +133,7 @@ export function MainLayout() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [session, loading, isTutorialLoading, hasSeenTutorial, isActive, isReady, segment]);
 
-    if (!isReady || loading) {
+    if (!isReady || loading || !hasHydrated) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.bgPrimary }}>
                 <ActivityIndicator size="large" color={theme.primary} />

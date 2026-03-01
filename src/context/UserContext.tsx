@@ -26,17 +26,19 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const updateUser = useStore((state) => state.updateUser);
     const deleteUser = useStore((state) => state.deleteUser);
 
-    const { session } = useAuth();
+    const { session, loading: authLoading } = useAuth();
     const email = session?.user?.email;
     const authId = session?.user?.id;
 
     useEffect(() => {
+        if (authLoading) return; // Wait for initial auth state before wiping user cache
+
         if (authId) {
             fetchUserByAuth(authId, email);
         } else {
             clearUser();
         }
-    }, [authId, email]);
+    }, [authId, email, authLoading]);
 
     // Handle inconsistent state: Session exists but backend User fetch failed
     useEffect(() => {
