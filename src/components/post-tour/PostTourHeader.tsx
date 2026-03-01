@@ -43,7 +43,13 @@ export default function PostTourHeader({ imageUrl }: PostTourHeaderProps) {
             )}
 
             <View style={styles.content}>
-                <TextComponent style={styles.headerTitle} color={theme.textPrimary} bold>
+                <TextComponent
+                    style={styles.headerTitle}
+                    color={theme.textPrimary}
+                    bold
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                >
                     {t('greatJobTitle')}
                 </TextComponent>
                 <TextComponent style={styles.headerSubtitle} color={theme.textSecondary}>
@@ -93,6 +99,8 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
         letterSpacing: 1,
         textAlign: 'center',
+        paddingHorizontal: 10, // Prevent horizontal clipping on thick bold text
+        lineHeight: 44,
     },
     headerSubtitle: {
         fontSize: 16,
