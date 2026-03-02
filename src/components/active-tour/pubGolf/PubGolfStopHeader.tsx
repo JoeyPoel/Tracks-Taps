@@ -27,7 +27,7 @@ export default function PubGolfStopHeader({
     isCompleted,
     isActive,
 }: PubGolfStopHeaderProps) {
-    const { theme } = useTheme();
+    const { theme, mode } = useTheme();
     const { t } = useLanguage();
 
     const textColor = theme.textPrimary;
@@ -35,13 +35,22 @@ export default function PubGolfStopHeader({
 
     const isColoredCard = isCompleted && scoreDetails;
 
+    const isLight = mode === 'light';
     const gradientColors = scoreDetails
         ? theme.pubGolf[scoreDetails.colorKey as keyof typeof theme.pubGolf].slice(0, 2) as [string, string]
         : isActive
-            ? [theme.danger, theme.warning] as [string, string]
+            ? (isLight ? ['#EF4444', '#F59E0B'] : [theme.danger, theme.warning]) as [string, string]
             : [theme.bgTertiary, theme.borderPrimary] as [string, string];
-
     const numberTextColor = (scoreDetails || isActive) ? theme.fixedWhite : theme.textSecondary;
+
+    // Fix contrast for drink badge in light mode
+    const drinkBadgeBg = isColoredCard
+        ? (isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.2)')
+        : theme.bgTertiary;
+
+    const drinkBadgeText = isColoredCard
+        ? (isLight ? theme.pubGolf[scoreDetails.colorKey as keyof typeof theme.pubGolf][0] : theme.fixedWhite)
+        : theme.textSecondary;
 
     return (
         <View style={styles.topSection}>
@@ -56,8 +65,8 @@ export default function PubGolfStopHeader({
             {/* Middle: Info */}
             <View style={styles.info}>
                 <Text style={[styles.stopName, { color: textColor }]}>{stopName}</Text>
-                <View style={[styles.drinkBadge, { backgroundColor: isColoredCard ? 'rgba(255,255,255,0.2)' : theme.bgTertiary }]}>
-                    <Text style={[styles.drinkName, { color: isColoredCard ? theme.fixedWhite : theme.textSecondary }]}>
+                <View style={[styles.drinkBadge, { backgroundColor: drinkBadgeBg }]}>
+                    <Text style={[styles.drinkName, { color: drinkBadgeText }]}>
                         {drinkName}
                     </Text>
                 </View>

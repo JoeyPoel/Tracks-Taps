@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect } from 'react';
-import { Dimensions, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
     Easing,
     useAnimatedStyle,
@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useTheme } from '../../context/ThemeContext';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+import { useAppWidth } from '../../hooks/useAppWidth';
 
 interface ShimmerProps {
     style?: any;
@@ -21,11 +21,12 @@ interface ShimmerProps {
 
 export const Shimmer = ({ style, width, height, borderRadius }: ShimmerProps) => {
     const { theme } = useTheme();
-    const translateX = useSharedValue(-SCREEN_WIDTH);
+    const appWidth = useAppWidth();
+    const translateX = useSharedValue(-appWidth);
 
     useEffect(() => {
         translateX.value = withRepeat(
-            withTiming(SCREEN_WIDTH, {
+            withTiming(appWidth, {
                 duration: 1500,
                 easing: Easing.inOut(Easing.ease),
             }),

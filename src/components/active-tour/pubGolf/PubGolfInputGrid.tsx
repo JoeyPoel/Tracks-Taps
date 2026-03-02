@@ -15,13 +15,15 @@ export default function PubGolfInputGrid({
     selectedSips,
     onSelectSips,
 }: PubGolfInputGridProps) {
-    const { theme } = useTheme();
+    const { theme, mode } = useTheme();
     const { t } = useLanguage();
     const subTextColor = theme.textSecondary;
 
+    const isLight = mode === 'light';
+
     return (
         <View style={styles.glowContainer}>
-            <View style={[styles.inputSection, { borderTopColor: 'rgba(255,255,255,0.1)' }]}>
+            <View style={[styles.inputSection, { borderTopColor: isLight ? theme.borderPrimary : 'rgba(255,255,255,0.1)' }]}>
                 <Text style={[styles.inputLabel, { color: subTextColor }]}>
                     {t('sipsTaken')}
                 </Text>
@@ -53,7 +55,8 @@ export default function PubGolfInputGrid({
                                         // Use the defined baseColor for both properties
                                         backgroundColor: baseColor,
                                         shadowColor: baseColor,
-                                        borderColor: 'rgba(255,255,255,0.1)',
+                                        borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)',
+                                        shadowOpacity: isLight ? 0.1 : 0.3,
                                     },
                                     // Apply selected styles which will override base styles if selected
                                     selectedStyles,
@@ -64,7 +67,7 @@ export default function PubGolfInputGrid({
                             >
                                 <Text style={[
                                     styles.sipButtonText,
-                                    { color: theme.fixedWhite },
+                                    { color: (isLight && num > par) ? theme.textPrimary : theme.fixedWhite },
                                 ]}>{num}</Text>
                             </AnimatedPressable>
                         );

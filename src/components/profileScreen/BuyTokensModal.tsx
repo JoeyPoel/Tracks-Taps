@@ -16,7 +16,7 @@ interface BuyTokensModalProps {
 }
 
 const PACKAGES = [
-    { tokens: 1, price: 2.49, bonus: 0, popular: false },
+    { tokens: 1, price: 2.99, bonus: 0, popular: false },
     { tokens: 2, price: 5.49, bonus: 0, popular: false },
     { tokens: 5, price: 12.49, bonus: 0, popular: true },
     { tokens: 10, price: 19.99, bonus: 0, popular: false },
@@ -190,7 +190,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
 
 const styles = StyleSheet.create({
     packagesContainer: {
-        paddingBottom: 12,
+        paddingBottom: 4,
     },
     packageCard: {
         flexDirection: 'row',
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 16,
+        marginBottom: 12,
         position: 'relative',
     },
     popularBadge: {

@@ -1,3 +1,4 @@
+import { useAppWidth } from '@/src/hooks/useAppWidth';
 import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -18,6 +19,7 @@ export default function TourGallery({ images }: TourGalleryProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+    const appWidth = useAppWidth();
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
     const [showEmpty, setShowEmpty] = useState(false);
 
@@ -132,15 +134,15 @@ export default function TourGallery({ images }: TourGalleryProps) {
                             pagingEnabled
                             initialScrollIndex={selectedIndex}
                             getItemLayout={(_, index) => ({
-                                length: windowWidth,
-                                offset: windowWidth * index,
+                                length: appWidth,
+                                offset: appWidth * index,
                                 index,
                             })}
                             showsHorizontalScrollIndicator={false}
                             keyExtractor={(item, index) => `${item}-${index}`}
                             renderItem={({ item }) => (
                                 <View style={{
-                                    width: windowWidth,
+                                    width: appWidth,
                                     height: windowHeight,
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -148,7 +150,7 @@ export default function TourGallery({ images }: TourGalleryProps) {
                                     <Image
                                         source={{ uri: getOptimizedImageUrl(item, 800) }}
                                         style={{
-                                            width: windowWidth,
+                                            width: appWidth,
                                             height: windowHeight,
                                         }}
                                         contentFit="contain"
@@ -218,6 +220,9 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#000',
         justifyContent: 'center',
+        maxWidth: 800,
+        alignSelf: 'center',
+        width: '100%',
     },
     closeButton: {
         position: 'absolute',

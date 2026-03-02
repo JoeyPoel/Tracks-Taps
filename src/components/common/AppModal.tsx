@@ -1,6 +1,6 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import React from 'react';
-import { Dimensions, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { XMarkIcon } from 'react-native-heroicons/outline';
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -35,7 +35,7 @@ export function AppModal({
     const { theme } = useTheme();
     const insets = useSafeAreaInsets();
     const isBottom = alignment === 'bottom';
-    const screenHeight = Dimensions.get('window').height;
+
 
     // Default height logic
     const computedHeight = height || (isBottom ? '90%' : undefined);
@@ -150,11 +150,15 @@ const styles = StyleSheet.create({
     },
     cardBottom: {
         width: '100%',
+        maxWidth: 800,
+        alignSelf: 'center',
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
     },
     cardCenter: {
         width: '100%',
+        maxWidth: 800,
+        alignSelf: 'center',
         borderRadius: 24,
     },
     header: {

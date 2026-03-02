@@ -2,6 +2,7 @@ import { FormInput } from '@/src/components/common/FormInput';
 import SocialButton from '@/src/components/SocialButton';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
+import { useTutorial } from '@/src/context/TutorialContext';
 import { AuthService } from '@/src/services/authService';
 import { supabase } from '@/utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,6 +26,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function RegisterScreen() {
     const router = useRouter();
     const { theme } = useTheme();
+    const { resetTutorial } = useTutorial();
     const { t } = useLanguage();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -85,6 +87,9 @@ export default function RegisterScreen() {
                     },
                     body: JSON.stringify({ action: 'create-user', email: email }),
                 });
+
+                // Trigger tutorial for the new user
+                await resetTutorial();
             } catch (err) {
                 console.error("Failed to create user in DB:", err);
                 // We don't block the user flow here because the checkout/login will likely retry or "lazy create"

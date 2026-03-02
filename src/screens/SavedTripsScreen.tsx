@@ -20,7 +20,7 @@ export default function SavedTripsScreen() {
     const { t } = useLanguage();
     const router = useRouter();
     const { lists, loading, loadLists, loadMore } = useSavedTrips();
-    const { width, fontScale } = useWindowDimensions();
+    const { fontScale } = useWindowDimensions();
 
     useFocusEffect(
         useCallback(() => {

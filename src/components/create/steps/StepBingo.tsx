@@ -4,11 +4,12 @@ import { WizardStepHeader } from '@/src/components/create/common/WizardStepHeade
 import ChallengeCreationModal from '@/src/components/create/modals/ChallengeCreationModal';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
+import { useAppWidth } from '@/src/hooks/useAppWidth';
 import { TourDraft } from '@/src/hooks/useCreateTour';
 import { ChallengeType } from '@/src/types/models';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 
 interface StepBingoProps {
@@ -19,12 +20,13 @@ interface StepBingoProps {
     };
 }
 
-const { width } = Dimensions.get('window');
 const GAP = 12;
 const PADDING = 24; // Parent padding
-const CELL_SIZE = (width - (PADDING * 2) - (GAP * 2)) / 3;
 
 export default function StepBingo({ draft, actions }: StepBingoProps) {
+    const appWidth = useAppWidth();
+    const CELL_SIZE = (appWidth - (PADDING * 2) - (GAP * 2)) / 3;
+
     const { theme } = useTheme();
     const { t } = useLanguage();
 

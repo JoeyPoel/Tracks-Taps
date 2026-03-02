@@ -28,9 +28,25 @@ export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) 
                     cachePolicy="disk"
                 />
                 <View style={styles.textContainer}>
-                    <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">
-                        {request.requester.name}
-                    </TextComponent>
+                    <View style={styles.headerRow}>
+                        <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">
+                            {request.requester.name}
+                        </TextComponent>
+                        <View style={styles.actions}>
+                            <TouchableOpacity
+                                onPress={() => onAccept(request.id)}
+                                style={[styles.iconButton, { backgroundColor: theme.primary }]}
+                            >
+                                <Ionicons name="checkmark" size={16} color="#FFF" />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => onDecline(request.id)}
+                                style={[styles.iconButton, { backgroundColor: 'transparent', borderWidth: 1, borderColor: theme.borderPrimary }]}
+                            >
+                                <Ionicons name="close" size={16} color={theme.textSecondary} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>
                         <View style={[styles.badge, { backgroundColor: theme.bgSecondary }]}>
                             <TextComponent style={styles.badgeText} color={theme.primary} bold variant="caption">
@@ -43,21 +59,6 @@ export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) 
                     </View>
                 </View>
             </View>
-
-            <View style={styles.actions}>
-                <TouchableOpacity
-                    onPress={() => onAccept(request.id)}
-                    style={[styles.iconButton, { backgroundColor: theme.primary }]}
-                >
-                    <Ionicons name="checkmark" size={20} color="#FFF" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => onDecline(request.id)}
-                    style={[styles.iconButton, { backgroundColor: 'transparent', borderWidth: 1, borderColor: theme.borderPrimary }]}
-                >
-                    <Ionicons name="close" size={20} color={theme.textSecondary} />
-                </TouchableOpacity>
-            </View>
         </GenericCard>
     );
 }
@@ -67,7 +68,6 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
         marginBottom: 8,
     },
     userInfo: {
@@ -82,7 +82,14 @@ const styles = StyleSheet.create({
         borderRadius: 14,
     },
     textContainer: {
+        flex: 1,
         gap: 2,
+    },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flex: 1,
     },
     name: {
         fontSize: 15,
@@ -93,12 +100,12 @@ const styles = StyleSheet.create({
     },
     actions: {
         flexDirection: 'row',
-        gap: 8,
+        gap: 6,
     },
     iconButton: {
-        width: 36,
-        height: 36,
-        borderRadius: 12,
+        width: 28,
+        height: 28,
+        borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
     },

@@ -90,14 +90,14 @@ export const lightTheme = {
 
   // PubGolf: [Text/Border/GradStart (600), GradEnd (500), Background (200)]
   pubGolf: {
-    holeInOne: ['#D97706', '#F59E0B', '#FFFBEB'], // Amber-600/500/Amber-50
-    albatross: ['#7E22CE', '#A855F7', '#FAF5FF'], // Purple-600/500/Purple-50
-    eagle: ['#C026D3', '#D946EF', '#FDF4FF'], // Fuchsia-600/500/Fuchsia-50
-    birdie: ['#16A34A', '#22C55E', '#F0FDF4'], // Green-600/500/Green-50
-    par: ['#2563EB', '#3B82F6', '#EFF6FF'], // Blue-600/500/Blue-50
-    bogey: ['#EA580C', '#F97316', '#FFF7ED'], // Orange-600/500/Orange-50
-    doubleBogey: ['#DC2626', '#EF4444', '#FEF2F2'], // Red-600/500/Red-50
-    tripleBogey: ['#4B5563', '#6B7280', '#F9FAFB'], // Gray-600/500/Gray-50
+    holeInOne: ['#F59E0B', '#FBBF24', '#FFFBEB'], // Amber-500/400/50
+    albatross: ['#A855F7', '#C084FC', '#FAF5FF'], // Purple-500/400/50
+    eagle: ['#D946EF', '#E879F9', '#FDF4FF'], // Fuchsia-500/400/50
+    birdie: ['#22C55E', '#4ADE80', '#F0FDF4'], // Green-500/400/50
+    par: ['#3B82F6', '#60A5FA', '#EFF6FF'], // Blue-500/400/50
+    bogey: ['#F97316', '#FB923C', '#FFF7ED'], // Orange-500/400/50
+    doubleBogey: ['#EF4444', '#F87171', '#FEF2F2'], // Red-500/400/50
+    tripleBogey: ['#6B7280', '#9CA3AF', '#F9FAFB'], // Gray-500/400/50
   },
 
   bgPrimaryColor: '#F8FAFC',

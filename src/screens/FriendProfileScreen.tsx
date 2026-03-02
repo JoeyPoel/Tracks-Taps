@@ -182,7 +182,7 @@ export default function FriendProfileScreen() {
                     <View style={styles.actionButtonContainer}>
                         {user.friendshipStatus === 'PENDING' ? (
                             <AnimatedButton
-                                title={t('requests')}
+                                title={t('requested')}
                                 onPress={() => { }}
                                 disabled
                                 style={{ backgroundColor: theme.bgSecondary }}

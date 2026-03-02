@@ -15,7 +15,8 @@ interface TourCardBaseProps {
 
 
 export function TourCardBase({ imageUrl, height = 320, onPress, children }: TourCardBaseProps) {
-    const { theme } = useTheme();
+    const { theme, mode } = useTheme();
+    const isLight = mode === 'light';
 
     // Use optimized URL with a default width of 600px (covers most phones @ 2x/3x density for this card size)
     const optimizedUrl = getOptimizedImageUrl(imageUrl, 600, { resize: 'contain' });
@@ -39,13 +40,19 @@ export function TourCardBase({ imageUrl, height = 320, onPress, children }: Tour
 
             <View style={styles.overlay} />
 
-            <LinearGradient
-                colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.9)']}
-                locations={[0.3, 0.6, 1]}
-                style={styles.gradient}
-            >
-                {children}
-            </LinearGradient>
+            {isLight ? (
+                <View style={styles.gradient}>
+                    {children}
+                </View>
+            ) : (
+                <LinearGradient
+                    colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.9)']}
+                    locations={[0.3, 0.6, 1]}
+                    style={styles.gradient}
+                >
+                    {children}
+                </LinearGradient>
+            )}
         </AnimatedPressable>
     );
 }

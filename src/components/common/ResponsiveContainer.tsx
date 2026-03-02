@@ -1,3 +1,4 @@
+import { useAppWidth } from '@/src/hooks/useAppWidth';
 import React from 'react';
 import { View, ViewProps, useWindowDimensions } from 'react-native';
 
@@ -33,7 +34,8 @@ export const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
     style,
     ...props
 }) => {
-    const { fontScale, width } = useWindowDimensions();
+    const { fontScale } = useWindowDimensions();
+    const width = useAppWidth();
 
     // Determine direction
     // If font is large OR screen is small (phone), we might want to stack.

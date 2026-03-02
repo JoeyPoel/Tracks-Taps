@@ -99,7 +99,8 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             transition={500}
           />
           <LinearGradient
-            colors={['transparent', theme.bgPrimary]}
+            colors={['transparent', 'rgba(0,0,0,0.05)', theme.bgPrimary]}
+            locations={[0, 0.4, 1]}
             style={styles.heroGradient}
           />
           <Animated.View entering={FadeInUp.delay(200)} style={styles.heroContent}>

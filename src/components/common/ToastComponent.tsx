@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import React, { useEffect } from 'react';
-import { Dimensions, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { XMarkIcon } from 'react-native-heroicons/outline';
 import Animated, {
@@ -26,8 +26,6 @@ export interface ToastProps {
     duration?: number;
     onHide: () => void;
 }
-
-const { width } = Dimensions.get('window');
 
 export const ToastComponent: React.FC<ToastProps> = ({
     visible,

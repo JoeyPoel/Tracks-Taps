@@ -15,7 +15,7 @@ interface PubGolfScoreCardProps {
 }
 
 export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: PubGolfScoreCardProps) {
-    const { theme } = useTheme();
+    const { theme, mode } = useTheme();
     const { t } = useLanguage();
     const [isRulesOpen, setIsRulesOpen] = useState(false);
 
@@ -34,71 +34,80 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
         StatusIcon = ExclamationCircleIcon;
     }
 
+    const isLight = mode === 'light';
+    const gradientColors = isLight
+        ? [theme.bgSecondary, theme.bgTertiary] as [string, string]
+        : [theme.accent, theme.primary] as [string, string];
+
+    const cardTextColor = isLight ? theme.textPrimary : theme.fixedWhite;
+    const cardSubTextColor = isLight ? theme.textSecondary : 'rgba(255,255,255,0.9)';
+    const overlayColor = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.2)';
+
     return (
         <LinearGradient
-            colors={[theme.accent, theme.primary]} // Orange to Pink gradient
+            colors={gradientColors}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={styles.container}
+            style={[styles.container, isLight && { borderWidth: 1, borderColor: theme.borderPrimary }]}
         >
             <View style={styles.header}>
-                <View style={[styles.iconContainer, { backgroundColor: 'rgba(255,255,255,0.3)' }]}>
+                <View style={[styles.iconContainer, { backgroundColor: isLight ? theme.primary : 'rgba(255,255,255,0.3)' }]}>
                     <TrophyIcon size={32} color={theme.fixedWhite} />
                 </View>
                 <View>
-                    <Text style={[styles.title, { color: theme.fixedWhite }]}>{t('pubgolf')}</Text>
-                    <Text style={[styles.subtitle, { color: 'rgba(255,255,255,0.9)' }]}>{t('officialScorecard')}</Text>
+                    <Text style={[styles.title, { color: cardTextColor }]}>{t('pubgolf')}</Text>
+                    <Text style={[styles.subtitle, { color: cardSubTextColor }]}>{t('officialScorecard')}</Text>
                 </View>
             </View>
 
-            <View style={[styles.scoreContainer, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-                <Text style={[styles.scoreLabel, { color: 'rgba(255,255,255,0.9)' }]}>{t('totalScore')}</Text>
-                <Text style={[styles.scoreValue, { color: theme.fixedWhite }]}>{totalSips} / {totalPar}</Text>
+            <View style={[styles.scoreContainer, { backgroundColor: overlayColor }]}>
+                <Text style={[styles.scoreLabel, { color: cardSubTextColor }]}>{t('totalScore')}</Text>
+                <Text style={[styles.scoreValue, { color: cardTextColor }]}>{totalSips} / {totalPar}</Text>
                 <View style={styles.statusContainer}>
-                    <StatusIcon size={16} color={theme.fixedWhite} style={{ marginRight: 4 }} />
-                    <Text style={[styles.statusText, { color: theme.fixedWhite }]}>{statusText}</Text>
+                    <StatusIcon size={16} color={isLight ? theme.primary : theme.fixedWhite} style={{ marginRight: 4 }} />
+                    <Text style={[styles.statusText, { color: isLight ? theme.primary : theme.fixedWhite }]}>{statusText}</Text>
                 </View>
             </View>
 
             <AnimatedPressable
-                style={[styles.toggleButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
+                style={[styles.toggleButton, { backgroundColor: overlayColor }]}
                 onPress={() => setIsRulesOpen(!isRulesOpen)}
                 interactionScale="subtle"
                 haptic="light"
             >
-                <Text style={[styles.toggleButtonText, { color: theme.fixedWhite }]}>
+                <Text style={[styles.toggleButtonText, { color: cardTextColor }]}>
                     {t('viewRulesAndScoring')}
                 </Text>
                 {isRulesOpen ? (
-                    <ChevronUpIcon size={20} color={theme.fixedWhite} />
+                    <ChevronUpIcon size={20} color={cardTextColor} />
                 ) : (
-                    <ChevronDownIcon size={20} color={theme.fixedWhite} />
+                    <ChevronDownIcon size={20} color={cardTextColor} />
                 )}
             </AnimatedPressable>
 
             {isRulesOpen && (
-                <View style={[styles.infoContainer, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
-                    <View style={styles.infoRow}>
-                        <Text style={[styles.infoText, { color: theme.fixedWhite }]}>
+                <View style={[styles.infoContainer, { backgroundColor: isLight ? theme.bgPrimary : 'rgba(255,255,255,0.1)' }]}>
+                    <View style={[styles.infoRow, { borderBottomColor: isLight ? theme.borderPrimary : 'rgba(255,255,255,0.1)' }]}>
+                        <Text style={[styles.infoText, { color: cardTextColor }]}>
                             {t('pubGolfInstructions')}
                         </Text>
                     </View>
 
                     <View>
-                        <Text style={[styles.legendTitle, { color: 'rgba(255,255,255,0.8)' }]}>
+                        <Text style={[styles.legendTitle, { color: cardSubTextColor }]}>
                             {t('scoring')} & {t('xp')}
                         </Text>
                         {PUB_GOLF_LEGEND_DATA.map((item) => (
                             <View key={item.nameKey} style={styles.legendRow}>
                                 <View style={styles.legendItemLeft}>
                                     <Text style={styles.legendEmoji}>{item.emoji}</Text>
-                                    <Text style={[styles.legendName, { color: theme.fixedWhite }]}>
+                                    <Text style={[styles.legendName, { color: cardTextColor }]}>
                                         {t(item.nameKey as any)}
                                     </Text>
                                 </View>
                                 <View style={styles.legendXp}>
-                                    <BoltIcon size={12} color={theme.fixedWhite} />
-                                    <Text style={[styles.legendXpText, { color: theme.fixedWhite }]}>
+                                    <BoltIcon size={12} color={theme.gold} />
+                                    <Text style={[styles.legendXpText, { color: theme.gold }]}>
                                         {item.xp} {t('xp')}
                                     </Text>
                                 </View>

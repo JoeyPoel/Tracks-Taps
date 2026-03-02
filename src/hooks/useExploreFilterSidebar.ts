@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions } from 'react-native';
+import { Animated } from 'react-native';
 import { useStore } from '../store/store';
 import { TourFilters } from '../types/filters';
 
-const { width } = Dimensions.get('window');
-const SIDEBAR_WIDTH = Math.min(width * 0.7, 300);
+import { useAppWidth } from './useAppWidth';
 
 export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) => {
-    const slideAnim = useRef(new Animated.Value(width)).current; // Start off-screen
+    const appWidth = useAppWidth();
+    const SIDEBAR_WIDTH = Math.min(appWidth * 0.7, 300);
+    const slideAnim = useRef(new Animated.Value(appWidth)).current; // Start off-screen
     const currentGlobalFilters = useStore(state => state.tourFilters);
     const setGlobalFilters = useStore(state => state.setTourFilters);
 
@@ -33,16 +34,16 @@ export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) =
             }).start();
         } else {
             Animated.timing(slideAnim, {
-                toValue: width, // Slide out to the right
+                toValue: appWidth, // Slide out to the right
                 duration: 300,
                 useNativeDriver: true,
             }).start();
         }
-    }, [visible, currentGlobalFilters]);
+    }, [visible, currentGlobalFilters, appWidth]);
 
     const handleClose = () => {
         Animated.timing(slideAnim, {
-            toValue: width,
+            toValue: appWidth,
             duration: 300,
             useNativeDriver: true,
         }).start(() => onClose());

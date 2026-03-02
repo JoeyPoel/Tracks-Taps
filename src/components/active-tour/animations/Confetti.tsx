@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, Easing, StyleSheet, View } from 'react-native';
 
-const { width, height } = Dimensions.get('window');
+import { useAppWidth } from '@/src/hooks/useAppWidth';
+
+const { height } = Dimensions.get('window');
 
 const COLORS = [
   '#FFC107', '#2196F3', '#E91E63', '#4CAF50', '#9C27B0', '#F44336', '#00BCD4'
@@ -10,6 +12,8 @@ const COLORS = [
 const NUM_CONFETTI = 80;
 
 const ConfettiPiece = () => {
+  const appWidth = useAppWidth();
+
   // 1. Setup Animation Values
   // Start at -100 (just above screen)
   const animatedY = useRef(new Animated.Value(-100)).current;
@@ -21,7 +25,7 @@ const ConfettiPiece = () => {
     const duration = 4000 + Math.random() * 3000;
 
     return {
-      left: Math.random() * width,
+      left: Math.random() * appWidth,
       backgroundColor: COLORS[Math.floor(Math.random() * COLORS.length)],
       size: 8 + Math.random() * 6,
       duration: duration,

@@ -2,10 +2,11 @@
 import { TextComponent } from '@/src/components/common/TextComponent';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
+import { useAppWidth } from '@/src/hooks/useAppWidth';
 import { Challenge, ChallengeType, Team } from '@/src/types/models';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 interface BingoCardProps {
@@ -14,14 +15,14 @@ interface BingoCardProps {
     onChallengePress: (challenge: Challenge) => void;
 }
 
-const { width } = Dimensions.get('window');
 const GAP = 8;
 const SCREEN_PADDING = 40; // Padding from ActiveTourScreen parent (20 * 2)
 
-// Calculate cell size based on screen width minus parent padding and gaps
-const CELL_SIZE = Math.floor((width - SCREEN_PADDING - (GAP * 2)) / 3);
-
 export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps) {
+    const appWidth = useAppWidth();
+    // Calculate cell size based on screen width minus parent padding and gaps
+    const CELL_SIZE = Math.floor((appWidth - SCREEN_PADDING - (GAP * 2)) / 3);
+
     const { theme } = useTheme();
     const { t } = useLanguage();
     const bingoCard = team.bingoCard;

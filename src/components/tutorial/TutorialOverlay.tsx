@@ -1,6 +1,7 @@
 import { useAuth } from '@/src/context/AuthContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useTutorial } from '@/src/context/TutorialContext';
+import { useAppWidth } from '@/src/hooks/useAppWidth';
 import { useRouter } from 'expo-router';
 import { Wand2 } from 'lucide-react-native';
 import React from 'react';
@@ -8,9 +9,10 @@ import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { TextComponent } from '../common/TextComponent';
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 export const TutorialOverlay = () => {
+    const appWidth = useAppWidth();
     const { isActive, currentStepIndex, steps, nextStep, skipTutorial } = useTutorial();
     const { theme } = useTheme();
     const router = useRouter();
@@ -44,7 +46,12 @@ export const TutorialOverlay = () => {
                 style={[
                     styles.card,
                     getPositionStyle(),
-                    { backgroundColor: theme.bgSecondary, borderColor: theme.primary, shadowColor: theme.textPrimary }
+                    {
+                        backgroundColor: theme.bgSecondary,
+                        borderColor: theme.primary,
+                        shadowColor: theme.textPrimary,
+                        width: Math.min(appWidth * 0.8, 340)
+                    }
                 ]}
             >
                 {step.position === 'top' && (
@@ -124,7 +131,6 @@ const styles = StyleSheet.create({
     },
     card: {
         position: 'absolute',
-        width: Math.min(width * 0.8, 340), // Reduced width, max cap
         borderRadius: 20,
         padding: 20, // Reduced padding
         paddingTop: 32,

@@ -3,6 +3,7 @@ import ThemedStatusBar from '@/src/components/ThemedStatusBar';
 import { TutorialOverlay } from '@/src/components/tutorial/TutorialOverlay';
 import { useAuth } from '@/src/context/AuthContext';
 import { useTutorial } from '@/src/context/TutorialContext';
+import { getAppMaxWidth } from '@/src/hooks/useAppWidth';
 import { useLevelUpListener } from '@/src/hooks/useLevelUpListener';
 import { supabase } from '@/utils/supabase';
 import { Stack, useRouter, useSegments } from 'expo-router';
@@ -142,16 +143,18 @@ export function MainLayout() {
     }
 
     return (
-        <>
-            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bgPrimary } }}>
-                <Stack.Screen name="auth" options={{ headerShown: false }} />
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="tour/[id]" options={{ headerShown: false, gestureEnabled: true, fullScreenGestureEnabled: true }} />
-                <Stack.Screen name="+not-found" />
-            </Stack>
-            <ThemedStatusBar />
-            <AuthRequiredModal />
-            <TutorialOverlay />
-        </>
+        <View style={{ flex: 1, backgroundColor: theme.bgPrimary }}>
+            <View style={{ flex: 1, width: '100%', maxWidth: getAppMaxWidth(), alignSelf: 'center' }}>
+                <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bgPrimary } }}>
+                    <Stack.Screen name="auth" options={{ headerShown: false }} />
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen name="tour/[id]" options={{ headerShown: false, gestureEnabled: true, fullScreenGestureEnabled: true }} />
+                    <Stack.Screen name="+not-found" />
+                </Stack>
+                <ThemedStatusBar />
+                <AuthRequiredModal />
+                <TutorialOverlay />
+            </View>
+        </View>
     );
 }

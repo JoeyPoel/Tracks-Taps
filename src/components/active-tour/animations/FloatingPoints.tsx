@@ -2,10 +2,13 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, Dimensions, Easing, StyleSheet, Text } from 'react-native';
 import { useTheme } from '../../../context/ThemeContext';
 
-const { width, height } = Dimensions.get('window');
+import { useAppWidth } from '@/src/hooks/useAppWidth';
+
+const { height } = Dimensions.get('window');
 
 const FloatingPoints = ({ pointAmount, onAnimationComplete }: { pointAmount: number, onAnimationComplete: () => void }) => {
   const { theme } = useTheme();
+  const appWidth = useAppWidth();
 
   // 1. Initial Values for Animation
   const opacity = useRef(new Animated.Value(1)).current;
@@ -15,7 +18,7 @@ const FloatingPoints = ({ pointAmount, onAnimationComplete }: { pointAmount: num
   const randomPosition = useRef({
     // X-Axis: Renders randomly between 20% and 80% of the screen width
     // Formula: Math.random() * (span) + (start_offset)
-    left: Math.random() * (width * 0.6) + (width * 0.2),
+    left: Math.random() * (appWidth * 0.6) + (appWidth * 0.2),
 
     // Y-Axis: Renders randomly between 30% and 50% from the bottom (Middle-Lower)
     bottom: Math.random() * (height * 0.2) + (height * 0.3),
