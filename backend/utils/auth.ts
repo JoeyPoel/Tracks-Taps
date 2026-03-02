@@ -12,6 +12,16 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
     }
 });
 
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+export const supabaseAdminRole = supabaseServiceKey ? createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+    }
+}) : null;
+
 
 export async function verifyAuth(request: Request) {
     const authHeader = request.headers.get('Authorization');

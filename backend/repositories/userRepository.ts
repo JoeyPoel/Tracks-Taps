@@ -428,6 +428,17 @@ export const userRepository = {
                 where: { userId: userId }
             });
 
+            // Tour Lists
+            await tx.tourList.deleteMany({
+                where: { userId: userId }
+            });
+
+            // Nullify referrals (users referred by this user)
+            await tx.user.updateMany({
+                where: { referredBy: userId },
+                data: { referredBy: null }
+            });
+
             // 4. Finally delete the user
             return await tx.user.delete({
                 where: { id: userId }

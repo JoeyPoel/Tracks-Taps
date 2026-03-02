@@ -36,6 +36,7 @@ export default function PersonalInfoScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     useEffect(() => {
         if (dbUser) {
@@ -81,11 +82,13 @@ export default function PersonalInfoScreen() {
 
     const handleLogout = async () => {
         setLoading(true);
+        setIsLoggingOut(true);
         try {
             await signOut();
             router.replace('/(tabs)/profile');
         } catch (error) {
             console.error('Logout error:', error);
+            setIsLoggingOut(false);
         } finally {
             setLoading(false);
         }
@@ -140,6 +143,16 @@ export default function PersonalInfoScreen() {
             <TextComponent style={styles.sectionTitle} color={theme.textSecondary} bold variant="caption">{title}</TextComponent>
         </View>
     );
+
+    if (isLoggingOut) {
+        return (
+            <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }}>
+                <View style={[styles.centerContainer]}>
+                    <ActivityIndicator size="large" color={theme.primary} />
+                </View>
+            </ScreenWrapper>
+        );
+    }
 
     if (!authUser) {
         return (

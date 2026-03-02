@@ -100,6 +100,11 @@ export default function RegisterScreen() {
     };
 
     const handleGoogleLogin = async () => {
+        if (!termsAccepted) {
+            Alert.alert('Error', t('mustAcceptTerms' as any) || "You must accept the Terms and Conditions to sign up.");
+            return;
+        }
+
         setLoadingType('google');
         const data = await AuthService.signInWithGoogle();
         setLoadingType(null);
@@ -109,6 +114,11 @@ export default function RegisterScreen() {
     };
 
     const handleAppleLogin = async () => {
+        if (!termsAccepted) {
+            Alert.alert('Error', t('mustAcceptTerms' as any) || "You must accept the Terms and Conditions to sign up.");
+            return;
+        }
+
         setLoadingType('apple');
         const data = await AuthService.signInWithApple();
         setLoadingType(null);

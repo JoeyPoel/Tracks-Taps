@@ -1,4 +1,4 @@
-import { verifyAuth } from '@/backend/utils/auth';
+import { supabaseAdminRole, verifyAuth } from '@/backend/utils/auth';
 import { friendService } from '../services/friendService';
 import { userService } from '../services/userService';
 
@@ -298,7 +298,21 @@ export const userController = {
                 return Response.json({ error: 'Missing userId' }, { status: 400 });
             }
 
-            const result = await userService.deleteUser(Number(userId));
+            const deletedUser = await userService.deleteUser(Number(userId));
+
+            if (deletedUser && deletedUser.authId) {
+                if (supabaseAdminRole) {
+                    const { error } = await supabaseAdminRole.auth.admin.deleteUser(deletedUser.authId);
+                    if (error) {
+                        console.error('Failed to delete user from Supabase Auth:', error);
+                    } else {
+                        console.log(`Successfully deleted user ${deletedUser.authId} from Supabase Auth`);
+                    }
+                } else {
+                    console.warn('SUPABASE_SERVICE_ROLE_KEY missing. User not deleted from Supabase Auth.');
+                }
+            }
+
             return Response.json({ success: true, message: 'User deleted successfully' });
         } catch (error: any) {
             console.error('Error deleting user:', error);

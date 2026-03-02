@@ -44,7 +44,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
     // Let's assume the IDs are: 'tokens_1', 'tokens_2', 'tokens_5', 'tokens_10'
 
     const getRcPackage = (tokens: number): PurchasesPackage | undefined => {
-        return packages.find(p => p.identifier.endsWith(`tokens_${tokens}`) || p.product.identifier.endsWith(`tokens_${tokens}`));
+        return packages.find(p => p.identifier.includes(`tokens_${tokens}`) || p.product.identifier.includes(`tokens_${tokens}`));
     };
 
     const displayPackages = PACKAGES.map(pkg => {
@@ -190,7 +190,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
 
 const styles = StyleSheet.create({
     packagesContainer: {
-        paddingBottom: 4,
+        paddingBottom: -12,
     },
     packageCard: {
         flexDirection: 'row',
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 12,
+        marginBottom: 16,
         position: 'relative',
     },
     popularBadge: {
