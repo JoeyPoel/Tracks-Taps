@@ -19,7 +19,7 @@ interface TutorialContextProps {
     nextStep: () => void;
     skipTutorial: () => void;
     hasSeenTutorial: boolean;
-    resetTutorial: () => void;
+    resetTutorial: () => Promise<void>;
     isLoading: boolean;
 }
 
@@ -141,7 +141,7 @@ export const TutorialProvider = ({ children }: { children: React.ReactNode }) =>
         }
     };
 
-    const resetTutorial = async () => {
+    const resetTutorial = async (): Promise<void> => {
         setIsActive(false);
         setHasSeenTutorial(false);
         try {

@@ -126,8 +126,13 @@ export function MainLayout() {
         if (user && (user as any).isNewUser) {
             // Unflag the local object so we only do this once
             useStore.setState({ user: { ...user, isNewUser: false } });
-            // This clears the device cache and effectively forces the tutorial logic to play
-            resetTutorial();
+            // This clears the device cache
+            resetTutorial().then(() => {
+                // Wait briefly for smooth transition, then start the wizard immediately
+                setTimeout(() => {
+                    startTutorial();
+                }, 1000);
+            });
             return;
         }
 
