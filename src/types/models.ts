@@ -112,6 +112,7 @@ export interface User {
     tokens: number;
     referralCode?: string;
     referralCount?: number;
+    isNewUser?: boolean; // Flag populated by backend during creation
     createdAt: Date;
     updatedAt: Date;
     teams?: {

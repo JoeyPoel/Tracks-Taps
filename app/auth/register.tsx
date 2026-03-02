@@ -87,9 +87,6 @@ export default function RegisterScreen() {
                     },
                     body: JSON.stringify({ action: 'create-user', email: email }),
                 });
-
-                // Trigger tutorial for the new user
-                await resetTutorial();
             } catch (err) {
                 console.error("Failed to create user in DB:", err);
                 // We don't block the user flow here because the checkout/login will likely retry or "lazy create"

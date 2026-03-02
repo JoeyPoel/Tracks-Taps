@@ -18,11 +18,12 @@ export function MainLayout() {
     const segment = useSegments();
     const router = useRouter();
     const hasHydrated = useStore((state) => state._hasHydrated);
+    const user = useStore((state) => state.user);
 
     const [isReady, setIsReady] = useState(false);
     const [isHandlingAuthRedirect, setIsHandlingAuthRedirect] = useState(false);
 
-    const { hasSeenTutorial, isLoading: isTutorialLoading, startTutorial, isActive } = useTutorial();
+    const { hasSeenTutorial, isLoading: isTutorialLoading, startTutorial, isActive, resetTutorial } = useTutorial();
 
     // Listen for level ups
     useLevelUpListener();
@@ -121,6 +122,15 @@ export function MainLayout() {
 
     // Handle Tutorial Trigger
     useEffect(() => {
+        // If the backend flagged this as a new user, force the tutorial to reset and play for this account
+        if (user && (user as any).isNewUser) {
+            // Unflag the local object so we only do this once
+            useStore.setState({ user: { ...user, isNewUser: false } });
+            // This clears the device cache and effectively forces the tutorial logic to play
+            resetTutorial();
+            return;
+        }
+
         if (!loading && !isTutorialLoading && !hasSeenTutorial && !isActive && isReady) {
             // Check if we are in the main app (not auth screens)
             const inAuthGroup = segment[0] === 'auth';
@@ -132,7 +142,7 @@ export function MainLayout() {
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [session, loading, isTutorialLoading, hasSeenTutorial, isActive, isReady, segment]);
+    }, [session, loading, isTutorialLoading, hasSeenTutorial, isActive, isReady, segment, user, resetTutorial]);
 
     if (!isReady || loading || !hasHydrated) {
         return (

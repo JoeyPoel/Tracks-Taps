@@ -75,12 +75,14 @@ export const userController = {
                     // We might not have an email (Apple Sign-in), fallback to authId proxy
                     const creationEmail = email || `${authId}@apple-hidden.tracksandtaps.com`;
                     user = await userService.createUserByAuthId(authId, creationEmail);
+                    (user as any).isNewUser = true;
                 }
             } else if (email) {
                 user = await userService.getUserByEmail(email);
 
                 if (!user) {
                     user = await userService.createUserByEmail(email);
+                    (user as any).isNewUser = true;
                 }
             } else {
                 return Response.json({ error: 'Missing userId, authId, or email' }, { status: 400 });
@@ -242,6 +244,7 @@ export const userController = {
 
             // Create using authId safely
             const newUser = await userService.createUserByAuthId(authId || '', email || `${authId}@apple-hidden.tracksandtaps.com`);
+            (newUser as any).isNewUser = true;
             return Response.json(newUser);
         } catch (error) {
             console.error('Error creating user:', error);
