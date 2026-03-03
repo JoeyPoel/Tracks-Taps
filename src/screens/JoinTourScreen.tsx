@@ -1,19 +1,19 @@
 import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
-import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { MapPinIcon, TicketIcon, UserGroupIcon } from 'react-native-heroicons/solid'; // Changed imports
 import Animated, { FadeInDown, FadeInUp, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import { AnimatedButton } from '../components/common/AnimatedButton';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
+import { TourInviteCard } from '../components/friends/TourInviteCard'; // Added import
 import { useAuth } from '../context/AuthContext'; // Added import
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useInvites } from '../hooks/useInvites';
 import { useJoinTour } from '../hooks/useJoinTour';
-import { authEvents } from '../utils/authEvents'; // Added import
+import { authEvents } from '../utils/authEvents';
 
 export default function JoinTourScreen() {
     const { theme } = useTheme();
@@ -172,42 +172,13 @@ export default function JoinTourScreen() {
                             </View>
 
                             {(invites || []).map((invite) => (
-                                <View key={invite.id} style={[styles.inviteCard, { backgroundColor: theme.bgSecondary }]}>
-                                    <View style={[styles.inviteIcon, { backgroundColor: theme.primary + '20' }]}>
-                                        <TicketIcon size={24} color={theme.primary} />
-                                    </View>
-
-                                    <View style={styles.inviteInfo}>
-                                        <TextComponent style={styles.inviteTourName} color={theme.textPrimary} bold variant="body" numberOfLines={1}>
-                                            {invite.parsedData?.tourName || "Unknown Tour"}
-                                        </TextComponent>
-                                        <TextComponent style={styles.inviteFrom} color={theme.textSecondary} variant="caption" numberOfLines={1}>
-                                            {t('invitedBy') || "Invited by"} {invite.parsedData?.inviterName || "a friend"}
-                                        </TextComponent>
-                                    </View>
-
-                                    <View style={styles.inviteActions}>
-                                        {processingId === invite.id ? (
-                                            <ActivityIndicator color={theme.primary} />
-                                        ) : (
-                                            <>
-                                                <TouchableOpacity
-                                                    onPress={() => declineInvite(invite.id)}
-                                                    style={[styles.actionButton, { backgroundColor: theme.bgTertiary, marginRight: 8 }]}
-                                                >
-                                                    <Ionicons name="close" size={20} color={theme.textSecondary} />
-                                                </TouchableOpacity>
-
-                                                <TouchableOpacity
-                                                    onPress={() => acceptInvite(invite.id)}
-                                                    style={[styles.actionButton, { backgroundColor: theme.primary }]}
-                                                >
-                                                    <Ionicons name="checkmark" size={20} color="#FFF" />
-                                                </TouchableOpacity>
-                                            </>
-                                        )}
-                                    </View>
-                                </View>
+                                <TourInviteCard
+                                    key={invite.id}
+                                    invite={invite}
+                                    processingId={processingId}
+                                    onAccept={acceptInvite}
+                                    onDecline={declineInvite}
+                                />
                             ))}
                         </Animated.View>
                     )}
@@ -306,45 +277,6 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         letterSpacing: 1,
         paddingHorizontal: 16,
-    },
-    inviteCard: {
-        flexDirection: 'row',
-        padding: 16,
-        borderRadius: 20,
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    inviteIcon: {
-        width: 48,
-        height: 48,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 16,
-    },
-    inviteInfo: {
-        flex: 1,
-        marginRight: 12,
-    },
-    inviteTourName: {
-        fontSize: 16,
-        fontWeight: '700',
-        marginBottom: 4,
-    },
-    inviteFrom: {
-        fontSize: 13,
-        fontWeight: '500',
-    },
-    inviteActions: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    actionButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
 });
 

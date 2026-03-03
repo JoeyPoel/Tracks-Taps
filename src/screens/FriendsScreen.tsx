@@ -6,12 +6,14 @@ import { AddFriendModal } from '@/src/components/friends/AddFriendModal';
 import { FriendCard } from '@/src/components/friends/FriendCard';
 import { FriendsTabs } from '@/src/components/friends/FriendsTabs';
 import { RequestCard } from '@/src/components/friends/RequestCard';
+import { TourInviteCard } from '@/src/components/friends/TourInviteCard';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useFriends } from '@/src/hooks/useFriends';
+import { useInvites } from '@/src/hooks/useInvites';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function FriendsScreen() {
@@ -31,6 +33,15 @@ export default function FriendsScreen() {
         respondToRequest
     } = useFriends();
 
+    const {
+        invites,
+        loading: loadingInvites,
+        processingId,
+        refresh: refreshInvites,
+        acceptInvite,
+        declineInvite
+    } = useInvites();
+
     useEffect(() => {
         if (activeTab === 'friends') {
             loadFriends();
@@ -44,16 +55,42 @@ export default function FriendsScreen() {
             loadFriends(true);
         } else {
             loadRequests(true);
+            refreshInvites();
         }
-    }, [activeTab, loadFriends, loadRequests]);
+    }, [activeTab, loadFriends, loadRequests, refreshInvites]);
+
+    const combinedRequests = useMemo(() => {
+        // Return whatever is needed for FlatList Data
+        if (activeTab !== 'requests') return [];
+        const combined: any[] = [];
+
+        // Add game invites first 
+        invites.forEach(invite => {
+            combined.push({ type: 'invite', data: invite });
+        });
+
+        // Add friend requests
+        requests.forEach(req => {
+            combined.push({ type: 'friend', data: req });
+        });
+
+        return combined;
+    }, [activeTab, invites, requests]);
 
     const renderItem = ({ item, index }: { item: any, index: number }) => (
         <FadeInItem index={index}>
             {activeTab === 'friends' ? (
                 <FriendCard friend={item} />
+            ) : item.type === 'invite' ? (
+                <TourInviteCard
+                    invite={item.data}
+                    processingId={processingId}
+                    onAccept={acceptInvite}
+                    onDecline={declineInvite}
+                />
             ) : (
                 <RequestCard
-                    request={item}
+                    request={item.data}
                     onAccept={(id) => respondToRequest(id, 'ACCEPT')}
                     onDecline={(id) => respondToRequest(id, 'DECLINE')}
                 />
@@ -82,29 +119,29 @@ export default function FriendsScreen() {
                     <FriendsTabs
                         activeTab={activeTab}
                         onTabChange={setActiveTab}
-                        requestCount={requests.length}
+                        requestCount={requests.length + (invites?.length || 0)}
                     />
                 </View>
 
                 <FlatList
-                    data={activeTab === 'friends' ? friends : requests}
+                    data={activeTab === 'friends' ? friends : combinedRequests}
                     renderItem={renderItem}
-                    keyExtractor={(item) => item.id.toString()}
+                    keyExtractor={(item) => activeTab === 'friends' ? `friend-${item.id}` : `${item.type}-${item.data.id}`}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
                     refreshControl={
                         <RefreshControl
-                            refreshing={activeTab === 'friends' ? loadingFriends : loadingRequests}
+                            refreshing={activeTab === 'friends' ? loadingFriends : (loadingRequests || loadingInvites)}
                             onRefresh={handleRefresh}
                             tintColor={theme.primary}
                         />
                     }
                     ListEmptyComponent={
-                        (activeTab === 'friends' ? loadingFriends : loadingRequests) ? null : (
+                        (activeTab === 'friends' ? loadingFriends : (loadingRequests || loadingInvites)) ? null : (
                             <EmptyState
                                 icon={activeTab === 'friends' ? "people" : "mail-unread"}
-                                title={activeTab === 'friends' ? t('noFriendsYet') : t('noRequests')}
-                                message={activeTab === 'friends' ? t('searchFriendsText') : t('noRequestsText')}
+                                title={activeTab === 'friends' ? t('noFriendsYet') : t('noRequestsAndInvites')}
+                                message={activeTab === 'friends' ? t('searchFriendsText') : t('noRequestsAndInvitesText')}
                             />
                         )
                     }

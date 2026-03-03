@@ -16,10 +16,10 @@ interface BuyTokensModalProps {
 }
 
 const PACKAGES = [
-    { tokens: 1, price: 2.99, bonus: 0, popular: false },
-    { tokens: 2, price: 5.49, bonus: 0, popular: false },
-    { tokens: 5, price: 12.49, bonus: 0, popular: true },
-    { tokens: 10, price: 19.99, bonus: 0, popular: false },
+    { tokens: 1, bonus: 0, popular: false },
+    { tokens: 2, bonus: 0, popular: false },
+    { tokens: 5, bonus: 0, popular: true },
+    { tokens: 10, bonus: 0, popular: false },
 ];
 
 
@@ -55,8 +55,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
         return {
             ...pkg,
             rcPackage: rcPkg,
-            priceString: rcPkg?.product.priceString || `€${pkg.price.toFixed(2)}`,
-            // If RC package exists, use its price, otherwise fallback
+            priceString: rcPkg?.product.priceString || '-',
         };
     });
 
@@ -108,7 +107,6 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
             <ScrollView contentContainerStyle={styles.packagesContainer}>
                 {displayPackages.map((pkg, index) => {
                     const totalTokens = pkg.tokens + pkg.bonus;
-                    const pricePerToken = (pkg.price / totalTokens).toFixed(2); // Keep logic for now, or calculate from RC price
 
                     return (
                         <AnimatedPressable
