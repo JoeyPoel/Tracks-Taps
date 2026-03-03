@@ -1,9 +1,9 @@
 import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
-import { GenericCard } from '../common/GenericCard';
 
 interface TeamCardProps {
     name: string;
@@ -13,44 +13,71 @@ interface TeamCardProps {
 
 export const TeamCard: React.FC<TeamCardProps> = ({ name, color, emoji }) => {
     const { theme } = useTheme();
-    const { t } = useLanguage(); // Ensure you use 't' if needed, or remove if unused. kept for consistency.
+    const { t } = useLanguage();
 
     return (
-        <GenericCard
-            style={[styles.teamCard, { backgroundColor: theme.bgPrimary, borderColor: color }]}
-            variant="outlined"
-            padding="medium"
+        <View
+            style={[
+                styles.playerRow,
+                {
+                    backgroundColor: theme.bgSecondary,
+                    borderColor: color || theme.borderPrimary,
+                    borderWidth: color ? 2 : 1
+                }
+            ]}
         >
-            <View style={styles.teamHeader}>
-                <TextComponent style={{ fontSize: 32, lineHeight: 40, marginRight: 16 }}>{emoji}</TextComponent>
-                <View>
-                    <TextComponent style={styles.name} color={theme.textPrimary} size={18} bold variant="body">
-                        {name || t('yourTeamName')}
-                    </TextComponent>
-                    <TextComponent style={{ fontSize: 14 }} color={theme.textSecondary} bold variant="caption">
-                        {t('ready') || t('readyToJoin')}
-                    </TextComponent>
-                </View>
+            <LinearGradient
+                colors={color ? [theme.bgTertiary, color + '40'] : [theme.bgTertiary, theme.bgTertiary]}
+                style={[styles.avatarContainer, color ? { borderColor: color, borderWidth: 1 } : null]}
+            >
+                <TextComponent style={styles.avatarEmoji} size={26}>{emoji || "👤"}</TextComponent>
+            </LinearGradient>
+
+            <View style={styles.playerInfo}>
+                <TextComponent style={styles.playerName} color={color || theme.textPrimary} bold variant="body">
+                    {name || t('yourTeamName')}
+                </TextComponent>
+                <TextComponent style={styles.playerRole} color={theme.textSecondary} variant="caption">
+                    {t('ready')}
+                </TextComponent>
             </View>
-        </GenericCard>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
-    teamCard: {
-        borderRadius: 16,
-        paddingHorizontal: 16,
-        marginTop: 16,
-        borderWidth: 1,
-        width: '100%', // Ensure full width
-    },
-    teamHeader: {
+    playerRow: {
         flexDirection: 'row',
         alignItems: 'center',
+        padding: 16,
+        borderRadius: 20,
+        borderWidth: 1,
+        marginBottom: 0,
+        marginTop: 16,
+        width: '100%',
     },
-    name: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 4,
+    avatarContainer: {
+        width: 52,
+        height: 52,
+        borderRadius: 26,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    avatarEmoji: {
+        fontSize: 26,
+        lineHeight: 32,
+    },
+    playerInfo: {
+        flex: 1,
+    },
+    playerName: {
+        fontSize: 17,
+        fontWeight: '700',
+        marginBottom: 2,
+    },
+    playerRole: {
+        fontSize: 13,
+        fontWeight: '500',
     },
 });
