@@ -198,10 +198,10 @@ export const userController = {
             // 3. Determine Tokens (Server-side Source of Truth)
             let tokensToAward = 0;
             // Flexible matching for product IDs like 'tokens_10_consumable' or just 'tokens_10'
-            if (verifiedProductId.includes('tokens_10')) tokensToAward = 10;
-            else if (verifiedProductId.includes('tokens_5')) tokensToAward = 5;
-            else if (verifiedProductId.includes('tokens_2')) tokensToAward = 2;
-            else if (verifiedProductId.includes('tokens_1')) tokensToAward = 1;
+            if (verifiedProductId.includes('tokens_10_') || verifiedProductId === 'tokens_10') tokensToAward = 10;
+            else if (verifiedProductId.includes('tokens_5_') || verifiedProductId === 'tokens_5') tokensToAward = 5;
+            else if (verifiedProductId.includes('tokens_2_') || verifiedProductId === 'tokens_2') tokensToAward = 2;
+            else if (verifiedProductId.includes('tokens_1_') || verifiedProductId === 'tokens_1') tokensToAward = 1;
             else {
                 return Response.json({ error: `Unknown product identifier: ${verifiedProductId}` }, { status: 400 });
             }

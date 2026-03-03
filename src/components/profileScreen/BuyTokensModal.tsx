@@ -44,7 +44,10 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
     // Let's assume the IDs are: 'tokens_1', 'tokens_2', 'tokens_5', 'tokens_10'
 
     const getRcPackage = (tokens: number): PurchasesPackage | undefined => {
-        return packages.find(p => p.identifier.includes(`tokens_${tokens}`) || p.product.identifier.includes(`tokens_${tokens}`));
+        return packages.find(p =>
+            p.identifier.includes(`tokens_${tokens}_`) || p.identifier === `tokens_${tokens}` ||
+            p.product.identifier.includes(`tokens_${tokens}_`) || p.product.identifier === `tokens_${tokens}`
+        );
     };
 
     const displayPackages = PACKAGES.map(pkg => {
