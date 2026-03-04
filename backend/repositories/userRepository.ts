@@ -418,12 +418,29 @@ export const userRepository = {
             });
 
             // Teams (where user is participant)
-            await tx.team.deleteMany({
-                where: { userId: userId }
+            const userTeams = await tx.team.findMany({
+                where: { userId: userId },
+                select: { id: true }
             });
+            const userTeamIds = userTeams.map(t => t.id);
 
-            // Purchases (Anonymize or delete? "everything else should be deleted")
-            // Reassign to ghost user or delete. Deleting might be cleaner for privacy.
+            if (userTeamIds.length > 0) {
+                // Explicitly delete team dependencies (although DB cascade usually handles this)
+                await tx.activeChallenge.deleteMany({
+                    where: { teamId: { in: userTeamIds } }
+                });
+                await tx.pubGolfStop.deleteMany({
+                    where: { teamId: { in: userTeamIds } }
+                });
+                await tx.bingoCard.deleteMany({
+                    where: { teamId: { in: userTeamIds } }
+                });
+                await tx.team.deleteMany({
+                    where: { id: { in: userTeamIds } }
+                });
+            }
+
+            // Purchases
             await tx.purchase.deleteMany({
                 where: { userId: userId }
             });

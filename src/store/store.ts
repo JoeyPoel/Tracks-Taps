@@ -233,12 +233,23 @@ export const useStore = create<StoreState>()(
                 try {
                     const activeTour = await activeTourService.getActiveTourById(id);
                     if (!activeTour) {
-                        set({ errorActiveTours: 'Tour not found', loadingActiveTours: false, activeTour: null });
+                        const current = get().activeTour;
+                        if (current && current.id === id) {
+                            // If it's already deleted from DB, preserve local summary if we had it
+                            set({ loadingActiveTours: false });
+                        } else {
+                            set({ errorActiveTours: 'Tour not found', loadingActiveTours: false, activeTour: null });
+                        }
                     } else {
                         set({ activeTour, loadingActiveTours: false });
                     }
                 } catch (error: any) {
-                    set({ errorActiveTours: error.message || 'Failed to fetch active tour', loadingActiveTours: false });
+                    const current = get().activeTour;
+                    if (current && current.id === id) {
+                        set({ loadingActiveTours: false });
+                    } else {
+                        set({ errorActiveTours: error.message || 'Failed to fetch active tour', loadingActiveTours: false });
+                    }
                 }
             },
 
@@ -255,9 +266,11 @@ export const useStore = create<StoreState>()(
             fetchActiveTourLobby: async (id: number) => {
                 try {
                     const updatedLobby = await activeTourService.getActiveTourLobby(id);
-                    get().updateActiveTourLocal(updatedLobby);
+                    if (updatedLobby) {
+                        get().updateActiveTourLocal(updatedLobby);
+                    }
                 } catch (error: any) {
-                    console.error('Failed to update active tour lobby', error);
+                    // Ignore silently since it may be deleted upon completion
                 }
             },
 

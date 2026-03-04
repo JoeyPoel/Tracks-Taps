@@ -177,6 +177,13 @@ export const activeTourService = {
                 const winnerId = rankedTeams.length > 0 ? rankedTeams[0].id : undefined;
 
                 await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.POST_TOUR_LOBBY, winnerId);
+
+                // As requested: Delete active tour to clear database once everyone has finished
+                try {
+                    await activeTourRepository.deleteActiveTourById(activeTourId);
+                } catch (cleanupError) {
+                    console.error('Failed to cleanup finished tour', cleanupError);
+                }
             }
         }
 
