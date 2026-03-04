@@ -159,7 +159,7 @@ export function MainLayout() {
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.bgPrimary }}>
-            <View style={{ flex: 1, width: '100%', maxWidth: getAppMaxWidth(), alignSelf: 'center' }}>
+            <View style={{ flex: 1, width: '100%', maxWidth: (segment as string[]).includes('map') ? '100%' : getAppMaxWidth(), alignSelf: 'center' }}>
                 <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bgPrimary } }}>
                     <Stack.Screen name="auth" options={{ headerShown: false }} />
                     <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

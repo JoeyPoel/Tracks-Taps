@@ -2,7 +2,7 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
@@ -11,7 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
-
+import { getAppMaxWidth } from '../../hooks/useAppWidth';
 import { useStore } from '../../store/store';
 
 export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
@@ -53,46 +53,48 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
     return (
         <Animated.View style={[styles.container, { paddingBottom: 35 }, animatedStyle]}>
-            <BlurView
-                intensity={80}
-                tint={mode === 'dark' ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight'}
-                style={[
-                    styles.glassContainer,
-                    {
-                        borderColor: theme.navBarBorder,
-                        backgroundColor: theme.navBarBackground,
-                        shadowColor: theme.shadowColor
-                    }
-                ]}
-            >
-                {visibleRoutes.map((route, index) => {
-                    const { options } = descriptors[route.key];
-                    const isFocused = state.index === state.routes.indexOf(route);
-
-                    const onPress = () => {
-                        const event = navigation.emit({
-                            type: 'tabPress',
-                            target: route.key,
-                            canPreventDefault: true,
-                        });
-
-                        if (!isFocused && !event.defaultPrevented) {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            navigation.navigate(route.name, route.params);
+            <View style={styles.pillContainer}>
+                <BlurView
+                    intensity={80}
+                    tint={mode === 'dark' ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight'}
+                    style={[
+                        styles.glassContainer,
+                        {
+                            borderColor: theme.navBarBorder,
+                            backgroundColor: theme.navBarBackground,
+                            shadowColor: theme.shadowColor
                         }
-                    };
+                    ]}
+                >
+                    {visibleRoutes.map((route, index) => {
+                        const { options } = descriptors[route.key];
+                        const isFocused = state.index === state.routes.indexOf(route);
 
-                    return (
-                        <TabItem
-                            key={route.key}
-                            isFocused={isFocused}
-                            options={options}
-                            onPress={onPress}
-                            theme={theme}
-                        />
-                    );
-                })}
-            </BlurView>
+                        const onPress = () => {
+                            const event = navigation.emit({
+                                type: 'tabPress',
+                                target: route.key,
+                                canPreventDefault: true,
+                            });
+
+                            if (!isFocused && !event.defaultPrevented) {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                navigation.navigate(route.name, route.params);
+                            }
+                        };
+
+                        return (
+                            <TabItem
+                                key={route.key}
+                                isFocused={isFocused}
+                                options={options}
+                                onPress={onPress}
+                                theme={theme}
+                            />
+                        );
+                    })}
+                </BlurView>
+            </View>
         </Animated.View>
     );
 }
@@ -142,7 +144,13 @@ const styles = StyleSheet.create({
         right: 0,
         alignItems: 'center',
         backgroundColor: 'transparent',
-        paddingHorizontal: 10, // Slightly wider than content (20px) for layered look
+        paddingHorizontal: 0,
+    },
+    pillContainer: {
+        width: '100%',
+        maxWidth: getAppMaxWidth(),
+        paddingHorizontal: 10,
+        alignSelf: 'center',
     },
     glassContainer: {
         flexDirection: 'row',
