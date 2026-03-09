@@ -8,7 +8,7 @@ import { authEvents } from '../utils/authEvents';
 
 export type StartTourMode = 'solo' | 'lobby' | null;
 
-export const useStartTour = (tourId: number, authorId?: number) => {
+export const useStartTour = (tourId: number, authorId?: number, onInsufficientTokens?: () => void) => {
     const { user, refreshUser } = useUserContext();
     const router = useRouter();
     const [loadingMode, setLoadingMode] = useState<StartTourMode>(null);
@@ -97,10 +97,14 @@ export const useStartTour = (tourId: number, authorId?: number) => {
         }
 
         if (!isAuthor && user.tokens < 1) {
-            if (Platform.OS === 'web') {
-                alert(t('insufficientTokensMessage'));
+            if (onInsufficientTokens) {
+                onInsufficientTokens();
             } else {
-                Alert.alert(t('insufficientTokensTitle'), t('insufficientTokensMessage'));
+                if (Platform.OS === 'web') {
+                    alert(t('insufficientTokensMessage'));
+                } else {
+                    Alert.alert(t('insufficientTokensTitle'), t('insufficientTokensMessage'));
+                }
             }
             return;
         }

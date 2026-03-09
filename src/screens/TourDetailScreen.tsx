@@ -11,6 +11,7 @@ import { AnimatedButton } from '../components/common/AnimatedButton';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { TextComponent } from '../components/common/TextComponent'; // Added import
 import { TourLoadingScreen } from '../components/common/TourLoadingScreen';
+import BuyTokensModal from '../components/profileScreen/BuyTokensModal';
 import AddToSavedTripsModal from '../components/saved-trips/AddToSavedTripsModal';
 import TourGallery from '../components/tourdetailScreen/TourGallery';
 import TourReviews from '../components/tourdetailScreen/TourReviews';
@@ -30,6 +31,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const router = useRouter();
   const { goBack } = useSafeNavigation();
   const [showSavedTripModal, setShowSavedTripModal] = useState(false);
+  const [showBuyTokens, setShowBuyTokens] = useState(false);
 
   const {
     tour,
@@ -40,7 +42,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
     formattedReviews
   } = useTourDetails(tourId);
 
-  const { startTour, loadingMode } = useStartTour(tourId, tour?.author?.id);
+  const { startTour, loadingMode } = useStartTour(tourId, tour?.author?.id, () => setShowBuyTokens(true));
   const { lists, loadLists, checkIsSaved, createList, addTourToList, removeTourFromList, isFavourite, toggleFavourite } = useSavedTrips();
   const isSaved = checkIsSaved(tourId);
 
@@ -314,6 +316,11 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
         onCreateList={createList}
         onAddTour={addTourToList}
         onRemoveTour={removeTourFromList}
+      />
+
+      <BuyTokensModal
+        visible={showBuyTokens}
+        onClose={() => setShowBuyTokens(false)}
       />
     </ScreenWrapper>
   );

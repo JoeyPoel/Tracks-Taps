@@ -5,10 +5,11 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View
 import { MapPinIcon, TicketIcon, UserGroupIcon } from 'react-native-heroicons/solid'; // Changed imports
 import Animated, { FadeInDown, FadeInUp, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import { AnimatedButton } from '../components/common/AnimatedButton';
+import { AppModal } from '../components/common/AppModal';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
-import { TourInviteCard } from '../components/friends/TourInviteCard'; // Added import
-import { useAuth } from '../context/AuthContext'; // Added import
+import { TourInviteCard } from '../components/friends/TourInviteCard';
+import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useInvites } from '../hooks/useInvites';
@@ -37,7 +38,7 @@ export default function JoinTourScreen() {
         originalHandleJoin();
     };
 
-    const { invites, loading: loadingInvites, acceptInvite, declineInvite, processingId } = useInvites();
+    const { invites, loading: loadingInvites, acceptInvite, declineInvite, processingId, expiredModalVisible, setExpiredModalVisible } = useInvites();
 
     // Animation shared values for floating effect
     const floatY = useSharedValue(0);
@@ -142,7 +143,7 @@ export default function JoinTourScreen() {
 
                         </View>
 
-                        {error && (
+                        {error && error !== t('tourNotFound') && (
                             <Animated.View entering={FadeInUp}>
                                 <TextComponent style={styles.errorText} color={theme.danger} bold variant="caption">
                                     {error}
@@ -185,6 +186,44 @@ export default function JoinTourScreen() {
 
                 </ScrollView>
             </KeyboardAvoidingView>
+
+            <AppModal
+                visible={error === t('tourNotFound')}
+                onClose={() => setError(null)}
+                title={t('tourNotFound') || "Tour Not Found"}
+                alignment="center"
+            >
+                <View style={{ alignItems: 'center', paddingVertical: 20 }}>
+                    <TextComponent color={theme.textSecondary} center style={{ marginBottom: 20 }}>
+                        {t('noToursFoundDesc') || "The tour code you entered does not exist or has expired. Please check the code and try again."}
+                    </TextComponent>
+                    <AnimatedButton
+                        title="OK"
+                        onPress={() => setError(null)}
+                        variant="primary"
+                        style={{ width: '100%' }}
+                    />
+                </View>
+            </AppModal>
+
+            <AppModal
+                visible={expiredModalVisible}
+                onClose={() => setExpiredModalVisible(false)}
+                title={"Invitation Expired"}
+                alignment="center"
+            >
+                <View style={{ alignItems: 'center', paddingVertical: 20 }}>
+                    <TextComponent color={theme.textSecondary} center style={{ marginBottom: 20 }}>
+                        {"This invitation has expired. The tour may have already finished or been cancelled."}
+                    </TextComponent>
+                    <AnimatedButton
+                        title="OK"
+                        onPress={() => setExpiredModalVisible(false)}
+                        variant="primary"
+                        style={{ width: '100%' }}
+                    />
+                </View>
+            </AppModal>
         </ScreenWrapper>
     );
 }

@@ -10,6 +10,7 @@ export const useInvites = () => {
     const [invites, setInvites] = useState<Invite[]>([]);
     const [loading, setLoading] = useState(false);
     const [processingId, setProcessingId] = useState<number | null>(null);
+    const [expiredModalVisible, setExpiredModalVisible] = useState(false);
 
     const fetchInvites = useCallback(async () => {
         if (!user) return;
@@ -35,19 +36,19 @@ export const useInvites = () => {
 
         fetchInvites();
 
-        // Subscribe to real-time invites
+        // Subscribe to real-time invites (INSERT and DELETE)
         const channel = supabase
             .channel('invites_channel')
             .on(
                 'postgres_changes',
                 {
-                    event: 'INSERT',
+                    event: '*', // Listen to all events to catch deletions when active Tour is finished
                     schema: 'public',
                     table: 'GameInvite',
                     filter: `inviteeId=eq.${user.id}`,
                 },
                 (payload) => {
-                    console.log('New invite received, refreshing...', payload);
+                    console.log('Invite changes received, refreshing...', payload);
                     fetchInvites();
                 }
             )
@@ -76,9 +77,22 @@ export const useInvites = () => {
             // Remove from list
             setInvites(prev => prev.filter(i => i.id !== inviteId));
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to accept invite:', error);
-            alert('Failed to join game. It might have already started or been cancelled.');
+
+            // If the backend returns this specific error or a 404 (meaning it's gone)
+            const isExpiredError =
+                error?.response?.data?.error?.includes('Invite not found') ||
+                error?.response?.data?.error?.includes('Invite is no longer pending') ||
+                error?.message?.includes('not found') ||
+                error?.response?.status === 404;
+
+            if (isExpiredError) {
+                setInvites(prev => prev.filter(i => i.id !== inviteId));
+                setExpiredModalVisible(true);
+            } else {
+                alert('Failed to join game. It might have already started or been cancelled.');
+            }
         } finally {
             setProcessingId(null);
         }
@@ -101,6 +115,8 @@ export const useInvites = () => {
         invites,
         loading,
         processingId,
+        expiredModalVisible,
+        setExpiredModalVisible,
         refresh: fetchInvites,
         acceptInvite,
         declineInvite

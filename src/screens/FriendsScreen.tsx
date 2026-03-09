@@ -1,7 +1,10 @@
+import { AnimatedButton } from '@/src/components/common/AnimatedButton';
+import { AppModal } from '@/src/components/common/AppModal';
 import { EmptyState } from '@/src/components/common/EmptyState';
 import { FadeInItem } from '@/src/components/common/FadeInList';
 import { ScreenHeader } from '@/src/components/common/ScreenHeader';
 import { ScreenWrapper } from '@/src/components/common/ScreenWrapper';
+import { TextComponent } from '@/src/components/common/TextComponent';
 import { AddFriendModal } from '@/src/components/friends/AddFriendModal';
 import { FriendCard } from '@/src/components/friends/FriendCard';
 import { FriendsTabs } from '@/src/components/friends/FriendsTabs';
@@ -39,7 +42,9 @@ export default function FriendsScreen() {
         processingId,
         refresh: refreshInvites,
         acceptInvite,
-        declineInvite
+        declineInvite,
+        expiredModalVisible,
+        setExpiredModalVisible
     } = useInvites();
 
     useEffect(() => {
@@ -152,6 +157,25 @@ export default function FriendsScreen() {
                 visible={addModalVisible}
                 onClose={() => setAddModalVisible(false)}
             />
+
+            <AppModal
+                visible={expiredModalVisible}
+                onClose={() => setExpiredModalVisible(false)}
+                title={"Invitation Expired"}
+                alignment="center"
+            >
+                <View style={{ alignItems: 'center', paddingVertical: 20 }}>
+                    <TextComponent color={theme.textSecondary} center style={{ marginBottom: 20 }}>
+                        {"This invitation has expired. The tour may have already finished or been cancelled."}
+                    </TextComponent>
+                    <AnimatedButton
+                        title="OK"
+                        onPress={() => setExpiredModalVisible(false)}
+                        variant="primary"
+                        style={{ width: '100%' }}
+                    />
+                </View>
+            </AppModal>
         </ScreenWrapper>
     );
 }
