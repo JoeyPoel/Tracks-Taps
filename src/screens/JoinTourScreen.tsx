@@ -143,7 +143,7 @@ export default function JoinTourScreen() {
 
                         </View>
 
-                        {error && error !== t('tourNotFound') && (
+                        {error && (
                             <Animated.View entering={FadeInUp}>
                                 <TextComponent style={styles.errorText} color={theme.danger} bold variant="caption">
                                     {error}
@@ -186,25 +186,6 @@ export default function JoinTourScreen() {
 
                 </ScrollView>
             </KeyboardAvoidingView>
-
-            <AppModal
-                visible={error === t('tourNotFound')}
-                onClose={() => setError(null)}
-                title={t('tourNotFound') || "Tour Not Found"}
-                alignment="center"
-            >
-                <View style={{ alignItems: 'center', paddingVertical: 20 }}>
-                    <TextComponent color={theme.textSecondary} center style={{ marginBottom: 20 }}>
-                        {t('noToursFoundDesc') || "The tour code you entered does not exist or has expired. Please check the code and try again."}
-                    </TextComponent>
-                    <AnimatedButton
-                        title="OK"
-                        onPress={() => setError(null)}
-                        variant="primary"
-                        style={{ width: '100%' }}
-                    />
-                </View>
-            </AppModal>
 
             <AppModal
                 visible={expiredModalVisible}

@@ -57,10 +57,8 @@ export default function InviteFriendsModal({ visible, onClose, activeTourId }: I
             onClose={onClose}
             title={t('inviteFriends')}
             subtitle={t('selectFriendsLobby')}
-            height="80%"
-
         >
-            <View style={{ flex: 1 }}>
+            <View>
                 {loading ? (
                     <View style={styles.centerContainer}>
                         <ActivityIndicator size="large" color={theme.primary} />
@@ -70,7 +68,7 @@ export default function InviteFriendsModal({ visible, onClose, activeTourId }: I
                         data={friends}
                         renderItem={renderItem}
                         keyExtractor={(item) => item.id.toString()}
-                        contentContainerStyle={{ paddingBottom: 100, gap: 12 }}
+                        contentContainerStyle={{ paddingBottom: 20, gap: 12 }}
                         ListEmptyComponent={
                             <View style={styles.emptyState}>
                                 <Ionicons name="people-outline" size={48} color={theme.textSecondary + '50'} />
@@ -98,13 +96,10 @@ export default function InviteFriendsModal({ visible, onClose, activeTourId }: I
 
 const styles = StyleSheet.create({
     footer: {
-        padding: 24,
+        paddingTop: 16,
+        paddingBottom: 24,
         borderTopWidth: 1,
-        paddingBottom: 40,
-        position: 'absolute',
-        right: -24,
-        left: -24,
-        bottom: -24,
+        marginTop: 8,
     },
     centerContainer: {
         flex: 1,

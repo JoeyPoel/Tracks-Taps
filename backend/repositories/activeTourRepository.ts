@@ -120,6 +120,18 @@ export const activeTourRepository = {
 
         if (!activeTour) throw new Error("Active tour not found");
 
+        // Check if user is already on a team in this tour
+        const existingTeam = await prisma.team.findFirst({
+            where: {
+                activeTourId: activeTour.id,
+                userId: userId
+            }
+        });
+
+        if (existingTeam) {
+            return existingTeam;
+        }
+
         // Create Team
         const team = await prisma.team.create({
             data: {
@@ -334,6 +346,7 @@ export const activeTourRepository = {
                     select: {
                         title: true,
                         imageUrl: true,
+                        distance: true,
                         _count: {
                             select: { stops: true }
                         }

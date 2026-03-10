@@ -36,10 +36,16 @@ export const useJoinTour = () => {
         setError(null);
 
         try {
-            await activeTourService.joinActiveTour(
+            const response = await activeTourService.joinActiveTour(
                 Number(activeTourId),
                 user.id
             );
+
+            // Handle custom 200 error response to prevent console error logs
+            if (response && response.success === false && response.error === 'invalidTourCode') {
+                setError(t('invalidTourCode'));
+                return;
+            }
 
             // Navigate to Lobby
             router.push({
@@ -49,11 +55,7 @@ export const useJoinTour = () => {
 
         } catch (err: any) {
             console.error(err);
-            if (err.response?.status === 404) {
-                setError(t('tourNotFound'));
-            } else {
-                setError(t('failedToJoin'));
-            }
+            setError(t('failedToJoin'));
         } finally {
             setLoading(false);
         }

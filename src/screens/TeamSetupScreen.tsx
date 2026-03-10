@@ -35,8 +35,7 @@ export default function TeamSetupScreen() {
             <ScreenHeader
                 title={t('teamSetup')}
                 showBackButton={true}
-                /* onBackPress removed to use default safe navigation from ScreenHeader */
-                style={{ paddingHorizontal: 0 }} // Match original padding if needed, or stick to default
+                style={{ paddingBottom: 16, marginBottom: 0 }}
             />
 
             <ScrollView contentContainerStyle={styles.content}>
@@ -71,7 +70,7 @@ export default function TeamSetupScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     headerTitle: { fontSize: 18, fontWeight: '700' },
-    content: { padding: 24 },
+    content: { padding: 20 },
     subText: { textAlign: 'center', marginBottom: 20 },
     backLink: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },
     footer: { padding: 24, borderTopWidth: 1 },

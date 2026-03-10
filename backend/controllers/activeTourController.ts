@@ -39,6 +39,10 @@ export const activeTourController = {
             return Response.json(team);
 
         } catch (error: any) {
+            if (error.message === 'Active tour not found') {
+                // Return 200 with custom error to prevent red console errors on frontend
+                return Response.json({ success: false, error: 'invalidTourCode' }, { status: 200 });
+            }
             console.error('Error joining tour:', error);
             return Response.json({ error: error.message || 'Failed to join tour' }, { status: 500 });
         }

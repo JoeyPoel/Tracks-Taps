@@ -98,7 +98,20 @@ export const useStartTour = (tourId: number, authorId?: number, onInsufficientTo
 
         if (!isAuthor && user.tokens < 1) {
             if (onInsufficientTokens) {
-                onInsufficientTokens();
+                if (Platform.OS === 'web') {
+                    if (window.confirm(t('insufficientTokensMessage'))) {
+                        onInsufficientTokens();
+                    }
+                } else {
+                    Alert.alert(
+                        t('insufficientTokensTitle'),
+                        t('insufficientTokensMessage'),
+                        [
+                            { text: t('cancel') || 'Cancel', style: 'cancel' },
+                            { text: t('buyTokens') || 'Buy Tokens', onPress: onInsufficientTokens }
+                        ]
+                    );
+                }
             } else {
                 if (Platform.OS === 'web') {
                     alert(t('insufficientTokensMessage'));

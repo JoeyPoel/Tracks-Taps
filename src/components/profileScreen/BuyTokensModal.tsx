@@ -45,8 +45,8 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
 
     const getRcPackage = (tokens: number): PurchasesPackage | undefined => {
         return packages.find(p =>
-            p.identifier.includes(`tokens_${tokens}_`) || p.identifier === `tokens_${tokens}` ||
-            p.product.identifier.includes(`tokens_${tokens}_`) || p.product.identifier === `tokens_${tokens}`
+            p.identifier.includes(`tokens_${tokens}_`) || p.identifier === `tokens_${tokens}` || p.identifier.includes(`${tokens}_tokens`) || p.identifier.includes(`${tokens}_token`) ||
+            p.product.identifier.includes(`tokens_${tokens}_`) || p.product.identifier === `tokens_${tokens}` || p.product.identifier.includes(`${tokens}_tokens`) || p.product.identifier.includes(`${tokens}_token`)
         );
     };
 
@@ -191,7 +191,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
 
 const styles = StyleSheet.create({
     packagesContainer: {
-        paddingBottom: -12,
+        paddingBottom: 24,
     },
     packageCard: {
         flexDirection: 'row',

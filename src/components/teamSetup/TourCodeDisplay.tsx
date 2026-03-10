@@ -1,8 +1,9 @@
-import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
+import { TextComponent } from '@/src/components/common/TextComponent';
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
@@ -14,17 +15,19 @@ interface TourCodeDisplayProps {
 export const TourCodeDisplay = ({ code }: TourCodeDisplayProps) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const [copied, setCopied] = useState(false);
 
     const displayCode = `${code}`;
 
     const handleCopy = async () => {
-        await Clipboard.setStringAsync(code.toString()); // Copy just the number or the full code? Design says TOUR-ULWVR9. Let's copy display code.
-        // Actually, let's copy the display code for better UX sharing
+        await Clipboard.setStringAsync(code.toString());
         await Clipboard.setStringAsync(displayCode);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1000);
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.bgSecondary, borderColor: theme.accent }]}>
+        <Animated.View layout={LinearTransition} style={[styles.container, { backgroundColor: theme.bgSecondary, borderColor: theme.accent }]}>
             <View style={styles.header}>
                 <Ionicons name="sparkles" size={20} color={theme.accent} style={{ marginRight: 8 }} />
                 <TextComponent style={styles.label} color={theme.accent} bold variant="body">{t('tourCodeLabel')}</TextComponent>
@@ -40,15 +43,24 @@ export const TourCodeDisplay = ({ code }: TourCodeDisplayProps) => {
                 </View>
 
                 <AnimatedPressable
-                    style={[styles.copyButton, { backgroundColor: theme.accent }]}
+                    style={[styles.copyButton, { backgroundColor: copied ? theme.success : theme.accent }]}
                     onPress={handleCopy}
                     interactionScale="subtle"
                     haptic="light"
+                    disabled={copied}
                 >
-                    <Ionicons name="copy-outline" size={24} color={theme.accentText} />
+                    <Ionicons name={copied ? "checkmark-outline" : "copy-outline"} size={24} color={theme.accentText} />
                 </AnimatedPressable>
             </View>
-        </View>
+
+            {copied && (
+                <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.copiedContainer}>
+                    <TextComponent style={styles.copiedText} color={theme.success} bold variant="caption">
+                        Copied!
+                    </TextComponent>
+                </Animated.View>
+            )}
+        </Animated.View>
     );
 };
 
@@ -98,4 +110,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    copiedContainer: {
+        marginTop: 12,
+        alignItems: 'center',
+    },
+    copiedText: {
+        fontSize: 14,
+    }
 });

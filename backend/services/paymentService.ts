@@ -46,18 +46,20 @@ export const paymentService = {
                     });
 
                     if (!existingTx) {
-                        // Determine token amount based on product ID
-                        // Format example: "com.joeypoel.trackstaps.tokens_100"
                         let amount = 0;
-                        const match = productId.match(/(\d+)/); // Extract number
-                        if (match) {
-                            amount = parseInt(match[0], 10);
-                        } else {
-                            // Config-based fallback map
-                            if (productId.includes('small')) amount = 100;
-                            else if (productId.includes('medium')) amount = 500;
-                            else if (productId.includes('large')) amount = 1200;
-                            else amount = 100; // Default
+
+                        // Explicit matching to prevent regex bugs (e.g. grabbing numbers from bundle IDs)
+                        if (productId.includes('tokens_10_') || productId.endsWith('tokens_10') || productId.includes('10_tokens')) amount = 10;
+                        else if (productId.includes('tokens_5_') || productId.endsWith('tokens_5') || productId.includes('5_tokens')) amount = 5;
+                        else if (productId.includes('tokens_2_') || productId.endsWith('tokens_2') || productId.includes('2_tokens')) amount = 2;
+                        else if (productId.includes('tokens_1_') || productId.endsWith('tokens_1') || productId.includes('1_token')) amount = 1;
+                        else {
+                            const match = productId.match(/(\d+)/); // Fallback
+                            if (match) {
+                                amount = parseInt(match[0], 10);
+                            } else {
+                                amount = 1; // Default
+                            }
                         }
 
                         // Record transaction (Purchase)

@@ -37,8 +37,8 @@ export function AppModal({
     const isBottom = alignment === 'bottom';
 
 
-    // Default height logic
-    const computedHeight = height || (isBottom ? '90%' : undefined);
+    // Default height logic - allow it to size down to content if no height provided
+    const computedHeight = height;
 
     return (
         <Modal
@@ -108,7 +108,7 @@ export function AppModal({
                         </View>
 
                         {/* Content */}
-                        <View style={[computedHeight ? styles.content : undefined, { paddingHorizontal: 24 }]}>
+                        <View style={[computedHeight ? styles.content : { flexShrink: 1 }, { paddingHorizontal: 24 }]}>
                             {children}
                         </View>
                     </Animated.View>
