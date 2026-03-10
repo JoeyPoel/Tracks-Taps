@@ -75,6 +75,15 @@ export const usePurchases = () => {
         };
     }, []);
 
+    // Sync RevenueCat user ID with our database ID
+    useEffect(() => {
+        if (isConfigured && user) {
+            Purchases.logIn(user.id.toString()).catch(err =>
+                console.error("Error logging into RevenueCat:", err)
+            );
+        }
+    }, [isConfigured, user?.id]);
+
     const checkEntitlement = (info: CustomerInfo) => {
         if (info.entitlements.active[ENTITLEMENT_ID]) {
             setIsPro(true);
@@ -105,23 +114,28 @@ export const usePurchases = () => {
             setCustomerInfo(customerInfo);
             checkEntitlement(customerInfo);
 
-            // Verify Purchase on Backend (for tokens)
-            // Ideally we check if pack is consumable or subscription
-            const appUserId = customerInfo.originalAppUserId;
+            // 1. Immediate UI Feedback
+            console.log("Purchase successful, verifying on backend...");
 
-            // Only verify consummables on backend for token granting
-            // Subscriptions are handled by RevenueCat + Entitlement check client side
-            // But we can verify just in case
-            const result = await userService.verifyPurchase(user.id, appUserId);
+            // 2. Manual Verification (Immediate Token Award)
+            try {
+                const result = await userService.verifyPurchase(user.id, user.id.toString());
 
-            if (result.success && result.newTokens > 0) {
-                Alert.alert("Success", `You have purchased ${result.newTokens} tokens!`);
-                await fetchUser(user.id);
-            } else if (result.success && result.newTokens === 0) {
-                // Maybe a subscription purchase or restore
-                // Alert.alert("Info", "Purchase verified.");
-            } else {
-                // throw new Error("Verification failed on server.");
+                if (result.success && result.newTokens > 0) {
+                    Alert.alert("Success", `You have purchased ${result.newTokens} tokens!`);
+                    await fetchUser(user.id);
+                } else {
+                    // This might happen if the webhook beat the manual verification
+                    await fetchUser(user.id);
+                }
+            } catch (verifyError) {
+                console.warn("Manual verification failed, but purchase was successful. Webhook will handle delivery.", verifyError);
+                Alert.alert(
+                    "Purchase Complete",
+                    "Your purchase was successful! Your tokens are being processed and will appear in your account momentarily."
+                );
+                // Background refresh after a short delay as a fallback
+                setTimeout(() => fetchUser(user.id), 3000);
             }
 
             return true;
