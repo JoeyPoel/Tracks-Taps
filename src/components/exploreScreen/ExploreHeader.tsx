@@ -36,7 +36,7 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
     user,
     onActiveTourPress,
 }) => {
-    const { theme } = useTheme();
+    const { theme, enableRomanticMode } = useTheme();
     const { t } = useLanguage();
 
     return (
@@ -61,7 +61,12 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
                     placeholder={t('whereToNext')}
                     placeholderTextColor={theme.textSecondary + '80'}
                     value={searchText}
-                    onChangeText={onSearchTextChange}
+                    onChangeText={(text) => {
+                        onSearchTextChange(text);
+                        if (text.toLowerCase() === 'laura <3 joey') {
+                            enableRomanticMode();
+                        }
+                    }}
                     returnKeyType="search"
                     onSubmitEditing={onSearchSubmit}
                     maxFontSizeMultiplier={1.5}

@@ -213,3 +213,32 @@ export const darkTheme = {
 
   pubGolfInput: '#334155', // Slate-700 (Swapped from Light Mode)
 };
+
+export const romanticLightTheme = {
+  ...lightTheme,
+  primary: "#FF1493", // DeepPink
+  primaryHover: "#C71585", // MediumVioletRed
+  secondary: "#FF69B4", // HotPink
+  secondaryHover: "#FFB6C1", // LightPink
+  bgPrimary: "#FFF0F5", // LavenderBlush
+  bgSecondary: "#FFFFFF", 
+  bgTertiary: "#FFE4E1", // MistyRose
+  textPrimary: "#800020", // Burgundy
+  borderPrimary: "#FFC0CB", // Pink
+  navBarBackground: 'rgba(255, 240, 245, 0.8)',
+};
+
+export const romanticDarkTheme = {
+  ...darkTheme,
+  primary: "#FF1493",
+  primaryHover: "#FF69B4",
+  secondary: "#C71585",
+  secondaryHover: "#DB7093",
+  bgPrimary: "#2A0815", // Very dark pinkish-black
+  bgSecondary: "#3E0C1F", 
+  bgTertiary: "#5C122E",
+  textPrimary: "#FFC0CB",
+  textSecondary: "#FFB6C1",
+  borderPrimary: "#800020",
+  navBarBackground: 'rgba(42, 8, 21, 0.8)',
+};

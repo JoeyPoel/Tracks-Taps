@@ -1,5 +1,6 @@
 import AuthRequiredModal from '@/src/components/AuthRequiredModal';
 import ThemedStatusBar from '@/src/components/ThemedStatusBar';
+import { RomanticOverlay } from '@/src/components/common/RomanticOverlay';
 import { TutorialOverlay } from '@/src/components/tutorial/TutorialOverlay';
 import { useAuth } from '@/src/context/AuthContext';
 import { useTutorial } from '@/src/context/TutorialContext';
@@ -14,7 +15,7 @@ import { useStore } from '../../store/store';
 
 export function MainLayout() {
     const { session, loading } = useAuth();
-    const { theme } = useTheme();
+    const { theme, romanticTrigger } = useTheme();
     const segment = useSegments();
     const router = useRouter();
     const hasHydrated = useStore((state) => state._hasHydrated);
@@ -169,6 +170,7 @@ export function MainLayout() {
                 <ThemedStatusBar />
                 <AuthRequiredModal />
                 <TutorialOverlay />
+                <RomanticOverlay trigger={romanticTrigger} />
             </View>
         </View>
     );
