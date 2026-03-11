@@ -20,11 +20,20 @@ export const webhookController = {
                 }
 
                 // appUserId for us is the numeric userId (sent via Purchases.logIn or configure)
-                // If it's a string, we need to parse it
-                const userId = parseInt(appUserId, 10);
+                let userId = parseInt(appUserId, 10);
+
+                // If it's a string (e.g. $RCAnonymousID:xxx), we need to check aliases
                 if (isNaN(userId)) {
-                    console.error('[RevenueCat Webhook] Invalid appUserId (not a number):', appUserId);
-                    return Response.json({ error: 'Invalid user ID' }, { status: 400 });
+                    const aliases: string[] = event.aliases || [];
+                    const numericAlias = aliases.find((alias: string) => !isNaN(parseInt(alias, 10)));
+
+                    if (numericAlias) {
+                        userId = parseInt(numericAlias, 10);
+                        console.log(`[RevenueCat Webhook] Found numeric alias ${userId} for anonymous ID ${appUserId}`);
+                    } else {
+                        console.error('[RevenueCat Webhook] Invalid appUserId (not a number) and no numeric alias found:', appUserId, 'Aliases:', aliases);
+                        return Response.json({ error: 'Invalid user ID' }, { status: 400 });
+                    }
                 }
 
                 console.log(`[RevenueCat Webhook] Processing purchase for user:${userId}, product:${productId}, tx:${transactionId}`);
