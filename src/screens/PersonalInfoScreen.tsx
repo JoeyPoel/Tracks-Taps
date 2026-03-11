@@ -107,6 +107,7 @@ export default function PersonalInfoScreen() {
                     style: 'destructive',
                     onPress: async () => {
                         setLoading(true);
+                        setIsLoggingOut(true);
                         try {
                             // 1. Delete from our database (this anonymizes tours)
                             await deleteUser(dbUser.id);
@@ -122,6 +123,7 @@ export default function PersonalInfoScreen() {
                             router.replace('/auth/login');
                         } catch (error: any) {
                             console.error('Delete account error:', error);
+                            setIsLoggingOut(false);
                             Alert.alert(t('error'), error.message || t('updateError'));
                         } finally {
                             setLoading(false);
