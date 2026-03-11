@@ -2,11 +2,16 @@ import { supabase } from '@/utils/supabase';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { useUserContext } from '../context/UserContext';
+import { useLanguage } from '../context/LanguageContext';
+import { useStore } from '../store/store';
 import { Invite, inviteService } from '../services/inviteService';
+import { Alert } from 'react-native';
 
 export const useInvites = () => {
     const { user } = useUserContext();
     const router = useRouter();
+    const { t } = useLanguage();
+    const { activeTours, abandonTour } = useStore();
     const [invites, setInvites] = useState<Invite[]>([]);
     const [loading, setLoading] = useState(false);
     const [processingId, setProcessingId] = useState<number | null>(null);
@@ -61,16 +66,16 @@ export const useInvites = () => {
     }, [user, fetchInvites]);
 
 
-    const acceptInvite = async (inviteId: number) => {
+    const acceptInviteProceed = async (inviteId: number) => {
+        setProcessingId(inviteId);
         try {
-            setProcessingId(inviteId);
             const result = await inviteService.acceptInvite(inviteId);
 
             // If success, navigate to lobby
             if (result.activeTourId) {
                 router.push({
                     pathname: '/lobby',
-                    params: { activeTourId: result.activeTourId }
+                    params: { activeTourId: result.activeTourId.toString() }
                 });
             }
 
@@ -94,6 +99,57 @@ export const useInvites = () => {
                 alert('Failed to join game. It might have already started or been cancelled.');
             }
         } finally {
+            setProcessingId(null);
+        }
+    };
+
+    const acceptInvite = async (inviteId: number) => {
+        try {
+            const invite = invites.find(i => i.id === inviteId);
+            if (!invite) return;
+
+            const targetActiveTourId = invite.parsedData.activeTourId;
+
+            // Check for existing active tours
+            const existingTour = activeTours.length > 0 ? activeTours[0] : null;
+
+            if (existingTour) {
+                // Already in this exact tour session
+                if (existingTour.id === targetActiveTourId) {
+                    // Let them through immediately
+                    await acceptInviteProceed(inviteId);
+                    return;
+                }
+
+                // In a different tour session
+                Alert.alert(
+                    t('existingTourFound') || 'Active Tour Found',
+                    t('existingTourWarning') || 'You are already in an active tour. Do you want to quit it to join this new one?',
+                    [
+                        { text: t('cancel') || 'Cancel', style: 'cancel' },
+                        {
+                            text: t('quitAndJoin') || 'Quit & Join', style: 'destructive', onPress: async () => {
+                                setProcessingId(inviteId); // Show loading state
+                                try {
+                                    await abandonTour(existingTour.id, user!.id);
+                                    await acceptInviteProceed(inviteId);
+                                } catch (e) {
+                                    console.error('Error abandoning tour:', e);
+                                    alert(t('failedToQuitTour') || 'Failed to quit current tour.');
+                                    setProcessingId(null);
+                                }
+                            }
+                        }
+                    ]
+                );
+                return;
+            }
+
+            // No existing tour, just proceed
+            await acceptInviteProceed(inviteId);
+
+        } catch (error: any) {
+            console.error('Failed to initiate invite acceptance:', error);
             setProcessingId(null);
         }
     };
