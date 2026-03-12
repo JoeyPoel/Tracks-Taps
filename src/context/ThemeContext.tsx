@@ -46,11 +46,11 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
                 const storedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
                 if (storedTheme === 'dark' || storedTheme === 'light') {
                     setMode(storedTheme);
-                } else {
-                    setMode(systemScheme === "dark" ? "dark" : "light");
+                } else if (systemScheme) {
+                    setMode(systemScheme);
                 }
             } catch (e) {
-                setMode(systemScheme === "dark" ? "dark" : "light");
+                if (systemScheme) setMode(systemScheme);
             } finally {
                 setIsLoaded(true);
             }
@@ -58,42 +58,47 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
         loadTheme();
     }, [systemScheme]);
 
-    const toggleTheme = async (): Promise<void> => {
-        const newMode = mode === "light" ? "dark" : "light";
-        setMode(newMode);
-        try {
-            await AsyncStorage.setItem(THEME_STORAGE_KEY, newMode);
-        } catch (e) {
-            console.error('Failed to save theme', e);
+    const toggleTheme = React.useCallback(async (): Promise<void> => {
+        setMode(prev => {
+            const newMode = prev === "light" ? "dark" : "light";
+            AsyncStorage.setItem(THEME_STORAGE_KEY, newMode).catch(e => 
+                console.error('Failed to save theme', e)
+            );
+            return newMode;
+        });
+    }, []);
+
+    const triggerOverlay = React.useCallback((type: string | null) => {
+        setOverlayType(type);
+        if (type) {
+            setOverlayTrigger(prev => prev + 1);
+        } else {
+            setOverlayTrigger(0);
         }
-    };
+    }, []);
+
+    // Determine current theme based on mode and optional overlay type
+    const theme = React.useMemo(() => {
+        if (overlayType === 'romantic') {
+            const capitalizedMode = mode.charAt(0).toUpperCase() + mode.slice(1);
+            return (themes as any)[`romantic${capitalizedMode}`] || themes[mode];
+        }
+        return themes[mode];
+    }, [mode, overlayType]);
+
+    const value = React.useMemo(() => ({
+        mode,
+        theme,
+        toggleTheme,
+        triggerOverlay,
+        overlayTrigger,
+        overlayType
+    }), [mode, theme, toggleTheme, triggerOverlay, overlayTrigger, overlayType]);
 
     if (!isLoaded) return null;
 
-    // Determine current theme based on mode and optional overlay type
-    const getTheme = () => {
-        if (overlayType === 'romantic') {
-            return themes[`romantic${mode.charAt(0).toUpperCase() + mode.slice(1)}` as keyof typeof themes];
-        }
-        return themes[mode];
-    };
-
     return (
-        <ThemeContext.Provider value={{ 
-            mode, 
-            theme: getTheme(), 
-            toggleTheme,
-            triggerOverlay: (type) => {
-                setOverlayType(type);
-                if (type) {
-                    setOverlayTrigger(prev => prev + 1);
-                } else {
-                    setOverlayTrigger(0);
-                }
-            },
-            overlayTrigger,
-            overlayType
-        }}>
+        <ThemeContext.Provider value={value}>
             {children}
         </ThemeContext.Provider>
     );
