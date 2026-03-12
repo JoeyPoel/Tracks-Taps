@@ -74,7 +74,7 @@ export function AddFriendModal({ visible, onClose }: AddFriendModalProps) {
     };
 
     const handleAdd = async (item: any) => {
-        const identifier = item.username || item.email;
+        const identifier = item.email || item.name;
         if (identifier && await sendFriendRequest(identifier)) {
             // Success
         }

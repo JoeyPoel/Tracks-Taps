@@ -54,7 +54,7 @@ export const friendController = {
             const { identifier } = body;
 
             if (!identifier) {
-                return Response.json({ error: 'Username is required' }, { status: 400 });
+                return Response.json({ error: 'Name is required' }, { status: 400 });
             }
 
             const result = await friendService.sendRequest(user.email, identifier);
