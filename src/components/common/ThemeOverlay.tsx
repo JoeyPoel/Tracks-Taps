@@ -77,36 +77,35 @@ const Heart = ({ delay, startX }: { delay: number; startX: number }) => {
     );
 };
 
-export const RomanticOverlay = ({ trigger }: { trigger: number }) => {
-    const [showHearts, setShowHearts] = React.useState(trigger > 0);
+export const ThemeOverlay = ({ trigger, type }: { trigger: number; type: string | null }) => {
+    const [activeType, setActiveType] = React.useState<string | null>(null);
 
     useEffect(() => {
         let timeout: ReturnType<typeof setTimeout>;
-        if (trigger > 0) {
-            setShowHearts(true);
+        if (trigger > 0 && type) {
+            setActiveType(type);
             timeout = setTimeout(() => {
-                setShowHearts(false);
+                setActiveType(null);
             }, 60000); // 1 minute
         } else {
-            setShowHearts(false);
+            setActiveType(null);
         }
         return () => clearTimeout(timeout);
-    }, [trigger]);
+    }, [trigger, type]);
 
     // Create 15 hearts unconditionally so hooks run on every render
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const hearts = useMemo(() => Array.from({ length: 15 }).map((_, i) => {
-        // Distribute strictly evenly across width
         const segmentWidth = width / 15;
         const startX = (i * segmentWidth) + (Math.random() * (segmentWidth * 0.8));
         return <Heart key={`${trigger}-${i}`} delay={i * 300} startX={startX} />
     }), [trigger]);
 
-    if (!showHearts) return null;
+    if (!activeType) return null;
 
     return (
         <Animated.View style={[StyleSheet.absoluteFill, { zIndex: 9999, elevation: 9999 }]} pointerEvents="none">
-            {hearts}
+            {activeType === 'romantic' && hearts}
         </Animated.View>
     );
 };

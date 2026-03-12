@@ -36,7 +36,7 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
     user,
     onActiveTourPress,
 }) => {
-    const { theme, enableRomanticMode } = useTheme();
+    const { theme, triggerOverlay } = useTheme();
     const { t } = useLanguage();
 
     return (
@@ -64,7 +64,7 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
                     onChangeText={(text) => {
                         onSearchTextChange(text);
                         if (text.toLowerCase() === 'laura <3 joey') {
-                            enableRomanticMode();
+                            triggerOverlay('romantic');
                         }
                     }}
                     returnKeyType="search"

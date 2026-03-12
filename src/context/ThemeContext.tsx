@@ -9,8 +9,9 @@ interface ThemeContextProps {
     mode: ThemeMode;
     theme: typeof lightTheme;
     toggleTheme: () => void;
-    enableRomanticMode: () => void;
-    romanticTrigger: number;
+    triggerOverlay: (type: string | null) => void;
+    overlayTrigger: number;
+    overlayType: string | null;
 }
 
 const themes = {
@@ -26,8 +27,9 @@ const ThemeContext = createContext<ThemeContextProps>({
     mode: "light",
     theme: lightTheme,
     toggleTheme: (): void => { },
-    enableRomanticMode: (): void => { },
-    romanticTrigger: 0,
+    triggerOverlay: (): void => { },
+    overlayTrigger: 0,
+    overlayType: null,
 });
 
 
@@ -35,7 +37,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
     const systemScheme: ColorSchemeName = useColorScheme(); // "light" | "dark"
     const [mode, setMode] = useState<ThemeMode>(systemScheme === "dark" ? "dark" : "light");
     const [isLoaded, setIsLoaded] = useState(false);
-    const [romanticTrigger, setRomanticTrigger] = useState(0);
+    const [overlayTrigger, setOverlayTrigger] = useState(0);
+    const [overlayType, setOverlayType] = useState<string | null>(null);
 
     useEffect((): void => {
         const loadTheme = async () => {
@@ -67,13 +70,29 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
 
     if (!isLoaded) return null;
 
+    // Determine current theme based on mode and optional overlay type
+    const getTheme = () => {
+        if (overlayType === 'romantic') {
+            return themes[`romantic${mode.charAt(0).toUpperCase() + mode.slice(1)}` as keyof typeof themes];
+        }
+        return themes[mode];
+    };
+
     return (
         <ThemeContext.Provider value={{ 
             mode, 
-            theme: romanticTrigger > 0 ? themes[`romantic${mode.charAt(0).toUpperCase() + mode.slice(1)}` as keyof typeof themes] : themes[mode], 
+            theme: getTheme(), 
             toggleTheme,
-            enableRomanticMode: () => setRomanticTrigger(prev => prev + 1),
-            romanticTrigger
+            triggerOverlay: (type) => {
+                setOverlayType(type);
+                if (type) {
+                    setOverlayTrigger(prev => prev + 1);
+                } else {
+                    setOverlayTrigger(0);
+                }
+            },
+            overlayTrigger,
+            overlayType
         }}>
             {children}
         </ThemeContext.Provider>
