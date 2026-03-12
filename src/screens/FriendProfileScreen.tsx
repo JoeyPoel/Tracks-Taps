@@ -185,7 +185,7 @@ export default function FriendProfileScreen() {
                                 title={t('requested')}
                                 onPress={() => { }}
                                 disabled
-                                style={{ backgroundColor: theme.bgSecondary }}
+                                variant="outline"
                             />
                         ) : (
                             <AnimatedButton
