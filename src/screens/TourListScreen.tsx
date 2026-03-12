@@ -93,6 +93,7 @@ export default function TourListScreen() {
                                 rating={item.rating || (item.reviews?.length > 0 ? (item.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / item.reviews.length) : 0)}
                                 reviewCount={item._count?.reviews ?? item.reviews?.length ?? 0}
                                 points={item.points || 0}
+                                location={item.location}
                                 modes={item.modes || []}
                                 genre={item.genre}
                                 tourType={item.type}

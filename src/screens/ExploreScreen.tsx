@@ -245,6 +245,7 @@ export default function ExploreScreen() {
             }
             reviewCount={(tourItem as any).reviewCount ?? tourItem.reviews?.length ?? 0}
             points={tourItem.points}
+            location={tourItem.location}
             modes={tourItem.modes}
             tourType={tourItem.type}
             genre={(tourItem as any).genre}

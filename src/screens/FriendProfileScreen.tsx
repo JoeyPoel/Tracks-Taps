@@ -227,6 +227,7 @@ export default function FriendProfileScreen() {
                                     rating={latestCreated.reviews?.reduce((acc: number, r: any) => acc + r.rating, 0) / (latestCreated.reviews?.length || 1) || 0}
                                     reviewCount={latestCreated._count?.reviews || 0}
                                     points={latestCreated.points || 0}
+                                    location={latestCreated.location}
                                     modes={latestCreated.modes}
                                     genre={latestCreated.genre}
                                     tourType={latestCreated.type}
@@ -251,6 +252,7 @@ export default function FriendProfileScreen() {
                                     rating={latestPlayed.tour.reviews?.reduce((acc: number, r: any) => acc + r.rating, 0) / (latestPlayed.tour.reviews?.length || 1) || 0}
                                     reviewCount={latestPlayed.tour._count?.reviews || 0}
                                     points={latestPlayed.tour.points || 0}
+                                    location={latestPlayed.tour.location}
                                     modes={latestPlayed.tour.modes}
                                     genre={latestPlayed.tour.genre}
                                     tourType={latestPlayed.tour.type}

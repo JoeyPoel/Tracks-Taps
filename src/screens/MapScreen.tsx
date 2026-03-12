@@ -184,6 +184,7 @@ export default function MapScreen() {
                 : 0}
               reviewCount={selectedTour.reviews?.length || 0}
               points={(selectedTour as any).points || 0}
+              location={(selectedTour as any).location}
               genre={(selectedTour as any).genre || 'Adventure'}
               tourType={(selectedTour as any).type}
               variant="map"

@@ -14,6 +14,11 @@ interface FormInputProps {
     success?: boolean;
     keyboardType?: 'default' | 'numeric' | 'email-address';
     description?: string;
+    leftIcon?: React.ReactNode;
+    rightIcon?: React.ReactNode;
+    editable?: boolean;
+    pointerEvents?: 'auto' | 'none' | 'box-none' | 'box-only';
+    autoFocus?: boolean;
 }
 
 export function FormInput({
@@ -26,12 +31,17 @@ export function FormInput({
     error,
     success,
     keyboardType = 'default',
-    description
+    description,
+    leftIcon,
+    rightIcon,
+    editable = true,
+    pointerEvents,
+    autoFocus
 }: FormInputProps) {
     const { theme } = useTheme();
 
     return (
-        <View style={styles.container}>
+        <View style={styles.container} pointerEvents={pointerEvents}>
             <View style={styles.headerRow}>
                 {label && (
                     <TextComponent style={styles.label} color={theme.textSecondary} bold variant="label">{label}</TextComponent>
@@ -43,25 +53,35 @@ export function FormInput({
                 )}
             </View>
 
-            <TextInput
-                style={[
-                    styles.input,
-                    multiline && styles.textArea,
-                    {
-                        backgroundColor: theme.bgSecondary,
-                        borderColor: error ? theme.danger : success ? theme.success : theme.borderPrimary,
-                        color: theme.textPrimary
-                    }
-                ]}
-                placeholder={placeholder}
-                placeholderTextColor={theme.textDisabled}
-                value={value}
-                onChangeText={onChange}
-                multiline={multiline}
-                numberOfLines={multiline ? 4 : 1}
-                maxLength={maxLength}
-                keyboardType={keyboardType}
-            />
+            <View style={[
+                styles.inputContainer,
+                multiline && styles.textAreaContainer,
+                {
+                    backgroundColor: theme.bgSecondary,
+                    borderColor: error ? theme.danger : success ? theme.success : theme.borderPrimary,
+                }
+            ]}>
+                {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
+                <TextInput
+                    style={[
+                        styles.input,
+                        {
+                            color: theme.textPrimary
+                        }
+                    ]}
+                    placeholder={placeholder}
+                    placeholderTextColor={theme.textDisabled}
+                    value={value}
+                    onChangeText={onChange}
+                    multiline={multiline}
+                    numberOfLines={multiline ? 4 : 1}
+                    maxLength={maxLength}
+                    keyboardType={keyboardType}
+                    editable={editable}
+                    autoFocus={autoFocus}
+                />
+                {rightIcon && <View style={styles.iconRight}>{rightIcon}</View>}
+            </View>
 
             {description && !error && (
                 <TextComponent style={styles.helperText} color={theme.textTertiary} variant="caption">
@@ -93,16 +113,28 @@ const styles = StyleSheet.create({
     charCount: {
         // handled
     },
-    input: {
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
         borderWidth: 1,
-        borderRadius: 20, // Slightly improved from 24 to 20 for input fields
+        borderRadius: 20,
+    },
+    textAreaContainer: {
+        height: 120,
+        alignItems: 'flex-start',
+        paddingTop: 8,
+    },
+    input: {
+        flex: 1,
         padding: 16,
         fontSize: 16,
         fontWeight: '500',
     },
-    textArea: {
-        height: 120,
-        textAlignVertical: 'top',
+    iconLeft: {
+        paddingLeft: 16,
+    },
+    iconRight: {
+        paddingRight: 16,
     },
     helperText: {
         marginLeft: 4,

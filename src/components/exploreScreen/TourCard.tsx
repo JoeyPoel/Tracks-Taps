@@ -20,6 +20,7 @@ interface TourCardProps {
   rating: number;
   reviewCount: number;
   points: number;
+  location?: string;
   modes?: string[];
   genre?: string;
   tourType?: string;
@@ -38,6 +39,7 @@ export default function TourCard({
   rating,
   reviewCount,
   points,
+  location,
   modes = [],
   genre,
   tourType,
@@ -123,6 +125,15 @@ export default function TourCard({
                 <MapIcon size={14} color="#E0E0E0" />
                 <TextComponent style={styles.statText} variant="caption" bold>{distance}</TextComponent>
               </View>
+              {location && (
+                <>
+                  <View style={styles.dotSeparator} />
+                  <View style={styles.statItem}>
+                    <Ionicons name="location-sharp" size={12} color="#E0E0E0" />
+                    <TextComponent style={styles.statText} variant="caption" bold numberOfLines={1}>{location}</TextComponent>
+                  </View>
+                </>
+              )}
               <View style={styles.dotSeparator} />
               <View style={styles.statItem}>
                 <ClockIcon size={14} color="#E0E0E0" />
@@ -132,6 +143,12 @@ export default function TourCard({
           ) : (
             <View style={styles.gridStatGroup}>
               <TextComponent style={styles.miniStatText} variant="caption">{distance}</TextComponent>
+              {location && (
+                <>
+                  <TextComponent style={styles.miniStatText} variant="caption">•</TextComponent>
+                  <TextComponent style={styles.miniStatText} variant="caption" numberOfLines={1}>{location}</TextComponent>
+                </>
+              )}
               <TextComponent style={styles.miniStatText} variant="caption">•</TextComponent>
               <TextComponent style={styles.miniStatText} variant="caption">{duration}</TextComponent>
             </View>

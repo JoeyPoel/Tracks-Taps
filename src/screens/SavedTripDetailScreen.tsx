@@ -128,6 +128,7 @@ export default function SavedTripDetailScreen() {
                             rating={rating}
                             reviewCount={reviewCount}
                             points={item.points || 0}
+                            location={item.location}
                             modes={item.modes || []}
                             genre={item.genre}
                             tourType={item.type}

@@ -1,3 +1,4 @@
+import { CityPicker } from '@/src/components/common/CityPicker';
 import { FormInput } from '@/src/components/common/FormInput';
 import { ImageUploader } from '@/src/components/common/ImageUploader';
 import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
@@ -115,12 +116,11 @@ export default function StepInfo({ draft, updateDraft }: StepInfoProps) {
                     maxLength={50}
                 />
 
-                <FormInput
+                <CityPicker
                     label={t('tourLocation')}
                     value={draft.location}
-                    onChange={(text) => updateDraft('location', text)}
+                    onSelect={(cityName) => updateDraft('location', cityName)}
                     placeholder={t('locationPlaceholder')}
-                    maxLength={50}
                 />
 
                 <FormInput
