@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useStore } from '../store/store';
 import { AppIconProvider } from './AppIconContext';
 import { AuthProvider } from './AuthContext';
@@ -23,7 +24,8 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
     }
 
     return (
-        <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+            <GestureHandlerRootView style={{ flex: 1 }}>
             <AuthProvider>
                 <LanguageProvider>
                     <ThemeProvider>
@@ -42,5 +44,6 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
                 </LanguageProvider>
             </AuthProvider>
         </GestureHandlerRootView>
+        </SafeAreaProvider>
     );
 }

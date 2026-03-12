@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import { BoltIcon, FireIcon, StarIcon, XMarkIcon } from 'react-native-heroicons/outline';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
@@ -32,6 +33,7 @@ export default function ActiveTourHeader({
 }: ActiveTourHeaderProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const insets = useSafeAreaInsets();
 
     const xpProgress = Math.min(Math.max(currentXP / maxXP, 0), 1) * 100;
     const stopProgress = Math.min(Math.max(currentStop / totalStops, 0), 1) * 100;
@@ -65,7 +67,7 @@ export default function ActiveTourHeader({
     });
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.bgPrimary, borderBottomColor: theme.borderPrimary }]}>
+        <View style={[styles.container, { backgroundColor: theme.bgPrimary, borderBottomColor: theme.borderPrimary, paddingTop: insets.top || 10 }]}>
             {/* Row 1: Close + Stats */}
             <View style={styles.topRow}>
                 <AnimatedPressable onPress={onClose} style={styles.closeButton} interactionScale="subtle">
@@ -128,7 +130,6 @@ export default function ActiveTourHeader({
 
 const styles = StyleSheet.create({
     container: {
-        paddingTop: 10, // Safe area
         paddingHorizontal: 16,
         paddingBottom: 16,
         borderBottomWidth: 1,
