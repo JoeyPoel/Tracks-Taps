@@ -177,42 +177,6 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
 
     return (
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
-            {/* Subtle Gradient Background - Top Fade Only */}
-            {/* Top Image with Fade or Fallback Gradient */}
-            <View style={styles.headerImageContainer}>
-                {activeTour.tour?.imageUrl ? (
-                    <View style={styles.headerImage}>
-                        <Image
-                            source={{ uri: getOptimizedImageUrl(activeTour.tour?.imageUrl, 800) }}
-                            style={StyleSheet.absoluteFill}
-                            contentFit="cover"
-                            cachePolicy="disk"
-                            transition={500}
-                        />
-                        <LinearGradient
-                            colors={['transparent', theme.bgPrimary]}
-                            style={styles.gradientOverlay}
-                            start={{ x: 0.5, y: 0.3 }}
-                            end={{ x: 0.5, y: 1 }}
-                        />
-                    </View>
-                ) : (
-                    <LinearGradient
-                        colors={[theme.secondary, theme.primary]}
-                        style={styles.headerImage}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                    >
-                        <LinearGradient
-                            colors={['transparent', theme.bgPrimary]}
-                            style={styles.gradientOverlay}
-                            start={{ x: 0.5, y: 0.3 }}
-                            end={{ x: 0.5, y: 1 }}
-                        />
-                    </LinearGradient>
-                )}
-            </View>
-
             {/* Confetti floats on top */}
             {revealState === 'CELEBRATE' && <Confetti />}
 
@@ -220,28 +184,57 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                {/* Back Button (Floating) */}
+                {/* Header Bar */}
                 <View style={[styles.topBar, { paddingTop: Math.max(top, 20) + 10 }]}>
                     <TouchableOpacity
                         onPress={handleGoBack}
-                        style={[styles.backButton, { backgroundColor: 'rgba(0,0,0,0.2)' }]}
+                        style={[styles.backButton, { backgroundColor: theme.bgSecondary }]}
                     >
-                        <Ionicons name="arrow-back" size={24} color="#FFF" />
+                        <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
                     </TouchableOpacity>
 
-                    <TextComponent style={styles.activeTourTitle} color="#FFFFFF" bold variant="caption">{activeTour?.tour?.title}</TextComponent>
+                    <TextComponent style={styles.activeTourTitle} color={theme.textSecondary} bold variant="caption">{activeTour?.tour?.title}</TextComponent>
 
-                    {/* Horizontal spacer for balance */}
                     <View style={{ width: 40 }} />
                 </View>
+
+                {/* Tour Image Card */}
+                <Animated.View entering={ZoomIn.duration(800).springify()} style={styles.imageCardContainer}>
+                    <View style={[styles.imageCard, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
+                        {activeTour.tour?.imageUrl ? (
+                            <Image
+                                source={{ uri: getOptimizedImageUrl(activeTour.tour?.imageUrl, 800) }}
+                                style={StyleSheet.absoluteFill}
+                                contentFit="cover"
+                                cachePolicy="disk"
+                                transition={500}
+                            />
+                        ) : (
+                            <LinearGradient
+                                colors={[theme.secondary, theme.primary]}
+                                style={StyleSheet.absoluteFill}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                            />
+                        )}
+                        <LinearGradient
+                            colors={['transparent', 'rgba(0,0,0,0.6)']}
+                            style={styles.cardOverlay}
+                        />
+                        <View style={styles.cardBadge}>
+                            <Ionicons name="checkmark-circle" size={12} color="#FFF" />
+                            <TextComponent style={styles.badgeText} color="#FFF" bold variant="caption">{t('completed') || 'COMPLETED'}</TextComponent>
+                        </View>
+                    </View>
+                </Animated.View>
 
                 {/* Hero Section: Winner & Podium */}
                 <View style={styles.heroSection}>
                     <View style={styles.winnerHeaderContainer}>
                         {revealState === 'CELEBRATE' && (
                             <Animated.View entering={ZoomIn.springify().damping(12)} style={styles.winnerHeader}>
-                                <TextComponent style={styles.winnerText} color="#FFFFFF" bold variant="h1" center>
-                                    <TextComponent style={{ fontSize: 18, opacity: 0.9 }} color="#FFFFFF" variant="body">{t('winner')} </TextComponent>
+                                <TextComponent style={styles.winnerText} color={theme.textPrimary} bold variant="h1" center>
+                                    <TextComponent style={{ fontSize: 18, opacity: 0.9 }} color={theme.textSecondary} variant="body">{t('winner')} </TextComponent>
                                     {winnerName}
                                 </TextComponent>
                                 <View style={[styles.winnerScorePill, { backgroundColor: theme.bgPrimary }]}>
@@ -404,12 +397,11 @@ const styles = StyleSheet.create({
     winnerText: {
         fontSize: 32,
         fontWeight: '800',
-        color: '#FFFFFF',
         textAlign: 'center',
         letterSpacing: 0.5,
         marginBottom: 8,
-        lineHeight: 44, // Increased line height to prevent clipping
-        paddingTop: 10, // Added padding to prevent top clipping
+        lineHeight: 44, 
+        paddingTop: 10,
     },
     winnerScorePill: {
         flexDirection: 'row',
@@ -479,23 +471,46 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 6,
     },
-    headerImageContainer: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: 450, // Enough to cover top bar and winner info
-        zIndex: 0,
+    imageCardContainer: {
+        alignItems: 'center',
+        marginVertical: 20,
+        paddingHorizontal: 24,
     },
-    headerImage: {
+    imageCard: {
         width: '100%',
-        height: '100%',
+        height: 200,
+        borderRadius: 24,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        elevation: 8,
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.15,
+        shadowRadius: 20,
     },
-    gradientOverlay: {
+    cardOverlay: {
         position: 'absolute',
+        bottom: 0,
         left: 0,
         right: 0,
-        bottom: 0,
-        height: '100%',
+        height: '50%',
+    },
+    cardBadge: {
+        position: 'absolute',
+        top: 16,
+        right: 16,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    badgeText: {
+        fontSize: 10,
+        letterSpacing: 1,
     },
 });
