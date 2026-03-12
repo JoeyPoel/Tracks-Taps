@@ -318,11 +318,25 @@ export const useStore = create<StoreState>()(
 
             finishTour: async (activeTourId: number, userId: number) => {
                 try {
-                    await activeTourService.finishTour(activeTourId, userId);
+                    const response = await activeTourService.finishTour(activeTourId, userId);
                     // Update local state
                     set((state) => {
                         if (state.activeTour && state.activeTour.id === activeTourId) {
-                            return { activeTour: { ...state.activeTour, status: SessionStatus.COMPLETED } };
+                            // Update the specific team's finishedAt locally for immediate UI feedback
+                            const updatedTeams = state.activeTour.teams?.map(t => 
+                                t.userId === userId ? { ...t, finishedAt: new Date() } : t
+                            );
+                            
+                            // If the backend says the whole session is COMPLETED (or POST_TOUR_LOBBY)
+                            const newStatus = response?.status === 'COMPLETED' ? SessionStatus.COMPLETED : state.activeTour.status;
+
+                            return { 
+                                activeTour: { 
+                                    ...state.activeTour, 
+                                    status: newStatus as SessionStatus,
+                                    teams: updatedTeams
+                                } 
+                            };
                         }
                         return {};
                     });

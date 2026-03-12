@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -94,16 +95,24 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
                                 key={option}
                                 style={[
                                     styles.optionButton,
-                                    { borderColor, backgroundColor }
+                                    { borderColor, backgroundColor, position: 'relative' }
                                 ]}
                                 onPress={() => handleSelect(option)}
                                 disabled={isDone}
                                 interactionScale="subtle"
                                 haptic="selection"
                             >
-                                <Text style={[styles.optionText, { color: textColor }]}>
-                                    {option === 'true' ? t('true') : t('false')}
-                                </Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                    {isDone && option === challenge.answer?.toLowerCase() && (
+                                        <Ionicons name="checkmark-circle" size={20} color={theme.success} />
+                                    )}
+                                    {isDone && isSelected && isFailed && (
+                                        <Ionicons name="close-circle" size={20} color={theme.danger} />
+                                    )}
+                                    <Text style={[styles.optionText, { color: textColor }]}>
+                                        {option === 'true' ? t('true') : t('false')}
+                                    </Text>
+                                </View>
                             </AnimatedPressable>
                         );
                     })}

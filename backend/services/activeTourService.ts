@@ -134,6 +134,11 @@ export const activeTourService = {
         const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
         if (!team) throw new Error("Team not found");
 
+        if (team.finishedAt) {
+            console.log(`[finishTour] Team ${team.id} already finished, skipping.`);
+            return { status: 'COMPLETED', tourId: (await activeTourRepository.findActiveTourById(activeTourId))?.tourId };
+        }
+
         const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
         if (!activeTour) throw new Error("Active tour not found");
 
@@ -178,12 +183,7 @@ export const activeTourService = {
 
                 await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.POST_TOUR_LOBBY, winnerId);
 
-                // As requested: Delete active tour to clear database once everyone has finished
-                try {
-                    await activeTourRepository.deleteActiveTourById(activeTourId);
-                } catch (cleanupError) {
-                    console.error('Failed to cleanup finished tour', cleanupError);
-                }
+                // Removed immediate deletion to prevent race conditions with frontend requests
             }
         }
 

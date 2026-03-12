@@ -2,6 +2,7 @@ import { TextComponent } from '@/src/components/common/TextComponent';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
+import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
@@ -29,9 +30,26 @@ export default function PostTourHeader({ imageUrl }: PostTourHeaderProps) {
                     <LinearGradient
                         colors={['transparent', theme.bgPrimary]}
                         style={styles.gradientOverlay}
-                        start={{ x: 0.5, y: 0.3 }}
+                        start={{ x: 0.5, y: 0.1 }}
                         end={{ x: 0.5, y: 1 }}
                     />
+                    <View style={styles.content}>
+                        <TextComponent
+                            style={styles.headerTitle}
+                            color={theme.textPrimary}
+                            bold
+                            numberOfLines={1}
+                            adjustsFontSizeToFit
+                        >
+                            {t('greatJobTitle')}
+                        </TextComponent>
+                        <View style={[styles.subtitleBadge, { backgroundColor: theme.bgSecondary }]}>
+                            <Ionicons name="time-outline" size={16} color={theme.textSecondary} />
+                            <TextComponent style={styles.headerSubtitle} color={theme.textSecondary}>
+                                {t('waitingForTeams')}
+                            </TextComponent>
+                        </View>
+                    </View>
                 </View>
             ) : (
                 <LinearGradient
@@ -39,24 +57,27 @@ export default function PostTourHeader({ imageUrl }: PostTourHeaderProps) {
                     style={styles.headerGradient}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
-                />
-            )}
-
-            <View style={styles.content}>
-                <TextComponent
-                    style={styles.headerTitle}
-                    color={theme.textPrimary}
-                    bold
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
                 >
-                    {t('greatJobTitle')}
-                </TextComponent>
-                <TextComponent style={styles.headerSubtitle} color={theme.textSecondary}>
-                    {t('waitingForTeams')}
-                </TextComponent>
-            </View>
-        </View >
+                    <View style={styles.content}>
+                        <TextComponent
+                            style={styles.headerTitle}
+                            color="#FFFFFF"
+                            bold
+                            numberOfLines={1}
+                            adjustsFontSizeToFit
+                        >
+                            {t('greatJobTitle')}
+                        </TextComponent>
+                        <View style={[styles.subtitleBadge, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
+                            <Ionicons name="time-outline" size={16} color="#FFFFFF" />
+                            <TextComponent style={styles.headerSubtitle} color="#FFFFFF">
+                                {t('waitingForTeams')}
+                            </TextComponent>
+                        </View>
+                    </View>
+                </LinearGradient>
+            )}
+        </View>
     );
 }
 
@@ -68,13 +89,13 @@ const styles = StyleSheet.create({
     },
     imageBackground: {
         width: '100%',
-        height: 300,
+        height: 340,
         justifyContent: 'flex-end',
     },
     headerGradient: {
         width: '100%',
-        height: 200,
-        justifyContent: 'center',
+        height: 260,
+        justifyContent: 'flex-end',
         alignItems: 'center',
         borderBottomLeftRadius: 32,
         borderBottomRightRadius: 32,
@@ -84,27 +105,41 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        height: '100%',
+        height: '70%',
     },
     content: {
         alignItems: 'center',
-        marginTop: -60, // Pull text up into the fade area
         zIndex: 2,
         paddingHorizontal: 20,
+        paddingBottom: 32,
+        width: '100%',
+        gap: 16,
     },
     headerTitle: {
-        fontSize: 32,
-        fontWeight: '800',
-        marginBottom: 8,
+        fontSize: 36,
+        fontWeight: '900',
         textTransform: 'uppercase',
-        letterSpacing: 1,
+        letterSpacing: 1.5,
         textAlign: 'center',
-        paddingHorizontal: 10, // Prevent horizontal clipping on thick bold text
-        lineHeight: 44,
+        paddingHorizontal: 10,
+    },
+    subtitleBadge: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 24,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 2,
     },
     headerSubtitle: {
-        fontSize: 16,
-        fontWeight: '500',
+        fontSize: 15,
+        fontWeight: '700',
         textAlign: 'center',
     },
 });

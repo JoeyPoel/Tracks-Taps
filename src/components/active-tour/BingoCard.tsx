@@ -116,10 +116,10 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
 
                     // Default Style (Active/Unfinished)
                     let bgColor = theme.bgSecondary;
-                    let borderColor = typeColor;
+                    let borderColor = theme.borderPrimary; // Clean app theme border
                     let iconColor = typeColor;
                     let textColor = theme.textPrimary;
-                    let borderWidth = 2; // Match StepBingo
+                    let borderWidth = 1; // Cleaner look
 
                     // Overrides for Completed/Failed
                     if (completed) {

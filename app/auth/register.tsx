@@ -75,25 +75,10 @@ export default function RegisterScreen() {
             // Session is null -> Email verification is enabled and required
             Alert.alert(t('checkEmailToVerify'));
             router.replace('/auth/login');
-        } else {
-            // User is created in Supabase and logged in. Now create in our DB explicitly.
-            try {
-                const session = data.session;
-                await fetch(process.env.EXPO_PUBLIC_API_URL + '/user', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session?.access_token}`
-                    },
-                    body: JSON.stringify({ action: 'create-user', email: email }),
-                });
-            } catch (err) {
-                console.error("Failed to create user in DB:", err);
-                // We don't block the user flow here because the checkout/login will likely retry or "lazy create"
-            }
         }
         // If data.session exists, the user is logged in automatically. 
-        // The AuthContext listener will detect the session change and redirect to the main app.
+        // The AuthContext listener will detect the session change and redirect to the main app,
+        // and its global store logic automatically fires fetchUserByAuth which handles creation if needed.
     };
 
     const handleGoogleLogin = async () => {
@@ -178,7 +163,8 @@ export default function RegisterScreen() {
                                     value={password}
                                     onChangeText={setPassword}
                                     secureTextEntry={!showPassword}
-
+                                    textContentType="newPassword"
+                                    autoComplete="new-password"
                                     maxLength={100}
                                 />
                                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
@@ -198,7 +184,8 @@ export default function RegisterScreen() {
                                     value={confirmPassword}
                                     onChangeText={setConfirmPassword}
                                     secureTextEntry={!showConfirmPassword}
-
+                                    textContentType="newPassword"
+                                    autoComplete="new-password"
                                     maxLength={100}
                                 />
                                 <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>

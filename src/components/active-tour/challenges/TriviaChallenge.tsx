@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -81,9 +82,15 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
                                 <View style={[
                                     styles.radioButton,
                                     { borderColor },
-                                    isSelected && !isDone && { backgroundColor: theme.primary }
+                                    isSelected && !isDone && { backgroundColor: theme.primary },
+                                    isDone && { borderWidth: 0 } // Remove border to make room for full icon
                                 ]}>
                                     {isSelected && !isDone && <View style={[styles.radioButtonInner, { backgroundColor: theme.fixedWhite }]} />}
+                                    {isDone && isCorrect && <Ionicons name="checkmark-circle" size={24} color={theme.success} />}
+                                    {isDone && isSelected && isFailed && <Ionicons name="close-circle" size={24} color={theme.danger} />}
+                                    {isDone && !isCorrect && !(isSelected && isFailed) && (
+                                        <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: theme.borderPrimary }} />
+                                    )}
                                 </View>
                                 <Text style={[
                                     styles.optionText,

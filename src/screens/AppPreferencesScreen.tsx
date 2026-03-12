@@ -57,10 +57,10 @@ export default function AppPreferencesScreen() {
               </TextComponent>
             </View>
             <Switch
-              value={theme === darkTheme}
+              value={mode === 'dark'}
               onValueChange={toggleTheme}
               trackColor={{ false: theme.bgDisabled, true: theme.primary + '80' }}
-              thumbColor={theme === darkTheme ? theme.primary : '#f4f3f4'}
+              thumbColor={mode === 'dark' ? theme.primary : '#f4f3f4'}
               ios_backgroundColor={theme.bgDisabled}
             />
           </View>

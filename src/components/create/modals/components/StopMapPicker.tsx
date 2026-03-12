@@ -16,7 +16,7 @@ interface StopMapPickerProps {
 }
 
 export function StopMapPicker({ region, setRegion, marker, setMarker, existingStops, currentStopType = StopType.Viewpoint }: StopMapPickerProps) {
-    const { theme } = useTheme();
+    const { theme, mode } = useTheme();
 
     const handleMapPress = (e: any) => {
         setMarker(e.nativeEvent.coordinate);
@@ -34,6 +34,7 @@ export function StopMapPicker({ region, setRegion, marker, setMarker, existingSt
                 provider={PROVIDER_DEFAULT}
                 style={styles.map}
                 region={region}
+                userInterfaceStyle={mode}
                 onRegionChangeComplete={setRegion}
                 onPress={handleMapPress}
                 showsUserLocation

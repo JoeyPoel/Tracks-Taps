@@ -99,8 +99,8 @@ export default function StepBingo({ draft, actions }: StepBingoProps) {
                                 width: CELL_SIZE,
                                 height: CELL_SIZE,
                                 backgroundColor: theme.bgSecondary,
-                                borderColor: color,
-                                borderWidth: challenge ? 2 : 1,
+                                borderColor: theme.borderPrimary, // Use standard border instead of color
+                                borderWidth: 1, // Cleaner unified grid look
                                 borderStyle: challenge ? 'solid' : 'dashed'
                             }
                         ]}
