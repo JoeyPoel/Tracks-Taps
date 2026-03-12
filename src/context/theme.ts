@@ -226,6 +226,11 @@ export const romanticLightTheme = {
   textPrimary: "#800020", // Burgundy
   borderPrimary: "#FFC0CB", // Pink
   navBarBackground: 'rgba(255, 240, 245, 0.8)',
+  fixedGradientFrom: "#FF69B4", // HotPink
+  fixedGradientTo: "#FF1493",   // DeepPink
+  fixedGradientFromLevel: "#FFB6C1", // LightPink
+  fixedGradientToLevel: "#FF69B4",   // HotPink
+  starColor: "#FF1493",
 };
 
 export const romanticDarkTheme = {
@@ -241,4 +246,8 @@ export const romanticDarkTheme = {
   textSecondary: "#FFB6C1",
   borderPrimary: "#800020",
   navBarBackground: 'rgba(42, 8, 21, 0.8)',
+  fixedGradientFrom: "#FF69B4", // HotPink
+  fixedGradientTo: "#FF1493",   // DeepPink
+  fixedGradientFromLevel: "#FFB6C1", // LightPink
+  fixedGradientToLevel: "#FF69B4",   // HotPink
 };
