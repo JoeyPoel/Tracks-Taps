@@ -181,7 +181,19 @@ export const activeTourRepository = {
                     select: {
                         id: true,
                         title: true,
-                        modes: true, // Needed for determining tabs (e.g. BINGO)
+                        location: true,
+                        imageUrl: true,
+                        distance: true,
+                        duration: true,
+                        points: true,
+                        modes: true,
+                        genre: true,
+                        type: true,
+                        author: {
+                            select: {
+                                name: true
+                            }
+                        },
                         challenges: {
                             select: {
                                 id: true,
@@ -233,7 +245,6 @@ export const activeTourRepository = {
                     }
                 },
                 teams: {
-                    where: userId ? { userId } : undefined,
                     include: {
                         activeChallenges: true,
                         pubGolfStops: true,

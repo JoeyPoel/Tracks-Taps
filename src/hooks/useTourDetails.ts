@@ -30,7 +30,7 @@ export const useTourDetails = (tourId: number) => {
         const mappedReviews = (tour.reviews || []).map((review: any) => ({
             id: review.id.toString(),
             userId: (review.author?.id || review.authorId || '').toString() || 'unknown',
-            userName: review.author?.name || 'Unknown',
+            name: review.author?.name || 'Unknown',
             userAvatar: review.author?.avatarUrl || null,
             rating: review.rating,
             date: new Date(review.createdAt).toLocaleDateString(),

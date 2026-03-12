@@ -4,7 +4,7 @@
     "slug": "tracks-and-taps",
     "version": "2.4.0",
     "orientation": "portrait",
-    "icon": "./assets/images/App Icon Coloured.png",
+    "icon": "./assets/images/App Icon Coloured White Theme.png",
     "scheme": "tracks-taps",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -28,7 +28,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
-        "foregroundImage": "./assets/images/App Icon Coloured.png"
+        "foregroundImage": "./assets/images/App Icon Coloured White Theme.png"
       },
       "package": "com.joeypoel.trackstaps",
       "edgeToEdgeEnabled": true,

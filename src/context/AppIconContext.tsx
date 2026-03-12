@@ -1,7 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setAlternateAppIcon } from 'expo-alternate-app-icons';
+import Constants, { AppOwnership } from 'expo-constants';
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useTheme } from './ThemeContext';
+
+// Cache the native module to avoid repeated requires
+let alternateIconsModule: any = null;
+try {
+  // We only require if not in Expo Go, but we check that later to be safe
+  // For now, let's keep it lazy but cached.
+} catch (e) {}
 
 export type AppIconId = 'auto' | 'colouredDark' | 'colouredWhite' | 'simpleDark' | 'simpleWhite';
 
@@ -43,6 +50,8 @@ export const AppIconProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    // Skip entirely in Expo Go as it doesn't support alternate app icons
+    if (Constants.appOwnership === AppOwnership.Expo) return;
     if (!isLoaded) return;
 
     const updateIcon = async () => {
@@ -55,9 +64,23 @@ export const AppIconProvider = ({ children }: { children: ReactNode }) => {
       }
 
       try {
-        await setAlternateAppIcon(targetIconName);
+        // Use timeout to move this to the end of the event loop, letting the theme switch finish first
+        setTimeout(async () => {
+          if (!alternateIconsModule) {
+            alternateIconsModule = require('expo-alternate-app-icons');
+          }
+          
+          const setAlternateAppIcon = alternateIconsModule?.setAlternateAppIcon;
+
+          if (setAlternateAppIcon) {
+            // We don't await this inside the UI transition
+            setAlternateAppIcon(targetIconName).catch((err: any) => {
+               console.warn('Failed to set alternate app icon', err);
+            });
+          }
+        }, 0);
       } catch (e) {
-        console.warn('Failed to set alternate app icon. This only works on physical iOS devices after a native rebuild.', e);
+        console.warn('Failed to load alternate icon module:', e);
       }
     };
 

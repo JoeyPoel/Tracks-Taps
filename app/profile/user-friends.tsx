@@ -14,7 +14,7 @@ export default function UserFriendsScreen() {
     const { theme } = useTheme();
     const router = useRouter();
     const { t } = useLanguage();
-    const { userId, userName } = useLocalSearchParams();
+    const { userId, name } = useLocalSearchParams();
     const [friends, setFriends] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -50,7 +50,7 @@ export default function UserFriendsScreen() {
             <Stack.Screen options={{ headerShown: false }} />
             <ScreenHeader
                 showBackButton
-                title={userName ? `${userName}'s ${t('friends')}` : t('friends')}
+                title={name ? `${name}'s ${t('friends')}` : t('friends')}
             />
 
             <View style={styles.container}>

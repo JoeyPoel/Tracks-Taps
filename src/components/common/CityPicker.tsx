@@ -1,6 +1,4 @@
-
 import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
     ActivityIndicator,
@@ -18,6 +16,7 @@ import { TextComponent } from './TextComponent';
 interface CitySuggestion {
     name: string;
     fullName: string;
+    isManual?: boolean;
 }
 
 interface CityPickerProps {
@@ -29,7 +28,7 @@ interface CityPickerProps {
 
 export function CityPicker({ label, value, onSelect, placeholder }: CityPickerProps) {
     const { theme } = useTheme();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [modalVisible, setModalVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [suggestions, setSuggestions] = useState<CitySuggestion[]>([]);
@@ -43,24 +42,53 @@ export function CityPicker({ label, value, onSelect, placeholder }: CityPickerPr
 
         setLoading(true);
         try {
-            // Using Teleport API for city autocomplete
-            const response = await axios.get(
-                `https://api.teleport.org/api/cities/?search=${encodeURIComponent(query)}`
-            );
+            // Broaden search to include towns and villages, and increase limit to 20
+            const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&osm_tag=place:city&osm_tag=place:town&osm_tag=place:village&limit=20&lang=${language}`;
             
-            const results = response.data?._embedded?.['city:search-results'] || [];
-            const mappedResults = results.map((item: any) => ({
-                name: item.matching_full_name.split(',')[0],
-                fullName: item.matching_full_name
-            }));
+            const response = await fetch(url);
             
-            setSuggestions(mappedResults);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            // Photon returns GeoJSON: { type: 'FeatureCollection', features: [...] }
+            const features = data?.features || [];
+            
+            const mappedResults = features
+                .map((feature: any) => {
+                    const props = feature.properties;
+                    if (!props) return null;
+                    
+                    const name = props.name;
+                    const city = props.city || props.name;
+                    const state = props.state;
+                    const country = props.country;
+                    
+                    // Build a nice subtitle (just state, no country)
+                    const parts = [];
+                    if (state && state !== city) parts.push(state);
+                    
+                    return {
+                        name: city,
+                        fullName: parts.length > 0 ? parts.join(', ') : ''
+                    };
+                })
+                .filter((item: any) => item !== null);
+            
+            // De-duplicate results by fullName
+            const uniqueResults = Array.from(new Set(mappedResults.map((r: any) => r.fullName)))
+                .map(fullName => mappedResults.find((r: any) => r.fullName === fullName));
+            
+            setSuggestions(uniqueResults as CitySuggestion[]);
         } catch (error) {
             console.error('Failed to fetch cities:', error);
+            setSuggestions([]);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [language]);
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
@@ -89,7 +117,7 @@ export function CityPicker({ label, value, onSelect, placeholder }: CityPickerPr
                     label={label}
                     value={value}
                     onChange={() => {}} 
-                    placeholder={placeholder || (t as any)('selectCity')}
+                    placeholder={placeholder || t('selectCity')}
                     editable={false}
                     pointerEvents="none"
                     rightIcon={<Ionicons name="chevron-down" size={20} color={theme.textSecondary} />}
@@ -106,7 +134,7 @@ export function CityPicker({ label, value, onSelect, placeholder }: CityPickerPr
                     <View style={[styles.modalContent, { backgroundColor: theme.bgPrimary }]}>
                         <View style={styles.modalHeader}>
                             <TextComponent bold variant="h3" color={theme.textPrimary}>
-                                {(t as any)('selectCity')}
+                                {t('selectCity')}
                             </TextComponent>
                             <TouchableOpacity onPress={() => setModalVisible(false)}>
                                 <Ionicons name="close" size={24} color={theme.textPrimary} />
@@ -117,7 +145,7 @@ export function CityPicker({ label, value, onSelect, placeholder }: CityPickerPr
                             <FormInput
                                 value={searchQuery}
                                 onChange={setSearchQuery}
-                                placeholder={(t as any)('searchCityPlaceholder') || "Search for a city..."}
+                                placeholder={t('searchCityPlaceholder')}
                                 autoFocus
                                 leftIcon={<Ionicons name="search" size={20} color={theme.textSecondary} />}
                             />
@@ -127,21 +155,35 @@ export function CityPicker({ label, value, onSelect, placeholder }: CityPickerPr
                             <ActivityIndicator size="large" color={theme.primary} style={styles.loader} />
                         ) : (
                             <FlatList
-                                data={suggestions}
-                                keyExtractor={(item, index) => `${item.fullName}-${index}`}
+                                data={searchQuery.length > 0 ? [
+                                    { 
+                                        name: searchQuery, 
+                                        fullName: '', 
+                                        isManual: true 
+                                    }, 
+                                    ...suggestions
+                                ] : suggestions}
+                                keyExtractor={(item, index) => `${item.isManual ? 'manual' : item.fullName}-${index}`}
                                 renderItem={({ item }) => (
                                     <TouchableOpacity 
                                         style={[styles.suggestionItem, { borderBottomColor: theme.borderPrimary }]}
                                         onPress={() => handleSelect(item)}
                                     >
-                                        <Ionicons name="location-outline" size={18} color={theme.primary} style={styles.itemIcon} />
+                                        <Ionicons 
+                                            name={item.isManual ? "create-outline" : "location-outline"} 
+                                            size={18} 
+                                            color={item.isManual ? theme.textSecondary : theme.primary} 
+                                            style={styles.itemIcon} 
+                                        />
                                         <View>
                                             <TextComponent bold variant="body" color={theme.textPrimary}>
                                                 {item.name}
                                             </TextComponent>
-                                            <TextComponent variant="caption" color={theme.textSecondary}>
-                                                {item.fullName}
-                                            </TextComponent>
+                                            {!item.isManual && item.fullName ? (
+                                                <TextComponent variant="caption" color={theme.textSecondary}>
+                                                    {item.fullName}
+                                                </TextComponent>
+                                            ) : null}
                                         </View>
                                     </TouchableOpacity>
                                 )}
@@ -149,7 +191,7 @@ export function CityPicker({ label, value, onSelect, placeholder }: CityPickerPr
                                     searchQuery.length > 2 ? (
                                         <View style={styles.emptyContainer}>
                                             <TextComponent color={theme.textSecondary}>
-                                                {(t as any)('noCitiesFound') || "No cities found"}
+                                                {t('noCitiesFound')}
                                             </TextComponent>
                                         </View>
                                     ) : null

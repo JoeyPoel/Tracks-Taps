@@ -15,7 +15,7 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 interface Review {
     id: string;
     userId: string;
-    userName: string;
+    name: string;
     userAvatar: string;
     rating: number;
     date: string;
@@ -188,8 +188,8 @@ export default function TourReviews({ reviews, averageRating, totalReviews, onWr
                                     contentFit="cover"
                                 />
                                 <View style={styles.userInfo}>
-                                    <TextComponent style={styles.userName} color={theme.textPrimary} bold variant="body">
-                                        {review.userName}
+                                    <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">
+                                        {review.name}
                                     </TextComponent>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                                         <View style={styles.stars}>{renderStars(review.rating)}</View>
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
         flex: 1,
         marginLeft: 12,
     },
-    userName: {
+    name: {
         marginBottom: 2,
     },
     date: {

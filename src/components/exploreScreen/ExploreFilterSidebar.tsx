@@ -8,6 +8,7 @@ import { XMarkIcon } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
 import { AnimatedButton } from '../common/AnimatedButton';
 import { AnimatedPressable } from '../common/AnimatedPressable';
+import { CityPicker } from '../common/CityPicker';
 
 interface FilterSidebarProps {
     visible: boolean;
@@ -174,17 +175,11 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                         {/* LOCATION */}
                         <View style={styles.section}>
                             <FilterSectionHeader title={t('location')} />
-                            <TextInput
-                                style={[styles.input, {
-                                    color: theme.textPrimary,
-                                    backgroundColor: theme.bgSecondary, // Swapped to Secondary
-                                    borderColor: theme.borderSecondary, // Swapped
-                                    borderWidth: 1,
-                                }]}
+                            <CityPicker
+                                label=""
+                                value={localFilters.location || ''}
+                                onSelect={(cityName: string) => updateFilter('location', cityName)}
                                 placeholder={t('cityNamePlaceholder')}
-                                placeholderTextColor={theme.textSecondary}
-                                value={localFilters.location}
-                                onChangeText={(text) => updateFilter('location', text)}
                             />
                         </View>
 

@@ -8,6 +8,345 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id                   Int               @id @default(autoincrement())
+  email                String?           @unique
+  name                 String
+  avatarUrl            String?
+  level                Int               @default(1)
+  xp                   Int               @default(0)
+  tokens               Int               @default(0)
+  referralCode         String?           @unique
+  referralCount        Int               @default(0)
+  referredBy           Int?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  authId               String?           @unique
+  activeTours          ActiveTour[]
+  feedbacks            Feedback[]
+  friendshipsReceived  Friendship[]      @relation("FriendshipReceived")
+  friendshipsInitiated Friendship[]      @relation("FriendshipInitiated")
+  receivedInvites      GameInvite[]      @relation("ReceivedInvites")
+  sentInvites          GameInvite[]      @relation("SentInvites")
+  purchases            Purchase[]
+  reviews              Review[]
+  teams                Team[]
+  createdTours         Tour[]            @relation("TourAuthor")
+  tourLists            TourList[]
+  referrer             User?             @relation("UserReferrals", fields: [referredBy], references: [id])
+  referrals            User[]            @relation("UserReferrals")
+  achievements         UserAchievement[]
+  playedTours          UserPlayedTour[]
+
+  @@index([email])
+}
+
+model Purchase {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  transactionId String   @unique
+  productId     String
+  tokens        Int
+  price         Float?
+  currency      String?
+  purchasedAt   DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([transactionId])
+}
+
+model Friendship {
+  id          Int      @id @default(autoincrement())
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  requesterId Int
+  addresseeId Int
+  addressee   User     @relation("FriendshipReceived", fields: [addresseeId], references: [id])
+  requester   User     @relation("FriendshipInitiated", fields: [requesterId], references: [id])
+
+  @@unique([requesterId, addresseeId])
+  @@index([requesterId])
+  @@index([addresseeId])
+  @@index([status])
+}
+
+model GameInvite {
+  id           Int        @id @default(autoincrement())
+  activeTourId Int
+  inviterId    Int
+  inviteeId    Int
+  status       String     @default("PENDING")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  tourId       Int?
+  activeTour   ActiveTour @relation(fields: [activeTourId], references: [id], onDelete: Cascade)
+  invitee      User       @relation("ReceivedInvites", fields: [inviteeId], references: [id])
+  inviter      User       @relation("SentInvites", fields: [inviterId], references: [id])
+  tour         Tour?      @relation(fields: [tourId], references: [id])
+
+  @@index([inviteeId])
+  @@index([inviterId])
+  @@index([activeTourId])
+  @@index([status])
+}
+
+model Tour {
+  id          Int              @id @default(autoincrement())
+  title       String
+  location    String
+  description String
+  imageUrl    String
+  distance    Float
+  duration    Int
+  points      Int
+  modes       String[]
+  difficulty  Difficulty
+  status      TourStatus       @default(PENDING_REVIEW)
+  type        TourType         @default(QUICK_TRIP)
+  genre       String           @default("Adventure")
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  startLat    Float?
+  startLng    Float?
+  authorId    Int
+  activeTours ActiveTour[]
+  challenges  Challenge[]
+  feedbacks   Feedback[]
+  gameInvites GameInvite[]
+  reviews     Review[]
+  stops       Stop[]
+  author      User             @relation("TourAuthor", fields: [authorId], references: [id])
+  playedTours UserPlayedTour[]
+  lists       TourList[]       @relation("TourListTours")
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([location])
+  @@index([startLat, startLng])
+  @@index([difficulty])
+  @@index([distance])
+  @@index([duration])
+}
+
+model Stop {
+  id                  Int           @id @default(autoincrement())
+  tourId              Int
+  number              Int
+  name                String
+  description         String
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  longitude           Float
+  latitude            Float
+  type                StopType      @default(Viewpoint)
+  pubgolfPar          Int?
+  pubgolfDrink        String?
+  imageUrl            String?
+  detailedDescription String?
+  challenges          Challenge[]
+  pubGolfStops        PubGolfStop[]
+  tour                Tour          @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@index([tourId])
+}
+
+model Challenge {
+  id               Int               @id @default(autoincrement())
+  title            String
+  type             ChallengeType
+  points           Int
+  content          String?
+  hint             String?
+  answer           String?
+  options          String[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  bingoRow         Int?
+  bingoCol         Int?
+  tourId           Int?
+  stopId           Int?
+  activeChallenges ActiveChallenge[]
+  stop             Stop?             @relation(fields: [stopId], references: [id], onDelete: Cascade)
+  tour             Tour?             @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@index([tourId])
+  @@index([stopId])
+}
+
+model ActiveTour {
+  id           Int           @id
+  tourId       Int
+  status       SessionStatus @default(WAITING)
+  winnerTeamId Int?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  userId       Int?
+  tour         Tour          @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  user         User?         @relation(fields: [userId], references: [id])
+  gameInvites  GameInvite[]
+  teams        Team[]
+
+  @@index([tourId])
+  @@index([userId])
+  @@index([status])
+}
+
+model Team {
+  id               Int               @id @default(autoincrement())
+  activeTourId     Int
+  userId           Int
+  name             String?
+  color            String?
+  emoji            String?
+  currentStop      Int               @default(1)
+  streak           Int               @default(0)
+  score            Int               @default(0)
+  finishedAt       DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  activeChallenges ActiveChallenge[]
+  bingoCard        BingoCard?
+  pubGolfStops     PubGolfStop[]
+  activeTour       ActiveTour        @relation(fields: [activeTourId], references: [id], onDelete: Cascade)
+  user             User              @relation(fields: [userId], references: [id])
+
+  @@index([activeTourId])
+  @@index([userId])
+}
+
+model ActiveChallenge {
+  id          Int       @id @default(autoincrement())
+  teamId      Int
+  challengeId Int
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  failed      Boolean   @default(false)
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  team        Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, challengeId])
+  @@index([teamId])
+  @@index([challengeId])
+}
+
+model PubGolfStop {
+  id        Int      @id @default(autoincrement())
+  teamId    Int
+  stopId    Int
+  sips      Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  stop      Stop     @relation(fields: [stopId], references: [id], onDelete: Cascade)
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, stopId])
+  @@index([teamId])
+}
+
+model BingoCard {
+  id               Int      @id @default(autoincrement())
+  teamId           Int      @unique
+  awardedLines     String[]
+  fullHouseAwarded Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  team             Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  content   String
+  rating    Int
+  photos    String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tourId    Int
+  authorId  Int
+  author    User     @relation(fields: [authorId], references: [id])
+  tour      Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@index([tourId])
+  @@index([authorId])
+}
+
+model UserPlayedTour {
+  id         Int           @id @default(autoincrement())
+  userId     Int
+  tourId     Int
+  status     SessionStatus
+  score      Int           @default(0)
+  startedAt  DateTime
+  finishedAt DateTime      @default(now())
+  teamName   String?
+  createdAt  DateTime      @default(now())
+  tour       Tour          @relation(fields: [tourId], references: [id])
+  user       User          @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([tourId])
+}
+
+model Achievement {
+  id               Int               @id @default(autoincrement())
+  title            String
+  description      String
+  icon             String
+  emoji            String?           @default("🏆")
+  color            String            @default("#FFC107")
+  criteria         String
+  target           Int               @default(1)
+  xpReward         Int               @default(0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  userAchievements UserAchievement[]
+}
+
+model UserAchievement {
+  id            Int         @id @default(autoincrement())
+  userId        Int
+  achievementId Int
+  unlockedAt    DateTime    @default(now())
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+}
+
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  tourId    Int?
+  userId    Int
+  rating    Int
+  feedback  String?
+  source    String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  tour      Tour?    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([tourId])
+  @@index([userId])
+}
+
+model TourList {
+  id        Int      @id @default(autoincrement())
+  name      String
+  userId    Int
+  tourOrder Int[]    @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tours     Tour[]   @relation("TourListTours")
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
 enum StopType {
   Food_Dining
   Coffee_Drink
@@ -52,177 +391,6 @@ enum SessionStatus {
   ABANDONED
 }
 
-model User {
-  id           Int     @id @default(autoincrement())
-  authId       String? @unique // Supabase Auth UUID
-  email        String? @unique
-  name         String
-  username     String? @unique
-  avatarUrl    String?
-  level        Int     @default(1)
-  xp           Int     @default(0)
-  tokens       Int     @default(0)
-  referralCode String? @unique // Unique code for referrals
-
-  // Referral System
-  referralCount Int @default(0)
-
-  referredBy Int?
-  referrer   User?  @relation("UserReferrals", fields: [referredBy], references: [id])
-  referrals  User[] @relation("UserReferrals")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  createdTours Tour[]   @relation("TourAuthor")
-  reviews      Review[]
-  teams        Team[]
-
-  activeTours ActiveTour[]
-  playedTours UserPlayedTour[]
-
-  feedbacks Feedback[]
-
-  // Friendships
-  friendshipsInitiated Friendship[] @relation("FriendshipInitiated")
-  friendshipsReceived  Friendship[] @relation("FriendshipReceived")
-
-  // Game Invites
-  sentInvites     GameInvite[] @relation("SentInvites")
-  receivedInvites GameInvite[] @relation("ReceivedInvites")
-
-  // Achievements
-  achievements UserAchievement[]
-  tourLists    TourList[]
-  purchases    Purchase[]
-
-  @@index([email])
-}
-
-model Purchase {
-  id            Int      @id @default(autoincrement())
-  userId        Int
-  user          User     @relation(fields: [userId], references: [id])
-  transactionId String   @unique
-  productId     String
-  tokens        Int
-  price         Float?
-  currency      String?
-  purchasedAt   DateTime @default(now())
-
-  @@index([userId])
-  @@index([transactionId])
-}
-
-model Friendship {
-  id        Int      @id @default(autoincrement())
-  status    String   @default("PENDING") // PENDING, ACCEPTED, DECLINED
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  requesterId Int
-  requester   User @relation("FriendshipInitiated", fields: [requesterId], references: [id])
-  addresseeId Int
-  addressee   User @relation("FriendshipReceived", fields: [addresseeId], references: [id])
-
-  @@unique([requesterId, addresseeId])
-  @@index([requesterId])
-  @@index([addresseeId])
-  @@index([status])
-}
-
-model GameInvite {
-  id Int @id @default(autoincrement())
-
-  // Link to ActiveTour (Session)
-  activeTourId Int
-  activeTour   ActiveTour @relation(fields: [activeTourId], references: [id], onDelete: Cascade)
-
-  inviterId Int
-  inviter   User @relation("SentInvites", fields: [inviterId], references: [id])
-
-  inviteeId Int
-  invitee   User @relation("ReceivedInvites", fields: [inviteeId], references: [id])
-
-  status String @default("PENDING") // PENDING, ACCEPTED, DECLINED
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tour      Tour?    @relation(fields: [tourId], references: [id])
-  tourId    Int?
-
-  @@index([inviteeId])
-  @@index([inviterId])
-  @@index([activeTourId])
-  @@index([status])
-}
-
-model Tour {
-  id          Int        @id @default(autoincrement())
-  title       String
-  location    String
-  description String
-  imageUrl    String
-  distance    Float // Stored as Float for calculations
-  duration    Int // Stored in minutes
-  points      Int
-  modes       String[] // PostgreSQL array for modes
-  difficulty  Difficulty
-  status      TourStatus @default(PENDING_REVIEW) // Review Status
-  type        TourType   @default(QUICK_TRIP) // New field: Tour Duration Type
-  genre       String     @default("Adventure") // New field: Genre
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  startLat    Float? // Optimization for map queries
-  startLng    Float? // Optimization for map queries
-
-  // Relations
-  authorId    Int
-  author      User             @relation("TourAuthor", fields: [authorId], references: [id])
-  stops       Stop[]
-  challenges  Challenge[] // Global challenges for the tour
-  reviews     Review[]
-  activeTours ActiveTour[]
-  playedTours UserPlayedTour[]
-  feedbacks   Feedback[]
-  gameInvites GameInvite[]
-  lists       TourList[]       @relation("TourListTours")
-
-  @@index([authorId])
-  @@index([createdAt])
-  @@index([location])
-  @@index([startLat, startLng]) // Composite index for map queries
-  @@index([difficulty])
-  @@index([distance])
-  @@index([duration])
-}
-
-model Stop {
-  id          Int    @id @default(autoincrement())
-  tourId      Int
-  tour        Tour   @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  number      Int
-  name        String
-  description String
-
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  longitude           Float
-  latitude            Float
-  type                StopType @default(Viewpoint)
-  pubgolfPar          Int?
-  pubgolfDrink        String?
-  imageUrl            String?
-  detailedDescription String?
-
-  // Relations
-  challenges   Challenge[] // Stop-specific challenges
-  pubGolfStops PubGolfStop[]
-
-  @@index([tourId])
-}
-
 enum ChallengeType {
   LOCATION
   TRIVIA
@@ -230,217 +398,4 @@ enum ChallengeType {
   TRUE_FALSE
   DARE
   RIDDLE
-}
-
-model Challenge {
-  id        Int           @id @default(autoincrement())
-  title     String
-  type      ChallengeType
-  points    Int
-  content   String? // Question for trivia, or extra info
-  hint      String?
-  answer    String? // For trivia
-  options   String[] // For trivia
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  // Bingo Grid Position (Optional, only for Bingo challenges)
-  bingoRow Int?
-  bingoCol Int?
-
-  // Polymorphic Relations (Nullable FKs)
-  tourId Int?
-  tour   Tour? @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  stopId Int?
-  stop   Stop? @relation(fields: [stopId], references: [id], onDelete: Cascade)
-
-  // Relations
-  activeChallenges ActiveChallenge[]
-
-  @@index([tourId])
-  @@index([stopId])
-}
-
-model ActiveTour {
-  id           Int           @id // Manually assigned 9-digit ID
-  tourId       Int
-  tour         Tour          @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  status       SessionStatus @default(WAITING)
-  winnerTeamId Int?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-
-  // Relations
-  teams       Team[]
-  user        User?        @relation(fields: [userId], references: [id])
-  userId      Int?
-  gameInvites GameInvite[]
-
-  @@index([tourId])
-  @@index([userId])
-  @@index([status])
-}
-
-model Team {
-  id           Int        @id @default(autoincrement())
-  activeTourId Int
-  activeTour   ActiveTour @relation(fields: [activeTourId], references: [id], onDelete: Cascade)
-  userId       Int
-  user         User       @relation(fields: [userId], references: [id])
-
-  name  String?
-  color String?
-  emoji String?
-
-  currentStop Int       @default(1)
-  streak      Int       @default(0)
-  score       Int       @default(0)
-  finishedAt  DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  activeChallenges ActiveChallenge[]
-  pubGolfStops     PubGolfStop[]
-  bingoCard        BingoCard? // No relation field here, it's on BingoCard end
-
-  @@index([activeTourId])
-  @@index([userId])
-}
-
-model ActiveChallenge {
-  id          Int       @id @default(autoincrement())
-  teamId      Int
-  team        Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  challengeId Int
-  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
-  completed   Boolean   @default(false)
-  completedAt DateTime?
-  failed      Boolean   @default(false)
-
-  @@unique([teamId, challengeId])
-  @@index([teamId])
-  @@index([challengeId])
-}
-
-model PubGolfStop {
-  id        Int      @id @default(autoincrement())
-  teamId    Int
-  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  stopId    Int
-  stop      Stop     @relation(fields: [stopId], references: [id], onDelete: Cascade)
-  sips      Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([teamId, stopId])
-  @@index([teamId])
-}
-
-model BingoCard {
-  id               Int      @id @default(autoincrement())
-  teamId           Int      @unique
-  team             Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  awardedLines     String[] // e.g. ["row-0", "col-2", "diag-1"]
-  fullHouseAwarded Boolean  @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([teamId])
-}
-
-model Review {
-  id        Int      @id @default(autoincrement())
-  content   String
-  rating    Int
-  photos    String[] // PostgreSQL array for photo URLs
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  tourId   Int
-  tour     Tour @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  authorId Int
-  author   User @relation(fields: [authorId], references: [id])
-
-  @@index([tourId])
-  @@index([authorId])
-}
-
-model UserPlayedTour {
-  id         Int           @id @default(autoincrement())
-  userId     Int
-  user       User          @relation(fields: [userId], references: [id])
-  tourId     Int
-  tour       Tour          @relation(fields: [tourId], references: [id])
-  status     SessionStatus
-  score      Int           @default(0)
-  startedAt  DateTime
-  finishedAt DateTime      @default(now())
-  teamName   String?
-  createdAt  DateTime      @default(now())
-
-  @@index([userId])
-  @@index([tourId])
-}
-
-model Achievement {
-  id          Int     @id @default(autoincrement())
-  title       String
-  description String
-  icon        String // 'trophy', 'map', 'flame', etc.
-  emoji       String? @default("🏆") // New field for toast display
-  color       String  @default("#FFC107") // hex color
-  criteria    String // 'TOUR_COMPLETION', 'FRIEND_ADD', 'STREAK', etc.
-  target      Int     @default(1)
-  xpReward    Int     @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  userAchievements UserAchievement[]
-}
-
-model UserAchievement {
-  id            Int         @id @default(autoincrement())
-  userId        Int
-  user          User        @relation(fields: [userId], references: [id])
-  achievementId Int
-  achievement   Achievement @relation(fields: [achievementId], references: [id])
-  unlockedAt    DateTime    @default(now())
-
-  @@unique([userId, achievementId])
-  @@index([userId])
-}
-
-model Feedback {
-  id        Int      @id @default(autoincrement())
-  tourId    Int?
-  tour      Tour?    @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  rating    Int
-  feedback  String?
-  source    String // e.g. "TOUR_COMPLETION", "PROFILE"
-  metadata  Json?
-  createdAt DateTime @default(now())
-
-  @@index([tourId])
-  @@index([userId])
-}
-
-model TourList {
-  id        Int      @id @default(autoincrement())
-  name      String
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tours     Tour[]   @relation("TourListTours")
-  tourOrder Int[]    @default([])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, name])
-  @@index([userId])
 }

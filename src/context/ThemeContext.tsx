@@ -58,15 +58,18 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
         loadTheme();
     }, [systemScheme]);
 
-    const toggleTheme = React.useCallback(async (): Promise<void> => {
-        setMode(prev => {
-            const newMode = prev === "light" ? "dark" : "light";
-            AsyncStorage.setItem(THEME_STORAGE_KEY, newMode).catch(e => 
+    const toggleTheme = React.useCallback((): void => {
+        setMode(prev => prev === "light" ? "dark" : "light");
+    }, []);
+
+    // Persist theme changes
+    useEffect(() => {
+        if (isLoaded) {
+            AsyncStorage.setItem(THEME_STORAGE_KEY, mode).catch(e => 
                 console.error('Failed to save theme', e)
             );
-            return newMode;
-        });
-    }, []);
+        }
+    }, [mode, isLoaded]);
 
     const triggerOverlay = React.useCallback((type: string | null) => {
         setOverlayType(type);
@@ -77,14 +80,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
         }
     }, []);
 
-    // Determine current theme based on mode and optional overlay type
-    const theme = React.useMemo(() => {
-        if (overlayType === 'romantic') {
-            const capitalizedMode = mode.charAt(0).toUpperCase() + mode.slice(1);
-            return (themes as any)[`romantic${capitalizedMode}`] || themes[mode];
-        }
-        return themes[mode];
-    }, [mode, overlayType]);
+    // Determine current theme based on mode - Simplified for instant switching
+    const theme = React.useMemo(() => themes[mode], [mode]);
 
     const value = React.useMemo(() => ({
         mode,
@@ -95,7 +92,12 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
         overlayType
     }), [mode, theme, toggleTheme, triggerOverlay, overlayTrigger, overlayType]);
 
-    if (!isLoaded) return null;
+    // We use a ref to track if we've ever successfully loaded from storage
+    // to avoid returning null and flickering after the first mount.
+    const hasOnceLoaded = React.useRef(false);
+    if (isLoaded) hasOnceLoaded.current = true;
+
+    if (!isLoaded && !hasOnceLoaded.current) return null;
 
     return (
         <ThemeContext.Provider value={value}>

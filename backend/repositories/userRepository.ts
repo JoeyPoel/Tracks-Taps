@@ -197,9 +197,14 @@ export const userRepository = {
     },
 
     async addXp(userId: number, amount: number) {
+        if (!userId || isNaN(userId)) throw new Error('Invalid userId in addXp');
+        if (isNaN(amount)) throw new Error('Invalid amount in addXp');
+
+        console.log(`[Repository] Adding ${amount} XP to user ${userId}`);
+
         return await prisma.user.update({
             where: { id: userId },
-            data: { xp: { increment: amount } },
+            data: { xp: { increment: Math.round(amount) } },
         });
     },
 

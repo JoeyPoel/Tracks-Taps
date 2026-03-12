@@ -203,7 +203,7 @@ export default function FriendProfileScreen() {
                         friends={user?.stats?.friends || 0}
                         onPressToursDone={() => router.push({ pathname: '/profile/tours-done', params: { type: 'done', title: t('toursDone'), targetUserId: user.id } })}
                         onPressToursCreated={() => router.push({ pathname: '/profile/tours-created', params: { type: 'created', title: t('toursCreated'), targetUserId: user.id } })}
-                        onPressFriends={() => router.push({ pathname: '/profile/user-friends', params: { userId: user.id, userName: user.name } })}
+                        onPressFriends={() => router.push({ pathname: '/profile/user-friends', params: { userId: user.id, name: user.name } })}
                     />
                 </View>
 
@@ -269,7 +269,7 @@ export default function FriendProfileScreen() {
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                         <TextComponent variant="h3" bold>{t('newestFriends') || 'Newest Friends'}</TextComponent>
                         {(user?.stats?.friends || 0) > 3 && (
-                            <TouchableOpacity onPress={() => router.push({ pathname: '/profile/user-friends', params: { userId: user?.id, userName: user?.name } })}>
+                            <TouchableOpacity onPress={() => router.push({ pathname: '/profile/user-friends', params: { userId: user?.id, name: user?.name } })}>
                                 <TextComponent variant="body" bold color={theme.primary}>{t('seeAll') || 'See All'}</TextComponent>
                             </TouchableOpacity>
                         )}

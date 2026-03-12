@@ -611,7 +611,11 @@ export const strings = {
     deleteAccountSubtitle: "Permanently remove your data",
     removeTour: "Remove Tour?",
     removeTourWarning: "If you go home now, this tour will be removed from your active tours list. Are you sure?",
-    goHome: "Go Home"
+    goHome: "Go Home",
+    selectCity: "Select City",
+    searchCityPlaceholder: "Search for a city...",
+    noCitiesFound: "No cities found",
+    useManualCity: "Use '{0}'"
   },
   es: {
     modes: 'Modos',
@@ -1217,7 +1221,8 @@ export const strings = {
     deleteAccount: "Eliminar Cuenta",
     deleteAccountWarning: "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción es permanente y no se puede deshacer. Tus tours creados permanecerán pero serán anonimizados.",
     deleteAccountConfirm: "Eliminar Mi Cuenta",
-    deleteAccountSubtitle: "Eliminar permanentemente tus datos"
+    deleteAccountSubtitle: "Eliminar permanentemente tus datos",
+    useManualCity: "Usar '{0}'"
   },
   nl: {
     modes: 'Modi',
@@ -1819,6 +1824,13 @@ export const strings = {
     deleteAccount: "Account Verwijderen",
     deleteAccountWarning: "Weet je zeker dat je je account wilt verwijderen? Deze actie is permanent en kan niet ongedaan worden gemaakt. Je gemaakte tours blijven bestaan, maar worden geanonimiseerd.",
     deleteAccountConfirm: "Mijn Account Verwijderen",
-    deleteAccountSubtitle: "Je gegevens permanent verwijderen"
+    deleteAccountSubtitle: "Je gegevens permanent verwijderen",
+    removeTour: "Tour Verwijderen?",
+    removeTourWarning: "Als je nu naar huis gaat, wordt deze tour verwijderd uit je actieve tours lijst. Weet je het zeker?",
+    goHome: "Naar Huis",
+    selectCity: "Selecteer Stad",
+    searchCityPlaceholder: "Zoek naar een stad...",
+    noCitiesFound: "Geen steden gevonden",
+    useManualCity: "Gebruik '{0}'"
   },
 };

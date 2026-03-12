@@ -65,6 +65,7 @@ export const activeTourController = {
         }
     },
 
+
     async getActiveTourById(request: Request, params?: { id: string }, userId?: number) {
         let id = params?.id;
 
@@ -230,7 +231,7 @@ export const activeTourController = {
             const body = await request.json();
             const { activeTourId, stopId, sips, userId } = body;
 
-            if (!activeTourId || !stopId || sips === undefined) {
+            if (!activeTourId || !stopId || sips === undefined || !userId) {
                 return Response.json({ error: 'Missing required fields' }, { status: 400 });
             }
 

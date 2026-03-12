@@ -13,6 +13,7 @@ import { AnimatedButton } from '../components/common/AnimatedButton';
 import FeedbackCard from '../components/tourCompleted/FeedbackCard';
 import Podium from '../components/tourCompleted/Podium';
 import ReviewForm from '../components/tourCompleted/ReviewForm';
+import TourCard from '../components/exploreScreen/TourCard';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { useAchievements } from '../hooks/useAchievements';
@@ -150,7 +151,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
         );
     }
 
-    if (!activeTour) {
+    if (!activeTour || !activeTour.tour) {
         return (
             <View style={[styles.container, { backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }]}>
                 <TextComponent color={theme.textPrimary} variant="body">{t('tourNotFound')}</TextComponent>
@@ -161,8 +162,8 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
     const podiumTeams = activeTeams.slice(0, 3);
     const runnerUps = activeTeams.slice(3);
     const winnerName = winner?.name || winner?.user?.name || t('you');
-    const isPubGolf = activeTour?.tour?.modes?.includes('pubgolf');
-    const stops = activeTour?.tour?.stops;
+    const isPubGolf = activeTour.tour.modes?.includes('pubgolf');
+    const stops = activeTour.tour.stops;
 
     // Determine which ranks to show based on state
     const getVisibleRanks = () => {
@@ -184,48 +185,24 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                {/* Header Bar */}
-                <View style={[styles.topBar, { paddingTop: Math.max(top, 20) + 10 }]}>
-                    <TouchableOpacity
-                        onPress={handleGoBack}
-                        style={[styles.backButton, { backgroundColor: theme.bgSecondary }]}
-                    >
-                        <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
-                    </TouchableOpacity>
-
-                    <TextComponent style={styles.activeTourTitle} color={theme.textSecondary} bold variant="caption">{activeTour?.tour?.title}</TextComponent>
-
-                    <View style={{ width: 40 }} />
-                </View>
-
-                {/* Tour Image Card */}
-                <Animated.View entering={ZoomIn.duration(800).springify()} style={styles.imageCardContainer}>
-                    <View style={[styles.imageCard, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
-                        {activeTour.tour?.imageUrl ? (
-                            <Image
-                                source={{ uri: getOptimizedImageUrl(activeTour.tour?.imageUrl, 800) }}
-                                style={StyleSheet.absoluteFill}
-                                contentFit="cover"
-                                cachePolicy="disk"
-                                transition={500}
-                            />
-                        ) : (
-                            <LinearGradient
-                                colors={[theme.secondary, theme.primary]}
-                                style={StyleSheet.absoluteFill}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                            />
-                        )}
-                        <LinearGradient
-                            colors={['transparent', 'rgba(0,0,0,0.6)']}
-                            style={styles.cardOverlay}
-                        />
-                        <View style={styles.cardBadge}>
-                            <Ionicons name="checkmark-circle" size={12} color="#FFF" />
-                            <TextComponent style={styles.badgeText} color="#FFF" bold variant="caption">{t('completed') || 'COMPLETED'}</TextComponent>
-                        </View>
-                    </View>
+                {/* Standard Tour Card */}
+                <Animated.View entering={ZoomIn.duration(800).springify()} style={styles.tourCardContainer}>
+                    <TourCard
+                        title={activeTour.tour.title}
+                        author={activeTour.tour.author?.name || 'Tracks & Taps'}
+                        imageUrl={activeTour.tour.imageUrl}
+                        distance={`${activeTour.tour.distance} ${t('km')}`}
+                        duration={`${activeTour.tour.duration} ${t('min')}`}
+                        stops={activeTour.tour.stops?.length || 0}
+                        rating={activeTour.tour.points > 0 ? 5 : 0} // Placeholder for rating if not in ActiveTour
+                        reviewCount={0}
+                        points={activeTour.tour.points}
+                        location={activeTour.tour.location}
+                        modes={activeTour.tour.modes}
+                        genre={activeTour.tour.genre}
+                        tourType={activeTour.tour.type as any}
+                        variant="hero"
+                    />
                 </Animated.View>
 
                 {/* Hero Section: Winner & Podium */}
@@ -471,43 +448,9 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 6,
     },
-    imageCardContainer: {
-        alignItems: 'center',
+    tourCardContainer: {
+        paddingHorizontal: 20,
         marginVertical: 20,
-        paddingHorizontal: 24,
-    },
-    imageCard: {
-        width: '100%',
-        height: 200,
-        borderRadius: 24,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-        elevation: 8,
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.15,
-        shadowRadius: 20,
-    },
-    cardOverlay: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: '50%',
-    },
-    cardBadge: {
-        position: 'absolute',
-        top: 16,
-        right: 16,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
     },
     badgeText: {
         fontSize: 10,
