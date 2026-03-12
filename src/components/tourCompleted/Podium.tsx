@@ -93,16 +93,18 @@ const PodiumBar = ({
                 <TextComponent style={styles.teamName} color={theme.textPrimary} bold variant="caption" numberOfLines={1}>
                     {displayName}
                 </TextComponent>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <View style={[styles.scoreBadge, { backgroundColor: theme.bgSecondary }]}>
+                <View style={{ alignItems: 'center' }}>
+                    <View style={[styles.scoreBadge, { backgroundColor: theme.bgSecondary, marginBottom: 4 }]}>
                         <TextComponent style={styles.score} color={teamColor} bold variant="caption">
-                            {team.score}
+                            {team.score} PTS
                         </TextComponent>
                     </View>
                     {isPubGolf && (
-                        <TextComponent style={[styles.score, { color: theme.textSecondary, marginLeft: 4 }]} bold variant="caption">
-                            {pgText}
-                        </TextComponent>
+                        <View style={[styles.scoreBadge, { backgroundColor: theme.bgSecondary + '80' }]}>
+                            <TextComponent style={[styles.score, { color: theme.textSecondary }]} bold variant="caption">
+                                {pgText.trim() || 'E PG'}
+                            </TextComponent>
+                        </View>
                     )}
                 </View>
             </Animated.View>

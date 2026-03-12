@@ -249,12 +249,13 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                                     <TextComponent style={styles.winnerScoreText} color={theme.primary} bold variant="caption">
                                         {winner?.score || 0} PTS
                                     </TextComponent>
+                                    <View style={{ width: 1, height: 12, backgroundColor: theme.borderPrimary, marginHorizontal: 4 }} />
                                     {isPubGolf && winner && (() => {
                                         const stats = getPubGolfStats(stops, winner.pubGolfStops);
                                         const score = stats.currentScore;
                                         const pgText = score === 0 ? 'E PG' : score > 0 ? `+${score} PG` : `${score} PG`;
                                         return (
-                                            <TextComponent style={[styles.winnerScoreText, { color: theme.textSecondary, marginLeft: 4 }]} bold variant="caption">
+                                            <TextComponent style={[styles.winnerScoreText, { color: theme.textSecondary }]} bold variant="caption">
                                                 {pgText}
                                             </TextComponent>
                                         );
@@ -295,14 +296,14 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                                 <View key={team.id} style={[styles.runnerUpRow, { borderColor: theme.borderPrimary }]}>
                                     <TextComponent style={styles.runnerUpRank} color={theme.textSecondary} bold variant="body">{index + 4}</TextComponent>
                                     <TextComponent style={styles.runnerUpName} color={theme.textPrimary} bold variant="body">{team.name || team.user?.name}</TextComponent>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <TextComponent style={styles.runnerUpScore} color={theme.textPrimary} bold variant="body">{team.score} pts</TextComponent>
+                                    <View style={{ alignItems: 'flex-end' }}>
+                                        <TextComponent style={styles.runnerUpScore} color={theme.textPrimary} bold variant="body">{team.score} PTS</TextComponent>
                                         {isPubGolf && (() => {
                                             const stats = getPubGolfStats(stops, team.pubGolfStops);
                                             const score = stats.currentScore;
                                             const pgText = score === 0 ? 'E PG' : score > 0 ? `+${score} PG` : `${score} PG`;
                                             return (
-                                                <TextComponent style={[styles.runnerUpScore, { color: theme.textSecondary, marginLeft: 8 }]} bold variant="caption">
+                                                <TextComponent style={[styles.runnerUpScore, { color: theme.textSecondary }]} bold variant="caption">
                                                     {pgText}
                                                 </TextComponent>
                                             );
