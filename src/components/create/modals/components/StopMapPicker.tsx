@@ -13,9 +13,18 @@ interface StopMapPickerProps {
     setMarker: (marker: { latitude: number; longitude: number } | null) => void;
     existingStops: any[];
     currentStopType?: StopType;
+    editingIndex?: number | null;
 }
 
-export function StopMapPicker({ region, setRegion, marker, setMarker, existingStops, currentStopType = StopType.Viewpoint }: StopMapPickerProps) {
+export function StopMapPicker({
+    region,
+    setRegion,
+    marker,
+    setMarker,
+    existingStops,
+    currentStopType = StopType.Viewpoint,
+    editingIndex = null
+}: StopMapPickerProps) {
     const { theme, mode } = useTheme();
 
     const handleMapPress = (e: any) => {
@@ -23,10 +32,17 @@ export function StopMapPicker({ region, setRegion, marker, setMarker, existingSt
         Keyboard.dismiss();
     };
 
-    const routeCoordinates = [
-        ...existingStops.map(s => ({ latitude: s.latitude, longitude: s.longitude })),
-        ...(marker ? [marker] : [])
-    ];
+    const routeCoordinates = [...existingStops.map(s => ({ latitude: s.latitude, longitude: s.longitude }))];
+
+    if (marker) {
+        if (editingIndex !== null && editingIndex !== undefined && editingIndex < routeCoordinates.length) {
+            // Replace the coordinate at the editing index
+            routeCoordinates[editingIndex] = marker;
+        } else {
+            // New stop or index out of bounds, append to end
+            routeCoordinates.push(marker);
+        }
+    }
 
     return (
         <View style={styles.mapContainer}>

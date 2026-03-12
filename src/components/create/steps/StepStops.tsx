@@ -159,6 +159,7 @@ export default function StepStops({ draft, actions, footer }: StepStopsProps) {
                 modes={draft.modes}
                 existingStops={draft.stops}
                 initialData={editingStopIndex !== null ? draft.stops[editingStopIndex] : undefined}
+                editingIndex={editingStopIndex}
             />
 
             <ChallengeCreationModal

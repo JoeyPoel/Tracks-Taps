@@ -16,9 +16,18 @@ interface StopCreationModalProps {
     modes: string[];
     existingStops?: any[];
     initialData?: any;
+    editingIndex?: number | null;
 }
 
-export default function StopCreationModal({ visible, onClose, onSave, modes = [], existingStops = [], initialData }: StopCreationModalProps) {
+export default function StopCreationModal({
+    visible,
+    onClose,
+    onSave,
+    modes = [],
+    existingStops = [],
+    initialData,
+    editingIndex = null
+}: StopCreationModalProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
@@ -46,6 +55,7 @@ export default function StopCreationModal({ visible, onClose, onSave, modes = []
                     setMarker={(val) => updateField('marker', val)}
                     existingStops={existingStops}
                     currentStopType={type}
+                    editingIndex={editingIndex}
                 />
 
                 <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
