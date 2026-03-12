@@ -2,6 +2,7 @@ import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useStore } from '../store/store';
+import { AppIconProvider } from './AppIconContext';
 import { AuthProvider } from './AuthContext';
 import { LanguageProvider } from './LanguageContext';
 import { RevenueCatProvider } from './RevenueCatContext';
@@ -26,15 +27,17 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
             <AuthProvider>
                 <LanguageProvider>
                     <ThemeProvider>
-                        <UserProvider>
-                            <TutorialProvider>
-                                <RevenueCatProvider>
-                                    <ToastProvider>
-                                        {children}
-                                    </ToastProvider>
-                                </RevenueCatProvider>
-                            </TutorialProvider>
-                        </UserProvider>
+                        <AppIconProvider>
+                            <UserProvider>
+                                <TutorialProvider>
+                                    <RevenueCatProvider>
+                                        <ToastProvider>
+                                            {children}
+                                        </ToastProvider>
+                                    </RevenueCatProvider>
+                                </TutorialProvider>
+                            </UserProvider>
+                        </AppIconProvider>
                     </ThemeProvider>
                 </LanguageProvider>
             </AuthProvider>

@@ -40,15 +40,25 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/Splash Screen Coloured.png",
+          "image": "./assets/images/Splash Screen Coloured White Theme.png",
           "imageWidth": 1024,
           "imageHeight": 1024,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#F8FAFC",
           "dark": {
-            "backgroundColor": "#000000"
+            "image": "./assets/images/Splash Screen Coloured Dark Theme.png",
+            "backgroundColor": "#0F172A"
           }
         }
+      ],
+      [
+        "expo-alternate-app-icons",
+        [
+          "./assets/images/App Icon Coloured Dark Theme.png",
+          "./assets/images/App Icon Coloured White Theme.png",
+          "./assets/images/App Icon Dark theme.png",
+          "./assets/images/App Icon White theme.png"
+        ]
       ],
       "expo-font",
       [

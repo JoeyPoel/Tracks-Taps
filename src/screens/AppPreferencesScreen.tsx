@@ -7,6 +7,7 @@ import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { AnimatedPressable } from '../components/common/AnimatedPressable';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
+import { useAppIcon, AppIconId } from '../context/AppIconContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { darkTheme } from '../context/theme';
@@ -14,6 +15,7 @@ import { darkTheme } from '../context/theme';
 export default function AppPreferencesScreen() {
   const { theme, toggleTheme, mode } = useTheme();
   const { t, language, setLanguage } = useLanguage();
+  const { iconId, setIconId } = useAppIcon();
 
   const languages = [
     { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -64,6 +66,52 @@ export default function AppPreferencesScreen() {
               ios_backgroundColor={theme.bgDisabled}
             />
           </View>
+        </View>
+
+        {/* App Icon Section */}
+        {renderSectionHeader(t('appIcon'), 'apps-outline')}
+        <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.iconSelectionList}>
+            {[
+              { id: 'auto', label: t('iconAuto'), icon: 'sync-outline' },
+              { id: 'colouredDark', label: t('iconColouredDark'), icon: 'color-palette' },
+              { id: 'colouredWhite', label: t('iconColouredWhite'), icon: 'color-palette-outline' },
+              { id: 'simpleDark', label: t('iconSimpleDark'), icon: 'moon' },
+              { id: 'simpleWhite', label: t('iconSimpleWhite'), icon: 'sunny-outline' },
+            ].map((option) => {
+              const isActive = iconId === option.id;
+              return (
+                <AnimatedPressable
+                  key={option.id}
+                  onPress={() => setIconId(option.id as AppIconId)}
+                  style={[
+                    styles.iconOption,
+                    {
+                      backgroundColor: isActive ? theme.primary + '10' : 'transparent',
+                      borderColor: isActive ? theme.primary : theme.borderSecondary,
+                      borderWidth: isActive ? 1.5 : 1
+                    }
+                  ]}
+                >
+                  <Ionicons name={option.icon as any} size={24} color={isActive ? theme.primary : theme.textSecondary} />
+                  <TextComponent
+                    style={styles.iconOptionLabel}
+                    color={isActive ? theme.primary : theme.textPrimary}
+                    bold={isActive}
+                    variant="caption"
+                    center
+                  >
+                    {option.label}
+                  </TextComponent>
+                  {isActive && (
+                    <View style={[styles.activeBadge, { backgroundColor: theme.primary }]}>
+                      <Ionicons name="checkmark" size={10} color="#FFF" />
+                    </View>
+                  )}
+                </AnimatedPressable>
+              );
+            })}
+          </ScrollView>
         </View>
 
         {/* Language Section */}
@@ -225,6 +273,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  iconSelectionList: {
+    padding: 16,
+    gap: 12,
+  },
+  iconOption: {
+    width: 100,
+    height: 90,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 12,
+    position: 'relative',
+    padding: 8,
+  },
+  iconOptionLabel: {
+    fontSize: 11,
+    marginTop: 6,
   },
   versionText: {
     textAlign: 'center',
