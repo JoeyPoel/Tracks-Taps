@@ -7,7 +7,10 @@ import { useStore } from '@/src/store/store';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TourDraft } from './useTourDraft';
+
+const getStorageKey = (id?: number | null) => id ? `@tour_draft_edit_${id}` : `@tour_draft_new`;
 
 export function useTourSubmission(user: any, tourId?: number | null) {
     const { t } = useLanguage();
@@ -74,6 +77,7 @@ export function useTourSubmission(user: any, tourId?: number | null) {
                         })
                     }
                 ]);
+                await AsyncStorage.removeItem(getStorageKey(tourId));
             } else {
                 result = await tourService.createTour(payload);
 
@@ -97,6 +101,7 @@ export function useTourSubmission(user: any, tourId?: number | null) {
                         })
                     }
                 ]);
+                await AsyncStorage.removeItem(getStorageKey(tourId));
             }
 
         } catch (error: any) {

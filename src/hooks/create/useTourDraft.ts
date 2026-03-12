@@ -1,5 +1,5 @@
-
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TourType } from '../../types/models';
 import { useTourCalculations } from './useTourCalculations';
 
@@ -43,8 +43,51 @@ const INITIAL_DRAFT: TourDraft = {
 
 export { INITIAL_DRAFT };
 
-export function useTourDraft() {
+const getStorageKey = (id?: number | null) => id ? `@tour_draft_edit_${id}` : `@tour_draft_new`;
+
+export function useTourDraft(persistenceId?: number | null) {
     const [tourDraft, setTourDraft] = useState<TourDraft>(INITIAL_DRAFT);
+    const [isRestored, setIsRestored] = useState(false);
+    const saveTimeoutRef = useRef<any>(null);
+
+    // 1. Load from storage on mount
+    useEffect(() => {
+        const loadDraft = async () => {
+            try {
+                const key = getStorageKey(persistenceId);
+                const saved = await AsyncStorage.getItem(key);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    setTourDraft(parsed);
+                }
+            } catch (error) {
+                console.error('Failed to load tour draft from storage:', error);
+            } finally {
+                setIsRestored(true);
+            }
+        };
+        loadDraft();
+    }, [persistenceId]);
+
+    // 2. Save to storage on changes (debounced)
+    useEffect(() => {
+        if (!isRestored) return; // Don't save default state over a saved draft before loading
+
+        if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+
+        saveTimeoutRef.current = setTimeout(async () => {
+            try {
+                const key = getStorageKey(persistenceId);
+                await AsyncStorage.setItem(key, JSON.stringify(tourDraft));
+            } catch (error) {
+                console.error('Failed to save tour draft to storage:', error);
+            }
+        }, 1000); // 1s debounce
+
+        return () => {
+            if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+        };
+    }, [tourDraft, persistenceId, isRestored]);
 
     // Calculate derived metrics
     const { distance, duration, points } = useTourCalculations(tourDraft.stops, tourDraft.modes);
@@ -80,7 +123,15 @@ export function useTourDraft() {
         setTourDraft(prev => ({ ...prev, [key]: value }));
     };
 
-    const resetDraft = () => setTourDraft(INITIAL_DRAFT);
+    const resetDraft = async () => {
+        setTourDraft(INITIAL_DRAFT);
+        try {
+            const key = getStorageKey(persistenceId);
+            await AsyncStorage.removeItem(key);
+        } catch (error) {
+            console.error('Failed to clear tour draft from storage:', error);
+        }
+    };
 
     // --- Actions ---
 

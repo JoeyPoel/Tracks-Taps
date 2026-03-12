@@ -23,7 +23,7 @@ export function useCreateTour() {
 
 
 
-    const { tourDraft, updateDraft, setDraft, resetDraft, actions } = useTourDraft();
+    const { tourDraft, updateDraft, setDraft, resetDraft, actions } = useTourDraft(tourId);
     const { isSubmitting, submitTour } = useTourSubmission(user, tourId);
 
     useEffect(() => {
