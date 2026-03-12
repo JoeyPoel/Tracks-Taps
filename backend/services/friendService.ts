@@ -43,11 +43,10 @@ export const friendService = {
     async sendRequest(requesterEmail: string, targetIdentifier: string) {
         const requester = await userRepository.getUserByEmail(requesterEmail);
 
-        // Find target - try username first (case-insensitive)
-        let target = await userRepository.getUserByUsername(targetIdentifier);
+        // Find target by name (replacing previous username lookup)
+        let target = await userRepository.getUserByName(targetIdentifier);
 
         // Fallback to email if not found and identifier looks like an email
-        // This handles users without usernames who are added from search
         if (!target && targetIdentifier.includes('@')) {
             target = await userRepository.getUserByEmail(targetIdentifier);
         }

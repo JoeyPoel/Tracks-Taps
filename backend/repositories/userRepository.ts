@@ -17,7 +17,6 @@ export const userRepository = {
             select: {
                 id: true,
                 name: true,
-                username: true,
                 email: true,
                 avatarUrl: true,
                 xp: true,
@@ -41,7 +40,6 @@ export const userRepository = {
             select: {
                 id: true,
                 name: true,
-                username: true,
                 email: true,
                 authId: true,
                 avatarUrl: true,
@@ -66,7 +64,6 @@ export const userRepository = {
             select: {
                 id: true,
                 name: true,
-                username: true,
                 email: true,
                 authId: true,
                 avatarUrl: true,
@@ -85,13 +82,12 @@ export const userRepository = {
         });
     },
 
-    async getUserByUsername(username: string) {
+    async getUserByName(name: string) {
         return await prisma.user.findFirst({
-            where: { username: { equals: username, mode: 'insensitive' } },
+            where: { name: { equals: name, mode: 'insensitive' } },
             select: {
                 id: true,
                 name: true,
-                username: true,
                 email: true,
                 avatarUrl: true,
                 xp: true,
@@ -114,14 +110,13 @@ export const userRepository = {
         return await prisma.user.findMany({
             where: {
                 OR: [
-                    { username: { contains: query, mode: 'insensitive' } },
-                    { name: { contains: query, mode: 'insensitive' } }
+                    { name: { contains: query, mode: 'insensitive' } },
+                    { email: { contains: query, mode: 'insensitive' } }
                 ]
             },
             select: {
                 id: true,
                 name: true,
-                username: true,
                 email: true,
                 avatarUrl: true,
                 level: true
@@ -131,21 +126,18 @@ export const userRepository = {
         });
     },
 
-    async createUser(data: { email: string; name: string; username?: string; authId?: string }) {
+    async createUser(data: { email: string; name: string; authId?: string }) {
         if (data.name.length > 25) {
             throw new Error('Name cannot exceed 25 characters');
         }
         // Generate secure 9-digit numeric code
         const referralCode = randomInt(100000000, 1000000000).toString();
 
-        // Use name as initial username if not provided, ensuring it's unique might be tricky
-        // For now, we'll let it be null or provided
         return await prisma.user.create({
             data: {
                 email: data.email,
                 authId: data.authId,
                 name: data.name,
-                username: data.username || null,
                 xp: 0,
                 tokens: 0,
                 level: 1,
@@ -234,12 +226,9 @@ export const userRepository = {
         });
     },
 
-    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; username?: string; referralCode?: string; authId?: string }) {
+    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; referralCode?: string; authId?: string }) {
         if (data.name && data.name.length > 25) {
             throw new Error('Name cannot exceed 25 characters');
-        }
-        if (data.username && (data.username.length < 3 || data.username.length > 20)) {
-            throw new Error('Username must be between 3 and 20 characters');
         }
         return await prisma.user.update({
             where: { id: userId },
@@ -356,7 +345,6 @@ export const userRepository = {
                     data: {
                         email: DELETED_USER_EMAIL,
                         name: 'Deleted User',
-                        username: 'deleted_user_' + Date.now(),
                         xp: 0,
                         tokens: 0,
                         level: 1,

@@ -6,7 +6,7 @@ export const userController = {
     async getUser(request: Request) {
         const { searchParams } = new URL(request.url);
         const email = searchParams.get('email');
-        const username = searchParams.get('username');
+        const name = searchParams.get('name');
         const userId = searchParams.get('userId');
         const authId = searchParams.get('authId');
         const query = searchParams.get('query');
@@ -56,8 +56,8 @@ export const userController = {
             let user;
             if (userId && !isNaN(parsedUserId)) {
                 user = await userService.getUserProfile(parsedUserId);
-            } else if (username) {
-                user = await userService.getUserByUsername(username);
+            } else if (name) {
+                user = await userService.getUserByName(name);
             } else if (authId) {
                 user = await userService.getUserByAuthId(authId);
 
@@ -282,22 +282,18 @@ export const userController = {
     async updateUser(request: Request, parsedBody?: any) {
         try {
             const body = parsedBody || await request.json();
-            const { userId, name, avatarUrl, username } = body;
+            const { userId, name, avatarUrl } = body;
 
             if (!userId) {
                 return Response.json({ error: 'Missing userId' }, { status: 400 });
             }
 
             if (name && name.length > 25) return Response.json({ error: 'Name exceeds 25 characters' }, { status: 400 });
-            if (username && (username.length < 3 || username.length > 20)) return Response.json({ error: 'Username must be between 3 and 20 characters' }, { status: 400 });
 
-            const updatedUser = await userService.updateUser(Number(userId), { name, avatarUrl, username });
+            const updatedUser = await userService.updateUser(Number(userId), { name, avatarUrl });
             return Response.json(updatedUser);
         } catch (error: any) {
             console.error('Error updating user:', error);
-            if (error.message.includes('Unique constraint failed on the fields: (`username`)')) {
-                return Response.json({ error: 'Username already taken' }, { status: 400 });
-            }
             return Response.json({ error: 'Failed to update user' }, { status: 500 });
         }
     },

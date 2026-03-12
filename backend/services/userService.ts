@@ -90,8 +90,8 @@ export const userService = {
         return user;
     },
 
-    async getUserByUsername(username: string) {
-        const user = await userRepository.getUserByUsername(username);
+    async getUserByName(name: string) {
+        const user = await userRepository.getUserByName(name);
         if (user) {
             // Get friend count
             const friendCount = await friendRepository.getFriendCount(user.id);
@@ -146,7 +146,7 @@ export const userService = {
         return await userRepository.addTokens(userId, amount);
     },
 
-    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; username?: string; referralCode?: string }) {
+    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; referralCode?: string }) {
         const user = await userRepository.updateUser(userId, data);
         return { ...user, level: LevelSystem.getLevel(user.xp) };
     },
