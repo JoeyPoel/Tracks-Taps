@@ -44,11 +44,19 @@ export default function PreTourLobbyScreen() {
     }, [activeTour?.status, activeTourId]);
 
     if (isStarting) {
-        return <TourLoadingScreen message="Loading Tour..." />;
+        return (
+            <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} animateEntry={false}>
+                <TourLoadingScreen message="Loading Tour..." />
+            </ScreenWrapper>
+        );
     }
 
     if (loading) {
-        return <TourLoadingScreen message="Loading lobby..." />;
+        return (
+            <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} animateEntry={false}>
+                <TourLoadingScreen message="Loading lobby..." />
+            </ScreenWrapper>
+        );
     }
 
     return (

@@ -2,7 +2,7 @@ import { useTheme } from '@/src/context/ThemeContext';
 import ActiveTourScreen from '@/src/screens/ActiveTourScreen';
 import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 
 export default function ActiveTourRoute() {
     const { id } = useLocalSearchParams();
@@ -10,8 +10,8 @@ export default function ActiveTourRoute() {
     const activeTourId = id ? Number(id) : undefined;
 
     return (
-        <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: theme.bgPrimary }}>
+        <View style={{ flex: 1, backgroundColor: theme.bgPrimary }}>
             {activeTourId && <ActiveTourScreen activeTourId={activeTourId} />}
-        </SafeAreaView>
+        </View>
     );
 }

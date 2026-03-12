@@ -13,6 +13,7 @@ import StopInfoSection from '../components/active-tour/StopInfoSection';
 import TourChallengesSection from '../components/active-tour/TourChallengesSection';
 import TourNavigation from '../components/active-tour/TourNavigation';
 import { AppModal } from '../components/common/AppModal';
+import { ScreenWrapper } from '../components/common/ScreenWrapper'; // Added Import
 import { TextComponent } from '../components/common/TextComponent'; // Added Import
 import { TourLoadingScreen } from '../components/common/TourLoadingScreen'; // Added Import
 import CustomTabBar from '../components/CustomTabBar';
@@ -114,7 +115,13 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         });
     }
 
-    if (loading) return <TourLoadingScreen message={t('loadingTour') || "Loading Tour..."} />;
+    if (loading) {
+        return (
+            <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} animateEntry={false}>
+                <TourLoadingScreen message={t('loadingTour') || "Loading Tour..."} />
+            </ScreenWrapper>
+        );
+    }
     if (error) return <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}><TextComponent color={theme.danger}>{error}</TextComponent></View>;
     if (!activeTour) return <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}><TextComponent>{t('tourNotFound')}</TextComponent></View>;
 
@@ -337,7 +344,13 @@ export default function ActiveTourScreen({ activeTourId }: { activeTourId: numbe
     const { user, loading } = useUserContext();
 
     if (loading && !user) {
-        return <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}><TextComponent>{t('loading')}</TextComponent></View>;
+        return (
+            <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true}>
+                <View style={[styles.centerContainer]}>
+                    <TextComponent>{t('loading')}</TextComponent>
+                </View>
+            </ScreenWrapper>
+        );
     }
 
     if (!user) {
