@@ -27,9 +27,10 @@ interface TourReviewsProps {
     reviews: Review[];
     averageRating: number;
     totalReviews: number;
+    onWriteReview?: () => void;
 }
 
-export default function TourReviews({ reviews, averageRating, totalReviews }: TourReviewsProps) {
+export default function TourReviews({ reviews, averageRating, totalReviews, onWriteReview }: TourReviewsProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const router = useRouter();
@@ -138,6 +139,18 @@ export default function TourReviews({ reviews, averageRating, totalReviews }: To
             {/* Expandable List */}
             {expanded && (
                 <View style={styles.listContainer}>
+                    {/* Write Review Trigger */}
+                    {onWriteReview && (
+                        <TouchableOpacity
+                            onPress={onWriteReview}
+                            style={[styles.writeReviewButton, { backgroundColor: theme.primary + '10', borderColor: theme.primary }]}
+                        >
+                            <Ionicons name="create-outline" size={20} color={theme.primary} />
+                            <TextComponent style={styles.writeReviewText} color={theme.primary} bold variant="body">
+                                {t('writeReview') || "Write a Review"}
+                            </TextComponent>
+                        </TouchableOpacity>
+                    )}
 
                     {/* Sorting Controls */}
                     {reviews.length > 0 && (
@@ -342,5 +355,19 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         marginRight: 8,
         backgroundColor: '#f0f0f0',
+    },
+    writeReviewButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 12,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        marginBottom: 8,
+        gap: 8,
+    },
+    writeReviewText: {
+        fontSize: 15,
     }
 });

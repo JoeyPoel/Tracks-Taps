@@ -13,25 +13,31 @@ import { TextComponent } from '../components/common/TextComponent'; // Added imp
 import { TourLoadingScreen } from '../components/common/TourLoadingScreen';
 import BuyTokensModal from '../components/profileScreen/BuyTokensModal';
 import AddToSavedTripsModal from '../components/saved-trips/AddToSavedTripsModal';
+import ReviewForm from '../components/tourCompleted/ReviewForm';
 import TourGallery from '../components/tourdetailScreen/TourGallery';
 import TourReviews from '../components/tourdetailScreen/TourReviews';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useSavedTrips } from '../hooks/useSavedTrips';
 import { useStartTour } from '../hooks/useStartTour';
 import { useTourDetails } from '../hooks/useTourDetails';
+import { tourService } from '../services/tourService';
+import { authEvents } from '../utils/authEvents';
 import { getOptimizedImageUrl } from '../utils/imageUtils';
 
 import { useSafeNavigation } from '../hooks/useSafeNavigation';
-import { authEvents } from '../utils/authEvents';
 
 export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
   const { goBack } = useSafeNavigation();
   const [showSavedTripModal, setShowSavedTripModal] = useState(false);
   const [showBuyTokens, setShowBuyTokens] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [submittingReview, setSubmittingReview] = useState(false);
 
   const {
     tour,
@@ -39,12 +45,40 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
     error,
     averageRating,
     reviewCount,
-    formattedReviews
+    formattedReviews,
+    refetch
   } = useTourDetails(tourId);
 
   const { startTour, loadingMode } = useStartTour(tourId, tour?.author?.id, () => setShowBuyTokens(true));
   const { lists, loadLists, checkIsSaved, createList, addTourToList, removeTourFromList, isFavourite, toggleFavourite } = useSavedTrips();
   const isSaved = checkIsSaved(tourId);
+
+  const handleCreateReview = async (rating: number, content: string, photos: string[]) => {
+    if (!user) {
+      authEvents.emit();
+      return;
+    }
+
+    setSubmittingReview(true);
+    try {
+      await tourService.createReview(tourId, {
+        rating,
+        content,
+        photos
+      });
+
+      // Refetch details so the new review appears
+      await refetch();
+
+      setShowReviewForm(false);
+      Alert.alert(t('success'), t('reviewSubmitted') || 'Review submitted successfully!');
+    } catch (error: any) {
+      console.error('Error submitting review:', error);
+      Alert.alert(t('error'), t('reviewSubmitError') || 'Failed to submit review. Please try again.');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   React.useEffect(() => {
     loadLists();
@@ -225,6 +259,13 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           reviews={formattedReviews}
           averageRating={averageRating}
           totalReviews={reviewCount}
+          onWriteReview={() => {
+            if (!user) {
+              authEvents.emit();
+              return;
+            }
+            setShowReviewForm(true);
+          }}
         />
 
       </ScrollView>
@@ -321,6 +362,14 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
       <BuyTokensModal
         visible={showBuyTokens}
         onClose={() => setShowBuyTokens(false)}
+      />
+
+      <ReviewForm
+        visible={showReviewForm}
+        onClose={() => setShowReviewForm(false)}
+        onSubmit={handleCreateReview}
+        submitting={submittingReview}
+        tourName={tour.title}
       />
     </ScreenWrapper>
   );
