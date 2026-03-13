@@ -144,13 +144,14 @@ export default function TourCard({
               <TextComponent style={styles.miniStatText} variant="caption">{location}</TextComponent>
             </View>
           )}
+        </View>
 
-          <View style={[styles.pointsContainer, isGrid && styles.gridPointsContainer]}>
-            <BoltIconSolid size={isGrid ? 10 : 16} color={theme.gold} />
-            <TextComponent style={[styles.pointsText, { color: theme.gold, fontSize: isGrid ? 11 : 14 }]} bold>
-              {points}
-            </TextComponent>
-          </View>
+        {/* Absolute Points Indicator */}
+        <View style={[styles.pointsContainer, isGrid && styles.gridPointsContainer]}>
+          <BoltIconSolid size={isGrid ? 10 : 16} color={theme.gold} />
+          <TextComponent style={[styles.pointsText, { color: theme.gold, fontSize: isGrid ? 11 : 14 }]} bold>
+            {points}
+          </TextComponent>
         </View>
       </View>
     </TourCardBase>
@@ -250,6 +251,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.5)',
   },
   pointsContainer: {
+    position: 'absolute',
+    right: 0,
+    bottom: -10,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
@@ -276,11 +280,12 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   gridPointsContainer: {
+    position: 'absolute',
+    right: 0,
+    bottom: -8,
     paddingHorizontal: 6,
     paddingVertical: 3,
     borderRadius: 8,
-    marginLeft: 4, // Ensure spacing from stats
     backgroundColor: 'rgba(255, 215, 0, 0.2)',
-    flexShrink: 0
   },
 });

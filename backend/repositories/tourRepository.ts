@@ -85,41 +85,8 @@ export const tourRepository = {
         const limit = filters.limit && filters.limit > 0 ? filters.limit : 20;
         const skip = (page - 1) * limit;
 
-        // --- Distance sorting handle ---
-        if (filters.sortBy === 'distanceFromUser' && filters.userLat !== undefined && filters.userLng !== undefined) {
-            const userLat = parseFloat(filters.userLat.toString());
-            const userLng = parseFloat(filters.userLng.toString());
-
-            // Fetch qualified tours and then sort manually (Hybrid approach)
-            const allQualifiedTours = await prisma.tour.findMany({
-                include: {
-                    author: { select: { name: true, avatarUrl: true } },
-                    _count: { select: { stops: true } }
-                }
-            });
-
-            const toursWithDistance = allQualifiedTours.map(t => {
-                if (t.startLat === null || t.startLng === null) return { ...t, distance_from_user: Infinity };
-                // Haversine-ish distance (simple Euclidean is often enough for local sorting, but let's be slightly better)
-                const d = Math.sqrt(Math.pow(t.startLat - userLat, 2) + Math.pow(t.startLng - userLng, 2));
-                return { ...t, distance_from_user: d };
-            });
-
-            toursWithDistance.sort((a, b) => a.distance_from_user - b.distance_from_user);
-            
-            const paginatedData = toursWithDistance.slice(skip, skip + limit);
-            const total = toursWithDistance.length;
-
-            return await this.enrichTours(paginatedData, { 
-                total, 
-                page, 
-                lastPage: Math.ceil(total / limit), 
-                limit 
-            });
-        }
-
         const orderBy: Prisma.TourOrderByWithRelationInput = {};
-        if (filters.sortBy && filters.sortBy !== 'distanceFromUser') {
+        if (filters.sortBy) {
             const order = filters.sortOrder || 'asc';
             switch (filters.sortBy) {
                 case 'name': orderBy.title = order; break;

@@ -42,6 +42,9 @@ The JSON contains two completely separate arrays for challenges. Do NOT duplicat
 - **Reviews**: The `reviews` array must be left completely empty (`[]`). Consequently, `_count.reviews` and `reviewCount` must be exactly `0`, and `averageRating` should be `0.0`.
 - **Count Objects**: Ensure `_count.stops` matches the actual stop array length. 
 - **Start Latitude & Longitude**: Ensure Start Latitude & Longitude matches the first stop's latitude & longitude.
+- **City**: The city name should be in the format "City, Province / State" (e.g., "Amsterdam, North Holland").
+- **Genre**: The genre should match one of: 'Adventure', 'History', 'Nature', 'Nightlife', 'Culture', 'Foodie', 'Romance', 'Art', 'Photography', 'Mystery'.
+- **Modes**: Always include "WALKING". If Bingo is enabled, include "BINGO" in the `modes` array, if pubgolf is enabled, include "PUBGOLF" in the `modes` array, if driving is necessary, include "DRIVING" in the `modes` array, if public transport is necessary, include "PUBLIC_TRANSPORT" in the `modes` array. if biking is necessary, include "BIKING" in the `modes` array.
 
 # MASTER JSON TEMPLATE
 ```json
@@ -54,7 +57,7 @@ The JSON contains two completely separate arrays for challenges. Do NOT duplicat
   "distance": [Calculated Float],
   "duration": [Calculated Int],
   "points": [SUM OF ALL CHALLENGE POINTS],
-  "modes": ["WALKING"], 
+  "modes": ["WALKING", "BIKING", "BINGO","PUBGOLF","DRIVING","PUBLIC_TRANSPORT"], 
   "difficulty": "MEDIUM",
   "status": "PENDING_REVIEW",
   "type": "QUICK_TRIP",

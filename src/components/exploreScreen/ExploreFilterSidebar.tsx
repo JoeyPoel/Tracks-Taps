@@ -28,6 +28,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
     const { t } = useLanguage();
     const {
         slideAnim,
+        opacityAnim,
         localFilters,
         handleClose,
         handleApply,
@@ -90,7 +91,9 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
     return (
         <Modal transparent visible={visible} onRequestClose={handleClose} animationType="none">
             <View style={styles.overlay}>
-                <Pressable style={styles.backdrop} onPress={handleClose} />
+                <Animated.View style={[styles.backdrop, { opacity: opacityAnim }]}>
+                    <Pressable style={StyleSheet.absoluteFill} onPress={handleClose} />
+                </Animated.View>
 
                 <Animated.View style={[
                     styles.sidebar,
@@ -128,10 +131,10 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                                     onPress={() => { updateFilter('sortBy', 'name'); updateFilter('sortOrder', 'asc'); }}
                                 />
                                 <SortChip
-                                    label={t('distanceFromMe')}
+                                    label={t('distance')}
                                     currentSort={localFilters.sortBy}
-                                    expectedSort="distanceFromUser"
-                                    onPress={() => updateFilter('sortBy', 'distanceFromUser')}
+                                    expectedSort="distance"
+                                    onPress={() => updateFilter('sortBy', 'distance')}
                                 />
                                 <SortChip
                                     label={t('duration')}
@@ -182,27 +185,34 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                             />
                         </View>
 
-                        {/* RATING */}
                         <View style={styles.section}>
                             <FilterSectionHeader title={t('rating')} />
                             <View style={styles.chipContainer}>
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                    <TouchableOpacity
-                                        key={star}
-                                        onPress={() => updateFilter('minRating', star === localFilters.minRating ? undefined : star)}
-                                        style={[
-                                            styles.chip,
-                                            {
-                                                backgroundColor: localFilters.minRating === star ? theme.primary : theme.bgSecondary,
-                                                borderColor: localFilters.minRating === star ? theme.primary : theme.borderSecondary,
-                                                borderWidth: 1,
-                                            }
-                                        ]}
-                                    >
-                                        <Text style={{ marginRight: 4, color: localFilters.minRating === star ? '#FFF' : theme.textPrimary, fontWeight: '700' }}>{star}+</Text>
-                                        <StarIconSolid size={14} color={localFilters.minRating === star ? '#FFF' : '#FFD700'} />
-                                    </TouchableOpacity>
-                                ))}
+                                {[1, 2, 3, 4, 5].map((star) => {
+                                    const isSelected = (localFilters.minRating || 0) >= star;
+                                    const isCurrent = localFilters.minRating === star;
+
+                                    return (
+                                        <TouchableOpacity
+                                            key={star}
+                                            onPress={() => {
+                                                if (star === 1 && isCurrent) {
+                                                    updateFilter('minRating', undefined);
+                                                } else {
+                                                    updateFilter('minRating', star);
+                                                }
+                                            }}
+                                            activeOpacity={0.7}
+                                            style={styles.starButton}
+                                        >
+                                            {isSelected ? (
+                                                <StarIconSolid size={28} color="#FFD700" />
+                                            ) : (
+                                                <StarIconOutline size={28} color={theme.textSecondary} />
+                                            )}
+                                        </TouchableOpacity>
+                                    );
+                                })}
                             </View>
                         </View>
 
@@ -350,6 +360,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
         borderRadius: 12,
         marginBottom: 6,
+    },
+    starButton: {
+        padding: 4,
     },
     gridRow: {
         flexDirection: 'row',

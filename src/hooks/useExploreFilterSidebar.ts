@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated } from 'react-native';
-import * as Location from 'expo-location';
 import { useStore } from '../store/store';
 import { TourFilters } from '../types/filters';
 
@@ -10,6 +9,7 @@ export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) =
     const appWidth = useAppWidth();
     const SIDEBAR_WIDTH = Math.min(appWidth * 0.7, 300);
     const slideAnim = useRef(new Animated.Value(appWidth)).current; // Start off-screen
+    const opacityAnim = useRef(new Animated.Value(0)).current; // Start transparent
     const currentGlobalFilters = useStore(state => state.tourFilters);
     const setGlobalFilters = useStore(state => state.setTourFilters);
 
@@ -24,30 +24,50 @@ export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) =
                 sort: false,
                 modes: false,
                 difficulty: false,
-                distance: false,
                 duration: false,
                 genre: false,
             });
-            Animated.timing(slideAnim, {
-                toValue: 0, // Slide to natural position (right: 0)
-                duration: 300,
-                useNativeDriver: true,
-            }).start();
+            Animated.parallel([
+                Animated.timing(slideAnim, {
+                    toValue: 0, // Slide to natural position (right: 0)
+                    duration: 300,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(opacityAnim, {
+                    toValue: 1,
+                    duration: 300,
+                    useNativeDriver: true,
+                })
+            ]).start();
         } else {
-            Animated.timing(slideAnim, {
-                toValue: appWidth, // Slide out to the right
-                duration: 300,
-                useNativeDriver: true,
-            }).start();
+            Animated.parallel([
+                Animated.timing(slideAnim, {
+                    toValue: appWidth, // Slide out to the right
+                    duration: 300,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(opacityAnim, {
+                    toValue: 0,
+                    duration: 300,
+                    useNativeDriver: true,
+                })
+            ]).start();
         }
     }, [visible, currentGlobalFilters, appWidth]);
 
     const handleClose = () => {
-        Animated.timing(slideAnim, {
-            toValue: appWidth,
-            duration: 300,
-            useNativeDriver: true,
-        }).start(() => onClose());
+        Animated.parallel([
+            Animated.timing(slideAnim, {
+                toValue: appWidth,
+                duration: 300,
+                useNativeDriver: true,
+            }),
+            Animated.timing(opacityAnim, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+            })
+        ]).start(() => onClose());
     };
 
     const handleApply = () => {
@@ -72,7 +92,6 @@ export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) =
         sort: false,
         modes: false,
         difficulty: false,
-        distance: false,
         duration: false,
         genre: false,
     });
@@ -84,32 +103,8 @@ export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) =
         }));
     };
 
-    const updateFilter = async (key: keyof TourFilters, value: any) => {
-        let newFilters = { ...localFilters, [key]: value };
-
-        // Special handling for distance sorting to fetch location
-        if (key === 'sortBy' && value === 'distanceFromUser') {
-            try {
-                const { status } = await Location.requestForegroundPermissionsAsync();
-                if (status === 'granted') {
-                    const location = await Location.getCurrentPositionAsync({});
-                    newFilters.userLat = location.coords.latitude;
-                    newFilters.userLng = location.coords.longitude;
-                    newFilters.sortOrder = 'asc'; // Proximity always asc
-                } else {
-                    // If denied, fallback to createdAt or alert? For now just don't set distance
-                    console.warn('Location permission denied');
-                }
-            } catch (error) {
-                console.error('Error fetching location:', error);
-            }
-        } else if (key === 'sortBy' && value !== 'distanceFromUser') {
-            // Clear coordinates if user switches away from distance sort
-            newFilters.userLat = undefined;
-            newFilters.userLng = undefined;
-        }
-
-        setLocalFilters(newFilters);
+    const updateFilter = (key: keyof TourFilters, value: any) => {
+        setLocalFilters(prev => ({ ...prev, [key]: value }));
     };
 
     const toggleMode = (mode: string) => {
@@ -136,6 +131,7 @@ export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) =
 
     return {
         slideAnim,
+        opacityAnim,
         localFilters,
         expandedSections,
         handleClose,

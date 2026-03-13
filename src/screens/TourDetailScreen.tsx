@@ -250,23 +250,26 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           </TextComponent>
         </Animated.View>
 
-        {/* Rating Placeholder */}
         {/* Gallery Section */}
-        <TourGallery images={allReviewImages} />
+        <Animated.View entering={FadeInUp.delay(700)}>
+          <TourGallery images={allReviewImages} />
+        </Animated.View>
 
         {/* Reviews Section (Expandable) */}
-        <TourReviews
-          reviews={formattedReviews}
-          averageRating={averageRating}
-          totalReviews={reviewCount}
-          onWriteReview={() => {
-            if (!user) {
-              authEvents.emit();
-              return;
-            }
-            setShowReviewForm(true);
-          }}
-        />
+        <Animated.View entering={FadeInUp.delay(800)}>
+          <TourReviews
+            reviews={formattedReviews}
+            averageRating={averageRating}
+            totalReviews={reviewCount}
+            onWriteReview={() => {
+              if (!user) {
+                authEvents.emit();
+                return;
+              }
+              setShowReviewForm(true);
+            }}
+          />
+        </Animated.View>
 
       </ScrollView>
 

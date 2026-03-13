@@ -52,7 +52,7 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     // We can rely on translation to move it out.
 
     return (
-        <Animated.View style={[styles.container, { paddingBottom: 35 }, animatedStyle]}>
+        <Animated.View style={[styles.container, { paddingBottom: 30 }, animatedStyle]}>
             <View style={styles.pillContainer}>
                 <BlurView
                     intensity={80}
@@ -60,9 +60,9 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                     style={[
                         styles.glassContainer,
                         {
-                            borderColor: theme.navBarBorder,
-                            backgroundColor: theme.navBarBackground,
-                            shadowColor: theme.shadowColor
+                            borderColor: 'transparent',
+                            backgroundColor: 'transparent',
+                            shadowColor: 'transparent'
                         }
                     ]}
                 >
