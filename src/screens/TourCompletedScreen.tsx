@@ -232,20 +232,28 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                                     <TextComponent style={{ fontSize: 18, opacity: 0.9 }} color={theme.textSecondary} variant="body">{t('winner')} </TextComponent>
                                     {winnerName}
                                 </TextComponent>
-                                <View style={[styles.winnerScorePill, { backgroundColor: theme.bgPrimary }]}>
-                                    <Ionicons name="flash" size={12} color={theme.primary} />
-                                    <TextComponent style={styles.winnerScoreText} color={theme.primary} bold variant="caption">
-                                        {winner?.score || 0} PTS
-                                    </TextComponent>
-                                    <View style={{ width: 1, height: 12, backgroundColor: theme.borderPrimary, marginHorizontal: 4 }} />
+                                <View style={[styles.winnerScorePill, { backgroundColor: theme.bgSecondary }]}>
+                                    <View style={styles.scoreItem}>
+                                        <Ionicons name="flash" size={14} color={theme.primary} />
+                                        <TextComponent style={styles.winnerScoreText} color={theme.primary} bold variant="caption">
+                                            {winner?.score || 0} PTS
+                                        </TextComponent>
+                                    </View>
+                                    
                                     {isPubGolf && winner && (() => {
                                         const stats = getPubGolfStats(stops, winner.pubGolfStops);
                                         const score = stats.currentScore;
                                         const pgText = score === 0 ? 'E PG' : score > 0 ? `+${score} PG` : `${score} PG`;
                                         return (
-                                            <TextComponent style={[styles.winnerScoreText, { color: theme.textSecondary }]} bold variant="caption">
-                                                {pgText}
-                                            </TextComponent>
+                                            <>
+                                                <View style={{ width: 1, height: 12, backgroundColor: theme.borderPrimary, marginHorizontal: 4 }} />
+                                                <View style={[styles.pgBadge, { backgroundColor: '#FFF9C4' }]}>
+                                                    <Ionicons name="beer-outline" size={12} color="#F57F17" />
+                                                    <TextComponent style={[styles.winnerScoreText, { color: '#F57F17' }]} bold variant="caption">
+                                                        {pgText}
+                                                    </TextComponent>
+                                                </View>
+                                            </>
                                         );
                                     })()}
                                 </View>
@@ -291,9 +299,12 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                                             const score = stats.currentScore;
                                             const pgText = score === 0 ? 'E PG' : score > 0 ? `+${score} PG` : `${score} PG`;
                                             return (
-                                                <TextComponent style={[styles.runnerUpScore, { color: theme.textSecondary }]} bold variant="caption">
-                                                    {pgText}
-                                                </TextComponent>
+                                                <View style={[styles.pgBadge, { backgroundColor: '#FFF9C4', marginTop: 2 }]}>
+                                                    <Ionicons name="beer-outline" size={10} color="#F57F17" />
+                                                    <TextComponent style={{ color: '#F57F17', fontWeight: '800', fontSize: 10 }} variant="caption">
+                                                        {pgText}
+                                                    </TextComponent>
+                                                </View>
                                             );
                                         })()}
                                     </View>
@@ -409,6 +420,19 @@ const styles = StyleSheet.create({
     winnerScoreText: {
         fontWeight: '800',
         fontSize: 14,
+    },
+    scoreItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    pgBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 12,
     },
     podiumContainer: {
         width: '100%',

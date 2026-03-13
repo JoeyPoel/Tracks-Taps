@@ -100,8 +100,9 @@ const PodiumBar = ({
                         </TextComponent>
                     </View>
                     {isPubGolf && (
-                        <View style={[styles.scoreBadge, { backgroundColor: theme.bgSecondary + '80' }]}>
-                            <TextComponent style={[styles.score, { color: theme.textSecondary }]} bold variant="caption">
+                        <View style={[styles.scoreBadge, { backgroundColor: '#FFF9C4', borderColor: '#FBC02D', borderWidth: 0.5, flexDirection: 'row', alignItems: 'center', gap: 2 }]}>
+                            <Ionicons name="beer-outline" size={10} color="#F57F17" />
+                            <TextComponent style={[styles.score, { color: '#F57F17' }]} bold variant="caption">
                                 {pgText.trim() || 'E PG'}
                             </TextComponent>
                         </View>
@@ -117,13 +118,6 @@ const PodiumBar = ({
                     borderColor: borderColor,
                 }
             ]}>
-                {/* Crown for 1st place */}
-                {place === 1 && (
-                    <View style={styles.crownContainer}>
-                        <Ionicons name="trophy" size={32} color="#FFD700" />
-                    </View>
-                )}
-
                 {/* Rank Number */}
                 <TextComponent style={styles.rankNumber} color={place === 1 ? '#FFD700' : theme.textSecondary} bold variant="h1">
                     {place}
@@ -217,8 +211,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderBottomWidth: 0,
         alignItems: 'center',
-        paddingTop: 12,
-        paddingBottom: 12,
+        paddingTop: 8,
+        paddingBottom: 24, // Increased to prevent icon cut-off
         position: 'relative',
         justifyContent: 'space-between',
     },

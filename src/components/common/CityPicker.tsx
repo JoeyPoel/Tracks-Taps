@@ -102,7 +102,14 @@ export function CityPicker({ label, value, onSelect, placeholder }: CityPickerPr
     }, [searchQuery, searchCities]);
 
     const handleSelect = (city: CitySuggestion) => {
-        onSelect(city.isClear ? '' : city.name);
+        if (city.isClear) {
+            onSelect('');
+        } else {
+            const displayValue = (!city.isManual && city.fullName) 
+                ? `${city.name}, ${city.fullName}` 
+                : city.name;
+            onSelect(displayValue);
+        }
         setModalVisible(false);
         setSearchQuery('');
         setSuggestions([]);
@@ -164,7 +171,7 @@ export function CityPicker({ label, value, onSelect, placeholder }: CityPickerPr
                                     }, 
                                     ...suggestions
                                 ] : [
-                                    ...(value ? [{ name: '', fullName: t('clearSelection'), isClear: true }] : []),
+                                    ...(value ? [{ name: t('clearSelection'), fullName: '', isClear: true }] : []),
                                     ...suggestions
                                 ]}
                                 keyExtractor={(item, index) => `${item.isManual ? 'manual' : item.fullName}-${index}`}
@@ -174,9 +181,9 @@ export function CityPicker({ label, value, onSelect, placeholder }: CityPickerPr
                                         onPress={() => handleSelect(item)}
                                     >
                                         <Ionicons 
-                                            name={item.isManual ? "create-outline" : "location-outline"} 
+                                            name={item.isClear ? "trash-outline" : item.isManual ? "create-outline" : "location-outline"} 
                                             size={18} 
-                                            color={item.isManual ? theme.textSecondary : theme.primary} 
+                                            color={item.isClear ? theme.error : item.isManual ? theme.textSecondary : theme.primary} 
                                             style={styles.itemIcon} 
                                         />
                                         <View>
