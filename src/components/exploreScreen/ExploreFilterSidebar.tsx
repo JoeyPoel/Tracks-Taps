@@ -4,7 +4,8 @@ import { Difficulty } from '@/src/types/models';
 import { GENRES } from '@/src/utils/genres';
 import React from 'react';
 import { Animated, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { XMarkIcon } from 'react-native-heroicons/outline';
+import { XMarkIcon, StarIcon as StarIconOutline } from 'react-native-heroicons/outline';
+import { StarIcon as StarIconSolid } from 'react-native-heroicons/solid';
 import { useLanguage } from '../../context/LanguageContext';
 import { AnimatedButton } from '../common/AnimatedButton';
 import { AnimatedPressable } from '../common/AnimatedPressable';
@@ -127,12 +128,10 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                                     onPress={() => { updateFilter('sortBy', 'name'); updateFilter('sortOrder', 'asc'); }}
                                 />
                                 <SortChip
-                                    label={t('distance')}
+                                    label={t('distanceFromMe')}
                                     currentSort={localFilters.sortBy}
-                                    currentOrder={localFilters.sortOrder}
-                                    expectedSort="distance"
-                                    expectedOrder="asc"
-                                    onPress={() => { updateFilter('sortBy', 'distance'); updateFilter('sortOrder', 'asc'); }}
+                                    expectedSort="distanceFromUser"
+                                    onPress={() => updateFilter('sortBy', 'distanceFromUser')}
                                 />
                                 <SortChip
                                     label={t('duration')}
@@ -181,6 +180,30 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                                 onSelect={(cityName: string) => updateFilter('location', cityName)}
                                 placeholder={t('cityNamePlaceholder')}
                             />
+                        </View>
+
+                        {/* RATING */}
+                        <View style={styles.section}>
+                            <FilterSectionHeader title={t('rating')} />
+                            <View style={styles.chipContainer}>
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <TouchableOpacity
+                                        key={star}
+                                        onPress={() => updateFilter('minRating', star === localFilters.minRating ? undefined : star)}
+                                        style={[
+                                            styles.chip,
+                                            {
+                                                backgroundColor: localFilters.minRating === star ? theme.primary : theme.bgSecondary,
+                                                borderColor: localFilters.minRating === star ? theme.primary : theme.borderSecondary,
+                                                borderWidth: 1,
+                                            }
+                                        ]}
+                                    >
+                                        <Text style={{ marginRight: 4, color: localFilters.minRating === star ? '#FFF' : theme.textPrimary, fontWeight: '700' }}>{star}+</Text>
+                                        <StarIconSolid size={14} color={localFilters.minRating === star ? '#FFF' : '#FFD700'} />
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
                         </View>
 
                         {/* GENRE */}

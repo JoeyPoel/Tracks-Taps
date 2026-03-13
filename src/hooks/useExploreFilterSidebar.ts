@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated } from 'react-native';
+import * as Location from 'expo-location';
 import { useStore } from '../store/store';
 import { TourFilters } from '../types/filters';
 
@@ -55,10 +56,12 @@ export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) =
     };
 
     const handleClear = () => {
-        // Create empty filters but preserve the current search query (text input)
-        // because users typically expect "Clear Filters" to clear the sidebar options, not the main search bar.
+        // Reset to defaults including SearchQuery preservation if desired, 
+        // but here we want to reset to the 'newest' sort default.
         const emptyFilters: TourFilters = {
-            searchQuery: currentGlobalFilters.searchQuery
+            searchQuery: currentGlobalFilters.searchQuery,
+            sortBy: 'createdAt',
+            sortOrder: 'desc'
         };
         setLocalFilters(emptyFilters);
         setGlobalFilters(emptyFilters);
@@ -81,11 +84,32 @@ export const useExploreFilterSidebar = (visible: boolean, onClose: () => void) =
         }));
     };
 
-    const updateFilter = (key: keyof TourFilters, value: any) => {
-        setLocalFilters(prev => ({
-            ...prev,
-            [key]: value
-        }));
+    const updateFilter = async (key: keyof TourFilters, value: any) => {
+        let newFilters = { ...localFilters, [key]: value };
+
+        // Special handling for distance sorting to fetch location
+        if (key === 'sortBy' && value === 'distanceFromUser') {
+            try {
+                const { status } = await Location.requestForegroundPermissionsAsync();
+                if (status === 'granted') {
+                    const location = await Location.getCurrentPositionAsync({});
+                    newFilters.userLat = location.coords.latitude;
+                    newFilters.userLng = location.coords.longitude;
+                    newFilters.sortOrder = 'asc'; // Proximity always asc
+                } else {
+                    // If denied, fallback to createdAt or alert? For now just don't set distance
+                    console.warn('Location permission denied');
+                }
+            } catch (error) {
+                console.error('Error fetching location:', error);
+            }
+        } else if (key === 'sortBy' && value !== 'distanceFromUser') {
+            // Clear coordinates if user switches away from distance sort
+            newFilters.userLat = undefined;
+            newFilters.userLng = undefined;
+        }
+
+        setLocalFilters(newFilters);
     };
 
     const toggleMode = (mode: string) => {

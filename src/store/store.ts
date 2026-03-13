@@ -88,7 +88,10 @@ export const useStore = create<StoreState>()(
 
             // --- Tours Slice ---
             tours: [],
-            tourFilters: {},
+            tourFilters: {
+                sortBy: 'createdAt',
+                sortOrder: 'desc'
+            },
             tourDetails: {},
             mapTours: [],
             loadingTours: true, // Start as true to show skeleton immediately

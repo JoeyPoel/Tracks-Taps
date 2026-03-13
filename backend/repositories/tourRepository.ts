@@ -50,8 +50,76 @@ export const tourRepository = {
             where.genre = { in: filters.genres };
         }
 
+        // --- NEW: minRating filter ---
+        if (filters.minRating !== undefined && filters.minRating > 0) {
+            // Prisma doesn't support filtering by aggregate (having equivalent) easily in findMany
+            // So we find tourIds that meet the rating criteria first
+            const ratingThreshold = parseFloat(filters.minRating.toString());
+            const qualifiedTours = await prisma.review.groupBy({
+                by: ['tourId'],
+                where: {
+                    tour: where // Apply existing where filters to reviews to narrow down tourIds
+                },
+                _avg: {
+                    rating: true
+                },
+                having: {
+                    rating: {
+                        _avg: {
+                            gte: ratingThreshold
+                        }
+                    }
+                }
+            });
+            
+            const qualifiedIds = qualifiedTours.map(t => t.tourId);
+            where.id = { in: qualifiedIds };
+            
+            // If no tours match the rating, ensure the result is empty
+            if (qualifiedIds.length === 0) {
+                return { data: [], meta: { total: 0, page: 1, lastPage: 0, limit: 20 } };
+            }
+        }
+
+        const page = filters.page && filters.page > 0 ? filters.page : 1;
+        const limit = filters.limit && filters.limit > 0 ? filters.limit : 20;
+        const skip = (page - 1) * limit;
+
+        // --- Distance sorting handle ---
+        if (filters.sortBy === 'distanceFromUser' && filters.userLat !== undefined && filters.userLng !== undefined) {
+            const userLat = parseFloat(filters.userLat.toString());
+            const userLng = parseFloat(filters.userLng.toString());
+
+            // Fetch qualified tours and then sort manually (Hybrid approach)
+            const allQualifiedTours = await prisma.tour.findMany({
+                include: {
+                    author: { select: { name: true, avatarUrl: true } },
+                    _count: { select: { stops: true } }
+                }
+            });
+
+            const toursWithDistance = allQualifiedTours.map(t => {
+                if (t.startLat === null || t.startLng === null) return { ...t, distance_from_user: Infinity };
+                // Haversine-ish distance (simple Euclidean is often enough for local sorting, but let's be slightly better)
+                const d = Math.sqrt(Math.pow(t.startLat - userLat, 2) + Math.pow(t.startLng - userLng, 2));
+                return { ...t, distance_from_user: d };
+            });
+
+            toursWithDistance.sort((a, b) => a.distance_from_user - b.distance_from_user);
+            
+            const paginatedData = toursWithDistance.slice(skip, skip + limit);
+            const total = toursWithDistance.length;
+
+            return await this.enrichTours(paginatedData, { 
+                total, 
+                page, 
+                lastPage: Math.ceil(total / limit), 
+                limit 
+            });
+        }
+
         const orderBy: Prisma.TourOrderByWithRelationInput = {};
-        if (filters.sortBy) {
+        if (filters.sortBy && filters.sortBy !== 'distanceFromUser') {
             const order = filters.sortOrder || 'asc';
             switch (filters.sortBy) {
                 case 'name': orderBy.title = order; break;
@@ -59,16 +127,11 @@ export const tourRepository = {
                 case 'duration': orderBy.duration = order; break;
                 case 'createdAt': orderBy.createdAt = order; break;
                 case 'location': orderBy.location = order; break;
-                // 'popularity' could map to 'points' or review count?
-                case 'popularity': orderBy.points = order === 'asc' ? 'desc' : 'asc'; break; // Pop usually desc
+                case 'popularity': orderBy.points = order === 'asc' ? 'desc' : 'asc'; break;
             }
         } else {
-            // Default sort
             orderBy.createdAt = 'desc';
         }
-
-        const page = filters.page && filters.page > 0 ? filters.page : 1;
-        const limit = filters.limit && filters.limit > 0 ? filters.limit : 20;
 
         const result = await paginate<any, Prisma.TourFindManyArgs>(
             prisma.tour,
@@ -89,36 +152,27 @@ export const tourRepository = {
                     type: true,
                     genre: true,
                     createdAt: true,
-                    author: {
-                        select: { name: true, avatarUrl: true },
-                    },
-                    _count: {
-                        select: { stops: true },
-                    },
+                    author: { select: { name: true, avatarUrl: true } },
+                    _count: { select: { stops: true } },
                 },
             },
             page,
             limit
         );
 
-        const tours = result.data;
+        return await this.enrichTours(result.data, result.meta);
+    },
 
-        // 2. Fetch Average Ratings efficiently
+    // Helper to enrich tours with ratings
+    async enrichTours(tours: any[], meta: any) {
         const tourIds = tours.map(t => t.id);
         const ratings = await prisma.review.groupBy({
             by: ['tourId'],
-            _avg: {
-                rating: true
-            },
-            _count: {
-                rating: true
-            },
-            where: {
-                tourId: { in: tourIds }
-            }
+            _avg: { rating: true },
+            _count: { rating: true },
+            where: { tourId: { in: tourIds } }
         });
 
-        // 3. Merge data
         const data = tours.map(tour => {
             const ratingData = ratings.find(r => r.tourId === tour.id);
             return {
@@ -129,10 +183,7 @@ export const tourRepository = {
             };
         });
 
-        return {
-            data,
-            meta: result.meta
-        };
+        return { data, meta };
     },
 
     async getTourById(id: number) {
