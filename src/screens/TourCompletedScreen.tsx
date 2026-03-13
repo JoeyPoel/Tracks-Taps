@@ -228,10 +228,11 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                     <View style={styles.winnerHeaderContainer}>
                         {revealState === 'CELEBRATE' && (
                             <Animated.View entering={ZoomIn.springify().damping(12)} style={styles.winnerHeader}>
-                                <TextComponent style={styles.winnerText} color={theme.textPrimary} bold variant="h1" center>
-                                    <TextComponent style={{ fontSize: 18, opacity: 0.9 }} color={theme.textSecondary} variant="body">{t('winner')} </TextComponent>
-                                    {winnerName}
-                                </TextComponent>
+                                <View style={{ alignItems: 'center' }}>
+                                    <TextComponent style={styles.winnerText} color={theme.textPrimary} bold variant="h1" center>
+                                        {winnerName}
+                                    </TextComponent>
+                                </View>
                                 <View style={[styles.winnerScorePill, { backgroundColor: theme.bgSecondary }]}>
                                     <View style={styles.scoreItem}>
                                         <Ionicons name="flash" size={14} color={theme.primary} />
@@ -242,15 +243,14 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                                     
                                     {isPubGolf && winner && (() => {
                                         const stats = getPubGolfStats(stops, winner.pubGolfStops);
-                                        const score = stats.currentScore;
-                                        const pgText = score === 0 ? 'E PG' : score > 0 ? `+${score} PG` : `${score} PG`;
+                                        const sips = stats.totalSips;
                                         return (
                                             <>
                                                 <View style={{ width: 1, height: 12, backgroundColor: theme.borderPrimary, marginHorizontal: 4 }} />
                                                 <View style={[styles.pgBadge, { backgroundColor: theme.bgSecondary }]}>
                                                     <Ionicons name="beer-outline" size={12} color={theme.pubgolfColor} />
                                                     <TextComponent style={[styles.winnerScoreText, { color: theme.pubgolfColor }]} bold variant="caption">
-                                                        {pgText}
+                                                        {sips} {t('sips').toUpperCase()}
                                                     </TextComponent>
                                                 </View>
                                             </>
@@ -299,13 +299,12 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                                         </View>
                                         {isPubGolf && (() => {
                                             const stats = getPubGolfStats(stops, team.pubGolfStops);
-                                            const score = stats.currentScore;
-                                            const pgText = score === 0 ? 'E PG' : score > 0 ? `+${score} PG` : `${score} PG`;
+                                            const sips = stats.totalSips;
                                             return (
                                                 <View style={[styles.pgBadge, { backgroundColor: theme.bgSecondary, marginTop: 2 }]}>
                                                     <Ionicons name="beer-outline" size={10} color={theme.pubgolfColor} />
                                                     <TextComponent style={{ color: theme.pubgolfColor, fontWeight: '800', fontSize: 10 }} variant="caption">
-                                                        {pgText}
+                                                        {sips} {t('sips').toUpperCase()}
                                                     </TextComponent>
                                                 </View>
                                             );

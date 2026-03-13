@@ -14,14 +14,18 @@ interface ToastContextType {
     hideToast: () => void;
 }
 
+interface ToastState extends ShowToastOptions {
+    id: number;
+}
+
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [toast, setToast] = useState<ShowToastOptions | null>(null);
+    const [toast, setToast] = useState<ToastState | null>(null);
     const [visible, setVisible] = useState(false);
 
     const showToast = useCallback((options: ShowToastOptions) => {
-        setToast(options);
+        setToast({ ...options, id: Date.now() });
         setVisible(true);
     }, []);
 
@@ -34,6 +38,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             {children}
             {toast && (
                 <ToastComponent
+                    key={toast.id}
                     visible={visible}
                     title={toast.title}
                     message={toast.message}

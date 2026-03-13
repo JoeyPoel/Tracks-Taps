@@ -50,13 +50,13 @@ export function AppModal({
             <View style={styles.overlayContainer}>
                 {/* Backdrop */}
                 <Pressable
-                    style={[styles.backdrop, { backgroundColor: theme.overlay }]}
+                    style={styles.backdrop}
                     onPress={onClose}
                 >
                     <Animated.View
                         entering={FadeIn.duration(500)}
                         exiting={FadeOut.duration(400)}
-                        style={StyleSheet.absoluteFill}
+                        style={[StyleSheet.absoluteFill, { backgroundColor: theme.overlay }]}
                     />
                 </Pressable>
 

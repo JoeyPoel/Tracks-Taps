@@ -3,6 +3,7 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { getPubGolfStats } from '@/src/utils/pubGolfUtils';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -44,15 +45,24 @@ export default function PostTourTeamList({ teams, userTeamId, isPubGolf, stops }
                     <Animated.View
                         key={team.id}
                         entering={FadeInDown.delay(index * 100).springify()}
-                        style={[styles.teamCard, { backgroundColor: theme.bgSecondary }]}
+                        style={[
+                            styles.teamCard,
+                            {
+                                backgroundColor: theme.bgSecondary,
+                                borderColor: team.color || theme.borderPrimary,
+                                borderWidth: team.color ? 2 : 1
+                            }
+                        ]}
                     >
-                        {/* Avatar */}
-                        <View style={[styles.avatarContainer, { backgroundColor: theme.bgPrimary }]}>
-                            <TextComponent style={styles.teamEmoji} size={24}>{team.emoji}</TextComponent>
-                        </View>
+                        <LinearGradient
+                            colors={team.color ? [theme.bgTertiary, team.color + '40'] : [theme.bgTertiary, theme.bgTertiary]}
+                            style={[styles.avatarContainer, team.color ? { borderColor: team.color, borderWidth: 1 } : null]}
+                        >
+                            <TextComponent style={styles.teamEmoji} size={26}>{team.emoji || "👤"}</TextComponent>
+                        </LinearGradient>
 
                         <View style={styles.teamInfo}>
-                            <TextComponent style={styles.teamName} color={theme.textPrimary} bold variant="body">
+                            <TextComponent style={styles.teamName} color={team.color || theme.textPrimary} bold variant="body">
                                 {team.name}
                             </TextComponent>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -61,11 +71,10 @@ export default function PostTourTeamList({ teams, userTeamId, isPubGolf, stops }
                                 </TextComponent>
                                 {isPubGolf && (() => {
                                     const stats = getPubGolfStats(stops, team.pubGolfStops);
-                                    const score = stats.currentScore;
-                                    const pgText = score === 0 ? 'E PG' : score > 0 ? `+${score} PG` : `${score} PG`;
+                                    const sips = stats.totalSips;
                                     return (
                                         <TextComponent style={[styles.teamStatusText, { color: theme.textSecondary, marginLeft: 8 }]} variant="caption">
-                                            {pgText}
+                                            {sips} {t('sips').toUpperCase()}
                                         </TextComponent>
                                     );
                                 })()}
@@ -118,26 +127,24 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
     },
     teamCard: {
-        borderRadius: 20,
-        padding: 16,
         flexDirection: 'row',
         alignItems: 'center',
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 2,
+        padding: 16,
+        borderRadius: 20,
+        borderWidth: 1,
+        marginBottom: 12,
     },
     avatarContainer: {
-        width: 48,
-        height: 48,
-        borderRadius: 16,
+        width: 52,
+        height: 52,
+        borderRadius: 26,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 16,
     },
     teamEmoji: {
-        fontSize: 24,
+        fontSize: 26,
+        lineHeight: 32,
     },
     teamInfo: {
         flex: 1,

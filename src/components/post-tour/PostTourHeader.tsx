@@ -118,6 +118,8 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 36,
         fontWeight: '900',
+        lineHeight: 44, // Added to prevent cut-off
+        paddingTop: 8,  // Added to give some space at top
         textTransform: 'uppercase',
         letterSpacing: 1.5,
         textAlign: 'center',

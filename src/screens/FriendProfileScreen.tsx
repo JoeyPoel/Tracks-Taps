@@ -36,7 +36,7 @@ export default function FriendProfileScreen() {
     const [latestCreated, setLatestCreated] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const insets = useSafeAreaInsets();
-    const { sendFriendRequest, removeFriend, actionLoading } = useFriends();
+    const { sendFriendRequest, removeFriend, respondToRequest, requests, actionLoading } = useFriends();
 
     useEffect(() => {
         if (userId && userId !== 'unknown' && !isNaN(Number(userId))) {
@@ -88,11 +88,20 @@ export default function FriendProfileScreen() {
 
     const handleAction = async () => {
         if (!user) return;
+        
+        const status = user.friendshipStatus;
 
-        if (user.friendshipStatus === 'ACCEPTED') {
+        if (status === 'ACCEPTED') {
             const success = await removeFriend(user.id);
             if (success) loadUser();
-        } else if (!user.friendshipStatus) {
+        } else if (status === 'PENDING_INCOMING') {
+            // Find the request ID from the store
+            const request = requests.find((r: any) => r.requesterId === Number(userId));
+            if (request) {
+                await respondToRequest(request.id, 'ACCEPT');
+                loadUser(); // Refresh profile state
+            }
+        } else if (!status) {
             const success = await sendFriendRequest(user.email || user.name);
             if (success) loadUser();
         }
@@ -180,12 +189,19 @@ export default function FriendProfileScreen() {
 
                     {/* Action Button */}
                     <View style={styles.actionButtonContainer}>
-                        {user.friendshipStatus === 'PENDING' ? (
+                        {user.friendshipStatus === 'PENDING_OUTGOING' || user.friendshipStatus === 'PENDING' ? (
                             <AnimatedButton
                                 title={t('requested')}
                                 onPress={() => { }}
                                 disabled
                                 variant="outline"
+                            />
+                        ) : user.friendshipStatus === 'PENDING_INCOMING' ? (
+                            <AnimatedButton
+                                title={t('accept')}
+                                onPress={handleAction}
+                                loading={actionLoading}
+                                variant="primary"
                             />
                         ) : (
                             <AnimatedButton

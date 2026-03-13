@@ -9,6 +9,7 @@ import { TourLoadingScreen } from '../components/common/TourLoadingScreen';
 import { TourCodeDisplay } from '../components/teamSetup/TourCodeDisplay';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
+import { useFriends } from '../hooks/useFriends';
 import { usePreTourLobby } from '../hooks/usePreTourLobby';
 
 // New Components
@@ -25,8 +26,23 @@ export default function PreTourLobbyScreen() {
     const { user } = useUserContext();
     const activeTourId = Number(params.activeTourId);
     const [showInviteModal, setShowInviteModal] = useState(false);
+    const [isInviteLoading, setIsInviteLoading] = useState(false);
+    const { loadFriends } = useFriends();
 
     const { activeTour, userTeam, loading, isStarting, loadLobbyDetails, startTour } = usePreTourLobby(activeTourId, user);
+
+    const handleInvitePress = async () => {
+        setIsInviteLoading(true);
+        try {
+            await loadFriends(true); // Always fetch fresh friends for inviting
+            setShowInviteModal(true);
+        } catch (error) {
+            console.error('Failed to load friends for invite:', error);
+            Alert.alert('Error', 'Failed to load friends. Please try again.');
+        } finally {
+            setIsInviteLoading(false);
+        }
+    };
 
     useFocusEffect(
         useCallback(() => {
@@ -62,7 +78,7 @@ export default function PreTourLobbyScreen() {
     return (
         <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} animateEntry={false} includeTop>
 
-            <LobbyHeader onInvitePress={() => setShowInviteModal(true)} />
+            <LobbyHeader onInvitePress={handleInvitePress} isInviteLoading={isInviteLoading} />
 
             <ScrollView contentContainerStyle={{ padding: 20 }} showsVerticalScrollIndicator={false}>
 

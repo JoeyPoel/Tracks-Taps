@@ -23,7 +23,6 @@ export default function InviteFriendsModal({ visible, onClose, activeTourId }: I
 
     useEffect(() => {
         if (visible) {
-            loadFriends();
             setSelectedIds([]);
         }
     }, [visible]);
@@ -57,6 +56,7 @@ export default function InviteFriendsModal({ visible, onClose, activeTourId }: I
             onClose={onClose}
             title={t('inviteFriends')}
             subtitle={t('selectFriendsLobby')}
+            modalStyle={{ maxHeight: '70%' }}
         >
             <View>
                 {loading ? (

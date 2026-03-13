@@ -535,7 +535,7 @@ const styles = StyleSheet.create({
   },
   savedTripFab: {
     position: 'absolute',
-    top: 60,
+    top: 50, // Aligned with backButton
     right: 20,
     width: 44,
     height: 44,
@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
   },
   addToListFab: {
     position: 'absolute',
-    top: 60,
+    top: 50, // Aligned with backButton
     right: 76,
     width: 44,
     height: 44,
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
   },
   editFab: {
     position: 'absolute',
-    top: 116, // Below savedTripFab (60 + 44 + 12 gap)
+    top: 106, // Below savedTripFab (50 + 44 + 12 gap)
     right: 20,
     width: 44,
     height: 44,

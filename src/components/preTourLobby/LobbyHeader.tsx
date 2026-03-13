@@ -2,15 +2,16 @@ import { TextComponent } from '@/src/components/common/TextComponent'; // Added 
 import { useSafeNavigation } from '@/src/hooks/useSafeNavigation';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
 interface LobbyHeaderProps {
     onInvitePress: () => void;
+    isInviteLoading?: boolean;
 }
 
-export const LobbyHeader: React.FC<LobbyHeaderProps> = ({ onInvitePress }) => {
+export const LobbyHeader: React.FC<LobbyHeaderProps> = ({ onInvitePress, isInviteLoading }) => {
     const { theme } = useTheme();
     const { goBack } = useSafeNavigation();
     const { t } = useLanguage();
@@ -28,9 +29,14 @@ export const LobbyHeader: React.FC<LobbyHeaderProps> = ({ onInvitePress }) => {
             </TextComponent>
             <TouchableOpacity
                 onPress={onInvitePress}
+                disabled={isInviteLoading}
                 style={[styles.iconButton, { backgroundColor: theme.primary + '15' }]}
             >
-                <Ionicons name="person-add" size={20} color={theme.primary} />
+                {isInviteLoading ? (
+                    <ActivityIndicator size="small" color={theme.primary} />
+                ) : (
+                    <Ionicons name="person-add" size={20} color={theme.primary} />
+                )}
             </TouchableOpacity>
         </View>
     );

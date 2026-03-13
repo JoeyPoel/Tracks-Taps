@@ -16,9 +16,9 @@ export function useLevelUpListener() {
     const isFirstRun = useRef(true);
 
     useEffect(() => {
-        if (!user) return;
+        if (user === null || user === undefined) return;
 
-        const newLevel = LevelSystem.getLevel(user.xp);
+        const newLevel = LevelSystem.getLevel(user.xp || 0);
 
         if (isFirstRun.current) {
             setCurrentLevel(newLevel);
@@ -34,6 +34,9 @@ export function useLevelUpListener() {
                 emoji: '🏆',
                 backgroundColor: '#FFD700' // Gold
             });
+        } else if (newLevel < currentLevel) {
+            // Handle edge case where level might decrease (e.g. data sync issue)
+            setCurrentLevel(newLevel);
         }
-    }, [user?.xp]);
+    }, [user?.xp, currentLevel, t, showToast]);
 }

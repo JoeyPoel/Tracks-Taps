@@ -502,6 +502,9 @@ export const useStore = create<StoreState>()(
                         loadingFriends: false,
                         lastFetchedFriends: Date.now()
                     });
+                    
+                    // Trigger requests fetch as well
+                    get().fetchRequests();
                 } catch (error) {
                     console.error('Error loading friends:', error);
                     set({ loadingFriends: false });

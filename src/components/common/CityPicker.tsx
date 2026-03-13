@@ -3,13 +3,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
-    Modal,
     StyleSheet,
     TouchableOpacity,
     View
 } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { AppModal } from './AppModal';
 import { FormInput } from './FormInput';
 import { TextComponent } from './TextComponent';
 
@@ -132,22 +132,12 @@ export function CityPicker({ label, value, onSelect, placeholder }: CityPickerPr
                 />
             </TouchableOpacity>
 
-            <Modal
+            <AppModal
                 visible={modalVisible}
-                animationType="slide"
-                transparent={true}
-                onRequestClose={() => setModalVisible(false)}
+                onClose={() => setModalVisible(false)}
+                title={t('selectCity')}
+                height="80%"
             >
-                <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
-                    <View style={[styles.modalContent, { backgroundColor: theme.bgPrimary }]}>
-                        <View style={styles.modalHeader}>
-                            <TextComponent bold variant="h3" color={theme.textPrimary}>
-                                {t('selectCity')}
-                            </TextComponent>
-                            <TouchableOpacity onPress={() => setModalVisible(false)}>
-                                <Ionicons name="close" size={24} color={theme.textPrimary} />
-                            </TouchableOpacity>
-                        </View>
 
                         <View style={styles.searchContainer}>
                             <FormInput
@@ -210,9 +200,7 @@ export function CityPicker({ label, value, onSelect, placeholder }: CityPickerPr
                                 contentContainerStyle={styles.listContent}
                             />
                         )}
-                    </View>
-                </View>
-            </Modal>
+            </AppModal>
         </View>
     );
 }
@@ -220,22 +208,6 @@ export function CityPicker({ label, value, onSelect, placeholder }: CityPickerPr
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-    },
-    modalOverlay: {
-        flex: 1,
-        justifyContent: 'flex-end',
-    },
-    modalContent: {
-        height: '80%',
-        borderTopLeftRadius: 32,
-        borderTopRightRadius: 32,
-        padding: 24,
-    },
-    modalHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 20,
     },
     searchContainer: {
         marginBottom: 16,

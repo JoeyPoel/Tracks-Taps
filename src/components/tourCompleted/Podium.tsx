@@ -79,13 +79,6 @@ const PodiumBar = ({
     const barColor = hexToRgba(teamColor, 0.25);
     const borderColor = hexToRgba(teamColor, 0.6);
 
-    let pgText = '';
-    if (isPubGolf) {
-        const stats = getPubGolfStats(stops, team.pubGolfStops);
-        const score = stats.currentScore;
-        pgText = score === 0 ? ' (E PG)' : score > 0 ? ` (+${score} PG)` : ` (${score} PG)`;
-    }
-
     return (
         <View style={styles.stepContainer}>
             {/* Info floats above the bar */}
@@ -104,7 +97,7 @@ const PodiumBar = ({
                         <View style={[styles.scoreBadge, { backgroundColor: theme.bgSecondary, flexDirection: 'row', alignItems: 'center', gap: 2 }]}>
                             <Ionicons name="beer-outline" size={10} color={theme.pubgolfColor} />
                             <TextComponent style={[styles.score, { color: theme.pubgolfColor }]} bold variant="caption">
-                                {pgText.trim() || 'E PG'}
+                                {getPubGolfStats(stops, team.pubGolfStops).totalSips} {t('sips').toUpperCase()}
                             </TextComponent>
                         </View>
                     )}

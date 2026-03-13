@@ -5,6 +5,7 @@ import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import PostTourFooter from '../components/post-tour/PostTourFooter';
 import PostTourHeader from '../components/post-tour/PostTourHeader';
+import PostTourMyTeam from '../components/post-tour/PostTourMyTeam';
 import PostTourProgress from '../components/post-tour/PostTourProgress';
 import PostTourTeamList from '../components/post-tour/PostTourTeamList';
 import { useLanguage } from '../context/LanguageContext';
@@ -32,6 +33,7 @@ export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: nu
                 <ScreenHeader
                     title=""
                     showBackButton={true}
+                    blurBack={true}
                     onBackPress={() => router.replace('/')}
                     style={{ marginBottom: 0 }}
                 />
@@ -51,6 +53,12 @@ export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: nu
                         progressPercentage={progressPercentage}
                     />
 
+                    <PostTourMyTeam
+                        userTeam={userTeam}
+                        isPubGolf={activeTour?.tour?.modes?.includes('pubgolf')}
+                        stops={activeTour?.tour?.stops}
+                    />
+
                     <PostTourTeamList
                         teams={teams}
                         userTeamId={userTeam?.id}
@@ -59,7 +67,6 @@ export default function PostTourLobbyScreen({ activeTourId }: { activeTourId: nu
                     />
 
                     <PostTourFooter
-                        userTeam={userTeam}
                         handleViewResults={handleViewResults}
                     />
                 </View>

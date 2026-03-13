@@ -103,6 +103,11 @@ export const friendService = {
         if (!user) return null;
 
         const friendship = await friendRepository.findFriendship(user.id, otherUserId);
-        return friendship ? (friendship.status as any) : null;
+        if (!friendship) return null;
+        if (friendship.status === 'ACCEPTED') return 'ACCEPTED';
+        if (friendship.status === 'PENDING') {
+            return friendship.requesterId === user.id ? 'PENDING_OUTGOING' : 'PENDING_INCOMING';
+        }
+        return friendship.status as any;
     }
 };

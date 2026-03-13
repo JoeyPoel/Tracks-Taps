@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import React from 'react';
 import { StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
@@ -15,6 +16,7 @@ interface ScreenHeaderProps {
     style?: StyleProp<ViewStyle>;
     rightElement?: React.ReactNode;
     onBackPress?: () => void;
+    blurBack?: boolean;
 }
 
 export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
@@ -23,7 +25,8 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
     showBackButton = false,
     style,
     rightElement,
-    onBackPress
+    onBackPress,
+    blurBack = false
 }) => {
     const { theme } = useTheme();
     // router is not needed directly here if we switch to useSafeNavigation for back
@@ -47,9 +50,19 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
                 {showBackButton && (
                     <TouchableOpacity
                         onPress={handleBack}
-                        style={[styles.backButton, { backgroundColor: theme.bgSecondary }]}
+                        style={[
+                            styles.backButton,
+                            !blurBack && { backgroundColor: theme.bgSecondary },
+                            blurBack && { backgroundColor: 'transparent', overflow: 'hidden' }
+                        ]}
                     >
-                        <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
+                        {blurBack ? (
+                            <BlurView intensity={30} tint="dark" style={styles.blurContainer}>
+                                <Ionicons name="arrow-back" size={24} color="#FFF" />
+                            </BlurView>
+                        ) : (
+                            <Ionicons name="arrow-back" size={24} color={theme.textPrimary} />
+                        )}
                     </TouchableOpacity>
                 )}
 
@@ -105,6 +118,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 16,
+    },
+    blurContainer: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     // Added container for title/subtitle to center it if needed or let it flex
     textContainer: {
