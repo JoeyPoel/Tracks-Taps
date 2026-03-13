@@ -43,7 +43,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
             onPress={onPress}
             activeOpacity={0.7}
             style={[
-                styles.chip,
+                styles.gridChip,
                 {
                     backgroundColor: selected ? theme.primary : theme.bgSecondary,
                     borderColor: selected ? theme.primary : theme.borderSecondary,
@@ -51,14 +51,17 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                 }
             ]}
         >
-            {icon && <Text style={{ marginRight: 6 }}>{icon}</Text>}
-            <Text style={{
-                fontSize: 13,
-                fontWeight: '600',
-                color: selected ? '#FFF' : theme.textPrimary
-            }}>
-                {label}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                {icon && <Text style={{ marginRight: 6 }}>{icon}</Text>}
+                <Text style={{
+                    fontSize: 13,
+                    fontWeight: '600',
+                    color: selected ? '#FFF' : theme.textPrimary,
+                    textAlign: 'center'
+                }}>
+                    {label}
+                </Text>
+            </View>
         </TouchableOpacity>
     );
 
@@ -69,10 +72,10 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                 onPress={onPress}
                 activeOpacity={0.7}
                 style={[
-                    styles.sortChip,
+                    styles.gridChip,
                     {
-                        backgroundColor: isSelected ? theme.primary : theme.bgSecondary, // Swapped
-                        borderColor: isSelected ? theme.primary : theme.borderSecondary, // Swapped
+                        backgroundColor: isSelected ? theme.primary : theme.bgSecondary,
+                        borderColor: isSelected ? theme.primary : theme.borderSecondary,
                         borderWidth: 1,
                     }
                 ]}
@@ -80,7 +83,8 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                 <Text style={{
                     fontSize: 13,
                     fontWeight: '600',
-                    color: isSelected ? '#FFF' : theme.textPrimary
+                    color: isSelected ? '#FFF' : theme.textPrimary,
+                    textAlign: 'center'
                 }}>
                     {label}
                 </Text>
@@ -216,20 +220,42 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                             </View>
                         </View>
 
-                        {/* GENRE */}
                         <View style={styles.section}>
                             <FilterSectionHeader title={t('genre')} />
-                            <View style={styles.chipContainer}>
+                            <View style={styles.listContainer}>
                                 {GENRES.map(genre => {
                                     const Icon = genre.icon;
+                                    const isSelected = localFilters.genres?.includes(genre.id);
                                     return (
-                                        <FilterChip
+                                        <TouchableOpacity
                                             key={genre.id}
-                                            label={t(genre.id.toLowerCase() as any)}
-                                            icon={<Icon size={14} color={localFilters.genres?.includes(genre.id) ? '#FFF' : theme.textPrimary} />}
-                                            selected={localFilters.genres?.includes(genre.id)}
                                             onPress={() => toggleGenre(genre.id)}
-                                        />
+                                            activeOpacity={0.7}
+                                            style={[
+                                                styles.fullWidthChip,
+                                                {
+                                                    backgroundColor: isSelected ? theme.primary : theme.bgSecondary,
+                                                    borderColor: isSelected ? theme.primary : theme.borderSecondary,
+                                                    borderWidth: 1,
+                                                }
+                                            ]}
+                                        >
+                                            <View style={styles.chipContent}>
+                                                <Icon size={18} color={isSelected ? '#FFF' : theme.textPrimary} style={{ marginRight: 12 }} />
+                                                <Text style={{
+                                                    fontSize: 15,
+                                                    fontWeight: '600',
+                                                    color: isSelected ? '#FFF' : theme.textPrimary
+                                                }}>
+                                                    {t(genre.id.toLowerCase() as any)}
+                                                </Text>
+                                            </View>
+                                            {isSelected && (
+                                                <View style={styles.checkIcon}>
+                                                    <StarIconSolid size={16} color="#FFF" />
+                                                </View>
+                                            )}
+                                        </TouchableOpacity>
                                     );
                                 })}
                             </View>
@@ -355,13 +381,35 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    sortChip: {
-        paddingVertical: 10,
-        paddingHorizontal: 14,
+    gridChip: {
+        paddingVertical: 12,
+        paddingHorizontal: 8,
         borderRadius: 12,
-        marginBottom: 6,
+        width: '48.5%', // Results in 2x2 with gap
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     starButton: {
+        padding: 4,
+    },
+    listContainer: {
+        gap: 8,
+    },
+    fullWidthChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        borderRadius: 16,
+    },
+    chipContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    checkIcon: {
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        borderRadius: 10,
         padding: 4,
     },
     gridRow: {
