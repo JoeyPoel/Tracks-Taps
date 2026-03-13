@@ -139,14 +139,24 @@ const PodiumBar = ({
 };
 
 export default function Podium({ teams, visibleRanks = [1, 2, 3], isPubGolf, stops }: PodiumProps) {
+    const { theme } = useTheme();
     const sortedTeams = [...teams].sort((a, b) => (b.score || 0) - (a.score || 0));
 
     const first = sortedTeams[0];
     const second = sortedTeams.length > 1 ? sortedTeams[1] : null;
     const third = sortedTeams.length > 2 ? sortedTeams[2] : null;
 
+    const totalPar = (stops || []).reduce((acc, s) => acc + (s.pubgolfPar || 0), 0);
+
     return (
         <View style={styles.container}>
+            {isPubGolf && totalPar > 0 && (
+                <View style={[styles.parSummaryBadge, { backgroundColor: theme.bgSecondary + '40' }]}>
+                    <TextComponent style={styles.parSummaryText} color={theme.textSecondary} bold variant="caption">
+                        TOUR PAR: {totalPar}
+                    </TextComponent>
+                </View>
+            )}
             <View style={styles.podiumWrapper}>
                 <PodiumBar team={second} place={2} isVisible={visibleRanks.includes(2)} isPubGolf={isPubGolf} stops={stops} />
                 <PodiumBar team={first} place={1} isVisible={visibleRanks.includes(1)} isPubGolf={isPubGolf} stops={stops} />
@@ -211,7 +221,6 @@ const styles = StyleSheet.create({
         paddingBottom: 12,
         position: 'relative',
         justifyContent: 'space-between',
-        overflow: 'hidden',
     },
     rankNumber: {
         fontSize: 24,
@@ -233,5 +242,17 @@ const styles = StyleSheet.create({
     },
     emoji: {
         fontSize: 28,
+    },
+    parSummaryBadge: {
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: 16,
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.05)',
+    },
+    parSummaryText: {
+        fontSize: 10,
+        letterSpacing: 2,
     },
 });

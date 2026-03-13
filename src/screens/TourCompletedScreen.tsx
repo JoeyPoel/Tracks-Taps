@@ -162,7 +162,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
     const podiumTeams = activeTeams.slice(0, 3);
     const runnerUps = activeTeams.slice(3);
     const winnerName = winner?.name || winner?.user?.name || t('you');
-    const isPubGolf = activeTour.tour.modes?.includes('pubgolf');
+    const isPubGolf = activeTour.tour.modes?.some(m => m.toLowerCase() === 'pubgolf');
     const stops = activeTour.tour.stops;
 
     // Determine which ranks to show based on state
@@ -185,24 +185,42 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                {/* Standard Tour Card */}
-                <Animated.View entering={ZoomIn.duration(800).springify()} style={styles.tourCardContainer}>
-                    <TourCard
-                        title={activeTour.tour.title}
-                        author={activeTour.tour.author?.name || 'Tracks & Taps'}
-                        imageUrl={activeTour.tour.imageUrl}
-                        distance={`${activeTour.tour.distance} ${t('km')}`}
-                        duration={`${activeTour.tour.duration} ${t('min')}`}
-                        stops={activeTour.tour.stops?.length || 0}
-                        rating={activeTour.tour.points > 0 ? 5 : 0} // Placeholder for rating if not in ActiveTour
-                        reviewCount={0}
-                        points={activeTour.tour.points}
-                        location={activeTour.tour.location}
-                        modes={activeTour.tour.modes}
-                        genre={activeTour.tour.genre}
-                        tourType={activeTour.tour.type as any}
-                        variant="hero"
+                {/* Hero Feature: Full-width Image with Fade Overlay */}
+                <Animated.View entering={FadeInDown.duration(800)} style={styles.heroContainer}>
+                    <Image
+                        source={{ uri: getOptimizedImageUrl(activeTour.tour.imageUrl, 800) }}
+                        style={styles.heroImage}
+                        contentFit="cover"
+                        transition={500}
                     />
+                    <LinearGradient
+                        colors={['transparent', 'transparent', theme.bgPrimary]}
+                        style={styles.heroGradient}
+                    />
+                    
+                    <View style={styles.heroTextOverlay}>
+                        <Animated.View entering={ZoomIn.delay(300).duration(800).springify()}>
+                            <TextComponent 
+                                style={styles.heroTitle} 
+                                color={theme.fixedWhite} 
+                                bold 
+                                variant="h1" 
+                                center
+                            >
+                                {activeTour.tour.title}
+                            </TextComponent>
+                        </Animated.View>
+                        
+                        {isPubGolf && (
+                            <Animated.View entering={FadeInDown.delay(500)} style={styles.parBadgeContainer}>
+                                <View style={[styles.parBadge, { backgroundColor: theme.bgSecondary + '90' }]}>
+                                    <TextComponent style={styles.parText} color={theme.textSecondary} bold variant="caption">
+                                        TOTAL PAR: {(stops || []).reduce((acc: number, s: any) => acc + (s.pubgolfPar || 0), 0)}
+                                    </TextComponent>
+                                </View>
+                            </Animated.View>
+                        )}
+                    </View>
                 </Animated.View>
 
                 {/* Hero Section: Winner & Podium */}
@@ -448,12 +466,52 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 6,
     },
-    tourCardContainer: {
-        paddingHorizontal: 20,
-        marginVertical: 20,
+    heroContainer: {
+        width: '100%',
+        height: 340,
+        position: 'relative',
     },
-    badgeText: {
-        fontSize: 10,
+    heroImage: {
+        width: '100%',
+        height: '100%',
+    },
+    heroGradient: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: '80%',
+    },
+    heroTextOverlay: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        paddingHorizontal: 24,
+        paddingBottom: 20,
+        alignItems: 'center',
+    },
+    heroTitle: {
+        fontSize: 36,
+        lineHeight: 44,
+        marginBottom: 8,
+        letterSpacing: -0.5,
+        textShadowColor: 'rgba(0, 0, 0, 0.3)',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 4,
+    },
+    parBadgeContainer: {
+        marginTop: 4,
+    },
+    parBadge: {
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+    },
+    parText: {
         letterSpacing: 1,
+        fontSize: 12,
     },
 });

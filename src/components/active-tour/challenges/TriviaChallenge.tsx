@@ -86,10 +86,10 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
                                     isDone && { borderWidth: 0 } // Remove border to make room for full icon
                                 ]}>
                                     {isSelected && !isDone && <View style={[styles.radioButtonInner, { backgroundColor: theme.fixedWhite }]} />}
-                                    {isDone && isCorrect && <Ionicons name="checkmark-circle" size={24} color={theme.success} />}
-                                    {isDone && isSelected && isFailed && <Ionicons name="close-circle" size={24} color={theme.danger} />}
+                                    {isDone && isCorrect && <Ionicons name="checkmark-circle" size={20} color={theme.success} />}
+                                    {isDone && isSelected && isFailed && <Ionicons name="close-circle" size={20} color={theme.danger} />}
                                     {isDone && !isCorrect && !(isSelected && isFailed) && (
-                                        <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: theme.borderPrimary }} />
+                                        <View style={{ width: 14, height: 14, borderRadius: 7, borderWidth: 2, borderColor: theme.borderPrimary }} />
                                     )}
                                 </View>
                                 <Text style={[

@@ -17,6 +17,7 @@ interface CitySuggestion {
     name: string;
     fullName: string;
     isManual?: boolean;
+    isClear?: boolean;
 }
 
 interface CityPickerProps {
@@ -101,7 +102,7 @@ export function CityPicker({ label, value, onSelect, placeholder }: CityPickerPr
     }, [searchQuery, searchCities]);
 
     const handleSelect = (city: CitySuggestion) => {
-        onSelect(city.name);
+        onSelect(city.isClear ? '' : city.name);
         setModalVisible(false);
         setSearchQuery('');
         setSuggestions([]);
@@ -162,7 +163,10 @@ export function CityPicker({ label, value, onSelect, placeholder }: CityPickerPr
                                         isManual: true 
                                     }, 
                                     ...suggestions
-                                ] : suggestions}
+                                ] : [
+                                    ...(value ? [{ name: '', fullName: t('clearSelection'), isClear: true }] : []),
+                                    ...suggestions
+                                ]}
                                 keyExtractor={(item, index) => `${item.isManual ? 'manual' : item.fullName}-${index}`}
                                 renderItem={({ item }) => (
                                     <TouchableOpacity 

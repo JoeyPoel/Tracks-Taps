@@ -615,7 +615,8 @@ export const strings = {
     selectCity: "Select City",
     searchCityPlaceholder: "Search for a city...",
     noCitiesFound: "No cities found",
-    useManualCity: "Use '{0}'"
+    useManualCity: "Use '{0}'",
+    clearSelection: "Clear Selection",
   },
   es: {
     modes: 'Modos',
@@ -1222,7 +1223,8 @@ export const strings = {
     deleteAccountWarning: "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción es permanente y no se puede deshacer. Tus tours creados permanecerán pero serán anonimizados.",
     deleteAccountConfirm: "Eliminar Mi Cuenta",
     deleteAccountSubtitle: "Eliminar permanentemente tus datos",
-    useManualCity: "Usar '{0}'"
+    useManualCity: "Usar '{0}'",
+    clearSelection: "Borrar selección",
   },
   nl: {
     modes: 'Modi',
@@ -1831,6 +1833,7 @@ export const strings = {
     selectCity: "Selecteer Stad",
     searchCityPlaceholder: "Zoek naar een stad...",
     noCitiesFound: "Geen steden gevonden",
-    useManualCity: "Gebruik '{0}'"
+    useManualCity: "Gebruik '{0}'",
+    clearSelection: "Selectie wissen",
   },
 };

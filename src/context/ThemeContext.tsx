@@ -80,8 +80,14 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
         }
     }, []);
 
-    // Determine current theme based on mode - Simplified for instant switching
-    const theme = React.useMemo(() => themes[mode], [mode]);
+    // Determine current theme based on mode and optional overlay type
+    const theme = React.useMemo(() => {
+        if (overlayType === 'romantic') {
+            const romanticKey = `romantic${mode.charAt(0).toUpperCase() + mode.slice(1)}` as keyof typeof themes;
+            return themes[romanticKey] || themes[mode];
+        }
+        return themes[mode];
+    }, [mode, overlayType]);
 
     const value = React.useMemo(() => ({
         mode,

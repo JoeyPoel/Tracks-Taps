@@ -227,6 +227,7 @@ const styles = StyleSheet.create({
     },
     closeBtn: {
         padding: 4,
+        marginRight: 4,
     },
     starsContainer: {
         flexDirection: 'row',

@@ -163,7 +163,12 @@ export default function ActiveChallengeCard({
                             interactionScale="medium"
                             haptic="light"
                         >
-                            <TextComponent style={styles.buttonText} color={theme.fixedWhite} bold variant="body">
+                            <TextComponent 
+                                style={styles.buttonText} 
+                                color={disabled ? theme.textTertiary : theme.fixedWhite} 
+                                bold 
+                                variant="body"
+                            >
                                 {actionLabel}
                             </TextComponent>
                             {!disabled && <Ionicons name="arrow-forward" size={18} color={theme.fixedWhite} />}
