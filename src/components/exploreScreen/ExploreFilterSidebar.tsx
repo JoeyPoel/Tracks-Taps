@@ -191,7 +191,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
 
                         <View style={styles.section}>
                             <FilterSectionHeader title={t('rating')} />
-                            <View style={styles.chipContainer}>
+                            <View style={[styles.chipContainer, { justifyContent: 'center' }]}>
                                 {[1, 2, 3, 4, 5].map((star) => {
                                     const isSelected = (localFilters.minRating || 0) >= star;
                                     const isCurrent = localFilters.minRating === star;
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 8,
         borderRadius: 12,
-        width: '48.5%', // Results in 2x2 with gap
+        width: '48%', // Adjusted from 48.5% to ensure 2 per row with gap
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
     gridRow: {
         flexDirection: 'row',
         paddingHorizontal: 24,
-        marginBottom: 24,
+        marginBottom: 12, // Reduced from 24
     },
     gridItem: {
         flex: 1,
@@ -452,8 +452,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     applyButton: {
-        width: '100%',
-        paddingVertical: 16,
+        width: '85%', // Reduced from 100%
+        paddingVertical: 10, // Reduced further from 12
         alignItems: 'center',
         borderRadius: 16,
         shadowColor: "#000",
