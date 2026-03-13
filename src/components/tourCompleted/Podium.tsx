@@ -94,15 +94,16 @@ const PodiumBar = ({
                     {displayName}
                 </TextComponent>
                 <View style={{ alignItems: 'center' }}>
-                    <View style={[styles.scoreBadge, { backgroundColor: theme.bgSecondary, marginBottom: 4 }]}>
+                    <View style={[styles.scoreBadge, { backgroundColor: theme.bgSecondary, marginBottom: 4, flexDirection: 'row', alignItems: 'center', gap: 2 }]}>
+                        <Ionicons name="flash" size={10} color={teamColor} />
                         <TextComponent style={styles.score} color={teamColor} bold variant="caption">
                             {team.score} PTS
                         </TextComponent>
                     </View>
                     {isPubGolf && (
-                        <View style={[styles.scoreBadge, { backgroundColor: '#FFF9C4', borderColor: '#FBC02D', borderWidth: 0.5, flexDirection: 'row', alignItems: 'center', gap: 2 }]}>
-                            <Ionicons name="beer-outline" size={10} color="#F57F17" />
-                            <TextComponent style={[styles.score, { color: '#F57F17' }]} bold variant="caption">
+                        <View style={[styles.scoreBadge, { backgroundColor: theme.bgSecondary, flexDirection: 'row', alignItems: 'center', gap: 2 }]}>
+                            <Ionicons name="beer-outline" size={10} color={theme.pubgolfColor} />
+                            <TextComponent style={[styles.score, { color: theme.pubgolfColor }]} bold variant="caption">
                                 {pgText.trim() || 'E PG'}
                             </TextComponent>
                         </View>
@@ -144,13 +145,6 @@ export default function Podium({ teams, visibleRanks = [1, 2, 3], isPubGolf, sto
 
     return (
         <View style={styles.container}>
-            {isPubGolf && totalPar > 0 && (
-                <View style={[styles.parSummaryBadge, { backgroundColor: theme.bgSecondary + '40' }]}>
-                    <TextComponent style={styles.parSummaryText} color={theme.textSecondary} bold variant="caption">
-                        TOUR PAR: {totalPar}
-                    </TextComponent>
-                </View>
-            )}
             <View style={styles.podiumWrapper}>
                 <PodiumBar team={second} place={2} isVisible={visibleRanks.includes(2)} isPubGolf={isPubGolf} stops={stops} />
                 <PodiumBar team={first} place={1} isVisible={visibleRanks.includes(1)} isPubGolf={isPubGolf} stops={stops} />
@@ -212,7 +206,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 0,
         alignItems: 'center',
         paddingTop: 8,
-        paddingBottom: 24, // Increased to prevent icon cut-off
+        paddingBottom: 32, // Further increased to prevent emoji clipping
         position: 'relative',
         justifyContent: 'space-between',
     },

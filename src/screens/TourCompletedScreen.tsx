@@ -247,9 +247,9 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                                         return (
                                             <>
                                                 <View style={{ width: 1, height: 12, backgroundColor: theme.borderPrimary, marginHorizontal: 4 }} />
-                                                <View style={[styles.pgBadge, { backgroundColor: '#FFF9C4' }]}>
-                                                    <Ionicons name="beer-outline" size={12} color="#F57F17" />
-                                                    <TextComponent style={[styles.winnerScoreText, { color: '#F57F17' }]} bold variant="caption">
+                                                <View style={[styles.pgBadge, { backgroundColor: theme.bgSecondary }]}>
+                                                    <Ionicons name="beer-outline" size={12} color={theme.pubgolfColor} />
+                                                    <TextComponent style={[styles.winnerScoreText, { color: theme.pubgolfColor }]} bold variant="caption">
                                                         {pgText}
                                                     </TextComponent>
                                                 </View>
@@ -293,15 +293,18 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                                     <TextComponent style={styles.runnerUpRank} color={theme.textSecondary} bold variant="body">{index + 4}</TextComponent>
                                     <TextComponent style={styles.runnerUpName} color={theme.textPrimary} bold variant="body">{team.name || team.user?.name}</TextComponent>
                                     <View style={{ alignItems: 'flex-end' }}>
-                                        <TextComponent style={styles.runnerUpScore} color={theme.textPrimary} bold variant="body">{team.score} PTS</TextComponent>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                            <Ionicons name="flash" size={12} color={theme.primary} />
+                                            <TextComponent style={styles.runnerUpScore} color={theme.textPrimary} bold variant="body">{team.score} PTS</TextComponent>
+                                        </View>
                                         {isPubGolf && (() => {
                                             const stats = getPubGolfStats(stops, team.pubGolfStops);
                                             const score = stats.currentScore;
                                             const pgText = score === 0 ? 'E PG' : score > 0 ? `+${score} PG` : `${score} PG`;
                                             return (
-                                                <View style={[styles.pgBadge, { backgroundColor: '#FFF9C4', marginTop: 2 }]}>
-                                                    <Ionicons name="beer-outline" size={10} color="#F57F17" />
-                                                    <TextComponent style={{ color: '#F57F17', fontWeight: '800', fontSize: 10 }} variant="caption">
+                                                <View style={[styles.pgBadge, { backgroundColor: theme.bgSecondary, marginTop: 2 }]}>
+                                                    <Ionicons name="beer-outline" size={10} color={theme.pubgolfColor} />
+                                                    <TextComponent style={{ color: theme.pubgolfColor, fontWeight: '800', fontSize: 10 }} variant="caption">
                                                         {pgText}
                                                     </TextComponent>
                                                 </View>

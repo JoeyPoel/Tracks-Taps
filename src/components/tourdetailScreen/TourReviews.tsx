@@ -31,11 +31,18 @@ interface TourReviewsProps {
     onWriteReview?: () => void;
 }
 
+import { ImageLightbox } from '../common/ImageLightbox';
+
 export default function TourReviews({ reviews, averageRating, totalReviews, onWriteReview }: TourReviewsProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const router = useRouter();
     const [expanded, setExpanded] = useState(false);
+
+    // Lightbox state
+    const [lightboxImages, setLightboxImages] = useState<string[]>([]);
+    const [lightboxIndex, setLightboxIndex] = useState(0);
+    const [lightboxVisible, setLightboxVisible] = useState(false);
 
     // sorting and pagination
     const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'highest' | 'lowest'>('newest');
@@ -46,6 +53,12 @@ export default function TourReviews({ reviews, averageRating, totalReviews, onWr
         setExpanded(!expanded);
     };
 
+    const handleOpenLightbox = (images: string[], index: number) => {
+        setLightboxImages(images);
+        setLightboxIndex(index);
+        setLightboxVisible(true);
+    };
+    // ... sortedReviews memo and other helpers same ...
     const sortedReviews = React.useMemo(() => {
         const sorted = [...reviews];
         switch (sortBy) {
@@ -209,7 +222,7 @@ export default function TourReviews({ reviews, averageRating, totalReviews, onWr
                                 review.images && review.images.length > 0 && (
                                     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imagesContainer}>
                                         {review.images.map((img, index) => (
-                                            <TouchableOpacity key={index} activeOpacity={0.9} onPress={() => { /* Handle maximize? */ }}>
+                                            <TouchableOpacity key={index} activeOpacity={0.9} onPress={() => handleOpenLightbox(review.images!, index)}>
                                                 <Image
                                                     source={{ uri: getOptimizedImageUrl(img, 200) }}
                                                     style={styles.reviewImage}
@@ -247,6 +260,13 @@ export default function TourReviews({ reviews, averageRating, totalReviews, onWr
                 </View>
             )
             }
+
+            <ImageLightbox
+                visible={lightboxVisible}
+                images={lightboxImages}
+                initialIndex={lightboxIndex}
+                onClose={() => setLightboxVisible(false)}
+            />
         </View >
     );
 }

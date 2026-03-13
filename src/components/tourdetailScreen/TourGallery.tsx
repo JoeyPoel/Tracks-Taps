@@ -11,6 +11,8 @@ import { useTheme } from '../../context/ThemeContext';
 import { Shimmer } from '../common/Shimmer';
 import { TextComponent } from '../common/TextComponent'; // Added import
 
+import { ImageLightbox } from '../common/ImageLightbox';
+
 interface TourGalleryProps {
     images: string[];
 }
@@ -18,8 +20,6 @@ interface TourGalleryProps {
 export default function TourGallery({ images }: TourGalleryProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
-    const { width: windowWidth, height: windowHeight } = useWindowDimensions();
-    const appWidth = useAppWidth();
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
     const [showEmpty, setShowEmpty] = useState(false);
 
@@ -112,56 +112,12 @@ export default function TourGallery({ images }: TourGalleryProps) {
                 ))}
             </ScrollView>
 
-            {/* Full Screen Viewer Modal */}
-            <Modal
+            <ImageLightbox
                 visible={selectedIndex !== null}
-                transparent={true}
-                animationType="fade"
-                onRequestClose={closeGallery}
-            >
-                <View style={styles.modalContainer}>
-                    <TouchableOpacity
-                        style={styles.closeButton}
-                        onPress={closeGallery}
-                    >
-                        <Ionicons name="close" size={32} color="#FFF" />
-                    </TouchableOpacity>
-
-                    {selectedIndex !== null && (
-                        <FlatList
-                            data={images}
-                            horizontal
-                            pagingEnabled
-                            initialScrollIndex={selectedIndex}
-                            getItemLayout={(_, index) => ({
-                                length: appWidth,
-                                offset: appWidth * index,
-                                index,
-                            })}
-                            showsHorizontalScrollIndicator={false}
-                            keyExtractor={(item, index) => `${item}-${index}`}
-                            renderItem={({ item }) => (
-                                <View style={{
-                                    width: appWidth,
-                                    height: windowHeight,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                    <Image
-                                        source={{ uri: getOptimizedImageUrl(item, 800) }}
-                                        style={{
-                                            width: appWidth,
-                                            height: windowHeight,
-                                        }}
-                                        contentFit="contain"
-                                        cachePolicy="disk"
-                                    />
-                                </View>
-                            )}
-                        />
-                    )}
-                </View>
-            </Modal>
+                images={images}
+                initialIndex={selectedIndex || 0}
+                onClose={closeGallery}
+            />
         </View>
     );
 }
