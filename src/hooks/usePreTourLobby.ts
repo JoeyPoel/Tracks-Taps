@@ -18,8 +18,11 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
         // Use ref to check if initialized, avoiding state dependency loop
         const isBackground = background || initialized.current;
 
+        // Only show loading spinner if it's NOT a background fetch AND we don't have data yet
+        const shouldShowSpinner = !isBackground && !activeTour;
+
         try {
-            if (!isBackground) setLoading(true);
+            if (shouldShowSpinner) setLoading(true);
             console.log(`[Lobby] Loading details for tour ${activeTourId}...`);
             const tour = await activeTourService.getActiveTourLobby(activeTourId);
             setActiveTour(tour);

@@ -74,11 +74,8 @@ export const useTeamSetup = () => {
 
             setLoading(false);
 
-            // Always route to lobby to ensure state is fresh and correct screen is shown
-            router.replace({
-                pathname: '/lobby',
-                params: { activeTourId: activeTourId }
-            });
+            // Go back to the lobby (which should still be in the stack)
+            router.back();
 
             // Refresh store in background
             fetchActiveTours(user.id).catch(console.error);

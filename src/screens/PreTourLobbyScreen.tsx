@@ -51,7 +51,7 @@ export default function PreTourLobbyScreen() {
         );
     }
 
-    if (loading) {
+    if (loading && !activeTour) {
         return (
             <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} animateEntry={false}>
                 <TourLoadingScreen message="Loading lobby..." />
