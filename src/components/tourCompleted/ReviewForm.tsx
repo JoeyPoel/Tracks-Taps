@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Modal, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Keyboard, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -77,117 +77,122 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
             visible={visible}
             onRequestClose={onClose}
         >
-            <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
+            <Pressable
+                style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.6)' }]}
+                onPress={Keyboard.dismiss}
+            >
                 {/* Main Card */}
                 <Animated.View
                     entering={ZoomIn.duration(300)}
                     style={[styles.modalContent, { backgroundColor: theme.bgSecondary }]}
                 >
-                    {/* Header */}
-                    <View style={styles.header}>
-                        <View>
-                            <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">{t('rateExperience')}</TextComponent>
-                            <TextComponent style={styles.subtitle} color={theme.textSecondary} variant="body">
-                                {tourName}
-                            </TextComponent>
+                    <Pressable onPress={(e) => e.stopPropagation()}>
+                        {/* Header */}
+                        <View style={styles.header}>
+                            <View>
+                                <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">{t('rateExperience')}</TextComponent>
+                                <TextComponent style={styles.subtitle} color={theme.textSecondary} variant="body">
+                                    {tourName}
+                                </TextComponent>
+                            </View>
+                            <AnimatedPressable onPress={onClose} interactionScale="subtle" style={styles.closeBtn}>
+                                <Ionicons name="close" size={24} color={theme.textSecondary} />
+                            </AnimatedPressable>
                         </View>
-                        <AnimatedPressable onPress={onClose} interactionScale="subtle" style={styles.closeBtn}>
-                            <Ionicons name="close" size={24} color={theme.textSecondary} />
-                        </AnimatedPressable>
-                    </View>
 
-                    {/* Star Rating - Bigger & Centered */}
-                    <View style={styles.starsContainer}>
-                        {[1, 2, 3, 4, 5].map((star, index) => (
-                            <Animated.View
-                                key={star}
-                                entering={FadeInDown.delay(index * 50).springify()}
-                            >
-                                <AnimatedPressable onPress={() => setRating(star)} interactionScale="medium" haptic="selection">
-                                    <Ionicons
-                                        name={star <= rating ? "star" : "star-outline"}
-                                        size={42}
-                                        color={star <= rating ? theme.gold : theme.textTertiary}
-                                        style={{ marginHorizontal: 4 }}
-                                    />
-                                </AnimatedPressable>
-                            </Animated.View>
-                        ))}
-                    </View>
-
-                    {/* Rating Label (Optional feedback text based on stars) */}
-                    <View style={{ alignItems: 'center', marginBottom: 20, height: 20 }}>
-                        {rating > 0 && (
-                            <TextComponent style={{ fontSize: 14 }} color={theme.primary} bold variant="body">
-                                {rating === 5 ? t('amazing') : rating === 4 ? t('good') : rating === 3 ? t('okay') : t('notGreat')}
-                            </TextComponent>
-                        )}
-                    </View>
-
-                    {/* Input Area */}
-                    <TextComponent style={styles.label} color={theme.textSecondary} bold variant="caption">{t('writeReview')}</TextComponent>
-                    <TextInput
-                        style={[styles.input, { backgroundColor: theme.bgInput, color: theme.textPrimary, borderColor: theme.borderInput }]}
-                        placeholder={t('reviewPlaceholder')}
-                        placeholderTextColor={theme.textTertiary}
-                        multiline
-                        numberOfLines={4}
-                        value={content}
-                        onChangeText={setContent}
-                        textAlignVertical="top"
-                    />
-
-                    {/* Photo Upload Section */}
-                    <View style={styles.photoSection}>
-                        <AnimatedPressable
-                            style={[styles.addPhotoButton, { borderColor: theme.borderPrimary, backgroundColor: theme.bgPrimary }]}
-                            onPress={handleAddPhoto}
-                            disabled={uploading || photos.length >= 5}
-                            interactionScale="subtle"
-                        >
-                            {uploading ? (
-                                <ActivityIndicator size="small" color={theme.primary} />
-                            ) : (
-                                <Ionicons name="camera" size={20} color={theme.primary} />
-                            )}
-                            <TextComponent style={styles.addPhotoText} color={theme.textPrimary} bold variant="caption">
-                                {photos.length === 0 ? t('addPhotos') : `${photos.length}/5`}
-                            </TextComponent>
-                        </AnimatedPressable>
-
-                        <View style={styles.photoList}>
-                            {photos.map((uri, index) => (
-                                <Animated.View key={index} entering={FadeInDown.springify()}>
-                                    <View style={styles.photoItem}>
-                                        <Image source={{ uri }} style={styles.photo} contentFit="cover" />
-                                        <AnimatedPressable
-                                            style={[styles.deletePhotoBtn, { backgroundColor: theme.error }]}
-                                            onPress={() => removePhoto(index)}
-                                            haptic="light"
-                                        >
-                                            <Ionicons name="close" size={12} color="#fff" />
-                                        </AnimatedPressable>
-                                    </View>
+                        {/* Star Rating - Bigger & Centered */}
+                        <View style={styles.starsContainer}>
+                            {[1, 2, 3, 4, 5].map((star, index) => (
+                                <Animated.View
+                                    key={star}
+                                    entering={FadeInDown.delay(index * 50).springify()}
+                                >
+                                    <AnimatedPressable onPress={() => setRating(star)} interactionScale="medium" haptic="selection">
+                                        <Ionicons
+                                            name={star <= rating ? "star" : "star-outline"}
+                                            size={42}
+                                            color={star <= rating ? theme.gold : theme.textTertiary}
+                                            style={{ marginHorizontal: 4 }}
+                                        />
+                                    </AnimatedPressable>
                                 </Animated.View>
                             ))}
                         </View>
-                    </View>
 
-                    {/* Footer Actions */}
-                    <View style={styles.footer}>
-                        <AnimatedButton
-                            title={t('submitReview')}
-                            onPress={handlePress}
-                            variant="primary"
-                            loading={submitting}
-                            disabled={rating === 0 || submitting}
-                            style={styles.submitButton}
-                            icon="send"
+                        {/* Rating Label (Optional feedback text based on stars) */}
+                        <View style={{ alignItems: 'center', marginBottom: 20, height: 20 }}>
+                            {rating > 0 && (
+                                <TextComponent style={{ fontSize: 14 }} color={theme.primary} bold variant="body">
+                                    {rating === 5 ? t('amazing') : rating === 4 ? t('good') : rating === 3 ? t('okay') : t('notGreat')}
+                                </TextComponent>
+                            )}
+                        </View>
+
+                        {/* Input Area */}
+                        <TextComponent style={styles.label} color={theme.textSecondary} bold variant="caption">{t('writeReview')}</TextComponent>
+                        <TextInput
+                            style={[styles.input, { backgroundColor: theme.bgInput, color: theme.textPrimary, borderColor: theme.borderInput }]}
+                            placeholder={t('reviewPlaceholder')}
+                            placeholderTextColor={theme.textTertiary}
+                            multiline
+                            numberOfLines={4}
+                            value={content}
+                            onChangeText={setContent}
+                            textAlignVertical="top"
                         />
-                    </View>
+
+                        {/* Photo Upload Section */}
+                        <View style={styles.photoSection}>
+                            <AnimatedPressable
+                                style={[styles.addPhotoButton, { borderColor: theme.borderPrimary, backgroundColor: theme.bgPrimary }]}
+                                onPress={handleAddPhoto}
+                                disabled={uploading || photos.length >= 5}
+                                interactionScale="subtle"
+                            >
+                                {uploading ? (
+                                    <ActivityIndicator size="small" color={theme.primary} />
+                                ) : (
+                                    <Ionicons name="camera" size={20} color={theme.primary} />
+                                )}
+                                <TextComponent style={styles.addPhotoText} color={theme.textPrimary} bold variant="caption">
+                                    {photos.length === 0 ? t('addPhotos') : `${photos.length}/5`}
+                                </TextComponent>
+                            </AnimatedPressable>
+
+                            <View style={styles.photoList}>
+                                {photos.map((uri, index) => (
+                                    <Animated.View key={index} entering={FadeInDown.springify()}>
+                                        <View style={styles.photoItem}>
+                                            <Image source={{ uri }} style={styles.photo} contentFit="cover" />
+                                            <AnimatedPressable
+                                                style={[styles.deletePhotoBtn, { backgroundColor: theme.error }]}
+                                                onPress={() => removePhoto(index)}
+                                                haptic="light"
+                                            >
+                                                <Ionicons name="close" size={12} color="#fff" />
+                                            </AnimatedPressable>
+                                        </View>
+                                    </Animated.View>
+                                ))}
+                            </View>
+                        </View>
+
+                        {/* Footer Actions */}
+                        <View style={styles.footer}>
+                            <AnimatedButton
+                                title={t('submitReview')}
+                                onPress={handlePress}
+                                variant="primary"
+                                loading={submitting}
+                                disabled={rating === 0 || submitting}
+                                style={styles.submitButton}
+                                icon="send"
+                            />
+                        </View>
+                    </Pressable>
 
                 </Animated.View>
-            </View>
+            </Pressable>
         </Modal>
     );
 }

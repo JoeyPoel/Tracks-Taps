@@ -19,6 +19,7 @@ interface Review {
     userAvatar: string;
     rating: number;
     date: string;
+    createdAt: string | Date;
     comment: string;
     images?: string[];
 }
@@ -49,9 +50,9 @@ export default function TourReviews({ reviews, averageRating, totalReviews, onWr
         const sorted = [...reviews];
         switch (sortBy) {
             case 'newest':
-                return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             case 'oldest':
-                return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                return sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
             case 'highest':
                 return sorted.sort((a, b) => b.rating - a.rating);
             case 'lowest':

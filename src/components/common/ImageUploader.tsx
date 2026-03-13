@@ -5,7 +5,7 @@ import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React from 'react';
-import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { TextComponent } from './TextComponent';
 
 interface ImageUploaderProps {
@@ -33,6 +33,7 @@ export function ImageUploader({
         image,
         uploading,
         pickImage,
+        takePhoto,
         removeImage
     } = useImageUploader({
         initialImage,
@@ -40,6 +41,20 @@ export function ImageUploader({
         onUploadComplete,
         variant
     });
+
+    const handlePress = () => {
+        const options = [
+            { text: t('takePhoto'), onPress: takePhoto },
+            { text: t('gallery'), onPress: pickImage },
+            { text: t('cancel'), style: 'cancel' as const }
+        ];
+
+        Alert.alert(
+            t('selectImage'),
+            '',
+            options
+        );
+    };
 
     const isAvatar = variant === 'avatar';
     const containerStyle = isAvatar ? styles.avatarContainer : styles.standardContainer;
@@ -68,7 +83,7 @@ export function ImageUploader({
             </TouchableOpacity>
             <TouchableOpacity
                 style={[styles.editButton, { backgroundColor: theme.bgSecondary }]}
-                onPress={pickImage}
+                onPress={handlePress}
                 disabled={uploading}
             >
                 <Ionicons name="pencil" size={16} color={theme.textPrimary} />
@@ -96,7 +111,7 @@ export function ImageUploader({
             <View style={styles.avatarActions}>
                 <TouchableOpacity
                     style={[styles.actionButton, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}
-                    onPress={pickImage}
+                    onPress={handlePress}
                     disabled={uploading}
                 >
                     <Ionicons name="pencil" size={16} color={theme.textPrimary} />
@@ -127,7 +142,7 @@ export function ImageUploader({
                         containerStyle,
                         { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }
                     ]}
-                    onPress={pickImage}
+                    onPress={handlePress}
                     disabled={uploading}
                 >
                     {uploading ? (
@@ -224,7 +239,6 @@ const styles = StyleSheet.create({
     avatarActions: {
         flexDirection: 'row',
         gap: 12,
-        left: 12,
 
     },
     actionButton: {

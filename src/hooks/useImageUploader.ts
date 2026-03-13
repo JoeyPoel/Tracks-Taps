@@ -54,6 +54,30 @@ export const useImageUploader = ({
         }
     };
 
+    const takePhoto = async () => {
+        try {
+            const { status } = await ImagePicker.requestCameraPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert(t('permissionNeeded'), t('cameraPermissionMsg'));
+                return;
+            }
+
+            const result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ['images'],
+                allowsEditing: true,
+                aspect: isAvatar ? [1, 1] : [16, 9],
+                quality: 1,
+            });
+
+            if (!result.canceled && result.assets[0].uri) {
+                handleUpload(result.assets[0].uri);
+            }
+        } catch (error) {
+            console.error('Error taking photo:', error);
+            Alert.alert(t('error'), 'Failed to take photo');
+        }
+    };
+
     const handleUpload = async (uri: string) => {
         try {
             setUploading(true);
@@ -88,6 +112,7 @@ export const useImageUploader = ({
         image,
         uploading,
         pickImage,
+        takePhoto,
         removeImage,
         setImage // Expose if needed for manual sets
     };

@@ -208,7 +208,7 @@ export const tourRepository = {
                     }
                 },
                 reviews: {
-                    take: 3,
+                    take: 20, // Increased from 3 to show more reviews on detail screen
                     orderBy: { createdAt: 'desc' },
                     select: {
                         id: true,

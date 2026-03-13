@@ -2,6 +2,7 @@ import { TourCardBase } from '@/src/components/exploreScreen/TourCardBase';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { GENRES, getGenreIcon } from '@/src/utils/genres';
 import { getTourTypeLabel } from '@/src/utils/tourUtils';
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { ClockIcon, MapIcon } from 'react-native-heroicons/solid';
@@ -177,8 +178,6 @@ export function EditableTourCard({
                                     km
                                 </TextComponent>
                             </View>
-
-                            <View style={styles.dotSeparator} />
 
                             <View style={styles.inputGroup}>
                                 <ClockIcon size={16} color="#E0E0E0" />
