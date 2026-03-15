@@ -46,8 +46,12 @@ export const activeTourService = {
 
     // New: Join specific tour
     async joinTour(activeTourId: number, userId: number, teamName?: string, teamColor?: string, teamEmoji?: string) {
-        // Check if already in it needed?
-        return await activeTourRepository.joinActiveTour(activeTourId, userId, teamName, teamColor, teamEmoji);
+        const team = await activeTourRepository.joinActiveTour(activeTourId, userId, teamName, teamColor, teamEmoji);
+        
+        // Check achievements immediately on join
+        const newAchievements = await achievementService.checkTeamSize(userId, activeTourId);
+        
+        return { ...team, newAchievements };
     },
 
     async getActiveTourById(id: number, userId?: number) {
@@ -72,15 +76,14 @@ export const activeTourService = {
         const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
         if (!team) throw new Error("Team not found for this tour");
 
+        const newAchievements: any[] = [];
+
         // Check for Stop Visit achievements (Explorer)
-        // Only if challenge is linked to a stop (which it normally is)
         if (challenge.stopId) {
-            await achievementService.checkUniqueStops(userId);
+            const stopAchs = await achievementService.checkUniqueStops(userId);
+            newAchievements.push(...stopAchs);
         }
 
-        // Run independent updates in parallel: XP, Streak, Score, ActiveChallengeupsert
-        // We still need to await achievement check separately since it might depend on the XP result, 
-        // though technically they could overlap if carefully managed. For safety, keep achievements separate.
         const updateQueries = [
             userRepository.addXp(userId, challenge.points),
             activeTourRepository.updateStreak(team.id, (team.streak || 0) + 1),
@@ -92,13 +95,17 @@ export const activeTourService = {
         ];
 
         await Promise.all(updateQueries);
-        await achievementService.checkLevel(userId);
+        
+        // Check for Level Up achievements
+        const levelAchs = await achievementService.checkLevel(userId);
+        newAchievements.push(...levelAchs);
 
         // Check for Bingo Progress
         await this.checkBingo(userId, activeTourId);
 
-        // Return updated progress
-        return await activeTourService.getActiveTourProgress(activeTourId, userId);
+        // Return updated progress with new achievements
+        const progress = await activeTourService.getActiveTourProgress(activeTourId, userId);
+        return { ...progress, newAchievements };
     },
 
     async failChallenge(activeTourId: number, challengeId: number, userId: number) {
@@ -142,8 +149,11 @@ export const activeTourService = {
         const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
         if (!activeTour) throw new Error("Active tour not found");
 
+        const newAchievements: any[] = [];
+
         // 0. Check Pub Golf Achievements
-        await achievementService.checkPubGolf(userId, activeTourId);
+        const pgAchs = await achievementService.checkPubGolf(userId, activeTourId);
+        newAchievements.push(...pgAchs);
 
         // 1. Update Team as Finished
         await prisma.team.update({
@@ -165,10 +175,8 @@ export const activeTourService = {
         });
 
         // 3. Check Tour Count Achievements
-        await achievementService.checkTourCompletion(userId);
-
-        // 3b. Check Team Size Achievements (Party Animal)
-        await achievementService.checkTeamSize(userId, activeTourId);
+        const tourAchs = await achievementService.checkTourCompletion(userId);
+        newAchievements.push(...tourAchs);
 
         // 4. Check if all teams are finished
         const updatedActiveTour = await activeTourRepository.findActiveTourById(activeTourId);
@@ -176,21 +184,16 @@ export const activeTourService = {
         if (updatedActiveTour) {
             const allFinished = updatedActiveTour.teams.every(t => t.finishedAt !== null);
             if (allFinished) {
-                // Determine Winner (Highest Score)
-                // Sort by core descending
                 const rankedTeams = [...updatedActiveTour.teams].sort((a, b) => b.score - a.score);
                 const winnerId = rankedTeams.length > 0 ? rankedTeams[0].id : undefined;
-
                 await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.POST_TOUR_LOBBY, winnerId);
-
-                // Removed immediate deletion to prevent race conditions with frontend requests
             }
         }
 
         // Cleanup Bingo Card
         await activeTourRepository.deleteBingoCard(team.id);
 
-        return { status: 'COMPLETED', tourId: activeTour.tourId };
+        return { status: 'COMPLETED', tourId: activeTour.tourId, newAchievements };
     },
 
     async abandonTour(activeTourId: number, userId: number) {
@@ -214,33 +217,32 @@ export const activeTourService = {
         const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
         if (!team) throw new Error("Team not found");
 
-        // 1. Get previous state
         const existingStop = await activeTourRepository.findPubGolfStop(team.id, stopId);
         const oldSips = existingStop?.sips;
 
-        // 2. Update
         const updatedStop = await activeTourRepository.updatePubGolfScore(team.id, stopId, sips);
 
-        // 3. Calculate and Award XP Delta
+        const newAchievements: any[] = [];
+
         const par = updatedStop.stop.pubgolfPar;
         if (par !== null) {
-            // Treat 0 sips as "unplayed" (no XP)
             const oldXP = (oldSips && oldSips > 0) ? (getScoreDetails(par, oldSips)?.recommendedXP || 0) : 0;
             const newXP = (sips && sips > 0) ? (getScoreDetails(par, sips)?.recommendedXP || 0) : 0;
-
             const xpDiff = newXP - oldXP;
 
             if (xpDiff !== 0) {
                 await userRepository.addXp(userId, xpDiff);
-                await achievementService.checkLevel(userId); // Check for level up
+                const levelAchs = await achievementService.checkLevel(userId); 
+                newAchievements.push(...levelAchs);
             }
         }
 
-        // 4. Check Pub Golf Achievements immediately
-        await achievementService.checkPubGolf(userId, activeTourId);
+        // Check Pub Golf Achievements immediately
+        const pgAchs = await achievementService.checkPubGolf(userId, activeTourId);
+        newAchievements.push(...pgAchs);
 
-        // Return updated progress
-        return await activeTourService.getActiveTourProgress(activeTourId, userId);
+        const progress = await activeTourService.getActiveTourProgress(activeTourId, userId);
+        return { ...progress, newAchievements };
     },
 
     async updateTeamDetails(activeTourId: number, userId: number, name: string, color: string, emoji: string) {

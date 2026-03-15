@@ -2,9 +2,9 @@
   "expo": {
     "name": "Tracks&Taps",
     "slug": "tracks-and-taps",
-    "version": "2.4.0",
+    "version": "2.5.0",
     "orientation": "portrait",
-    "icon": "./assets/images/App Icon Coloured White Theme.png",
+    "icon": "./assets/images/AppIconColouredDarkTheme.png",
     "scheme": "tracks-taps",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -16,6 +16,11 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.joeypoel.trackstaps",
       "buildNumber": "6",
+      "icon": {
+        "light": "./assets/images/AppIconColouredWhiteTheme.png",
+        "dark": "./assets/images/AppIconColouredDarkTheme.png",
+        "tinted": "./assets/images/AppIconDarkTheme.png"
+      },
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Tracks Taps uses your location to show your position on the map and verify location-based challenges.",
         "NSPhotoLibraryUsageDescription": "Tracks Taps needs access to your photo library to select images for tours and stops.",
@@ -27,8 +32,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#ffffff",
-        "foregroundImage": "./assets/images/App Icon Coloured White Theme.png"
+        "backgroundColor": "#0F172A",
+        "foregroundImage": "./assets/images/AppIconColouredDarkTheme.png"
       },
       "package": "com.joeypoel.trackstaps",
       "edgeToEdgeEnabled": true,
@@ -40,25 +45,16 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/Splash Screen Coloured White Theme.png",
+          "image": "./assets/images/SplashScreenColouredWhiteTheme.png",
           "imageWidth": 1024,
           "imageHeight": 1024,
           "resizeMode": "contain",
           "backgroundColor": "#F8FAFC",
           "dark": {
-            "image": "./assets/images/Splash Screen Coloured Dark Theme.png",
+            "image": "./assets/images/SplashScreenColouredDarkTheme.png",
             "backgroundColor": "#0F172A"
           }
         }
-      ],
-      [
-        "expo-alternate-app-icons",
-        [
-          "./assets/images/App Icon Coloured Dark Theme.png",
-          "./assets/images/App Icon Coloured White Theme.png",
-          "./assets/images/App Icon Dark theme.png",
-          "./assets/images/App Icon White theme.png"
-        ]
       ],
       "expo-font",
       [

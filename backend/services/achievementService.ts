@@ -2,8 +2,11 @@ import { prisma } from '../../src/lib/prisma';
 import { LevelSystem } from '../../src/utils/levelUtils';
 
 export const achievementService = {
+    /**
+     * Unlocks an achievement for a user.
+     * Returns the achievement object if it was NEWLY unlocked, or null if already unlocked.
+     */
     async unlockAchievement(userId: number, achievement: any) {
-        // ... (existing unlock logic)
         // Check if already unlocked
         const existing = await prisma.userAchievement.findUnique({
             where: {
@@ -11,11 +14,10 @@ export const achievementService = {
                     userId,
                     achievementId: achievement.id
                 }
-            },
-            include: { achievement: true }
+            }
         });
 
-        if (existing) return existing.achievement;
+        if (existing) return null;
 
         console.log(`Unlocking achievement '${achievement.title}' for user ${userId}`);
 
@@ -29,17 +31,12 @@ export const achievementService = {
 
         // Award XP
         if (achievement.xpReward > 0) {
-            // Note: This calls update which might trigger checkLevel recursion if we aren't careful.
-            // But checkLevel is called FROM addXp usually. 
-            // Here we just increment. We should probably verify level again? 
-            // For safety, let's just increment. 
             await prisma.user.update({
                 where: { id: userId },
                 data: { xp: { increment: achievement.xpReward } }
             });
 
-            // Re-check level after achievement XP reward?
-            // Yes, gaining an achievement could level you up.
+            // Re-check level after achievement XP reward
             await this.checkLevel(userId);
         }
 
@@ -48,16 +45,17 @@ export const achievementService = {
 
     async checkLevel(userId: number) {
         const user = await prisma.user.findUnique({ where: { id: userId } });
-        if (!user) return;
+        if (!user) return [];
 
         const calculatedLevel = LevelSystem.getLevel(user.xp);
+        const newlyUnlocked: any[] = [];
 
         if (calculatedLevel > user.level) {
             await prisma.user.update({
                 where: { id: userId },
                 data: { level: calculatedLevel }
             });
-            user.level = calculatedLevel; // Update local var for check
+            user.level = calculatedLevel;
         }
 
         const achievements = await prisma.achievement.findMany({
@@ -66,9 +64,11 @@ export const achievementService = {
 
         for (const ach of achievements) {
             if (user.level >= ach.target) {
-                await this.unlockAchievement(userId, ach);
+                const unlocked = await this.unlockAchievement(userId, ach);
+                if (unlocked) newlyUnlocked.push(unlocked);
             }
         }
+        return newlyUnlocked;
     },
 
     async unlockByCriteria(userId: number, criteria: string) {
@@ -89,7 +89,7 @@ export const achievementService = {
             }
         });
 
-        // Find relevant achievements
+        const newlyUnlocked: any[] = [];
         const achievements = await prisma.achievement.findMany({
             where: {
                 criteria: { in: ['TOUR_COMPLETION', 'first-tour'] }
@@ -98,13 +98,14 @@ export const achievementService = {
 
         for (const ach of achievements) {
             if (completedCount >= ach.target) {
-                await this.unlockAchievement(userId, ach);
+                const unlocked = await this.unlockAchievement(userId, ach);
+                if (unlocked) newlyUnlocked.push(unlocked);
             }
         }
+        return newlyUnlocked;
     },
 
     async checkFriendCount(userId: number) {
-        // Count accepted friendships (initiator or receiver)
         const friendsCount = await prisma.friendship.count({
             where: {
                 OR: [
@@ -114,21 +115,21 @@ export const achievementService = {
             }
         });
 
+        const newlyUnlocked: any[] = [];
         const achievements = await prisma.achievement.findMany({
             where: { criteria: 'FRIEND_ADD' }
         });
 
         for (const ach of achievements) {
             if (friendsCount >= ach.target) {
-                await this.unlockAchievement(userId, ach);
+                const unlocked = await this.unlockAchievement(userId, ach);
+                if (unlocked) newlyUnlocked.push(unlocked);
             }
         }
+        return newlyUnlocked;
     },
 
     async checkPubGolf(userId: number, activeTourId: number) {
-        // Get all pub golf stops for this user in this tour (via Team)
-        // This is complex because PubGolfStops are linked to Team, not User directly usually, 
-        // but we can find the user's team in this tour.
         const team = await prisma.team.findFirst({
             where: {
                 activeTourId,
@@ -139,22 +140,27 @@ export const achievementService = {
             }
         });
 
-        if (!team) return;
+        if (!team) return [];
 
-        // Check Hole in One (sips == 1)
+        const newlyUnlocked: any[] = [];
         const holeInOnes = team.pubGolfStops.filter(s => s.sips === 1).length;
 
         if (holeInOnes > 0) {
             const hioAch = await prisma.achievement.findFirst({ where: { criteria: 'PUBGOLF_HOLE_IN_ONE' } });
-            if (hioAch) await this.unlockAchievement(userId, hioAch);
+            if (hioAch) {
+                const unlocked = await this.unlockAchievement(userId, hioAch);
+                if (unlocked) newlyUnlocked.push(unlocked);
+            }
         }
 
-        // Check Streak (3 hole in ones, maybe we simplify to total count for now as per seed 'Get 3 Hole in Ones in a single game')
-        // The seed said "Get 3 Hole in Ones in a single game" with criteria 'PUBGOLF_STREAK'
         if (holeInOnes >= 3) {
             const streakAch = await prisma.achievement.findFirst({ where: { criteria: 'PUBGOLF_STREAK' } });
-            if (streakAch) await this.unlockAchievement(userId, streakAch);
+            if (streakAch) {
+                const unlocked = await this.unlockAchievement(userId, streakAch);
+                if (unlocked) newlyUnlocked.push(unlocked);
+            }
         }
+        return newlyUnlocked;
     },
 
 
@@ -162,28 +168,32 @@ export const achievementService = {
     async checkReviewCount(userId: number) {
         const count = await prisma.review.count({ where: { authorId: userId } });
         const achievements = await prisma.achievement.findMany({ where: { criteria: 'REVIEW_LEAVE' } });
+        const newlyUnlocked: any[] = [];
 
         for (const ach of achievements) {
             if (count >= ach.target) {
-                await this.unlockAchievement(userId, ach);
+                const unlocked = await this.unlockAchievement(userId, ach);
+                if (unlocked) newlyUnlocked.push(unlocked);
             }
         }
+        return newlyUnlocked;
     },
 
     async checkCreatedToursCount(userId: number) {
         const count = await prisma.tour.count({ where: { authorId: userId } });
         const achievements = await prisma.achievement.findMany({ where: { criteria: 'creator' } });
+        const newlyUnlocked: any[] = [];
 
         for (const ach of achievements) {
             if (count >= ach.target) {
-                await this.unlockAchievement(userId, ach);
+                const unlocked = await this.unlockAchievement(userId, ach);
+                if (unlocked) newlyUnlocked.push(unlocked);
             }
         }
+        return newlyUnlocked;
     },
 
     async checkUniqueStops(userId: number) {
-        // Find all completed challenges for this user across all teams
-        // This acts as a proxy for "Visiting a Stop"
         const completedChallenges = await prisma.activeChallenge.findMany({
             where: {
                 completed: true,
@@ -200,7 +210,6 @@ export const achievementService = {
             }
         });
 
-        // Extract unique stop IDs (filter out null stopIds if any)
         const visitedStopIds = new Set(
             completedChallenges
                 .map(ac => ac.challenge.stopId)
@@ -208,14 +217,16 @@ export const achievementService = {
         );
 
         const count = visitedStopIds.size;
-
         const achievements = await prisma.achievement.findMany({ where: { criteria: 'STOP_VISIT' } });
+        const newlyUnlocked: any[] = [];
 
         for (const ach of achievements) {
             if (count >= ach.target) {
-                await this.unlockAchievement(userId, ach);
+                const unlocked = await this.unlockAchievement(userId, ach);
+                if (unlocked) newlyUnlocked.push(unlocked);
             }
         }
+        return newlyUnlocked;
     },
 
     async checkTeamSize(userId: number, activeTourId: number) {
@@ -233,16 +244,18 @@ export const achievementService = {
             }
         });
 
-        if (!team || !team.activeTour) return;
+        if (!team || !team.activeTour) return [];
 
         const participantCount = team.activeTour.teams.length;
-
         const achievements = await prisma.achievement.findMany({ where: { criteria: 'TEAM_SIZE' } });
+        const newlyUnlocked: any[] = [];
 
         for (const ach of achievements) {
             if (participantCount >= ach.target) {
-                await this.unlockAchievement(userId, ach);
+                const unlocked = await this.unlockAchievement(userId, ach);
+                if (unlocked) newlyUnlocked.push(unlocked);
             }
         }
+        return newlyUnlocked;
     }
 };

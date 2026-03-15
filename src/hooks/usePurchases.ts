@@ -110,19 +110,25 @@ export const usePurchases = () => {
 
         try {
             setIsPurchasing(true);
-            const { customerInfo } = await Purchases.purchasePackage(pack);
+            const { customerInfo, transaction } = await Purchases.purchasePackage(pack);
             setCustomerInfo(customerInfo);
             checkEntitlement(customerInfo);
 
             // 1. Immediate UI Feedback
             console.log("Purchase successful, verifying on backend...");
 
+            const transactionId = transaction.transactionIdentifier;
+
             // 2. Manual Verification (Immediate Token Award)
             try {
-                const result = await userService.verifyPurchase(user.id, user.id.toString());
+                const result = await userService.verifyPurchase(user.id, user.id.toString(), transactionId);
 
                 if (result.success && result.newTokens > 0) {
                     Alert.alert("Success", `You have purchased ${result.newTokens} tokens!`);
+                    await fetchUser(user.id);
+                } else if (result.success && result.processedTransactions > 0) {
+                    // This handles cases where tokens were awarded but newTokens might be 0 due to idempotency or quirks
+                    Alert.alert("Success", "Your purchase has been verified and tokens awarded.");
                     await fetchUser(user.id);
                 } else {
                     // This might happen if the webhook beat the manual verification

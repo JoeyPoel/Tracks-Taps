@@ -9,23 +9,30 @@ export function useLevelUpListener() {
     const { t } = useLanguage();
     const { showToast } = useToast();
 
-    // We need to track the previous level to detect changes
+    // Track both the current level and the current user ID
     const [currentLevel, setCurrentLevel] = useState<number>(1);
-
-    // Use a ref to store the level to avoid re-triggering on mount if we just want to track *changes*
+    const lastUserId = useRef<number | null>(null);
     const isFirstRun = useRef(true);
 
     useEffect(() => {
-        if (user === null || user === undefined) return;
+        if (!user?.id) {
+            // If user is logged out, reset state to defaults for the next user
+            isFirstRun.current = true;
+            lastUserId.current = null;
+            return;
+        }
 
         const newLevel = LevelSystem.getLevel(user.xp || 0);
 
-        if (isFirstRun.current) {
+        // CASE 1: New User ID detected (Login / Switch Account)
+        if (user.id !== lastUserId.current) {
             setCurrentLevel(newLevel);
+            lastUserId.current = user.id;
             isFirstRun.current = false;
             return;
         }
 
+        // CASE 2: Identical User, check for XP increases (Level Up)
         if (newLevel > currentLevel) {
             setCurrentLevel(newLevel);
             showToast({
@@ -35,8 +42,8 @@ export function useLevelUpListener() {
                 backgroundColor: '#FFD700' // Gold
             });
         } else if (newLevel < currentLevel) {
-            // Handle edge case where level might decrease (e.g. data sync issue)
+            // Sync level if it somehow decreases (data sync)
             setCurrentLevel(newLevel);
         }
-    }, [user?.xp, currentLevel, t, showToast]);
+    }, [user?.id, user?.xp, currentLevel, t, showToast]);
 }

@@ -43,9 +43,9 @@ export const userService = {
         return response.data;
     },
 
-    async verifyPurchase(userId: number, appUserId: string) {
+    async verifyPurchase(userId: number, appUserId: string, transactionId?: string) {
         // Updated to use the new route we created
-        const response = await client.post('/user/verify-purchase', { userId, appUserId });
+        const response = await client.post('/user/verify-purchase', { userId, appUserId, transactionId });
         return response.data;
     },
 

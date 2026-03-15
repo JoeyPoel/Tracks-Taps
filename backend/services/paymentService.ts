@@ -6,7 +6,7 @@ import { prisma } from '../../src/lib/prisma';
 const REVENUECAT_SECRET = process.env.REVENUECAT_SECRET_KEY;
 
 export const paymentService = {
-    async verifyPurchase(userId: number, appUserId: string, platform: 'ios' | 'android' = 'ios') {
+    async verifyPurchase(userId: number, appUserId: string, platform: 'ios' | 'android' = 'ios', transactionId?: string) {
         if (!REVENUECAT_SECRET) {
             console.warn("REVENUECAT_SECRET_KEY is not set. Skipping verification (dev mode).");
             throw new Error("Server configuration error: Missing RevenueCat Key");
@@ -26,24 +26,37 @@ export const paymentService = {
 
             const subscriber = response.data.subscriber;
 
-            // 2. Look for non-subscription transactions (Consumables)
+            // 2. Determine which transactions to process
             const nonSubscriptions = subscriber.non_subscriptions || {};
-
             let totalNewTokens = 0;
             const newTransactions: { txId: string; amount: number }[] = [];
 
-            // Iterate over all products
-            for (const [productId, transactions] of Object.entries(nonSubscriptions)) {
-                const txs = transactions as any[];
-                for (const tx of txs) {
-                    const safeTxId = tx.store_transaction_id || tx.id;
-
-                    const result = await this.processPurchaseTransaction(userId, productId, safeTxId);
-                    if (result.isNew) {
-                        totalNewTokens += result.amount;
-                        newTransactions.push({ txId: safeTxId, amount: result.amount });
+            if (transactionId) {
+                // Strictly process only the specific transaction provided
+                console.log(`[paymentService] Verifying specific transaction: ${transactionId}`);
+                
+                let found = false;
+                for (const [productId, transactions] of Object.entries(nonSubscriptions)) {
+                    const txs = transactions as any[];
+                    const match = txs.find(tx => (tx.store_transaction_id || tx.id) === transactionId);
+                    
+                    if (match) {
+                        found = true;
+                        const result = await this.processPurchaseTransaction(userId, productId, transactionId);
+                        if (result.isNew) {
+                            totalNewTokens += result.amount;
+                            newTransactions.push({ txId: transactionId, amount: result.amount });
+                        }
+                        break;
                     }
                 }
+
+                if (!found) {
+                    console.warn(`[paymentService] Transaction ${transactionId} not found in RevenueCat history for ${appUserId}`);
+                    // We return success: true but 0 tokens if not found yet (race condition with RC/Webhook)
+                }
+            } else {
+                console.warn(`[paymentService] verifyPurchase called without transactionId for user ${userId}. Skipping token grant.`);
             }
 
             return {

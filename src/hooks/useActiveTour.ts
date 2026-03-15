@@ -4,6 +4,7 @@ import { AppState, AppStateStatus } from 'react-native';
 import { activeTourService } from '../services/activeTourService';
 import { syncService } from '../services/syncService';
 import { useStore } from '../store/store';
+import { useToast } from '../context/ToastContext';
 import { ActiveChallenge, PubGolfStop, Stop, Team } from '../types/models';
 import { offlineStorage } from '../utils/offlineStorage';
 import { getScoreDetails } from '../utils/pubGolfUtils';
@@ -131,6 +132,8 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     const [showConfetti, setShowConfetti] = useState(false);
     const [triviaSelected, setTriviaSelected] = useState<{ [key: number]: number }>({});
 
+    const { showAchievement } = useToast();
+
     useEffect(() => {
         setShowConfetti(false);
     }, [activeTourId]);
@@ -182,6 +185,11 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
                         if (onXpEarned) onXpEarned(diff);
                     }, 1000);
                 }
+            }
+
+            // Trigger Achievement Toasts
+            if (updatedProgress?.newAchievements && Array.isArray(updatedProgress.newAchievements)) {
+                updatedProgress.newAchievements.forEach((ach: any) => showAchievement(ach));
             }
 
             // Sync any newly awarded bingo lines by updating the local store with response payload
@@ -325,7 +333,12 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
 
         if (userId) {
             try {
-                await activeTourService.updatePubGolfScore(activeTourId, stopId, sips, userId);
+                const response = await activeTourService.updatePubGolfScore(activeTourId, stopId, sips, userId);
+                
+                // Trigger Achievement Toasts
+                if (response?.newAchievements && Array.isArray(response.newAchievements)) {
+                    response.newAchievements.forEach((ach: any) => showAchievement(ach));
+                }
             } catch (error) {
                 console.warn("[Offline] Failed to save sips, queuing action:", error);
                 await offlineStorage.addAction({

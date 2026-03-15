@@ -95,8 +95,8 @@ export const ToastComponent: React.FC<ToastProps> = ({
         <GestureHandlerRootView style={[styles.rootContainer, { top: insets.top + 10 }]} pointerEvents="box-none">
             <GestureDetector gesture={pan}>
                 <Animated.View
-                    entering={FadeInUp.springify().damping(16).stiffness(150)}
-                    exiting={FadeOutUp.duration(300)}
+                    entering={FadeInUp.duration(600).easing(Easing.out(Easing.back(0.8)))}
+                    exiting={FadeOutUp.duration(400).easing(Easing.in(Easing.exp))}
                     style={[styles.wrapper, animatedStyle]}
                 >
                     <View style={[styles.shadowContainer, { shadowColor: theme.shadowColor }]}>
@@ -112,11 +112,13 @@ export const ToastComponent: React.FC<ToastProps> = ({
                             {/* Icon / Emoji Section */}
                             <View style={[styles.iconContainer, { backgroundColor: `${accentColor}15` }]}>
                                 {emoji.startsWith('http') ? (
-                                    <Image
-                                        source={{ uri: emoji }}
-                                        style={styles.iconImage}
-                                        contentFit="contain"
-                                    />
+                                    <View style={styles.iconImageWrapper}>
+                                        <Image
+                                            source={{ uri: emoji }}
+                                            style={styles.iconImage}
+                                            contentFit="contain"
+                                        />
+                                    </View>
                                 ) : (
                                     <Text style={styles.emoji}>{emoji}</Text>
                                 )}
@@ -125,16 +127,16 @@ export const ToastComponent: React.FC<ToastProps> = ({
                             {/* Text Content */}
                             <View style={styles.contentContainer}>
                                 <Text style={[styles.title, { color: theme.textPrimary }]} numberOfLines={1}>{title}</Text>
-                                {message && (
+                                {message ? (
                                     <Text style={[styles.message, { color: theme.textSecondary }]} numberOfLines={2}>
                                         {message}
                                     </Text>
-                                )}
+                                ) : null}
                             </View>
 
                             {/* Close Button */}
-                            <TouchableOpacity onPress={onHide} hitSlop={10} style={styles.closeButton}>
-                                <XMarkIcon size={18} color={theme.textTertiary} />
+                            <TouchableOpacity onPress={onHide} hitSlop={15} style={styles.closeButton}>
+                                <XMarkIcon size={20} color={theme.textTertiary} />
                             </TouchableOpacity>
 
                             {/* Progress Bar */}
@@ -185,9 +187,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginRight: 12,
     },
-    iconImage: {
+    iconImageWrapper: {
         width: 32,
         height: 32,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    iconImage: {
+        width: '100%',
+        height: '100%',
     },
     emoji: {
         fontSize: 22,

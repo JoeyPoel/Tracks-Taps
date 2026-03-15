@@ -5,15 +5,15 @@ import { paymentService } from '@/backend/services/paymentService'; // Access ba
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { userId, appUserId } = body;
+        const { userId, appUserId, transactionId } = body;
 
         if (!userId || !appUserId) {
             return Response.json({ error: "Missing userId or appUserId" }, { status: 400 });
         }
 
-        console.log(`Verifying purchase for User:${userId} AppUser:${appUserId}`);
+        console.log(`Verifying purchase for User:${userId} AppUser:${appUserId} Tx:${transactionId || 'Historical'}`);
 
-        const result = await paymentService.verifyPurchase(Number(userId), appUserId);
+        const result = await paymentService.verifyPurchase(Number(userId), appUserId, 'ios', transactionId);
         return Response.json(result);
     } catch (error: any) {
         // console.error("Verification endpoint error:", error);
