@@ -28,12 +28,14 @@ interface TourReviewsProps {
     reviews: Review[];
     averageRating: number;
     totalReviews: number;
+    sortBy: 'newest' | 'oldest' | 'highest' | 'lowest';
+    onSortChange: (sort: 'newest' | 'oldest' | 'highest' | 'lowest') => void;
     onWriteReview?: () => void;
 }
 
 import { ImageLightbox } from '../common/ImageLightbox';
 
-export default function TourReviews({ reviews, averageRating, totalReviews, onWriteReview }: TourReviewsProps) {
+export default function TourReviews({ reviews, averageRating, totalReviews, sortBy, onSortChange, onWriteReview }: TourReviewsProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const router = useRouter();
@@ -44,8 +46,7 @@ export default function TourReviews({ reviews, averageRating, totalReviews, onWr
     const [lightboxIndex, setLightboxIndex] = useState(0);
     const [lightboxVisible, setLightboxVisible] = useState(false);
 
-    // sorting and pagination
-    const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'highest' | 'lowest'>('newest');
+    // pagination (sorting is now lifted)
     const [visibleCount, setVisibleCount] = useState(5);
 
     const toggleExpanded = () => {
@@ -58,24 +59,9 @@ export default function TourReviews({ reviews, averageRating, totalReviews, onWr
         setLightboxIndex(index);
         setLightboxVisible(true);
     };
-    // ... sortedReviews memo and other helpers same ...
-    const sortedReviews = React.useMemo(() => {
-        const sorted = [...reviews];
-        switch (sortBy) {
-            case 'newest':
-                return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-            case 'oldest':
-                return sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-            case 'highest':
-                return sorted.sort((a, b) => b.rating - a.rating);
-            case 'lowest':
-                return sorted.sort((a, b) => a.rating - b.rating);
-            default:
-                return sorted;
-        }
-    }, [reviews, sortBy]);
-
-    const visibleReviews = sortedReviews.slice(0, visibleCount);
+    
+    // Reviews are now pre-sorted by the backend/hook
+    const visibleReviews = reviews.slice(0, visibleCount);
 
     const handleShowMore = () => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -91,7 +77,7 @@ export default function TourReviews({ reviews, averageRating, totalReviews, onWr
         <TouchableOpacity
             onPress={() => {
                 LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-                setSortBy(value);
+                onSortChange(value);
                 setVisibleCount(5); // Reset pagination on sort change
             }}
             style={[
@@ -239,14 +225,14 @@ export default function TourReviews({ reviews, averageRating, totalReviews, onWr
                     ))}
 
                     {/* Pagination Controls */}
-                    {sortedReviews.length > visibleCount && (
+                    {reviews.length > visibleCount && (
                         <TouchableOpacity onPress={handleShowMore} style={styles.showMoreButton}>
                             <TextComponent style={styles.showMoreText} color={theme.primary} bold variant="label">{t('showMore')}</TextComponent>
                             <Ionicons name="chevron-down" size={16} color={theme.primary} />
                         </TouchableOpacity>
                     )}
 
-                    {visibleCount > 5 && sortedReviews.length > 5 && (
+                    {visibleCount > 5 && reviews.length > 5 && (
                         <TouchableOpacity onPress={handleShowLess} style={[styles.showMoreButton, { marginTop: 4 }]}>
                             <TextComponent style={styles.showMoreText} color={theme.textSecondary} size={13} variant="label">{t('showLess')}</TextComponent>
                         </TouchableOpacity>

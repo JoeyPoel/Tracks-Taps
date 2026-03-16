@@ -45,8 +45,8 @@ export const ToastComponent: React.FC<ToastProps> = ({
 
     // Initial Haptic + Timer
     useEffect(() => {
-        if (visible) {
-            // Haptic Feedback
+        if (visible && title) { // Ensure toast has content
+            // Haptic Feedback - Only on first mount of THIS toast ID
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
             // Reset animations
@@ -58,7 +58,7 @@ export const ToastComponent: React.FC<ToastProps> = ({
                 if (finished) runOnJS(onHide)();
             });
         }
-    }, [visible, duration, onHide]);
+    }, [visible, duration, onHide, title]); // title/id dependency prevents re-run if queue shifts
 
     // Pan Gesture (Swipe up to dismiss)
     const pan = Gesture.Pan()

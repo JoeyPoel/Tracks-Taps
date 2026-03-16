@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 import { useUserContext } from '../context/UserContext';
 import { feedbackService } from '../services/feedbackService';
 import { tourService } from '../services/tourService';
@@ -11,6 +12,7 @@ import { Team } from '../types/models';
 export const useTourCompleted = (activeTourId: number) => {
     const router = useRouter();
     const { t } = useLanguage();
+    const { showToast } = useToast();
     const { user } = useUserContext();
     const {
         activeTour,
@@ -111,9 +113,12 @@ export const useTourCompleted = (activeTourId: number) => {
             await fetchTourDetails(activeTour.tourId, undefined, true);
 
             setShowReviewForm(false);
-
-            // Cleanup and Navigate
-            await cleanupAndExit();
+            
+            showToast({
+                title: t('success'),
+                message: t('reviewSubmitted') || 'Review submitted successfully!',
+                emoji: '✨'
+            });
 
         } catch (error: any) {
             console.error('Error submitting review:', error);

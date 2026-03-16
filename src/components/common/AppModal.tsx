@@ -18,6 +18,7 @@ interface AppModalProps {
     height?: number | string;
     modalStyle?: any;
     alignment?: 'bottom' | 'center';
+    overlay?: React.ReactNode;
 }
 
 export function AppModal({
@@ -30,7 +31,8 @@ export function AppModal({
     headerRight,
     height,
     modalStyle,
-    alignment = 'bottom'
+    alignment = 'bottom',
+    overlay
 }: AppModalProps) {
     const { theme } = useTheme();
     const insets = useSafeAreaInsets();
@@ -113,6 +115,7 @@ export function AppModal({
                         </View>
                     </Animated.View>
                 </View>
+                {overlay}
             </View>
         </Modal>
     );

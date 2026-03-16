@@ -14,7 +14,7 @@ interface FriendCardProps {
     onPress?: () => void;
 }
 
-export function FriendCard({ friend, onPress }: FriendCardProps) {
+const FriendCardComponent = ({ friend, onPress }: FriendCardProps) => {
     const { theme } = useTheme();
     const router = useRouter();
     const { t } = useLanguage();
@@ -32,6 +32,8 @@ export function FriendCard({ friend, onPress }: FriendCardProps) {
                     style={[styles.avatar, { backgroundColor: theme.bgSecondary }]}
                     contentFit="cover"
                     cachePolicy="disk"
+                    transition={200}
+                    placeholder={require('../../../assets/images/profilePictureFallback.png')}
                 />
 
                 <View style={styles.content}>
@@ -53,6 +55,8 @@ export function FriendCard({ friend, onPress }: FriendCardProps) {
         </GenericCard>
     );
 }
+
+export const FriendCard = React.memo(FriendCardComponent);
 
 const styles = StyleSheet.create({
     container: {

@@ -45,6 +45,9 @@ The JSON contains two completely separate arrays for challenges. Do NOT duplicat
 - **City**: The city name should be in the format "City, Province / State" (e.g., "Amsterdam, North Holland").
 - **Genre**: The genre should match one of: 'Adventure', 'History', 'Nature', 'Nightlife', 'Culture', 'Foodie', 'Romance', 'Art', 'Photography', 'Mystery'.
 - **Modes**: Always include "WALKING". If Bingo is enabled, include "BINGO" in the `modes` array, if pubgolf is enabled, include "PUBGOLF" in the `modes` array, if driving is necessary, include "DRIVING" in the `modes` array, if public transport is necessary, include "PUBLIC_TRANSPORT" in the `modes` array. if biking is necessary, include "BIKING" in the `modes` array.
+- **Difficulty**: The difficulty should match one of: 'EASY', 'MEDIUM', 'HARD'.
+- **Points per stop**: Points should always be 50 to 200.
+- **Total amount of points**: Total amount of points should alsways be all challenge points added up + 200 for every pubgolf stop.
 
 # MASTER JSON TEMPLATE
 ```json

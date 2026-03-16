@@ -1,8 +1,9 @@
 import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
-import { uploadOptimizedImage } from '../utils/imageUtils';
+import { saveImageToGallery, uploadOptimizedImage } from '../utils/imageUtils';
 
 interface UseImageUploaderProps {
     initialImage?: string;
@@ -42,7 +43,7 @@ export const useImageUploader = ({
                 mediaTypes: ['images'],
                 allowsEditing: true,
                 aspect: isAvatar ? [1, 1] : [16, 9],
-                quality: 1,
+                quality: 0.8,
             });
 
             if (!result.canceled && result.assets[0].uri) {
@@ -56,8 +57,13 @@ export const useImageUploader = ({
 
     const takePhoto = async () => {
         try {
-            const { status } = await ImagePicker.requestCameraPermissionsAsync();
-            if (status !== 'granted') {
+            // Pre-request both camera and gallery permissions for instant saving
+            const [cameraPerm, galleryPerm] = await Promise.all([
+                ImagePicker.requestCameraPermissionsAsync(),
+                MediaLibrary.requestPermissionsAsync(),
+            ]);
+
+            if (cameraPerm.status !== 'granted') {
                 Alert.alert(t('permissionNeeded'), t('cameraPermissionMsg'));
                 return;
             }
@@ -66,11 +72,14 @@ export const useImageUploader = ({
                 mediaTypes: ['images'],
                 allowsEditing: true,
                 aspect: isAvatar ? [1, 1] : [16, 9],
-                quality: 1,
+                quality: 0.8,
             });
 
             if (!result.canceled && result.assets[0].uri) {
-                handleUpload(result.assets[0].uri);
+                const uri = result.assets[0].uri;
+                // Instant save - permission already requested
+                saveImageToGallery(uri);
+                handleUpload(uri);
             }
         } catch (error) {
             console.error('Error taking photo:', error);

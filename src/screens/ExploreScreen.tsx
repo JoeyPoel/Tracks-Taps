@@ -191,10 +191,10 @@ export default function ExploreScreen() {
             // Render Row
             return (
               <View style={styles.gridRow}>
-                <View style={{ flex: 1, paddingRight: 6 }}>
+                <View style={{ flex: 1, paddingRight: 4 }}>
                   {renderTourItem(item.left, true)}
                 </View>
-                <View style={{ flex: 1, paddingLeft: 6 }}>
+                <View style={{ flex: 1, paddingLeft: 4 }}>
                   {item.right ? renderTourItem(item.right, true) : <View style={{ flex: 1 }} />}
                 </View>
               </View>
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   emptyContainer: {
     paddingTop: 60,

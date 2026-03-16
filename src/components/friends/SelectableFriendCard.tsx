@@ -14,7 +14,7 @@ interface SelectableFriendCardProps {
     onToggle: (id: number) => void;
 }
 
-export function SelectableFriendCard({ friend, isSelected, onToggle }: SelectableFriendCardProps) {
+const SelectableFriendCardComponent = ({ friend, isSelected, onToggle }: SelectableFriendCardProps) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
@@ -38,6 +38,8 @@ export function SelectableFriendCard({ friend, isSelected, onToggle }: Selectabl
                     style={styles.avatar}
                     contentFit="cover"
                     cachePolicy="disk"
+                    transition={200}
+                    placeholder={require('../../../assets/images/profilePictureFallback.png')}
                 />
                 <View style={{ flex: 1 }}>
                     <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">
@@ -58,6 +60,8 @@ export function SelectableFriendCard({ friend, isSelected, onToggle }: Selectabl
         </GenericCard>
     );
 }
+
+export const SelectableFriendCard = React.memo(SelectableFriendCardComponent);
 
 const styles = StyleSheet.create({
     itemCard: {

@@ -54,13 +54,18 @@ export default function TourCard({
   const isMap = variant === 'map';
 
   // Map cards are shorter, Grid cards even shorter
-  const cardHeight = isMap ? 220 : (isGrid ? 240 : 320);
+  const cardHeight = isMap ? 220 : (isGrid ? 180 : 320);
 
   return (
     <TourCardBase imageUrl={imageUrl} height={cardHeight} onPress={onPress}>
       {/* Top Section */}
       <View style={styles.topRow}>
-        {!isGrid && (
+        {isGrid ? (
+          <View style={[styles.ratingBadge, styles.blurBadge, { backgroundColor: 'rgba(255, 215, 0, 0.25)', borderColor: 'rgba(255, 215, 0, 0.4)' }]}>
+            <BoltIconSolid size={10} color={theme.gold} />
+            <TextComponent style={[styles.ratingText, { color: theme.gold, fontSize: 11 }]} bold>{points}</TextComponent>
+          </View>
+        ) : (
           <View style={styles.badgesContainer}>
             {genre && (
               <View style={[styles.badge, styles.blurBadge]}>
@@ -121,38 +126,42 @@ export default function TourCard({
         <View style={[styles.statsRow, isGrid && styles.gridStatsRow]}>
           {!isGrid ? (
             <View style={styles.statGroup}>
-              {location && (
-                <View style={styles.statItem}>
-                  <Ionicons name="location-sharp" size={12} color="#E0E0E0" />
-                  <TextComponent style={styles.statText} variant="caption" bold numberOfLines={1}>{distance}</TextComponent>
-                </View>
-              )}
-              {location && <View style={styles.dotSeparator} />}
               <View style={styles.statItem}>
-                <MapIcon size={14} color="#E0E0E0" />
-                <TextComponent style={styles.statText} variant="caption" bold>{location}</TextComponent>
+                <Ionicons name="location-sharp" size={12} color="#E0E0E0" />
+                <TextComponent style={styles.statText} variant="caption" bold numberOfLines={1}>{distance}</TextComponent>
               </View>
+              {location && (
+                <>
+                  <View style={styles.dotSeparator} />
+                  <View style={styles.statItem}>
+                    <MapIcon size={14} color="#E0E0E0" />
+                    <TextComponent style={styles.statText} variant="caption" bold>{location}</TextComponent>
+                  </View>
+                </>
+              )}
             </View>
           ) : (
             <View style={styles.gridStatGroup}>
+              <TextComponent style={styles.miniStatText} variant="caption" numberOfLines={1}>{distance}</TextComponent>
               {location && (
                 <>
-                  <TextComponent style={styles.miniStatText} variant="caption" numberOfLines={1}>{distance}</TextComponent>
                   <TextComponent style={styles.miniStatText} variant="caption">•</TextComponent>
+                  <TextComponent style={styles.miniStatText} variant="caption">{location}</TextComponent>
                 </>
               )}
-              <TextComponent style={styles.miniStatText} variant="caption">{location}</TextComponent>
             </View>
           )}
         </View>
 
         {/* Absolute Points Indicator */}
-        <View style={[styles.pointsContainer, isGrid && styles.gridPointsContainer]}>
-          <BoltIconSolid size={isGrid ? 10 : 16} color={theme.gold} />
-          <TextComponent style={[styles.pointsText, { color: theme.gold, fontSize: isGrid ? 11 : 14 }]} bold>
-            {points}
-          </TextComponent>
-        </View>
+        {!isGrid && (
+          <View style={styles.pointsContainer}>
+            <BoltIconSolid size={16} color={theme.gold} />
+            <TextComponent style={[styles.pointsText, { color: theme.gold, fontSize: 14 }]} bold>
+              {points}
+            </TextComponent>
+          </View>
+        )}
       </View>
     </TourCardBase>
   );
@@ -211,8 +220,8 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
   gridTitle: {
-    fontSize: 18, // Fallback/Basic
-    lineHeight: 22,
+    fontSize: 16,
+    lineHeight: 20,
   },
   author: {
     // handled by component
@@ -278,14 +287,5 @@ const styles = StyleSheet.create({
     gap: 3,
     flex: 1, // Allow stats to take space
     flexWrap: 'wrap',
-  },
-  gridPointsContainer: {
-    position: 'absolute',
-    right: 0,
-    bottom: -8,
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255, 215, 0, 0.2)',
   },
 });

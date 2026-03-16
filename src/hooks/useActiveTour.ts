@@ -127,8 +127,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     }, [currentTeam]);
 
     // Local UI State (Visuals only)
-    const [showFloatingPoints, setShowFloatingPoints] = useState(false);
-    const [floatingPointsAmount, setFloatingPointsAmount] = useState(0);
+    const [floatingPointsQueue, setFloatingPointsQueue] = useState<{ id: string, amount: number, label?: string }[]>([]);
     const [showConfetti, setShowConfetti] = useState(false);
     const [triviaSelected, setTriviaSelected] = useState<{ [key: number]: number }>({});
 
@@ -138,9 +137,13 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         setShowConfetti(false);
     }, [activeTourId]);
 
-    const triggerFloatingPoints = (amount: number) => {
-        setFloatingPointsAmount(amount);
-        setShowFloatingPoints(true);
+    const triggerFloatingPoints = (amount: number, label?: string) => {
+        const id = Math.random().toString(36).substring(7);
+        setFloatingPointsQueue(prev => [...prev, { id, amount, label }]);
+    };
+
+    const removeFloatingPoint = (id: string) => {
+        setFloatingPointsQueue(prev => prev.filter(p => p.id !== id));
     };
 
     const handleChallengeComplete = async (challenge: any) => {
@@ -181,7 +184,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
                 const diff = (backendTeam.score || 0) - updatedTeam.score;
                 if (diff > 0) {
                     setTimeout(() => {
-                        triggerFloatingPoints(diff); // Show the bonus points animation!
+                        triggerFloatingPoints(diff, 'BINGO!'); // Show the bonus points animation!
                         if (onXpEarned) onXpEarned(diff);
                     }, 1000);
                 }
@@ -315,8 +318,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
             if (diff !== 0 && onXpEarned) {
                 onXpEarned(diff);
                 if (diff > 0) {
-                    setFloatingPointsAmount(diff);
-                    setShowFloatingPoints(true);
+                    triggerFloatingPoints(diff);
                 }
             }
         }
@@ -393,9 +395,8 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         failedChallenges,
         triviaSelected,
         setTriviaSelected,
-        showFloatingPoints,
-        floatingPointsAmount,
-        setShowFloatingPoints,
+        floatingPointsQueue,
+        removeFloatingPoint,
         showConfetti,
         handleSubmitTrivia,
         handleChallengeComplete,
@@ -408,7 +409,6 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         points,
         updateActiveTourLocal,
         currentTeam,
-        setFloatingPointsAmount,
         handleSaveSips
     };
 

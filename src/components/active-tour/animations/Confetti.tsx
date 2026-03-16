@@ -9,7 +9,7 @@ const COLORS = [
   '#FFC107', '#2196F3', '#E91E63', '#4CAF50', '#9C27B0', '#F44336', '#00BCD4'
 ];
 
-const NUM_CONFETTI = 80;
+const NUM_CONFETTI = 250;
 
 const ConfettiPiece = () => {
   const appWidth = useAppWidth();
@@ -22,14 +22,14 @@ const ConfettiPiece = () => {
 
   // 2. Randomize Properties
   const [props] = useState(() => {
-    const duration = 4000 + Math.random() * 3000;
+    const duration = 5000 + Math.random() * 3000;
 
     return {
       left: Math.random() * appWidth,
       backgroundColor: COLORS[Math.floor(Math.random() * COLORS.length)],
       size: 8 + Math.random() * 6,
       duration: duration,
-      delay: Math.random() * 2000,
+      delay: Math.random() * 18000,
       rotateOutput: Math.random() > 0.5 ? '360deg' : '-360deg',
     };
   });

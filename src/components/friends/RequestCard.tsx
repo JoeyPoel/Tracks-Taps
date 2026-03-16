@@ -14,7 +14,7 @@ interface RequestCardProps {
     onDecline: (id: number) => void;
 }
 
-export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) {
+const RequestCardComponent = ({ request, onAccept, onDecline }: RequestCardProps) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
@@ -26,6 +26,8 @@ export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) 
                     style={styles.avatar}
                     contentFit="cover"
                     cachePolicy="disk"
+                    transition={200}
+                    placeholder={require('../../../assets/images/profilePictureFallback.png')}
                 />
                 <View style={styles.textContainer}>
                     <View style={styles.headerRow}>
@@ -62,6 +64,8 @@ export function RequestCard({ request, onAccept, onDecline }: RequestCardProps) 
         </GenericCard>
     );
 }
+
+export const RequestCard = React.memo(RequestCardComponent);
 
 // Fixed styling (using View instead of div, assuming React Native)
 const styles = StyleSheet.create({

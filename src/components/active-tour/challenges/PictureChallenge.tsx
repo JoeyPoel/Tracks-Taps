@@ -1,9 +1,10 @@
-import { uploadOptimizedImage } from '@/src/utils/imageUtils';
+import { saveImageToGallery, uploadOptimizedImage } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
 import ActiveChallengeCard from '../ActiveChallengeCard';
@@ -28,13 +29,18 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
     const { theme } = useTheme();
     const { t } = useLanguage();
     const isDone = isCompleted || isFailed;
-    const [uploading, setUploading] = useState(false);
     const [imageUri, setImageUri] = useState<string | null>(null);
 
     const handlePress = async (): Promise<void> => {
         try {
-            const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-            if (!permissionResult.granted) {
+            // Request camera + gallery permissions together before opening camera
+            // so that saveToLibraryAsync can fire instantly after capture
+            const [cameraPermission, galleryPermission] = await Promise.all([
+                ImagePicker.requestCameraPermissionsAsync(),
+                MediaLibrary.requestPermissionsAsync(),
+            ]);
+
+            if (!cameraPermission.granted) {
                 Alert.alert(t('permissionNeeded'), t('cameraPermissionMsg') || "Camera access is needed to complete this challenge.");
                 return;
             }
@@ -43,24 +49,24 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
                 mediaTypes: ['images'],
                 allowsEditing: true,
                 aspect: [4, 3],
-                quality: 0.5, // Compression as requested
+                quality: 0.8,
             });
 
             if (!result.canceled && result.assets && result.assets.length > 0) {
                 const capturedImage = result.assets[0];
-                setImageUri(capturedImage.uri);
-                setUploading(true);
 
-                try {
-                    const publicUrl = await uploadOptimizedImage(capturedImage.uri, 'images', 'challenge-entries');
-                    onComplete({ ...challenge, imageUrl: publicUrl });
-                } catch (uploadError) {
-                    console.error("Upload failed", uploadError);
-                    Alert.alert("Upload Failed", "Could not upload your picture. Please try again.");
-                    setImageUri(null);
-                } finally {
-                    setUploading(false);
-                }
+                // Save to gallery instantly — permission already granted above
+                saveImageToGallery(capturedImage.uri);
+
+                // Optimistic completion: mark challenge done immediately
+                setImageUri(capturedImage.uri);
+                onComplete({ ...challenge, imageUrl: capturedImage.uri });
+
+                // Upload in background — no need to block the user
+                uploadOptimizedImage(capturedImage.uri, 'images', 'challenge-entries')
+                    .catch((uploadError) => {
+                        console.warn('[PictureChallenge] Background upload failed:', uploadError);
+                    });
             }
         } catch (error) {
             console.error("Camera error", error);
@@ -76,8 +82,8 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
             isCompleted={isCompleted}
             isFailed={isFailed}
             onPress={handlePress}
-            actionLabel={uploading ? t('uploading') : t('takePhoto')}
-            disabled={isDone || uploading}
+            actionLabel={t('takePhoto')}
+            disabled={isDone}
             index={index}
             isBonus={isBonus}
         >
@@ -85,14 +91,7 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
                 {challenge.content}
             </Text>
             <View style={styles.content}>
-                {uploading && (
-                    <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="small" color={theme.primary} />
-                        <Text style={{ color: theme.textSecondary, marginTop: 8 }}>{t('compressingAndUploading')}</Text>
-                    </View>
-                )}
-
-                {(imageUri || isCompleted) && !uploading && (
+                {(imageUri || isCompleted) && (
                     <View style={styles.placeholderImage}>
                         {imageUri ? (
                             <Image
@@ -110,6 +109,7 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
                     </View>
                 )}
             </View>
+
         </ActiveChallengeCard>
     );
 };

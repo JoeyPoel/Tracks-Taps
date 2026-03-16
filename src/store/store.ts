@@ -26,7 +26,7 @@ interface StoreState {
     errorTours: string | null;
     fetchTours: () => Promise<void>;
     fetchAllData: (userId: number) => Promise<void>;
-    fetchTourDetails: (id: number, placeholder?: Tour, force?: boolean) => Promise<void>;
+    fetchTourDetails: (id: number, placeholder?: Tour, force?: boolean, params?: { reviewsSortBy?: string }) => Promise<void>;
     fetchMapTours: (bounds?: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => Promise<void>;
 
     // Active Tours Slice
@@ -172,12 +172,13 @@ export const useStore = create<StoreState>()(
                 }
             },
 
-            fetchTourDetails: async (id: number, placeholder?: Tour, force?: boolean) => {
-                // Check cache first if not forced
-                if (!force && get().tourDetails[id]) return;
+            fetchTourDetails: async (id: number, placeholder?: Tour, force?: boolean, params?: { reviewsSortBy?: string }) => {
+                // Check cache first if not forced and no params (sorting)
+                const cached = get().tourDetails[id];
+                if (!force && cached && !params) return;
 
                 // If placeholder provided, set it immediately to allow instant navigation
-                if (placeholder) {
+                if (placeholder && !cached) {
                     const placeholderDetail: TourDetail = {
                         ...placeholder,
                         reviews: [],
@@ -188,15 +189,21 @@ export const useStore = create<StoreState>()(
                     set((state) => ({
                         tourDetails: { ...state.tourDetails, [id]: placeholderDetail }
                     }));
-                } else {
-                    // Only set loading if no placeholder (e.g. deep link)
+                } else if (!cached) {
+                    // Only set loading if no cached data (including placeholders)
                     set({ loadingTours: true, errorTours: null });
                 }
 
                 try {
-                    const tour = await tourService.getTourById(id);
+                    const tour = await tourService.getTourById(id, params);
+                    // Add freshness timestamp
+                    const fullDetail: TourDetail = {
+                        ...tour,
+                        lastFetched: Date.now()
+                    };
+                    
                     set((state) => ({
-                        tourDetails: { ...state.tourDetails, [id]: tour },
+                        tourDetails: { ...state.tourDetails, [id]: fullDetail },
                         loadingTours: false
                     }));
                 } catch (error: any) {

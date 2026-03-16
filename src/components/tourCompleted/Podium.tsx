@@ -223,6 +223,8 @@ const styles = StyleSheet.create({
     },
     emoji: {
         fontSize: 28,
+        lineHeight: 34,
+        textAlignVertical: 'center',
     },
     parSummaryBadge: {
         paddingHorizontal: 12,

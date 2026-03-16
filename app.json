@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tracks&Taps",
     "slug": "tracks-and-taps",
-    "version": "2.5.0",
+    "version": "2.5.1",
     "orientation": "portrait",
     "icon": "./assets/images/AppIconColouredDarkTheme.png",
     "scheme": "tracks-taps",
@@ -24,6 +24,7 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Tracks Taps uses your location to show your position on the map and verify location-based challenges.",
         "NSPhotoLibraryUsageDescription": "Tracks Taps needs access to your photo library to select images for tours and stops.",
+        "NSPhotoLibraryAddUsageDescription": "Tracks Taps saves your captured challenge photos to your photo library.",
         "NSCameraUsageDescription": "Tracks Taps needs access to your camera to take photos for challenges and tour images.",
         "ITSAppUsesNonExemptEncryption": false
       },
@@ -42,6 +43,13 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow Tracks & Taps to access your photos.",
+          "savePhotosPermission": "Allow Tracks & Taps to save photos to your gallery."
+        }
+      ],
       [
         "expo-splash-screen",
         {

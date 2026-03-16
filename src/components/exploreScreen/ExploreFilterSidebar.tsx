@@ -250,11 +250,6 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                                                     {t(genre.id.toLowerCase() as any)}
                                                 </Text>
                                             </View>
-                                            {isSelected && (
-                                                <View style={styles.checkIcon}>
-                                                    <StarIconSolid size={16} color="#FFF" />
-                                                </View>
-                                            )}
                                         </TouchableOpacity>
                                     );
                                 })}

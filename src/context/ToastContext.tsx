@@ -24,6 +24,7 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [queue, setQueue] = useState<ToastState[]>([]);
     const [visible, setVisible] = useState(false);
+    const [isTransitioning, setIsTransitioning] = useState(false);
 
     const activeToast = queue[0] || null;
 
@@ -42,18 +43,22 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }, [showToast]);
 
     const hideToast = useCallback(() => {
+        if (!visible || isTransitioning) return; // Prevent double trigger
+        
+        setIsTransitioning(true);
         setVisible(false);
         // Wait for exit animation then shift queue
         setTimeout(() => {
             setQueue(prev => prev.slice(1));
+            setIsTransitioning(false);
         }, 500); 
-    }, []);
+    }, [visible, isTransitioning]);
 
     React.useEffect(() => {
-        if (queue.length > 0 && !visible) {
+        if (queue.length > 0 && !visible && !isTransitioning) {
             setVisible(true);
         }
-    }, [queue, visible]);
+    }, [queue, visible, isTransitioning]);
 
     return (
         <ToastContext.Provider value={{ showToast, showAchievement, hideToast }}>

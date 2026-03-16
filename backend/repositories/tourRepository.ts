@@ -153,8 +153,13 @@ export const tourRepository = {
         return { data, meta };
     },
 
-    async getTourById(id: number) {
+    async getTourById(id: number, reviewsSortBy?: string) {
         // 1. Fetch Tour Data
+        let reviewOrder: any = { createdAt: 'desc' };
+        if (reviewsSortBy === 'highest_rating') reviewOrder = { rating: 'desc' };
+        else if (reviewsSortBy === 'lowest_rating') reviewOrder = { rating: 'asc' };
+        else if (reviewsSortBy === 'oldest') reviewOrder = { createdAt: 'asc' };
+
         const tour = await prisma.tour.findUnique({
             where: { id },
             select: {
@@ -227,7 +232,7 @@ export const tourRepository = {
                 },
                 reviews: {
                     take: 20, // Increased from 3 to show more reviews on detail screen
-                    orderBy: { createdAt: 'desc' },
+                    orderBy: reviewOrder,
                     select: {
                         id: true,
                         content: true,

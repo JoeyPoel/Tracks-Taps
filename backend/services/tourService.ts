@@ -9,8 +9,8 @@ export const tourService = {
         return await tourRepository.getAllTours(filters);
     },
 
-    async getTourById(id: number) {
-        return await tourRepository.getTourById(id);
+    async getTourById(id: number, reviewsSortBy?: string) {
+        return await tourRepository.getTourById(id, reviewsSortBy);
     },
 
     async createTour(data: Prisma.TourCreateInput) {

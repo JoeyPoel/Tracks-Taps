@@ -1,9 +1,10 @@
 import { useAppWidth } from '@/src/hooks/useAppWidth';
 import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
-import { Ionicons } from '@expo/vector-icons';
+import { XMarkIcon } from 'react-native-heroicons/outline';
 import { Image } from 'expo-image';
 import React from 'react';
-import { FlatList, Modal, Platform, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { FlatList, Modal, Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { AnimatedPressable } from './AnimatedPressable';
 
 interface ImageLightboxProps {
     visible: boolean;
@@ -29,12 +30,14 @@ export function ImageLightbox({ visible, images, initialIndex, onClose }: ImageL
             onRequestClose={onClose}
         >
             <View style={styles.modalContainer}>
-                <TouchableOpacity
+                <AnimatedPressable
                     style={styles.closeButton}
                     onPress={onClose}
+                    interactionScale="subtle"
+                    haptic="light"
                 >
-                    <Ionicons name="close" size={32} color="#FFF" />
-                </TouchableOpacity>
+                    <XMarkIcon size={28} color="#FFF" />
+                </AnimatedPressable>
 
                 {visible && (
                     <FlatList
@@ -88,11 +91,11 @@ const styles = StyleSheet.create({
     },
     closeButton: {
         position: 'absolute',
-        top: Platform.OS === 'ios' ? 50 : 30,
-        right: 20,
+        top: Platform.OS === 'ios' ? 60 : 30,
+        right: 24,
         zIndex: 10,
-        padding: 8,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        borderRadius: 20,
+        padding: 10,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        borderRadius: 30,
     },
 });

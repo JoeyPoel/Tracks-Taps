@@ -6,7 +6,15 @@ import { useAppWidth } from '@/src/hooks/useAppWidth';
 
 const { height } = Dimensions.get('window');
 
-const FloatingPoints = ({ pointAmount, onAnimationComplete }: { pointAmount: number, onAnimationComplete: () => void }) => {
+const FloatingPoints = ({ 
+  pointAmount, 
+  label,
+  onAnimationComplete 
+}: { 
+  pointAmount: number, 
+  label?: string,
+  onAnimationComplete: () => void 
+}) => {
   const { theme } = useTheme();
   const appWidth = useAppWidth();
 
@@ -14,17 +22,16 @@ const FloatingPoints = ({ pointAmount, onAnimationComplete }: { pointAmount: num
   const opacity = useRef(new Animated.Value(1)).current;
   const translateY = useRef(new Animated.Value(0)).current;
 
-  // 2. Generate Random Position (Only once on mount)
   const randomPosition = useRef({
     // X-Axis: Renders randomly between 20% and 80% of the screen width
-    // Formula: Math.random() * (span) + (start_offset)
     left: Math.random() * (appWidth * 0.6) + (appWidth * 0.2),
-
-    // Y-Axis: Renders randomly between 30% and 50% from the bottom (Middle-Lower)
+    // Y-Axis: Renders randomly between 30% and 50% from the bottom
     bottom: Math.random() * (height * 0.2) + (height * 0.3),
   }).current;
 
   useEffect(() => {
+    console.log(`[FloatingPoints] Mounted! Amount: ${pointAmount}, Label: ${label || 'none'}`);
+    
     // 3. Define the Animation
     Animated.parallel([
       // Move upwards
@@ -41,12 +48,13 @@ const FloatingPoints = ({ pointAmount, onAnimationComplete }: { pointAmount: num
         useNativeDriver: true,
       }),
     ]).start(() => {
+      console.log(`[FloatingPoints] Animation complete for ${pointAmount}`);
       // 4. Callback when animation finishes
       if (onAnimationComplete) {
         onAnimationComplete();
       }
     });
-  }, [pointAmount]);
+  }, [pointAmount, label]);
 
   return (
     <Animated.View
@@ -65,6 +73,11 @@ const FloatingPoints = ({ pointAmount, onAnimationComplete }: { pointAmount: num
       ]}
       pointerEvents="none"
     >
+      {label && (
+        <Text style={[styles.labelText, { color: theme.accent, textShadowColor: theme.shadowColor }]}>
+          {label}
+        </Text>
+      )}
       <Text style={[styles.text, { textShadowColor: theme.shadowColor }]}>+{pointAmount}</Text>
     </Animated.View>
   );
@@ -73,8 +86,8 @@ const FloatingPoints = ({ pointAmount, onAnimationComplete }: { pointAmount: num
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    zIndex: 100000,
-    elevation: 100000,
+    width: 120, // Match text width for centering
+    zIndex: 999999, // High z-index just in case
   },
   text: {
     color: '#FFD700',
@@ -85,6 +98,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: 120, // Fixed width helps the centering logic work consistently
   },
+  labelText: {
+    fontSize: 24,
+    fontWeight: '900',
+    textAlign: 'center',
+    marginBottom: -4,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 8,
+  }
 });
 
 export default FloatingPoints;

@@ -14,10 +14,29 @@
  * @param width The desired width in pixels (default 600 for mobile listing)
  * @returns The optimized URL
  */
-import { decode } from 'base64-arraybuffer';
-import * as FileSystem from 'expo-file-system/legacy';
+import * as MediaLibrary from 'expo-media-library';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { supabase } from '../../utils/supabase';
+
+/**
+ * Saves an image URI to the device's photo gallery
+ * @param uri The local URI of the image to save
+ */
+export async function saveImageToGallery(uri: string): Promise<void> {
+    try {
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+        const canSave = (status as string) === 'granted' || (status as string) === 'limited';
+        if (canSave) {
+            // createAssetAsync is more robust for system gallery than saveToLibraryAsync
+            await MediaLibrary.createAssetAsync(uri);
+            console.log('[Image Utils] Photo saved to gallery ✅');
+        } else {
+            console.warn(`[Image Utils] Gallery permission "${status}" — cannot save.`);
+        }
+    } catch (error) {
+        console.error('[Image Utils] Failed to save to gallery:', error);
+    }
+}
 
 /**
  * Uploads an image to Supabase Storage with strict client-side optimization.
@@ -51,26 +70,25 @@ export const uploadOptimizedImage = async (
 
         const newUri = manipulatedImage.uri;
 
-        // 2. Read as Base64 for upload
-        const base64 = await FileSystem.readAsStringAsync(newUri, {
-            encoding: 'base64',
-        });
+        // 2. Convert to Blob directly (Much faster than Base64)
+        const response = await fetch(newUri);
+        const blob = await response.blob();
 
         // 3. Generate unique path
         const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
 
-        console.log(`[Upload Service] Starting upload to bucket "${bucket}", path: "${fileName}"`);
-        console.log(`[Upload Service] Base64 length: ${base64.length}`);
+        console.log(`[Upload Service] Starting binary upload to bucket "${bucket}", path: "${fileName}"`);
+        console.log(`[Upload Service] Blob size: ${blob.size} bytes`);
 
         // Check environment
         if (!supabase.storage.from(bucket)) {
             throw new Error(`Bucket "${bucket}" client not initialized or not found.`);
         }
 
-        // 4. Upload to Supabase
+        // 4. Upload to Supabase (Passing Blob directly)
         const { error } = await supabase.storage
             .from(bucket)
-            .upload(fileName, decode(base64), {
+            .upload(fileName, blob, {
                 contentType: 'image/jpeg',
                 cacheControl: '3600',
                 upsert: false,
@@ -78,10 +96,6 @@ export const uploadOptimizedImage = async (
 
         if (error) {
             console.error(`[Upload Service] Supabase error for bucket "${bucket}":`, error);
-            // More detailed error logging
-            if (error.message.includes('row violates row-level security policy')) {
-                console.error('[Upload Service] RLS POLICY ERROR: Check storage.objects and storage.buckets policies.');
-            }
             throw new Error(`Upload failed: ${error.message}`);
         }
 

@@ -1,11 +1,11 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, ScrollView, StyleSheet, View } from 'react-native'; // Removed Text
+import { Animated, Easing, ScrollView, StyleSheet, View } from 'react-native';
 import ActiveTourHeader from '../components/active-tour/ActiveTourHeader';
 import ActiveTourMap from '../components/active-tour/ActiveTourMap';
 import Confetti from '../components/active-tour/animations/Confetti';
 import FloatingPoints from '../components/active-tour/animations/FloatingPoints';
-import { BingoCard } from '../components/active-tour/BingoCard'; // Added Import
+import { BingoCard } from '../components/active-tour/BingoCard';
 import ChallengeItem from '../components/active-tour/ChallengeItem';
 import ChallengeSection from '../components/active-tour/ChallengeSection';
 import PubGolfSection from '../components/active-tour/pubGolf/PubGolfSection';
@@ -13,9 +13,9 @@ import StopInfoSection from '../components/active-tour/StopInfoSection';
 import TourChallengesSection from '../components/active-tour/TourChallengesSection';
 import TourNavigation from '../components/active-tour/TourNavigation';
 import { AppModal } from '../components/common/AppModal';
-import { ScreenWrapper } from '../components/common/ScreenWrapper'; // Added Import
-import { TextComponent } from '../components/common/TextComponent'; // Added Import
-import { TourLoadingScreen } from '../components/common/TourLoadingScreen'; // Added Import
+import { ScreenWrapper } from '../components/common/ScreenWrapper';
+import { TextComponent } from '../components/common/TextComponent';
+import { TourLoadingScreen } from '../components/common/TourLoadingScreen';
 import CustomTabBar from '../components/CustomTabBar';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -73,9 +73,8 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         failedChallenges,
         triviaSelected,
         setTriviaSelected,
-        showFloatingPoints,
-        floatingPointsAmount,
-        setShowFloatingPoints,
+        floatingPointsQueue,
+        removeFloatingPoint,
         showConfetti,
         handleSubmitTrivia,
         handleChallengeComplete,
@@ -244,6 +243,15 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const tabs = tabItems.map(i => i.label);
     const progress = LevelSystem.getProgress(user?.xp || 0);
 
+    const floatingPointsOverlay = floatingPointsQueue.map(item => (
+        <FloatingPoints
+            key={item.id}
+            pointAmount={item.amount}
+            label={item.label}
+            onAnimationComplete={() => removeFloatingPoint(item.id)}
+        />
+    ));
+
     // Filter out active challenge wrapper
     const activeBingoChallengeItem = (
         <AppModal
@@ -251,6 +259,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
             onClose={() => setSelectedBingoChallenge(null)}
             title={t('bingoChallenge')}
             alignment="center"
+            overlay={floatingPointsOverlay}
         >
             <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
                 {selectedBingoChallenge && (
@@ -327,12 +336,8 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
             {/* Render Modal Overlay */}
             {activeBingoChallengeItem}
 
-            {showFloatingPoints && (
-                <FloatingPoints
-                    pointAmount={floatingPointsAmount}
-                    onAnimationComplete={() => setShowFloatingPoints(false)}
-                />
-            )}
+            {/* Render floating points overlay at the root level */}
+            {floatingPointsOverlay}
         </View>
     );
 }

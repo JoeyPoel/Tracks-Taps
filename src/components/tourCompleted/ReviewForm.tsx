@@ -1,6 +1,7 @@
-import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
-import { uploadOptimizedImage } from '@/src/utils/imageUtils'; // Fix: Import usage
+import { TextComponent } from '@/src/components/common/TextComponent';
+import { uploadOptimizedImage } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
+import { XMarkIcon } from 'react-native-heroicons/outline';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
@@ -10,6 +11,14 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedButton } from '../common/AnimatedButton';
 import { AnimatedPressable } from '../common/AnimatedPressable';
+import { saveImageToGallery } from '../../utils/imageUtils';
+
+interface ReviewPhoto {
+    id: string;
+    uri: string;
+    publicUrl?: string;
+    uploading: boolean;
+}
 
 interface ReviewFormProps {
     visible: boolean;
@@ -25,42 +34,93 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
 
     const [rating, setRating] = useState(0);
     const [content, setContent] = useState('');
-    const [photos, setPhotos] = useState<string[]>([]);
-    const [uploading, setUploading] = useState(false);
+    const [photos, setPhotos] = useState<ReviewPhoto[]>([]);
+
+    // Reset state when modal opens
+    React.useEffect(() => {
+        if (visible) {
+            setRating(0);
+            setContent('');
+            setPhotos([]);
+        }
+    }, [visible]);
 
     const handlePress = () => {
-        if (rating > 0) {
-            onSubmit(rating, content, photos);
+        if (rating === 0) {
+            Alert.alert(t('error'), t('pleaseSelectStars') || 'Please select a star rating.');
+            return;
+        }
+
+        if (!content.trim()) {
+            Alert.alert(t('error'), t('pleaseWriteReview') || 'Please write a short review.');
+            return;
+        }
+
+        const stillUploading = photos.some(p => p.uploading);
+        if (stillUploading) {
+            Alert.alert(t('pleaseWait'), t('uploadsInProgress') || 'Please wait for photos to finish uploading.');
+            return;
+        }
+
+        const urls = photos.map(p => p.publicUrl).filter(Boolean) as string[];
+        onSubmit(rating, content, urls);
+    };
+
+    const startUpload = async (uri: string, id: string) => {
+        try {
+            const publicUrl = await uploadOptimizedImage(uri, 'images', 'reviews');
+            setPhotos(prev => prev.map(p => p.id === id ? { ...p, publicUrl, uploading: false } : p));
+        } catch (error) {
+            console.error("Upload error:", error);
+            setPhotos(prev => prev.filter(p => p.id !== id)); // Remove if failed
+            Alert.alert(t('uploadFailed'), t('uploadErrorMsg'));
         }
     };
 
-    const handleAddPhoto = async () => {
+    const handleAddPhoto = async (useCamera: boolean = false) => {
         if (photos.length >= 5) return;
 
         try {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert(t('permissionNeeded'), t('cameraPermissionMsg'));
-                return;
-            }
+            let result;
+            if (useCamera) {
+                const { status } = await ImagePicker.requestCameraPermissionsAsync();
+                if (status !== 'granted') return Alert.alert(t('permissionNeeded'), t('cameraPermissionMsg'));
+                
+                result = await ImagePicker.launchCameraAsync({
+                    mediaTypes: ['images'],
+                    allowsEditing: true,
+                    aspect: [4, 3],
+                    quality: 0.8,
+                });
+            } else {
+                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                if (status !== 'granted') return Alert.alert(t('permissionNeeded'), t('cameraPermissionMsg'));
 
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ['images'],
-                allowsEditing: true,
-                aspect: [4, 3],
-                quality: 0.8,
-            });
+                result = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ['images'],
+                    allowsEditing: true,
+                    aspect: [4, 3],
+                    quality: 0.8,
+                });
+            }
 
             if (!result.canceled && result.assets[0].uri) {
-                setUploading(true);
-                const publicUrl = await uploadOptimizedImage(result.assets[0].uri, 'images', 'reviews');
-                setPhotos([...photos, publicUrl]);
+                const uri = result.assets[0].uri;
+                const id = Math.random().toString(36).substring(7);
+
+                // If taken with camera, save to gallery optimistically
+                if (useCamera) {
+                    saveImageToGallery(uri);
+                }
+
+                // OPTIMISTIC UI: Add to state immediately
+                setPhotos(prev => [...prev, { id, uri, uploading: true }]);
+
+                // Start background upload
+                startUpload(uri, id);
             }
         } catch (error) {
-            console.error("Upload error:", error);
-            Alert.alert(t('uploadFailed'), t('uploadErrorMsg'));
-        } finally {
-            setUploading(false);
+            console.error("Gallery/Camera error:", error);
         }
     };
 
@@ -72,21 +132,24 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
 
     return (
         <Modal
-            animationType="slide"
+            animationType="fade"
             transparent={true}
             visible={visible}
             onRequestClose={onClose}
         >
             <Pressable
                 style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.6)' }]}
-                onPress={Keyboard.dismiss}
+                onPress={() => {
+                    Keyboard.dismiss();
+                    onClose();
+                }}
             >
                 {/* Main Card */}
                 <Animated.View
                     entering={ZoomIn.duration(300)}
                     style={[styles.modalContent, { backgroundColor: theme.bgSecondary }]}
                 >
-                    <Pressable onPress={(e) => e.stopPropagation()}>
+                    <Pressable onPress={Keyboard.dismiss}>
                         {/* Header */}
                         <View style={styles.header}>
                             <View>
@@ -96,7 +159,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                                 </TextComponent>
                             </View>
                             <AnimatedPressable onPress={onClose} interactionScale="subtle" style={styles.closeBtn}>
-                                <Ionicons name="close" size={24} color={theme.textSecondary} />
+                                <XMarkIcon size={24} color={theme.textSecondary} />
                             </AnimatedPressable>
                         </View>
 
@@ -119,7 +182,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                             ))}
                         </View>
 
-                        {/* Rating Label (Optional feedback text based on stars) */}
+                        {/* Rating Label */}
                         <View style={{ alignItems: 'center', marginBottom: 20, height: 20 }}>
                             {rating > 0 && (
                                 <TextComponent style={{ fontSize: 14 }} color={theme.primary} bold variant="body">
@@ -143,27 +206,48 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
 
                         {/* Photo Upload Section */}
                         <View style={styles.photoSection}>
-                            <AnimatedPressable
-                                style={[styles.addPhotoButton, { borderColor: theme.borderPrimary, backgroundColor: theme.bgPrimary }]}
-                                onPress={handleAddPhoto}
-                                disabled={uploading || photos.length >= 5}
-                                interactionScale="subtle"
-                            >
-                                {uploading ? (
-                                    <ActivityIndicator size="small" color={theme.primary} />
-                                ) : (
+                            <View style={styles.uploadButtonsRow}>
+                                <AnimatedPressable
+                                    style={[styles.addPhotoButton, { borderColor: theme.borderPrimary, backgroundColor: theme.bgSecondary }]}
+                                    onPress={() => handleAddPhoto(false)}
+                                    disabled={photos.length >= 5}
+                                    interactionScale="subtle"
+                                >
+                                    <Ionicons name="images" size={20} color={theme.primary} />
+                                    <TextComponent style={styles.addPhotoText} color={theme.textPrimary} bold variant="caption">
+                                        {t('gallery')}
+                                    </TextComponent>
+                                </AnimatedPressable>
+
+                                <AnimatedPressable
+                                    style={[styles.addPhotoButton, { borderColor: theme.borderPrimary, backgroundColor: theme.bgSecondary }]}
+                                    onPress={() => handleAddPhoto(true)}
+                                    disabled={photos.length >= 5}
+                                    interactionScale="subtle"
+                                >
                                     <Ionicons name="camera" size={20} color={theme.primary} />
-                                )}
-                                <TextComponent style={styles.addPhotoText} color={theme.textPrimary} bold variant="caption">
-                                    {photos.length === 0 ? t('addPhotos') : `${photos.length}/5`}
-                                </TextComponent>
-                            </AnimatedPressable>
+                                    <TextComponent style={styles.addPhotoText} color={theme.textPrimary} bold variant="caption">
+                                        {t('camera')}
+                                    </TextComponent>
+                                </AnimatedPressable>
+
+                                <View style={styles.countBadge}>
+                                    <TextComponent color={theme.textTertiary} bold variant="caption">
+                                        {photos.length}/5
+                                    </TextComponent>
+                                </View>
+                            </View>
 
                             <View style={styles.photoList}>
-                                {photos.map((uri, index) => (
-                                    <Animated.View key={index} entering={FadeInDown.springify()}>
+                                {photos.map((item, index) => (
+                                    <Animated.View key={item.id} entering={FadeInDown.springify()}>
                                         <View style={styles.photoItem}>
-                                            <Image source={{ uri }} style={styles.photo} contentFit="cover" />
+                                            <Image source={{ uri: item.uri }} style={styles.photo} contentFit="cover" />
+                                            {item.uploading && (
+                                                <View style={[styles.uploadingOverlay, { backgroundColor: 'rgba(0,0,0,0.3)' }]}>
+                                                    <ActivityIndicator size="small" color="#fff" />
+                                                </View>
+                                            )}
                                             <AnimatedPressable
                                                 style={[styles.deletePhotoBtn, { backgroundColor: theme.error }]}
                                                 onPress={() => removePhoto(index)}
@@ -184,13 +268,12 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                                 onPress={handlePress}
                                 variant="primary"
                                 loading={submitting}
-                                disabled={rating === 0 || submitting}
+                                disabled={submitting}
                                 style={styles.submitButton}
                                 icon="send"
                             />
                         </View>
                     </Pressable>
-
                 </Animated.View>
             </Pressable>
         </Modal>
@@ -200,7 +283,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
 const styles = StyleSheet.create({
     modalOverlay: {
         flex: 1,
-        justifyContent: 'center', // Centered card
+        justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
     },
@@ -218,7 +301,7 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         marginBottom: 20,
     },
     title: {
@@ -232,7 +315,6 @@ const styles = StyleSheet.create({
     },
     closeBtn: {
         padding: 4,
-        marginRight: 4,
     },
     starsContainer: {
         flexDirection: 'row',
@@ -260,17 +342,32 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 10,
+        paddingVertical: 12,
         paddingHorizontal: 16,
-        borderRadius: 12,
+        borderRadius: 14,
         borderWidth: 1,
         borderStyle: 'dashed',
-        marginBottom: 12,
         gap: 8,
+        flex: 1,
+    },
+    uploadButtonsRow: {
+        flexDirection: 'row',
+        gap: 12,
+        marginBottom: 16,
+        alignItems: 'center',
+    },
+    countBadge: {
+        paddingHorizontal: 8,
     },
     addPhotoText: {
-        fontWeight: '600',
-        fontSize: 14,
+        fontWeight: '700',
+        fontSize: 13,
+    },
+    uploadingOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     photoList: {
         flexDirection: 'row',
@@ -303,7 +400,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     submitButton: {
-        height: 56, // Taller button
+        height: 56,
         borderRadius: 16,
     },
 });

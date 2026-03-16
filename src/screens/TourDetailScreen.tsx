@@ -38,6 +38,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const [showBuyTokens, setShowBuyTokens] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'highest' | 'lowest'>('newest');
 
   const {
     tour,
@@ -47,7 +48,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
     reviewCount,
     formattedReviews,
     refetch
-  } = useTourDetails(tourId);
+  } = useTourDetails(tourId, sortBy);
 
   const { startTour, loadingMode } = useStartTour(tourId, tour?.author?.id, () => setShowBuyTokens(true));
   const { lists, loadLists, checkIsSaved, createList, addTourToList, removeTourFromList, isFavourite, toggleFavourite } = useSavedTrips();
@@ -257,10 +258,12 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
         {/* Reviews Section (Expandable) */}
         <Animated.View entering={FadeInUp.delay(800)}>
-          <TourReviews
+        <TourReviews
             reviews={formattedReviews}
             averageRating={averageRating}
             totalReviews={reviewCount}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
             onWriteReview={() => {
               if (!user) {
                 authEvents.emit();

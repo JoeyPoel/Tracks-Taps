@@ -1,23 +1,23 @@
 import { useEffect, useMemo } from 'react';
 import { useStore } from '../store/store';
 
-export const useTourDetails = (tourId: number) => {
+export const useTourDetails = (tourId: number, sortBy?: string) => {
     const tour = useStore((state) => state.tourDetails[tourId]);
     const loading = useStore((state) => state.loadingTours && !state.tourDetails[tourId]);
     const error = useStore((state) => state.errorTours);
     const fetchTourDetails = useStore((state) => state.fetchTourDetails);
 
     useEffect(() => {
-        // Data is considered incomplete if:
-        // 1. We don't have stops (they are never fetched in the list)
-        // 2. We don't have reviews (they are never fetched in the list)
-        // 3. We HAVE reviews but they are "dummy" reviews (missing IDs) from the list fetch aggregate
-        // 4. We HAVE reviews but they are missing author details (author field)
-        // 5. We have a reviewCount > 0 but actual reviews array is empty
+        if (!tourId) return;
+
+        // Determine if we need to force a fetch (mount, sorting change, or incomplete data)
+        const isFirstLoad = !tour;
+        const hasSortChange = !!sortBy; // If sortBy is provided, we treat it as a deliberate filter change
+        
+        const reviewCount = (tour as any)?.reviewCount || 0;
+        const needsMoreReviews = reviewCount > 0 && (!tour?.reviews || tour.reviews.length === 0);
         const hasDummyReviews = tour?.reviews?.some((r: any) => !r.id);
         const hasNoAuthorDetails = tour?.reviews?.some((r: any) => r.authorId && !r.author);
-        const reviewCount = (tour as any).reviewCount || 0;
-        const needsMoreReviews = reviewCount > 0 && (!tour?.reviews || tour.reviews.length === 0);
         
         const isIncomplete = tour && (
             !tour.stops || 
@@ -27,12 +27,16 @@ export const useTourDetails = (tourId: number) => {
             hasDummyReviews || 
             hasNoAuthorDetails
         );
-        
-        if (tourId && (!tour || isIncomplete)) {
-            // Pass isIncomplete as force flag to ensure full fetch triggers
-            fetchTourDetails(tourId, undefined, isIncomplete);
-        }
-    }, [tourId, tour, fetchTourDetails]);
+
+        // Fetch if it's the first time, if we have a sort change, or if data is incomplete
+        // We use force: true to ensure the store doesn't bail out
+        // Map UI sort values to backend expected values if necessary
+        const backendSort = sortBy === 'highest' ? 'highest_rating' 
+                          : sortBy === 'lowest' ? 'lowest_rating' 
+                          : sortBy;
+
+        fetchTourDetails(tourId, undefined, true, sortBy ? { reviewsSortBy: backendSort } : undefined);
+    }, [tourId, sortBy, fetchTourDetails]);
 
     const { stats, reviewsData } = useMemo(() => {
         if (!tour) {

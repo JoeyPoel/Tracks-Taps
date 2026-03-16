@@ -230,6 +230,7 @@ export interface TourDetail extends Tour {
     reviews: Review[];
     stops: Stop[];
     challenges: Challenge[];
+    lastFetched?: number; // Timestamp in ms
     author: {
         id?: number;
         name: string;
