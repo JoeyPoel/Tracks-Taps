@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tracks&Taps",
     "slug": "tracks-and-taps",
-    "version": "2.5.1",
+    "version": "2.6.0",
     "orientation": "portrait",
     "icon": "./assets/images/AppIconColouredDarkTheme.png",
     "scheme": "tracks-taps",
@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.joeypoel.trackstaps",
-      "buildNumber": "6",
+      "buildNumber": "7",
       "icon": {
         "light": "./assets/images/AppIconColouredWhiteTheme.png",
         "dark": "./assets/images/AppIconColouredDarkTheme.png",
@@ -37,6 +37,7 @@
         "foregroundImage": "./assets/images/AppIconColouredDarkTheme.png"
       },
       "package": "com.joeypoel.trackstaps",
+      "versionCode": 7,
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "googleServicesFile": "./google-services.json"

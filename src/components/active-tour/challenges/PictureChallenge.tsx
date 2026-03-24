@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
+import { TextComponent } from '../../common/TextComponent';
 import ActiveChallengeCard from '../ActiveChallengeCard';
 
 interface PictureChallengeProps {
@@ -90,6 +91,20 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
             <Text style={[styles.description, { color: theme.textPrimary }]}>
                 {challenge.content}
             </Text>
+            <TextComponent
+                style={styles.helpText}
+                color={theme.textSecondary}
+                variant="caption"
+            >
+                {t('challengeImageHelp')}
+            </TextComponent>
+            <TextComponent
+                style={styles.helpText}
+                color={theme.textSecondary}
+                variant="caption"
+            >
+                {t('gpsRequirementHelp')}
+            </TextComponent>
             <View style={styles.content}>
                 {(imageUri || isCompleted) && (
                     <View style={styles.placeholderImage}>
@@ -117,8 +132,13 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
 const styles = StyleSheet.create({
     description: {
         fontSize: 14,
-        marginBottom: 16,
+        marginBottom: 8,
         lineHeight: 20,
+    },
+    helpText: {
+        marginBottom: 8,
+        opacity: 0.8,
+        lineHeight: 16,
     },
     content: {
         marginBottom: 8,

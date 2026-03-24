@@ -138,6 +138,7 @@ export default function StepInfo({ draft, updateDraft }: StepInfoProps) {
                     onUploadComplete={(url) => updateDraft('imageUrl', url)}
                     folder="tours"
                     placeholder={t('imagePlaceholder')}
+                    helpText={t('tourImageHelp')}
                 />
             </View>
         </View>

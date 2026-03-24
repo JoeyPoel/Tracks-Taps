@@ -8,13 +8,14 @@ import { getAppMaxWidth } from '@/src/hooks/useAppWidth';
 import { useLevelUpListener } from '@/src/hooks/useLevelUpListener';
 import { supabase } from '@/utils/supabase';
 import { Stack, useRouter, useSegments } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { useStore } from '../../store/store';
 
 export function MainLayout() {
-    const { session, loading } = useAuth();
+    const { session, loading: authLoading } = useAuth();
     const { theme, overlayTrigger, overlayType } = useTheme();
     const segment = useSegments();
     const router = useRouter();
@@ -23,6 +24,7 @@ export function MainLayout() {
 
     const [isReady, setIsReady] = useState(false);
     const [isHandlingAuthRedirect, setIsHandlingAuthRedirect] = useState(false);
+    const [authTimeout, setAuthTimeout] = useState(false);
 
     const { hasSeenTutorial, isLoading: isTutorialLoading, startTutorial, isActive, resetTutorial } = useTutorial();
 
@@ -92,8 +94,33 @@ export function MainLayout() {
         checkInitialState();
     }, []);
 
+    // Safety timeout for auth loading (handles offline hangs)
     useEffect(() => {
-        if (loading || !isReady) return;
+        if (authLoading && !authTimeout) {
+            const timer = setTimeout(() => {
+                console.warn("Auth loading timed out (likely offline). Proceeding...");
+                setAuthTimeout(true);
+            }, 3000); // 3 seconds timeout
+            return () => clearTimeout(timer);
+        }
+    }, [authLoading, authTimeout]);
+
+    // Calculate effective loading state
+    const isLoading = (authLoading && !authTimeout) || !isReady || !hasHydrated;
+
+    // Handle SplashScreen hiding
+    useEffect(() => {
+        if (!isLoading) {
+            // Give the UI one frame to render before hiding splash
+            const timer = setTimeout(async () => {
+                await SplashScreen.hideAsync().catch(() => {});
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [isLoading]);
+
+    useEffect(() => {
+        if (isLoading) return;
 
         // If we are handling a specific auth redirect (like link expired), 
         // wait until we land on an auth page before enforcing protection logic.
@@ -119,10 +146,12 @@ export function MainLayout() {
             }
         }
         // Guest users are allowed in Main Layout (Tabs)
-    }, [session, loading, isReady, segment, isHandlingAuthRedirect]);
+    }, [session, isLoading, segment, isHandlingAuthRedirect]);
 
     // Handle Tutorial Trigger
     useEffect(() => {
+        if (isLoading) return;
+
         // If the backend flagged this as a new user, force the tutorial to reset and play for this account
         if (user && (user as any).isNewUser) {
             // Unflag the local object so we only do this once
@@ -137,7 +166,7 @@ export function MainLayout() {
             return;
         }
 
-        if (!loading && !isTutorialLoading && !hasSeenTutorial && !isActive && isReady) {
+        if (!isTutorialLoading && !hasSeenTutorial && !isActive) {
             // Check if we are in the main app (not auth screens)
             const inAuthGroup = segment[0] === 'auth';
             if (!inAuthGroup) {
@@ -148,9 +177,9 @@ export function MainLayout() {
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [session, loading, isTutorialLoading, hasSeenTutorial, isActive, isReady, segment, user, resetTutorial]);
+    }, [session, isTutorialLoading, hasSeenTutorial, isActive, isLoading, segment, user, resetTutorial]);
 
-    if (!isReady || loading || !hasHydrated) {
+    if (isLoading) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.bgPrimary }}>
                 <ActivityIndicator size="large" color={theme.primary} />

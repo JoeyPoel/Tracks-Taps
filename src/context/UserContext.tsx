@@ -1,3 +1,4 @@
+import NetInfo from '@react-native-community/netinfo';
 import { supabase } from '@/utils/supabase';
 import React, { createContext, useCallback, useContext, useEffect } from 'react';
 import { useStore } from '../store/store';
@@ -43,12 +44,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     // Handle inconsistent state: Session exists but backend User fetch failed
     useEffect(() => {
         if (authId && error && !user && !loading) {
-            console.warn("User fetch failed with active session. Signing out to force re-login.");
-
-            const performSignOut = async () => {
-                await supabase.auth.signOut();
-            };
-            performSignOut();
+            // Check connectivity before forcing a sign-out
+            NetInfo.fetch().then(state => {
+                if (state.isConnected) {
+                    console.warn("User fetch failed with active session. Signing out to force re-login.");
+                    supabase.auth.signOut();
+                } else {
+                    console.warn("User fetch failed but device is offline. Retaining session.");
+                }
+            });
         }
     }, [authId, error, user, loading]);
 

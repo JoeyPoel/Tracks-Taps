@@ -201,6 +201,7 @@ export default function PersonalInfoScreen() {
                             folder="avatars"
                             variant="avatar"
                             placeholder={t('takePhoto')}
+                            helpText={t('profileImageHelp')}
                         />
                     </View>
 

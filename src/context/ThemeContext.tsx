@@ -103,7 +103,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
     const hasOnceLoaded = React.useRef(false);
     if (isLoaded) hasOnceLoaded.current = true;
 
-    if (!isLoaded && !hasOnceLoaded.current) return null;
+    // We no longer return null here to ensure the app starts rendering 
+    // the UI tree immediately with the system theme while storage loads.
 
     return (
         <ThemeContext.Provider value={value}>

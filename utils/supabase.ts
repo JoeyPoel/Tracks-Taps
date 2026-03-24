@@ -2,14 +2,28 @@ import { createClient } from "@supabase/supabase-js";
 import { AppState } from 'react-native';
 import 'react-native-url-polyfill/auto';
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || "placeholder-key";
+const rawSupabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || "";
+const rawSupabaseKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || "";
 
-if (!process.env.EXPO_PUBLIC_SUPABASE_URL || !process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY) {
-    console.warn("Supabase URL or Key is missing! Using placeholders to prevent build crash.");
+const isValidUrl = (url: string) => {
+    try {
+        const parsed = new URL(url);
+        return parsed.protocol === "http:" || parsed.protocol === "https:";
+    } catch {
+        return false;
+    }
+};
+
+const supabaseUrl = isValidUrl(rawSupabaseUrl) ? rawSupabaseUrl : "https://placeholder.supabase.co";
+const supabaseKey = rawSupabaseKey || "placeholder-key";
+
+if (!isValidUrl(rawSupabaseUrl)) {
+    console.warn("⚠️ Invalid or missing Supabase URL:", rawSupabaseUrl || "EMPTY");
+    console.warn("Using placeholder URL to prevent build crash. Please check your EAS Secrets or .env file.");
+} else if (!rawSupabaseKey || rawSupabaseKey === "Use EAS Secret") {
+    console.warn("⚠️ Invalid or missing Supabase Key. Using placeholder.");
 } else {
-    console.log("Supabase URL:", process.env.EXPO_PUBLIC_SUPABASE_URL);
-    console.log("Supabase Key (first 10 chars):", process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY.substring(0, 10) + "...");
+    console.log("✅ Supabase initialized with URL:", rawSupabaseUrl);
 }
 const ExpoStorage = {
     getItem: (key: string) => {

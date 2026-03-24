@@ -15,6 +15,7 @@ interface ImageUploaderProps {
     label?: string;
     placeholder?: string;
     variant?: 'standard' | 'avatar';
+    helpText?: string;
 }
 
 export function ImageUploader({
@@ -23,7 +24,8 @@ export function ImageUploader({
     folder = 'uploads',
     label = "Image",
     placeholder = "Select an image",
-    variant = 'standard'
+    variant = 'standard',
+    helpText
 }: ImageUploaderProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
@@ -155,6 +157,15 @@ export function ImageUploader({
                     )}
                 </TouchableOpacity>
             )}
+            {helpText && (
+                <TextComponent
+                    style={styles.helpText}
+                    color={theme.textSecondary}
+                    variant="caption"
+                >
+                    {helpText}
+                </TextComponent>
+            )}
         </View>
     );
 }
@@ -166,6 +177,11 @@ const styles = StyleSheet.create({
     label: {
         textTransform: 'uppercase',
         marginBottom: 4,
+    },
+    helpText: {
+        marginTop: 4,
+        opacity: 0.8,
+        lineHeight: 16,
     },
     standardContainer: {
         height: 200,
