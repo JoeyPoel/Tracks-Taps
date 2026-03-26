@@ -4,9 +4,11 @@ import { Animated, StyleSheet, View } from 'react-native';
 import { BoltIcon, FireIcon, StarIcon, XMarkIcon } from 'react-native-heroicons/outline';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '../../context/LanguageContext';
+import { useTranslation } from '../../context/TranslationContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 import { TextComponent } from '../common/TextComponent';
+import { Ionicons } from '@expo/vector-icons';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
@@ -33,6 +35,7 @@ export default function ActiveTourHeader({
 }: ActiveTourHeaderProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const { isAutoTranslateEnabled, setIsAutoTranslateEnabled } = useTranslation();
     const insets = useSafeAreaInsets();
 
     const xpProgress = Math.min(Math.max(currentXP / maxXP, 0), 1) * 100;
@@ -75,6 +78,16 @@ export default function ActiveTourHeader({
                 </AnimatedPressable>
 
                 <View style={styles.statsContainer}>
+                    <AnimatedPressable 
+                        onPress={() => setIsAutoTranslateEnabled(!isAutoTranslateEnabled)}
+                        style={[styles.statBadge, { backgroundColor: isAutoTranslateEnabled ? theme.primary + '20' : theme.bgTertiary }]}
+                        interactionScale="subtle"
+                        haptic="light"
+                    >
+                        <Ionicons name="language" size={16} color={isAutoTranslateEnabled ? theme.primary : theme.textSecondary} />
+                        {isAutoTranslateEnabled && <Ionicons name="sparkles" size={10} color={theme.gold} style={{ position: 'absolute', top: 2, right: 2 }} />}
+                    </AnimatedPressable>
+
                     <View style={[styles.statBadge, { backgroundColor: theme.bgTertiary }]}>
                         <FireIcon size={16} color={theme.orange} />
                         <TextComponent style={styles.statText} color={theme.textPrimary} bold variant="label">{streak}</TextComponent>

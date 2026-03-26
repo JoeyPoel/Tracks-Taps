@@ -8,6 +8,8 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useTranslation } from '../../context/TranslationContext';
+import { useIOSTranslateSheet } from 'react-native-ios-translate-sheet';
 
 interface BingoCardProps {
     team: Team;
@@ -25,6 +27,8 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
 
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const { translateText, cacheTranslation } = useTranslation();
+    const { presentIOSTranslateSheet, isSupported } = useIOSTranslateSheet();
     const bingoCard = team.bingoCard;
 
     if (!bingoCard) {
@@ -34,6 +38,29 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
             </View>
         );
     }
+
+    // Prepare grid challenges for mass translation
+    const gridChallenges = Array.from({ length: 9 }).map((_, index) => {
+        const row = Math.floor(index / 3);
+        const col = index % 3;
+        return challenges.find(c => c.bingoRow === row && c.bingoCol === col);
+    }).filter(Boolean) as Challenge[];
+
+    const handleTranslateAll = () => {
+        const allTitles = gridChallenges.map(c => c.title).join('\n');
+        
+        presentIOSTranslateSheet({
+            text: allTitles,
+            replacementAction: (translatedText) => {
+                const translatedTitles = translatedText.split('\n');
+                gridChallenges.forEach((c, i) => {
+                    if (translatedTitles[i]) {
+                        cacheTranslation(c.title, translatedTitles[i].trim());
+                    }
+                });
+            }
+        });
+    };
 
     // Helper to get challenge details
     const getChallenge = (id: number) => challenges.find(c => c.id === id);
@@ -76,10 +103,20 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
         <View style={styles.container}>
             <View style={styles.header}>
                 <TextComponent variant="h3" bold>{t('bingoCardTitle')}</TextComponent>
-                <View style={[styles.badge, { backgroundColor: theme.accent }]}>
-                    <TextComponent variant="caption" color="#FFF" bold>
-                        {team.bingoCard?.fullHouseAwarded ? t('fullHouse') : `${team.bingoCard?.awardedLines.length || 0} ${t('lines')}`}
-                    </TextComponent>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    {isSupported && gridChallenges.length > 0 && (
+                        <TouchableOpacity
+                            onPress={handleTranslateAll}
+                            style={{ padding: 6, backgroundColor: theme.primary + '15', borderRadius: 8 }}
+                        >
+                            <Ionicons name="language" size={14} color={theme.primary} />
+                        </TouchableOpacity>
+                    )}
+                    <View style={[styles.badge, { backgroundColor: theme.accent }]}>
+                        <TextComponent variant="caption" color="#FFF" bold>
+                            {team.bingoCard?.fullHouseAwarded ? t('fullHouse') : `${team.bingoCard?.awardedLines.length || 0} ${t('lines')}`}
+                        </TextComponent>
+                    </View>
                 </View>
             </View>
 
@@ -173,7 +210,7 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
                                     style={{ marginTop: 4, textAlign: 'center', fontSize: 10 }}
                                     color={textColor}
                                 >
-                                    {challenge.title}
+                                    {translateText(challenge.title)}
                                 </TextComponent>
                             </Animated.View>
                         </TouchableOpacity>

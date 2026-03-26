@@ -1,15 +1,31 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useIOSTranslateSheet } from 'react-native-ios-translate-sheet';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from '../../context/TranslationContext';
 import { Stop } from '../../types/models';
 import { GenericCard } from '../common/GenericCard';
 import { TextComponent } from '../common/TextComponent';
 
-
 export default function StopCard({ stop }: { stop: Stop }) {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const { translateText, cacheTranslation } = useTranslation();
+    const { presentIOSTranslateSheet, isSupported } = useIOSTranslateSheet();
+
+    const originalDescription = stop.description || t('completeAllChallengesToContinue');
+    const displayedDescription = translateText(originalDescription);
+
+    const handleTranslate = () => {
+        presentIOSTranslateSheet({
+            text: originalDescription,
+            replacementAction: (translatedText) => {
+                cacheTranslation(originalDescription, translatedText);
+            }
+        });
+    };
 
     return (
         <GenericCard
@@ -18,11 +34,21 @@ export default function StopCard({ stop }: { stop: Stop }) {
             style={[styles.container, { borderColor: theme.secondary, borderWidth: 1 }]}
         >
             <View>
-                <TextComponent style={styles.headerTitle} color={theme.textPrimary} bold variant="h3">
-                    {`${t('Stop')} ${stop.number}: ${stop.name}`}
-                </TextComponent>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <TextComponent style={[styles.headerTitle, { flex: 1, marginRight: 8 }]} color={theme.textPrimary} bold variant="h3">
+                        {`${t('Stop')} ${stop.number}: ${stop.name}`}
+                    </TextComponent>
+                    {isSupported && (
+                        <TouchableOpacity
+                            onPress={handleTranslate}
+                            style={{ padding: 6, backgroundColor: theme.primary + '15', borderRadius: 8 }}
+                        >
+                            <Ionicons name="language" size={14} color={theme.primary} />
+                        </TouchableOpacity>
+                    )}
+                </View>
                 <TextComponent style={styles.subtitle} color={theme.textSecondary} variant="body">
-                    {stop.description || t('completeAllChallengesToContinue')}
+                    {displayedDescription}
                 </TextComponent>
             </View>
         </GenericCard>

@@ -2,13 +2,15 @@ import { getChallengeIconProps } from '@/src/utils/challengeIcons';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View, TouchableOpacity } from 'react-native';
+import { useIOSTranslateSheet } from 'react-native-ios-translate-sheet';
 import {
     BoltIcon,
     CheckCircleIcon,
     XCircleIcon
 } from 'react-native-heroicons/outline';
 import { useLanguage } from '../../context/LanguageContext';
+import { useTranslation } from '../../context/TranslationContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 import { TextComponent } from '../common/TextComponent';
@@ -27,6 +29,7 @@ interface ActiveChallengeCardProps {
     children?: React.ReactNode;
     index?: number;
     isBonus?: boolean;
+    translateText?: string;
 }
 
 export default function ActiveChallengeCard({
@@ -40,10 +43,25 @@ export default function ActiveChallengeCard({
     children,
     disabled = false,
     index = 0,
-    isBonus = false
-}: ActiveChallengeCardProps & { disabled?: boolean, isFailed?: boolean, index?: number, isBonus?: boolean }) {
+    isBonus = false,
+    translateText: translateTextProp
+}: ActiveChallengeCardProps & { disabled?: boolean, isFailed?: boolean, index?: number, isBonus?: boolean, translateText?: string }) {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const { presentIOSTranslateSheet, isSupported } = useIOSTranslateSheet();
+    const { translateText, cacheTranslation } = useTranslation();
+
+    const displayedTranslateText = translateText(translateTextProp || '');
+
+    const handleTranslate = () => {
+        if (!translateTextProp) return;
+        presentIOSTranslateSheet({
+            text: translateTextProp,
+            replacementAction: (translatedText) => {
+                cacheTranslation(translateTextProp, translatedText);
+            }
+        });
+    };
 
     // Entrance Animation
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -126,9 +144,19 @@ export default function ActiveChallengeCard({
                             </View>
                             <TextComponent style={styles.cardTitle} color={theme.textPrimary} bold variant="body">{title}</TextComponent>
                         </View>
-                        <View style={[styles.pointsBadge, { backgroundColor: theme.gold + '20' }]}>
-                            <BoltIcon size={14} color={theme.gold} />
-                            <TextComponent style={styles.pointsText} color={theme.gold} bold variant="label">{points}</TextComponent>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            {translateTextProp && isSupported && (
+                                <TouchableOpacity 
+                                    onPress={handleTranslate}
+                                    style={{ padding: 6, marginRight: 8, backgroundColor: theme.primary + '15', borderRadius: 8 }}
+                                >
+                                    <Ionicons name="language" size={16} color={theme.primary} />
+                                </TouchableOpacity>
+                            )}
+                            <View style={[styles.pointsBadge, { backgroundColor: theme.gold + '20' }]}>
+                                <BoltIcon size={14} color={theme.gold} />
+                                <TextComponent style={styles.pointsText} color={theme.gold} bold variant="label">{points}</TextComponent>
+                            </View>
                         </View>
                     </View>
 

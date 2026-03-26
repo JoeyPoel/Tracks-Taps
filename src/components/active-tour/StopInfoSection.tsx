@@ -4,8 +4,11 @@ import { getStopIcon } from '@/src/utils/stopIcons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { useIOSTranslateSheet } from 'react-native-ios-translate-sheet';
+import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../../context/LanguageContext';
+import { useTranslation } from '../../context/TranslationContext';
 import { useTheme } from '../../context/ThemeContext';
 import { TextComponent } from '../common/TextComponent'; // Added import
 
@@ -16,11 +19,27 @@ interface StopInfoSectionProps {
 export default function StopInfoSection({ stop }: StopInfoSectionProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const { presentIOSTranslateSheet, isSupported } = useIOSTranslateSheet();
+    const { translateText, cacheTranslation } = useTranslation();
 
     if (!stop) return null;
 
-    const stopType = stop.type || StopType.Viewpoint;
-    const { label, icon } = { label: stopType.replace('_', ' '), icon: getStopIcon(stopType, 16, theme.primary) };
+    const originalDescription = stop.detailedDescription || stop.description || '';
+    const displayedDescription = translateText(originalDescription) || t('noStopDescription');
+
+    const handleTranslate = () => {
+        presentIOSTranslateSheet({
+            text: originalDescription,
+            replacementAction: (translatedText) => {
+                cacheTranslation(originalDescription, translatedText);
+            }
+        });
+    };
+
+    const stopTypeKey = (stop.type || 'viewpoint').replace(/_/g, '').replace(/ /g, '');
+    const camelCaseKey = stopTypeKey.charAt(0).toLowerCase() + stopTypeKey.slice(1);
+    const label = t(camelCaseKey) || stop.type?.replace('_', ' ') || 'Stop';
+    const icon = getStopIcon(stop.type || 'viewpoint', 16, theme.primary);
 
     return (
         <View style={styles.container}>
@@ -39,7 +58,7 @@ export default function StopInfoSection({ stop }: StopInfoSectionProps) {
                     />
                     <View style={styles.imageTypeBadge}>
                         <View style={[styles.iconBlur, { backgroundColor: theme.bgPrimary }]}>
-                            {getStopIcon(stopType, 16, theme.primary)}
+                            {getStopIcon(stop.type || 'viewpoint', 16, theme.primary)}
                             <TextComponent style={styles.typeText} color={theme.textPrimary} bold variant="caption">{label}</TextComponent>
                         </View>
                     </View>
@@ -47,7 +66,7 @@ export default function StopInfoSection({ stop }: StopInfoSectionProps) {
             ) : (
                 <View style={[styles.placeholderHeader, { backgroundColor: theme.bgSecondary }]}>
                     <View style={[styles.typeBadge, { backgroundColor: theme.bgPrimary, borderColor: theme.borderPrimary }]}>
-                        {getStopIcon(stopType, 20, theme.primary)}
+                        {getStopIcon(stop.type || 'viewpoint', 20, theme.primary)}
                         <TextComponent style={styles.typeText} color={theme.textPrimary} bold variant="caption">{label}</TextComponent>
                     </View>
                 </View>
@@ -60,14 +79,22 @@ export default function StopInfoSection({ stop }: StopInfoSectionProps) {
                     shadowColor: theme.shadowColor,
                 }
             ]}>
-                <View style={styles.headerRow}>
-                    <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">{stop.name}</TextComponent>
+                <View style={[styles.headerRow, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+                    <TextComponent style={[styles.title, { flex: 1, marginRight: 8 }]} color={theme.textPrimary} bold variant="h2">{stop.name}</TextComponent>
+                    {isSupported && (
+                        <TouchableOpacity
+                            onPress={handleTranslate}
+                            style={{ padding: 6, backgroundColor: theme.primary + '15', borderRadius: 8 }}
+                        >
+                            <Ionicons name="language" size={14} color={theme.primary} />
+                        </TouchableOpacity>
+                    )}
                 </View>
 
                 <View style={[styles.divider, { backgroundColor: theme.borderSecondary }]} />
 
                 <TextComponent style={styles.description} color={theme.textSecondary} variant="body">
-                    {stop.detailedDescription || stop.description || t('noStopDescription')}
+                    {displayedDescription}
                 </TextComponent>
             </View>
         </View>

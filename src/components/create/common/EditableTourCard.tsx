@@ -105,7 +105,7 @@ export function EditableTourCard({
                                         return <GenreIcon size={12} color="#FFF" />;
                                     })()}
                                     <TextComponent style={styles.badgeText} color="#FFF" bold size={12}>
-                                        {genre}
+                                        {t(genre.toLowerCase() as any) || genre}
                                     </TextComponent>
                                 </>
                             ) : (
@@ -132,7 +132,7 @@ export function EditableTourCard({
                             style={[styles.badge, styles.blurBadge]}
                         >
                             <TextComponent style={styles.badgeText} color="#FFF" bold size={12}>
-                                {draft.difficulty || 'Medium'}
+                                {draft.difficulty ? t(draft.difficulty.toLowerCase() as any) : t('medium')}
                             </TextComponent>
                             <View style={styles.dropdownCaret} />
                         </TouchableOpacity>
@@ -208,7 +208,7 @@ export function EditableTourCard({
                 visible={pickerType === 'genre'}
                 onClose={() => setPickerType(null)}
                 title={t('selectGenre')}
-                options={GENRES.map((g: any) => ({ label: g.label, value: g.id, icon: g.icon, color: g.color }))}
+                options={GENRES.map((g: any) => ({ label: t(g.id.toLowerCase() as any), value: g.id, icon: g.icon, color: g.color }))}
                 onSelect={(val) => updateDraft('genre', val)}
                 currentValue={draft.genre}
             />
@@ -230,9 +230,9 @@ export function EditableTourCard({
                 onClose={() => setPickerType(null)}
                 title={t('selectDifficulty')}
                 options={[
-                    { label: 'Easy', value: 'Easy' },
-                    { label: 'Medium', value: 'Medium' },
-                    { label: 'Hard', value: 'Hard' }
+                    { label: t('easy'), value: 'Easy' },
+                    { label: t('medium'), value: 'Medium' },
+                    { label: t('hard'), value: 'Hard' }
                 ]}
                 onSelect={(val) => updateDraft('difficulty', val)}
                 currentValue={draft.difficulty}

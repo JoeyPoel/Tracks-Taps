@@ -43,6 +43,7 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
             disabled={isDone}
             index={index}
             isBonus={isBonus}
+            translateText={[challenge.content, ...(challenge.options || [])].filter(Boolean).join('\n')}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
                 {challenge.content}

@@ -30,8 +30,8 @@ export default function ProfileStats({
             onPress={onPress}
             activeOpacity={0.7}
         >
-            <TextComponent style={styles.value} color={theme.textPrimary} bold variant="h2">{value}</TextComponent>
-            <TextComponent style={styles.label} color={theme.textSecondary} variant="caption">{label}</TextComponent>
+            <TextComponent style={styles.value} color={theme.textPrimary} bold variant="h2" numberOfLines={1}>{value}</TextComponent>
+            <TextComponent style={[styles.label, { textAlign: 'center' }]} color={theme.textSecondary} variant="caption" numberOfLines={2}>{label}</TextComponent>
         </TouchableOpacity>
     );
 
@@ -69,8 +69,9 @@ const styles = StyleSheet.create({
         borderRadius: 16,
     },
     statItem: {
+        flex: 1,
         alignItems: 'center',
-        paddingHorizontal: 20,
+        paddingHorizontal: 8,
     },
     value: {
         fontSize: 20,

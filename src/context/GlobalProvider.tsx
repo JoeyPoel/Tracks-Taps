@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useStore } from '../store/store';
 import { AuthProvider } from './AuthContext';
 import { LanguageProvider } from './LanguageContext';
+import { TranslationProvider } from './TranslationContext';
 import { RevenueCatProvider } from './RevenueCatContext';
 import { ThemeProvider } from './ThemeContext';
 import { ToastProvider } from './ToastContext';
@@ -27,17 +28,19 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
             <GestureHandlerRootView style={{ flex: 1 }}>
             <AuthProvider>
                 <LanguageProvider>
-                    <ThemeProvider>
-                        <UserProvider>
-                            <TutorialProvider>
-                                <RevenueCatProvider>
-                                    <ToastProvider>
-                                        {children}
-                                    </ToastProvider>
-                                </RevenueCatProvider>
-                            </TutorialProvider>
-                        </UserProvider>
-                    </ThemeProvider>
+                    <TranslationProvider>
+                        <ThemeProvider>
+                            <UserProvider>
+                                <TutorialProvider>
+                                    <RevenueCatProvider>
+                                        <ToastProvider>
+                                            {children}
+                                        </ToastProvider>
+                                    </RevenueCatProvider>
+                                </TutorialProvider>
+                            </UserProvider>
+                        </ThemeProvider>
+                    </TranslationProvider>
                 </LanguageProvider>
             </AuthProvider>
         </GestureHandlerRootView>

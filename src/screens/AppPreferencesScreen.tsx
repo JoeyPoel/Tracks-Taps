@@ -8,17 +8,22 @@ import { AnimatedPressable } from '../components/common/AnimatedPressable';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { useLanguage } from '../context/LanguageContext';
+import { useTranslation } from '../context/TranslationContext';
 import { useTheme } from '../context/ThemeContext';
 import { darkTheme } from '../context/theme';
 
 export default function AppPreferencesScreen() {
   const { theme, toggleTheme, mode } = useTheme();
   const { t, language, setLanguage } = useLanguage();
+  const { isAutoTranslateEnabled, setIsAutoTranslateEnabled } = useTranslation();
 
   const languages = [
     { code: 'en', label: 'English', flag: '🇬🇧' },
     { code: 'es', label: 'Español', flag: '🇪🇸' },
     { code: 'nl', label: 'Nederlands', flag: '🇳🇱' },
+    { code: 'pl', label: 'Polski', flag: '🇵🇱' },
+    { code: 'fr', label: 'Français', flag: '🇫🇷' },
+    { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
   ];
 
   const renderSectionHeader = (title: string, icon: string) => (
@@ -70,7 +75,11 @@ export default function AppPreferencesScreen() {
         {/* Language Section */}
         {renderSectionHeader(t('language'), 'language-outline')}
         <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
-          <View style={styles.languageContainer}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            contentContainerStyle={styles.languageContainer}
+          >
             {languages.map((lang, index) => {
               const isActive = language === lang.code;
               return (
@@ -103,6 +112,28 @@ export default function AppPreferencesScreen() {
                 </AnimatedPressable>
               );
             })}
+          </ScrollView>
+        </View>
+
+        {/* Auto Translation Toggle */}
+        <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor, marginTop: 12 }]}>
+          <View style={[styles.row, styles.lastRow]}>
+            <View style={styles.rowInfo}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
+                <Ionicons name="language" size={16} color={theme.primary} style={{ marginRight: 8 }} />
+                <TextComponent style={styles.rowTitle} color={theme.textPrimary} bold variant="body">{t('autoTranslateActiveTour')}</TextComponent>
+              </View>
+              <TextComponent style={styles.rowSubtitle} color={theme.textSecondary} variant="caption">
+                {t('autoTranslateDesc')}
+              </TextComponent>
+            </View>
+            <Switch
+              value={isAutoTranslateEnabled}
+              onValueChange={setIsAutoTranslateEnabled}
+              trackColor={{ false: theme.bgDisabled, true: theme.primary + '80' }}
+              thumbColor={isAutoTranslateEnabled ? theme.primary : '#f4f3f4'}
+              ios_backgroundColor={theme.bgDisabled}
+            />
           </View>
         </View>
 
@@ -133,10 +164,6 @@ export default function AppPreferencesScreen() {
           </View>
         </View>
         */}
-
-        <TextComponent style={styles.versionText} color={theme.textTertiary} variant="caption" center>
-          Version 1.0.0
-        </TextComponent>
 
       </ScrollView>
     </ScreenWrapper>
@@ -207,11 +234,11 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   languageOption: {
-    flex: 1,
+    width: 100,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 12,
+    paddingVertical: 12,
+    borderRadius: 16,
     position: 'relative',
   },
   languageLabel: {

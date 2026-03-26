@@ -41,6 +41,7 @@ const LocationChallenge: React.FC<LocationChallengeProps> = ({
             disabled={isDone}
             index={index}
             isBonus={isBonus}
+            translateText={challenge.content}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
                 {challenge.content}

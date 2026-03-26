@@ -37,6 +37,7 @@ const DareChallenge: React.FC<DareChallengeProps> = ({
             disabled={isDone}
             index={index}
             isBonus={isBonus}
+            translateText={challenge.content}
         >
             <View style={styles.content}>
                 <Text style={[styles.dareText, { color: theme.textPrimary }]}>

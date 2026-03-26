@@ -8,6 +8,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import TourCard from '../components/exploreScreen/TourCard';
+import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useSafeNavigation } from '../hooks/useSafeNavigation';
 import { SavedTrip, savedTripsService } from '../services/savedTripsService';
@@ -15,6 +16,7 @@ import { SavedTrip, savedTripsService } from '../services/savedTripsService';
 export default function SavedTripDetailScreen() {
     const { id } = useLocalSearchParams();
     const { theme } = useTheme();
+    const { t } = useLanguage();
     const router = useRouter(); // Used for other navigations (push)
     const { goBack } = useSafeNavigation();
     const [list, setList] = useState<SavedTrip | null>(null);
@@ -122,8 +124,8 @@ export default function SavedTripDetailScreen() {
                             title={item.title}
                             author={item.author?.name || 'Unknown'}
                             imageUrl={item.imageUrl}
-                            distance={item.distance ? `${item.distance} km` : '0 km'}
-                            duration={item.duration ? `${item.duration} min` : '0 min'}
+                            distance={item.distance ? `${item.distance} ${t('km')}` : `0 ${t('km')}`}
+                            duration={item.duration ? `${item.duration} ${t('min')}` : `0 ${t('min')}`}
                             stops={item.stops?.length || 0}
                             rating={rating}
                             reviewCount={reviewCount}
@@ -172,8 +174,8 @@ export default function SavedTripDetailScreen() {
             <Stack.Screen options={{ headerShown: false, gestureEnabled: true }} />
             <View style={{ flex: 1 }}>
                 <ScreenHeader
-                    title={list?.name || 'Loading...'}
-                    subtitle={`${localTours.length} ${(localTours.length === 1) ? 'tour' : 'tours'} collected`}
+                    title={list?.name || t('loading')}
+                    subtitle={`${localTours.length} ${t(localTours.length === 1 ? 'tour' : 'tours')} ${t('collected')}`}
                     showBackButton
                     rightElement={
                         <TouchableOpacity
@@ -181,7 +183,7 @@ export default function SavedTripDetailScreen() {
                             style={[styles.textButton, { backgroundColor: isEditing ? theme.primary : theme.bgTertiary }]}
                         >
                             <TextComponent style={styles.textButtonLabel} color={isEditing ? '#FFF' : theme.textPrimary} bold variant="body">
-                                {isEditing ? 'Done' : 'Edit'}
+                                {isEditing ? t('done') : t('edit')}
                             </TextComponent>
                         </TouchableOpacity>
                     }
@@ -204,7 +206,7 @@ export default function SavedTripDetailScreen() {
                                     style={[styles.deleteCollectionBtn, { borderColor: theme.error }]}
                                     onPress={handleDeleteList}
                                 >
-                                    <TextComponent style={{ fontWeight: '600' }} color={theme.error} bold variant="body">Delete Collection</TextComponent>
+                                    <TextComponent style={{ fontWeight: '600' }} color={theme.error} bold variant="body">{t('deleteCollection')}</TextComponent>
                                 </TouchableOpacity>
                             </View>
                         ) : <View style={{ height: 80 }} />
@@ -214,7 +216,7 @@ export default function SavedTripDetailScreen() {
                             <View style={styles.emptyContainer}>
                                 <Ionicons name="map-outline" size={64} color={theme.textSecondary} style={{ opacity: 0.5, marginBottom: 16 }} />
                                 <TextComponent style={styles.emptyText} color={theme.textSecondary} variant="body" center>
-                                    No tours in this collection yet.
+                                    {t('noToursInCollection')}
                                 </TextComponent>
                             </View>
                         ) : null

@@ -73,7 +73,7 @@ export default function TourCard({
                   const GenreIcon = getGenreIcon(genre);
                   return <GenreIcon size={12} color="#FFF" />;
                 })()}
-                <TextComponent style={styles.badgeText} variant="caption" bold>{genre}</TextComponent>
+                <TextComponent style={styles.badgeText} variant="caption" bold>{t(genre.toLowerCase() as any) || genre}</TextComponent>
               </View>
             )}
             {tourType && (

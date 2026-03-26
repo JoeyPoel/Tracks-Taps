@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { strings as allStrings } from './strings';
 
-type Language = 'en' | 'es' | 'nl'; // Supported languages
+type Language = 'en' | 'es' | 'nl' | 'pl' | 'fr' | 'de'; // Supported languages
 
 interface LanguageContextType {
   language: Language;
@@ -22,7 +22,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     const loadLanguage = async () => {
       try {
         const storedLang = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
-        if (storedLang === 'en' || storedLang === 'es' || storedLang === 'nl') {
+        if (storedLang === 'en' || storedLang === 'es' || storedLang === 'nl' || storedLang === 'pl' || storedLang === 'fr' || storedLang === 'de') {
           setLanguageState(storedLang as Language);
         }
       } catch (e) {

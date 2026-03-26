@@ -132,7 +132,8 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        width: '55%',
+        flex: 1,
+        marginRight: 12,
     },
     iconContainer: {
         width: 48,
@@ -145,12 +146,14 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: 'bold',
+        flexShrink: 1,
     },
     subtitle: {
         fontSize: 14,
+        flexShrink: 1,
     },
     scoreContainer: {
-        width: '40%',
+        minWidth: '35%',
         borderRadius: 16,
         padding: 12,
         alignItems: 'center',

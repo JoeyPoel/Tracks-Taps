@@ -60,6 +60,7 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
             disabled={isDone || !selected}
             index={index}
             isBonus={isBonus}
+            translateText={challenge.content || undefined}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
                 {challenge.content}

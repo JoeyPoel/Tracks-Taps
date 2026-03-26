@@ -235,10 +235,10 @@ export default function FriendProfileScreen() {
                                 </TextComponent>
                                 <TourCard
                                     title={latestCreated.title}
-                                    author={latestCreated.author?.name || 'Unknown'}
+                                    author={latestCreated.author?.name || t('unknown')}
                                     imageUrl={latestCreated.imageUrl}
-                                    distance={`${latestCreated.distance} km`}
-                                    duration={`${latestCreated.duration} min`}
+                                    distance={`${latestCreated.distance} ${t('km')}`}
+                                    duration={`${latestCreated.duration} ${t('min')}`}
                                     stops={latestCreated._count?.stops || 0}
                                     rating={latestCreated.reviews?.reduce((acc: number, r: any) => acc + r.rating, 0) / (latestCreated.reviews?.length || 1) || 0}
                                     reviewCount={latestCreated._count?.reviews || 0}
@@ -260,10 +260,10 @@ export default function FriendProfileScreen() {
                                 </TextComponent>
                                 <TourCard
                                     title={latestPlayed.tour.title}
-                                    author={latestPlayed.tour.author?.name || 'Unknown'}
+                                    author={latestPlayed.tour.author?.name || t('unknown')}
                                     imageUrl={latestPlayed.tour.imageUrl}
-                                    distance={`${latestPlayed.tour.distance} km`}
-                                    duration={`${latestPlayed.tour.duration} min`}
+                                    distance={`${latestPlayed.tour.distance} ${t('km')}`}
+                                    duration={`${latestPlayed.tour.duration} ${t('min')}`}
                                     stops={latestPlayed.tour._count?.stops || 0}
                                     rating={latestPlayed.tour.reviews?.reduce((acc: number, r: any) => acc + r.rating, 0) / (latestPlayed.tour.reviews?.length || 1) || 0}
                                     reviewCount={latestPlayed.tour._count?.reviews || 0}

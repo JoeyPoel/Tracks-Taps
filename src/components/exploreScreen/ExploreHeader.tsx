@@ -127,7 +127,7 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
                                     bold
                                     color={isSelected ? '#FFF' : theme.textPrimary}
                                 >
-                                    {cat.label}
+                                    {t(cat.id.toLowerCase() as any)}
                                 </TextComponent>
                             </TouchableOpacity>
                         );

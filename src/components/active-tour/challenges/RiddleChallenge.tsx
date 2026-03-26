@@ -58,6 +58,7 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
             disabled={isDone || !answer.trim()}
             index={index}
             isBonus={isBonus}
+            translateText={challenge.content + (challenge.hint ? '\n\nHint: ' + challenge.hint : '')}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
                 {challenge.content}

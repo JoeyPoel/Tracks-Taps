@@ -22,18 +22,22 @@ import { useTheme } from '../context/ThemeContext';
 import { useSavedTrips } from '../hooks/useSavedTrips';
 import { useStartTour } from '../hooks/useStartTour';
 import { useTourDetails } from '../hooks/useTourDetails';
+import { useTranslation } from '../context/TranslationContext';
 import { tourService } from '../services/tourService';
 import { authEvents } from '../utils/authEvents';
 import { getOptimizedImageUrl } from '../utils/imageUtils';
 
 import { useSafeNavigation } from '../hooks/useSafeNavigation';
+import { useIOSTranslateSheet } from 'react-native-ios-translate-sheet';
 
 export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { translateText, cacheTranslation } = useTranslation();
   const router = useRouter();
   const { goBack } = useSafeNavigation();
+  const { presentIOSTranslateSheet, isSupported } = useIOSTranslateSheet();
   const [showSavedTripModal, setShowSavedTripModal] = useState(false);
   const [showBuyTokens, setShowBuyTokens] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -142,7 +146,9 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           />
           <Animated.View entering={FadeInUp.delay(200)} style={styles.heroContent}>
             <View style={[styles.tagContainer, { backgroundColor: theme.primary }]}>
-              <TextComponent style={styles.tagText} variant="caption" bold color="#FFF">{tour.genre}</TextComponent>
+              <TextComponent style={styles.tagText} variant="caption" bold color="#FFF">
+                {t(tour.genre?.toLowerCase() as any) || tour.genre}
+              </TextComponent>
             </View>
             <TextComponent style={styles.title} variant="h1" bold color={theme.fixedWhite}>{tour.title}</TextComponent>
             <TouchableOpacity
@@ -150,8 +156,8 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
               activeOpacity={0.7}
               onPress={() => tour.author?.id && router.push({ pathname: '/(tabs)/profile/friend-profile', params: { userId: tour.author.id } })}
             >
-              <TextComponent style={{ marginRight: 4 }} color={theme.fixedWhite} variant="body">by</TextComponent>
-              <TextComponent style={{ textDecorationLine: 'underline' }} color={theme.fixedWhite} variant="body" bold>{tour.author?.name || 'Unknown'}</TextComponent>
+              <TextComponent style={{ marginRight: 4 }} color={theme.fixedWhite} variant="body">{t('by')}</TextComponent>
+              <TextComponent style={{ textDecorationLine: 'underline' }} color={theme.fixedWhite} variant="body" bold>{tour.author?.name || t('unknown')}</TextComponent>
             </TouchableOpacity>
           </Animated.View>
 
@@ -161,7 +167,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             style={[styles.mapFab, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
           >
             <Ionicons name="map" size={24} color={theme.textPrimary} />
-            <TextComponent style={styles.mapFabText} variant="label" bold color={theme.textPrimary}>Map</TextComponent>
+            <TextComponent style={styles.mapFabText} variant="label" bold color={theme.textPrimary}>{t('map')}</TextComponent>
           </TouchableOpacity>
 
 
@@ -222,21 +228,21 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
         <View style={styles.statsGrid}>
           <StatCard
             icon="time-outline"
-            label="Duration"
-            value={`${tour.duration} min`}
+            label={t('duration')}
+            value={`${tour.duration} ${t('min')}`}
             theme={theme}
             delay={300}
           />
           <StatCard
             icon="map-outline"
-            label="Distance"
-            value={`${tour.distance} km`}
+            label={t('distance')}
+            value={`${tour.distance} ${t('km')}`}
             theme={theme}
             delay={400}
           />
           <StatCard
             icon="location-outline"
-            label="Stops"
+            label={t('stops')}
             value={tour.stops?.length || 0}
             theme={theme}
             delay={500}
@@ -245,9 +251,25 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
         {/* Description */}
         <Animated.View entering={FadeInUp.delay(600)} style={styles.section}>
-          <TextComponent style={styles.sectionTitle} variant="h2" bold color={theme.textPrimary}>About this Tour</TextComponent>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <TextComponent style={[styles.sectionTitle, { marginBottom: 0 }]} variant="h2" bold color={theme.textPrimary}>{t('aboutThisTour')}</TextComponent>
+            {isSupported && tour.description && (
+              <TouchableOpacity
+                onPress={() => presentIOSTranslateSheet({ 
+                  text: tour.description,
+                  replacementAction: (translatedText) => {
+                    cacheTranslation(tour.description, translatedText);
+                  }
+                })}
+                style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: theme.bgSecondary, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 }}
+              >
+                <Ionicons name="language" size={16} color={theme.primary} />
+                <TextComponent variant="caption" color={theme.primary} bold style={{ marginLeft: 6 }}>Translate</TextComponent>
+              </TouchableOpacity>
+            )}
+          </View>
           <TextComponent style={styles.description} variant="body" color={theme.textSecondary}>
-            {tour.description}
+            {translateText(tour.description)}
           </TextComponent>
         </Animated.View>
 
@@ -280,7 +302,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
       <Animated.View entering={FadeInDown.delay(800)} style={[styles.footer, { backgroundColor: theme.bgSecondary, borderTopColor: theme.borderPrimary }]}>
         <View style={{ flexDirection: 'row', gap: 12 }}>
           <AnimatedButton
-            title="Solo"
+            title={t('solo')}
             onPress={() => {
               if (!user) {
                 authEvents.emit();
@@ -313,7 +335,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             textStyle={{ color: theme.textPrimary }}
           />
           <AnimatedButton
-            title="With Friends"
+            title={t('withFriends')}
             onPress={() => {
               if (!user) {
                 authEvents.emit();

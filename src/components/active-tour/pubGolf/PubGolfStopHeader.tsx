@@ -1,8 +1,11 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { FlagIcon } from 'react-native-heroicons/outline';
+import { Ionicons } from '@expo/vector-icons';
+import { useIOSTranslateSheet } from 'react-native-ios-translate-sheet';
 import { useLanguage } from '../../../context/LanguageContext';
+import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
 import { ScoreDetails } from '../../../utils/pubGolfUtils';
 
@@ -29,6 +32,30 @@ export default function PubGolfStopHeader({
 }: PubGolfStopHeaderProps) {
     const { theme, mode } = useTheme();
     const { t } = useLanguage();
+    const { presentIOSTranslateSheet, isSupported } = useIOSTranslateSheet();
+    const { translateText, cacheTranslation } = useTranslation();
+
+    const originalText = `${stopName}\nDrink: ${drinkName}`;
+    const displayedStopName = translateText(stopName);
+    const displayedDrinkName = translateText(drinkName);
+
+    const handleTranslate = () => {
+        presentIOSTranslateSheet({
+            text: originalText,
+            replacementAction: (translatedText) => {
+                // Since the UI shows them separately, we'll cache them as a block for now
+                // or we could split them if the translation sheet returns them in a predictable way.
+                // For simplicity, we'll cache the block.
+                cacheTranslation(originalText, translatedText);
+                // Also cache individually if possible (best effort)
+                const parts = translatedText.split('\nDrink: ');
+                if (parts.length === 2) {
+                    cacheTranslation(stopName, parts[0]);
+                    cacheTranslation(drinkName, parts[1]);
+                }
+            }
+        });
+    };
 
     const textColor = theme.textPrimary;
     const subTextColor = theme.textSecondary;
@@ -64,10 +91,20 @@ export default function PubGolfStopHeader({
 
             {/* Middle: Info */}
             <View style={styles.info}>
-                <Text style={[styles.stopName, { color: textColor }]}>{stopName}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6, flexWrap: 'wrap' }}>
+                    <Text style={[styles.stopName, { color: textColor, marginBottom: 0, flexShrink: 1 }]}>{displayedStopName}</Text>
+                    {isSupported && (
+                        <TouchableOpacity 
+                            onPress={handleTranslate}
+                            style={{ marginLeft: 8, padding: 4, backgroundColor: theme.primary + '15', borderRadius: 8 }}
+                        >
+                            <Ionicons name="language" size={14} color={theme.primary} />
+                        </TouchableOpacity>
+                    )}
+                </View>
                 <View style={[styles.drinkBadge, { backgroundColor: drinkBadgeBg }]}>
                     <Text style={[styles.drinkName, { color: drinkBadgeText }]}>
-                        {drinkName}
+                        {displayedDrinkName}
                     </Text>
                 </View>
             </View>
