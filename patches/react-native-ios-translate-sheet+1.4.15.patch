@@ -1,0 +1,23 @@
+diff --git a/node_modules/react-native-ios-translate-sheet/android/src/main/java/com/iostranslatesheet/IOSTranslateSheetViewManager.kt b/node_modules/react-native-ios-translate-sheet/android/src/main/java/com/iostranslatesheet/IOSTranslateSheetViewManager.kt
+index c57291f..744ecaa 100644
+--- a/node_modules/react-native-ios-translate-sheet/android/src/main/java/com/iostranslatesheet/IOSTranslateSheetViewManager.kt
++++ b/node_modules/react-native-ios-translate-sheet/android/src/main/java/com/iostranslatesheet/IOSTranslateSheetViewManager.kt
+@@ -40,6 +40,18 @@ class IOSTranslateSheetViewManager : SimpleViewManager<IOSTranslateSheetView>(),
+     // No-op implementation since this is iOS-only
+   }  
+ 
++  @ReactProp(name = "hasReplacementAction")
++  override fun setHasReplacementAction(view: IOSTranslateSheetView, value: Boolean) {
++  }
++
++  @ReactProp(name = "translateAnchorPointX")
++  override fun setTranslateAnchorPointX(view: IOSTranslateSheetView, value: Double) {
++  }
++
++  @ReactProp(name = "translateAnchorPointY")
++  override fun setTranslateAnchorPointY(view: IOSTranslateSheetView, value: Double) {
++  }
++
+   companion object {
+     const val NAME = "IOSTranslateSheetView"
+   }

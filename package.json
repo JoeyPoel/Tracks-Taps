@@ -10,7 +10,7 @@
     "web": "expo start --web",
     "build": "npx prisma generate && expo export -p web && node scripts/vercel-build.js",
     "lint": "expo lint",
-    "postinstall": "prisma generate"
+    "postinstall": "patch-package && prisma generate"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -83,7 +83,9 @@
     "dotenv": "^17.2.3",
     "eslint": "^8.57.1",
     "eslint-config-expo": "~10.0.0",
+    "patch-package": "^8.0.1",
     "pg": "^8.18.0",
+    "postinstall-postinstall": "^2.1.0",
     "prisma": "^7.4.1",
     "tsx": "^4.7.1",
     "typescript": "~5.9.2"
