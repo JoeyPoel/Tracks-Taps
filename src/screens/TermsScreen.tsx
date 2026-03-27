@@ -6,15 +6,15 @@ import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { TextComponent } from '../components/common/TextComponent';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
-import { useIOSTranslateSheet } from '../hooks/useIOSTranslateSheet';
 import { useTranslation } from '../context/TranslationContext';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function TermsScreen() {
     const { theme } = useTheme();
-    const { t } = useLanguage();
-    const { presentIOSTranslateSheet, isSupported } = useIOSTranslateSheet();
-    const { translateText, cacheTranslation } = useTranslation();
+    const { t, language } = useLanguage();
+    const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
+
+    const showTranslateButton = !isAutoTranslateEnabled && language !== 'en';
 
     const sections = [
         {
@@ -172,26 +172,7 @@ export default function TermsScreen() {
             return `${s.title}\n${s.content.join('\n')}`;
         }).join('\n\n');
 
-        presentIOSTranslateSheet({
-            text: fullText,
-            replacementAction: (translatedText) => {
-                const blocks = translatedText.split('\n\n');
-                blocks.forEach((block, index) => {
-                    const lines = block.split('\n');
-                    const originalSection = sections[index];
-                    if (originalSection) {
-                        // Title is the first line
-                        cacheTranslation(originalSection.title, lines[0].trim());
-                        // Remainder are the paragraphs
-                        originalSection.content.forEach((para, pIndex) => {
-                            if (lines[pIndex + 1]) {
-                                cacheTranslation(para, lines[pIndex + 1].trim());
-                            }
-                        });
-                    }
-                });
-            }
-        });
+        requireTranslation(fullText);
     };
 
     return (
@@ -201,7 +182,7 @@ export default function TermsScreen() {
                 showBackButton
                 title={t('terms') || 'Terms & Conditions'}
                 rightElement={
-                    isSupported && (
+                    showTranslateButton && (
                         <TouchableOpacity
                             onPress={handleTranslateAll}
                             style={{ padding: 6, backgroundColor: theme.primary + '15', borderRadius: 8 }}
