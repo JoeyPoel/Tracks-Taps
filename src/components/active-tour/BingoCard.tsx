@@ -9,7 +9,6 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTranslation } from '../../context/TranslationContext';
-import { useIOSTranslateSheet } from 'react-native-ios-translate-sheet';
 
 interface BingoCardProps {
     team: Team;
@@ -26,9 +25,8 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
     const CELL_SIZE = Math.floor((appWidth - SCREEN_PADDING - (GAP * 2)) / 3);
 
     const { theme } = useTheme();
-    const { t } = useLanguage();
-    const { translateText, cacheTranslation } = useTranslation();
-    const { presentIOSTranslateSheet, isSupported } = useIOSTranslateSheet();
+    const { t, language } = useLanguage();
+    const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
     const bingoCard = team.bingoCard;
 
     if (!bingoCard) {
@@ -47,20 +45,15 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
     }).filter(Boolean) as Challenge[];
 
     const handleTranslateAll = () => {
+        // We will attempt to fetch translations sequentially or in parallel?
+        // Since the API accepts one string, we join them, then translate the block.
+        // Wait, requireTranslation accepts single string and Google API doesn't guarantee preserving \n strictly.
+        // Google API preserves newlines.
         const allTitles = gridChallenges.map(c => c.title).join('\n');
-        
-        presentIOSTranslateSheet({
-            text: allTitles,
-            replacementAction: (translatedText) => {
-                const translatedTitles = translatedText.split('\n');
-                gridChallenges.forEach((c, i) => {
-                    if (translatedTitles[i]) {
-                        cacheTranslation(c.title, translatedTitles[i].trim());
-                    }
-                });
-            }
-        });
+        requireTranslation(allTitles);
     };
+
+    const showTranslateButton = !isAutoTranslateEnabled && language !== 'en';
 
     // Helper to get challenge details
     const getChallenge = (id: number) => challenges.find(c => c.id === id);
@@ -104,7 +97,7 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
             <View style={styles.header}>
                 <TextComponent variant="h3" bold>{t('bingoCardTitle')}</TextComponent>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    {isSupported && gridChallenges.length > 0 && (
+                    {showTranslateButton && gridChallenges.length > 0 && (
                         <TouchableOpacity
                             onPress={handleTranslateAll}
                             style={{ padding: 6, backgroundColor: theme.primary + '15', borderRadius: 8 }}

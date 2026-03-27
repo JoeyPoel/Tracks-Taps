@@ -1,11 +1,13 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { saveImageToGallery, uploadOptimizedImage } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
-import { useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Alert, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
+import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
 import { TextComponent } from '../../common/TextComponent';
 import ActiveChallengeCard from '../ActiveChallengeCard';
@@ -29,10 +31,50 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const { translateText } = useTranslation();
     const isDone = isCompleted || isFailed;
     const [imageUri, setImageUri] = useState<string | null>(null);
+    const [disclaimerAccepted, setDisclaimerAccepted] = useState<boolean>(true);
+    const [isChecked, setIsChecked] = useState(false);
+
+    useEffect(() => {
+        const checkDisclaimer = async () => {
+            try {
+                const value = await AsyncStorage.getItem('@photo_disclaimer_accepted');
+                if (value !== 'true') {
+                    setDisclaimerAccepted(false);
+                }
+            } catch (e) {
+                // Ignore
+            }
+        };
+        checkDisclaimer();
+    }, []);
 
     const handlePress = async (): Promise<void> => {
+        if (!disclaimerAccepted) {
+            Alert.alert(
+                t('camera') || 'Camera',
+                t('challengeImageHelp') || "Challenge photos are stored for your team's review and are not used for the tour description.",
+                [
+                    { text: t('cancel') || 'Cancel', style: 'cancel' },
+                    { 
+                        text: t('accept') || 'Accept', 
+                        onPress: async () => {
+                            await AsyncStorage.setItem('@photo_disclaimer_accepted', 'true');
+                            setDisclaimerAccepted(true);
+                            await processCameraLaunch();
+                        }
+                    }
+                ]
+            );
+            return;
+        }
+
+        await processCameraLaunch();
+    };
+
+    const processCameraLaunch = async (): Promise<void> => {
         try {
             // Request camera + gallery permissions together before opening camera
             // so that saveToLibraryAsync can fire instantly after capture
@@ -77,7 +119,7 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
 
     return (
         <ActiveChallengeCard
-            title={challenge.title}
+            title={translateText(challenge.title)}
             points={challenge.points}
             type="camera"
             isCompleted={isCompleted}
@@ -90,22 +132,9 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
             translateText={challenge.content}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
-                {challenge.content}
+                {translateText(challenge.content)}
             </Text>
-            <TextComponent
-                style={styles.helpText}
-                color={theme.textSecondary}
-                variant="caption"
-            >
-                {t('challengeImageHelp')}
-            </TextComponent>
-            <TextComponent
-                style={styles.helpText}
-                color={theme.textSecondary}
-                variant="caption"
-            >
-                {t('gpsRequirementHelp')}
-            </TextComponent>
+
             <View style={styles.content}>
                 {(imageUri || isCompleted) && (
                     <View style={styles.placeholderImage}>

@@ -5,12 +5,11 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { useIOSTranslateSheet } from 'react-native-ios-translate-sheet';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from '../../context/TranslationContext';
 import { useTheme } from '../../context/ThemeContext';
-import { TextComponent } from '../common/TextComponent'; // Added import
+import { TextComponent } from '../common/TextComponent';
 
 interface StopInfoSectionProps {
     stop: any;
@@ -18,22 +17,17 @@ interface StopInfoSectionProps {
 
 export default function StopInfoSection({ stop }: StopInfoSectionProps) {
     const { theme } = useTheme();
-    const { t } = useLanguage();
-    const { presentIOSTranslateSheet, isSupported } = useIOSTranslateSheet();
-    const { translateText, cacheTranslation } = useTranslation();
+    const { t, language } = useLanguage();
+    const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
 
     if (!stop) return null;
 
     const originalDescription = stop.detailedDescription || stop.description || '';
     const displayedDescription = translateText(originalDescription) || t('noStopDescription');
+    const showTranslateButton = !isAutoTranslateEnabled && language !== 'en' && originalDescription !== '';
 
     const handleTranslate = () => {
-        presentIOSTranslateSheet({
-            text: originalDescription,
-            replacementAction: (translatedText) => {
-                cacheTranslation(originalDescription, translatedText);
-            }
-        });
+        requireTranslation(originalDescription);
     };
 
     const stopTypeKey = (stop.type || 'viewpoint').replace(/_/g, '').replace(/ /g, '');
@@ -81,7 +75,7 @@ export default function StopInfoSection({ stop }: StopInfoSectionProps) {
             ]}>
                 <View style={[styles.headerRow, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
                     <TextComponent style={[styles.title, { flex: 1, marginRight: 8 }]} color={theme.textPrimary} bold variant="h2">{stop.name}</TextComponent>
-                    {isSupported && (
+                    {showTranslateButton && (
                         <TouchableOpacity
                             onPress={handleTranslate}
                             style={{ padding: 6, backgroundColor: theme.primary + '15', borderRadius: 8 }}

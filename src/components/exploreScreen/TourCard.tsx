@@ -2,7 +2,7 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { BoltIcon as BoltIconSolid, ClockIcon, MapIcon, StarIcon as StarIconSolid } from 'react-native-heroicons/solid';
+import { BoltIcon as BoltIconSolid, MapIcon, StarIcon as StarIconSolid } from 'react-native-heroicons/solid';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { getGenreIcon } from '../../utils/genres';

@@ -43,9 +43,8 @@ export function CityPicker({ label, value, onSelect, placeholder }: CityPickerPr
 
         setLoading(true);
         try {
-            // Broaden search to include towns and villages, and increase limit to 20
-            const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&osm_tag=place:city&osm_tag=place:town&osm_tag=place:village&limit=20&lang=${language}`;
-            
+            // Hardcoded to always use English for the city search results
+            const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&osm_tag=place:city&osm_tag=place:town&osm_tag=place:village&limit=20&lang=en`;
             const response = await fetch(url);
             
             if (!response.ok) {

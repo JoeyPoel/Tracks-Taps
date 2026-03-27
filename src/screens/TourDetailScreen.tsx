@@ -19,25 +19,22 @@ import TourReviews from '../components/tourdetailScreen/TourReviews';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from '../context/TranslationContext';
 import { useSavedTrips } from '../hooks/useSavedTrips';
 import { useStartTour } from '../hooks/useStartTour';
 import { useTourDetails } from '../hooks/useTourDetails';
-import { useTranslation } from '../context/TranslationContext';
 import { tourService } from '../services/tourService';
 import { authEvents } from '../utils/authEvents';
 import { getOptimizedImageUrl } from '../utils/imageUtils';
-
 import { useSafeNavigation } from '../hooks/useSafeNavigation';
-import { useIOSTranslateSheet } from 'react-native-ios-translate-sheet';
 
 export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
   const { user } = useAuth();
-  const { t } = useLanguage();
-  const { translateText, cacheTranslation } = useTranslation();
+  const { t, language } = useLanguage();
+  const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
   const router = useRouter();
   const { goBack } = useSafeNavigation();
-  const { presentIOSTranslateSheet, isSupported } = useIOSTranslateSheet();
   const [showSavedTripModal, setShowSavedTripModal] = useState(false);
   const [showBuyTokens, setShowBuyTokens] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -253,14 +250,9 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
         <Animated.View entering={FadeInUp.delay(600)} style={styles.section}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <TextComponent style={[styles.sectionTitle, { marginBottom: 0 }]} variant="h2" bold color={theme.textPrimary}>{t('aboutThisTour')}</TextComponent>
-            {isSupported && tour.description && (
+            {!isAutoTranslateEnabled && language !== 'en' && tour.description && (
               <TouchableOpacity
-                onPress={() => presentIOSTranslateSheet({ 
-                  text: tour.description,
-                  replacementAction: (translatedText) => {
-                    cacheTranslation(tour.description, translatedText);
-                  }
-                })}
+                onPress={() => requireTranslation(tour.description)}
                 style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: theme.bgSecondary, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 }}
               >
                 <Ionicons name="language" size={16} color={theme.primary} />
@@ -280,7 +272,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
         {/* Reviews Section (Expandable) */}
         <Animated.View entering={FadeInUp.delay(800)}>
-        <TourReviews
+          <TourReviews
             reviews={formattedReviews}
             averageRating={averageRating}
             totalReviews={reviewCount}

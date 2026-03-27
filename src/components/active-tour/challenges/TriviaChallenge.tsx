@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
+import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
 import { AnimatedPressable } from '../../common/AnimatedPressable';
 import ActiveChallengeCard from '../ActiveChallengeCard';
@@ -29,11 +30,12 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const { translateText } = useTranslation();
     const isDone = isCompleted || isFailed;
 
     return (
         <ActiveChallengeCard
-            title={challenge.title}
+            title={translateText(challenge.title)}
             points={challenge.points}
             type="trivia"
             isCompleted={isCompleted}
@@ -46,7 +48,7 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
             translateText={[challenge.content, ...(challenge.options || [])].filter(Boolean).join('\n')}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
-                {challenge.content}
+                {translateText(challenge.content)}
             </Text>
             <View>
                 {/* Content moved to card header */}
@@ -98,7 +100,7 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
                                     { color: theme.textPrimary },
                                     isDone && isCorrect && { color: theme.success, fontWeight: 'bold' },
                                     isDone && isSelected && isFailed && { color: theme.danger, fontWeight: 'bold' }
-                                ]}>{option}</Text>
+                                ]}>{translateText(option)}</Text>
                             </AnimatedPressable>
                         )
                     })}

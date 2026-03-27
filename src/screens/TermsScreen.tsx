@@ -6,7 +6,7 @@ import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { TextComponent } from '../components/common/TextComponent';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
-import { useIOSTranslateSheet } from 'react-native-ios-translate-sheet';
+import { useIOSTranslateSheet } from '../hooks/useIOSTranslateSheet';
 import { useTranslation } from '../context/TranslationContext';
 import { Ionicons } from '@expo/vector-icons';
 

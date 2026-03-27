@@ -8,14 +8,13 @@ import { AnimatedPressable } from '../components/common/AnimatedPressable';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { useLanguage } from '../context/LanguageContext';
-import { useTranslation } from '../context/TranslationContext';
 import { useTheme } from '../context/ThemeContext';
-import { darkTheme } from '../context/theme';
+import { useTranslation } from '../context/TranslationContext';
 
 export default function AppPreferencesScreen() {
   const { theme, toggleTheme, mode } = useTheme();
   const { t, language, setLanguage } = useLanguage();
-  const { isAutoTranslateEnabled, setIsAutoTranslateEnabled } = useTranslation();
+  const { isAutoTranslateEnabled, setIsAutoTranslateEnabled, targetLanguage, setTargetLanguage } = useTranslation();
 
   const languages = [
     { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -75,9 +74,9 @@ export default function AppPreferencesScreen() {
         {/* Language Section */}
         {renderSectionHeader(t('language'), 'language-outline')}
         <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false} 
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.languageContainer}
           >
             {languages.map((lang, index) => {
@@ -135,6 +134,50 @@ export default function AppPreferencesScreen() {
               ios_backgroundColor={theme.bgDisabled}
             />
           </View>
+
+          {!isAutoTranslateEnabled && (
+              <View style={[styles.row, { borderTopWidth: 1, borderTopColor: theme.borderSecondary, flexDirection: 'column', alignItems: 'flex-start', paddingBottom: 8 }]}>
+                  <TextComponent style={[styles.rowTitle, { marginBottom: 12 }]} color={theme.textPrimary} bold variant="body">Translate To</TextComponent>
+                  <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={[styles.languageContainer, { padding: 0 }]}
+                  >
+                      {languages.map((lang, index) => {
+                          const isActive = (targetLanguage || language) === lang.code;
+                          return (
+                              <AnimatedPressable
+                                  key={lang.code}
+                                  onPress={() => setTargetLanguage(lang.code as any)}
+                                  style={[
+                                      styles.languageOption,
+                                      {
+                                          backgroundColor: isActive ? theme.primary + '10' : 'transparent',
+                                          borderColor: isActive ? theme.primary : theme.borderSecondary,
+                                          borderWidth: isActive ? 1.5 : 1
+                                      }
+                                  ]}
+                              >
+                                  <TextComponent style={{ fontSize: 24, marginBottom: 4 }}>{lang.flag}</TextComponent>
+                                  <TextComponent
+                                      style={styles.languageLabel}
+                                      color={isActive ? theme.primary : theme.textPrimary}
+                                      bold={isActive}
+                                      variant="body"
+                                  >
+                                      {lang.label}
+                                  </TextComponent>
+                                  {isActive && (
+                                      <View style={[styles.activeBadge, { backgroundColor: theme.primary }]}>
+                                          <Ionicons name="checkmark" size={10} color="#FFF" />
+                                      </View>
+                                  )}
+                              </AnimatedPressable>
+                          );
+                      })}
+                  </ScrollView>
+              </View>
+          )}
         </View>
 
         {/* Notifications Mockup (Future Proofing) - Hidden for now

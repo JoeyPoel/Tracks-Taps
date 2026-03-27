@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
+import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
 import ActiveChallengeCard from '../ActiveChallengeCard';
 
@@ -23,6 +24,7 @@ const LocationChallenge: React.FC<LocationChallengeProps> = ({
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const { translateText } = useTranslation();
     const isDone = isCompleted || isFailed;
 
     const handlePress = () => {
@@ -31,7 +33,7 @@ const LocationChallenge: React.FC<LocationChallengeProps> = ({
 
     return (
         <ActiveChallengeCard
-            title={challenge.title}
+            title={translateText(challenge.title)}
             points={challenge.points}
             type={challenge.type && challenge.type.toLowerCase() === 'check_in' ? 'check_in' : 'location'}
             isCompleted={isCompleted}
@@ -44,7 +46,7 @@ const LocationChallenge: React.FC<LocationChallengeProps> = ({
             translateText={challenge.content}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
-                {challenge.content}
+                {translateText(challenge.content)}
             </Text>
         </ActiveChallengeCard>
     );

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tracks&Taps",
     "slug": "tracks-and-taps",
-    "version": "2.6.0",
+    "version": "2.6.1",
     "orientation": "portrait",
     "icon": "./assets/images/AppIconColouredDarkTheme.png",
     "scheme": "tracks-taps",
@@ -22,10 +22,10 @@
         "tinted": "./assets/images/AppIconDarkTheme.png"
       },
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Tracks Taps uses your location to show your position on the map and verify location-based challenges.",
-        "NSPhotoLibraryUsageDescription": "Tracks Taps needs access to your photo library to select images for tours and stops.",
-        "NSPhotoLibraryAddUsageDescription": "Tracks Taps saves your captured challenge photos to your photo library.",
-        "NSCameraUsageDescription": "Tracks Taps needs access to your camera to take photos for challenges and tour images.",
+        "NSLocationWhenInUseUsageDescription": "Tracks Taps uses your location to show your real-time position on the map and automatically verify when you reach location-based checkpoints during a tour.",
+        "NSPhotoLibraryUsageDescription": "Tracks Taps requires access to your photo library so you can select and upload images (e.g., a photo of a landmark) to include in the custom city tours you create, or to set your user profile picture.",
+        "NSPhotoLibraryAddUsageDescription": "Tracks Taps requires permission to save photos to your gallery so that when you complete a photo challenge during a game (e.g., taking a picture of a statue), we can save your memory to your device's camera roll.",
+        "NSCameraUsageDescription": "Tracks Taps requires camera access so you can actively take photos during a tour to complete interactive photo challenges (e.g., snapping a picture of your team at a specific checkpoint) and to take photos for your custom tour listings.",
         "ITSAppUsesNonExemptEncryption": false
       },
       "googleServicesFile": "./GoogleService-Info.plist",
@@ -40,15 +40,29 @@
       "versionCode": 7,
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO",
+        "android.permission.READ_MEDIA_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO",
+        "android.permission.READ_MEDIA_AUDIO"
+      ]
     },
     "plugins": [
       "expo-router",
       [
         "expo-media-library",
         {
-          "photosPermission": "Allow Tracks & Taps to access your photos.",
-          "savePhotosPermission": "Allow Tracks & Taps to save photos to your gallery."
+          "photosPermission": "Tracks Taps requires access to your photo library so you can select and upload images (e.g., a photo of a landmark) to include in the custom city tours you create, or to set your user profile.",
+          "savePhotosPermission": "Tracks Taps requires permission to save photos to your gallery so that when you complete a photo challenge during a game (e.g., taking a picture of a statue), we can save it to your camera roll."
         }
       ],
       [
@@ -84,6 +98,12 @@
         "projectId": "033de2f9-fb8a-489a-8360-f4fb5f48540e"
       }
     },
-    "owner": "tracks-and-taps"
+    "owner": "tracks-and-taps",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/033de2f9-fb8a-489a-8360-f4fb5f48540e"
+    }
   }
 }

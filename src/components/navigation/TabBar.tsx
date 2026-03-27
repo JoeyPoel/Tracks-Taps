@@ -55,14 +55,14 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
         <Animated.View style={[styles.container, { paddingBottom: 30 }, animatedStyle]}>
             <View style={styles.pillContainer}>
                 <BlurView
-                    intensity={80}
+                    intensity={25}
                     tint={mode === 'dark' ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight'}
                     style={[
                         styles.glassContainer,
                         {
-                            borderColor: 'transparent',
-                            backgroundColor: 'transparent',
-                            shadowColor: 'transparent'
+                            borderColor: theme.navBarBorder,
+                            backgroundColor: theme.navBarBackground,
+                            shadowColor: theme.shadowColor
                         }
                     ]}
                 >

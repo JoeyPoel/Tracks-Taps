@@ -63,7 +63,8 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
                     value={searchText}
                     onChangeText={(text) => {
                         onSearchTextChange(text);
-                        if (text.toLowerCase() === 'laura <3 joey' || text.toLowerCase() === 'joey <3 laura') {
+                        const lowerText = text.toLowerCase();
+                        if (lowerText === 'laura <3 joey' || lowerText === 'joey <3 laura') {
                             triggerOverlay('romantic');
                         }
                     }}

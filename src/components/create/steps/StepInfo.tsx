@@ -100,7 +100,7 @@ export default function StepInfo({ draft, updateDraft }: StepInfoProps) {
                                         bold={false}
                                         variant="body"
                                     >
-                                        {getTourTypeLabel(type)}
+                                        {getTourTypeLabel(type, t)}
                                     </TextComponent>
                                 </TouchableOpacity>
                             );

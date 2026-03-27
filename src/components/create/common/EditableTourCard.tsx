@@ -122,7 +122,7 @@ export function EditableTourCard({
                             style={[styles.badge, styles.blurBadge]}
                         >
                             <TextComponent style={styles.badgeText} color="#FFF" bold size={12}>
-                                {draft.type ? getTourTypeLabel(draft.type) : t('selectType')}
+                                {draft.type ? getTourTypeLabel(draft.type, t) : t('selectType')}
                             </TextComponent>
                             <View style={styles.dropdownCaret} />
                         </TouchableOpacity>
@@ -218,7 +218,7 @@ export function EditableTourCard({
                 onClose={() => setPickerType(null)}
                 title={t('selectTourType')}
                 options={Object.values(TourType).map((type: string) => ({
-                    label: getTourTypeLabel(type),
+                    label: getTourTypeLabel(type, t),
                     value: type
                 }))}
                 onSelect={(val) => updateDraft('type', val)}

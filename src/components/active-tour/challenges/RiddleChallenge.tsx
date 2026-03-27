@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
+import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
 import { AnimatedPressable } from '../../common/AnimatedPressable';
 import ActiveChallengeCard from '../ActiveChallengeCard';
@@ -29,6 +30,7 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const { translateText } = useTranslation();
     const [answer, setAnswer] = useState('');
     const [showHint, setShowHint] = useState(false);
     const isDone = isCompleted || isFailed;
@@ -48,7 +50,7 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
 
     return (
         <ActiveChallengeCard
-            title={challenge.title}
+            title={translateText(challenge.title)}
             points={challenge.points}
             type="trivia"
             isCompleted={isCompleted}
@@ -61,7 +63,7 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
             translateText={challenge.content + (challenge.hint ? '\n\nHint: ' + challenge.hint : '')}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
-                {challenge.content}
+                {translateText(challenge.content)}
             </Text>
             <View style={styles.content}>
 
@@ -82,7 +84,7 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
                 {showHint && challenge.hint && (
                     <View style={[styles.hintBox, { backgroundColor: theme.bgTertiary }]}>
                         <Text style={[styles.hintText, { color: theme.textSecondary }]}>
-                            {challenge.hint}
+                            {translateText(challenge.hint)}
                         </Text>
                     </View>
                 )}

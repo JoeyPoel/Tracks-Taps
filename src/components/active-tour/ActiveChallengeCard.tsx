@@ -3,7 +3,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View, TouchableOpacity } from 'react-native';
-import { useIOSTranslateSheet } from 'react-native-ios-translate-sheet';
 import {
     BoltIcon,
     CheckCircleIcon,
@@ -47,20 +46,15 @@ export default function ActiveChallengeCard({
     translateText: translateTextProp
 }: ActiveChallengeCardProps & { disabled?: boolean, isFailed?: boolean, index?: number, isBonus?: boolean, translateText?: string }) {
     const { theme } = useTheme();
-    const { t } = useLanguage();
-    const { presentIOSTranslateSheet, isSupported } = useIOSTranslateSheet();
-    const { translateText, cacheTranslation } = useTranslation();
+    const { t, language } = useLanguage();
+    const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
 
     const displayedTranslateText = translateText(translateTextProp || '');
+    const showTranslateButton = !isAutoTranslateEnabled && language !== 'en' && !!translateTextProp;
 
     const handleTranslate = () => {
         if (!translateTextProp) return;
-        presentIOSTranslateSheet({
-            text: translateTextProp,
-            replacementAction: (translatedText) => {
-                cacheTranslation(translateTextProp, translatedText);
-            }
-        });
+        requireTranslation(translateTextProp);
     };
 
     // Entrance Animation
@@ -145,7 +139,7 @@ export default function ActiveChallengeCard({
                             <TextComponent style={styles.cardTitle} color={theme.textPrimary} bold variant="body">{title}</TextComponent>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            {translateTextProp && isSupported && (
+                            {showTranslateButton && (
                                 <TouchableOpacity 
                                     onPress={handleTranslate}
                                     style={{ padding: 6, marginRight: 8, backgroundColor: theme.primary + '15', borderRadius: 8 }}

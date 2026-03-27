@@ -3,7 +3,6 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { FlagIcon } from 'react-native-heroicons/outline';
 import { Ionicons } from '@expo/vector-icons';
-import { useIOSTranslateSheet } from 'react-native-ios-translate-sheet';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
@@ -31,30 +30,16 @@ export default function PubGolfStopHeader({
     isActive,
 }: PubGolfStopHeaderProps) {
     const { theme, mode } = useTheme();
-    const { t } = useLanguage();
-    const { presentIOSTranslateSheet, isSupported } = useIOSTranslateSheet();
-    const { translateText, cacheTranslation } = useTranslation();
+    const { t, language } = useLanguage();
+    const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
 
     const originalText = `${stopName}\nDrink: ${drinkName}`;
     const displayedStopName = translateText(stopName);
     const displayedDrinkName = translateText(drinkName);
+    const showTranslateButton = !isAutoTranslateEnabled && language !== 'en';
 
     const handleTranslate = () => {
-        presentIOSTranslateSheet({
-            text: originalText,
-            replacementAction: (translatedText) => {
-                // Since the UI shows them separately, we'll cache them as a block for now
-                // or we could split them if the translation sheet returns them in a predictable way.
-                // For simplicity, we'll cache the block.
-                cacheTranslation(originalText, translatedText);
-                // Also cache individually if possible (best effort)
-                const parts = translatedText.split('\nDrink: ');
-                if (parts.length === 2) {
-                    cacheTranslation(stopName, parts[0]);
-                    cacheTranslation(drinkName, parts[1]);
-                }
-            }
-        });
+        requireTranslation(originalText);
     };
 
     const textColor = theme.textPrimary;
@@ -93,7 +78,7 @@ export default function PubGolfStopHeader({
             <View style={styles.info}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6, flexWrap: 'wrap' }}>
                     <Text style={[styles.stopName, { color: textColor, marginBottom: 0, flexShrink: 1 }]}>{displayedStopName}</Text>
-                    {isSupported && (
+                    {showTranslateButton && (
                         <TouchableOpacity 
                             onPress={handleTranslate}
                             style={{ marginLeft: 8, padding: 4, backgroundColor: theme.primary + '15', borderRadius: 8 }}

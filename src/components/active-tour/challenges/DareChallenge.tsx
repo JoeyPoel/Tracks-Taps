@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
+import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
 import ActiveChallengeCard from '../ActiveChallengeCard';
 
@@ -23,11 +24,12 @@ const DareChallenge: React.FC<DareChallengeProps> = ({
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const { translateText } = useTranslation();
     const isDone = isCompleted || isFailed; // Dares usually can't fail, but interface needs it
 
     return (
         <ActiveChallengeCard
-            title={challenge.title}
+            title={translateText(challenge.title)}
             points={challenge.points}
             type="dare"
             isCompleted={isCompleted}
@@ -41,7 +43,7 @@ const DareChallenge: React.FC<DareChallengeProps> = ({
         >
             <View style={styles.content}>
                 <Text style={[styles.dareText, { color: theme.textPrimary }]}>
-                    {challenge.content}
+                    {translateText(challenge.content)}
                 </Text>
             </View>
         </ActiveChallengeCard>

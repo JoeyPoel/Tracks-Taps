@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useIOSTranslateSheet } from 'react-native-ios-translate-sheet';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/TranslationContext';
@@ -11,21 +10,17 @@ import { TextComponent } from '../common/TextComponent';
 
 export default function StopCard({ stop }: { stop: Stop }) {
     const { theme } = useTheme();
-    const { t } = useLanguage();
-    const { translateText, cacheTranslation } = useTranslation();
-    const { presentIOSTranslateSheet, isSupported } = useIOSTranslateSheet();
+    const { t, language } = useLanguage();
+    const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
 
-    const originalDescription = stop.description || t('completeAllChallengesToContinue');
+    const originalDescription = stop.description || t('completeAllChallengesToContinue') || '';
     const displayedDescription = translateText(originalDescription);
 
     const handleTranslate = () => {
-        presentIOSTranslateSheet({
-            text: originalDescription,
-            replacementAction: (translatedText) => {
-                cacheTranslation(originalDescription, translatedText);
-            }
-        });
+        requireTranslation(originalDescription);
     };
+
+    const showTranslateButton = !isAutoTranslateEnabled && language !== 'en' && originalDescription.length > 0;
 
     return (
         <GenericCard
@@ -38,7 +33,7 @@ export default function StopCard({ stop }: { stop: Stop }) {
                     <TextComponent style={[styles.headerTitle, { flex: 1, marginRight: 8 }]} color={theme.textPrimary} bold variant="h3">
                         {`${t('Stop')} ${stop.number}: ${stop.name}`}
                     </TextComponent>
-                    {isSupported && (
+                    {showTranslateButton && (
                         <TouchableOpacity
                             onPress={handleTranslate}
                             style={{ padding: 6, backgroundColor: theme.primary + '15', borderRadius: 8 }}

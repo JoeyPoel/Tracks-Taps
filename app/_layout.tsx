@@ -2,9 +2,9 @@ import { GlobalErrorBoundary } from '@/src/components/common/GlobalErrorBoundary
 import * as SplashScreen from 'expo-splash-screen';
 
 import { MainLayout } from '@/src/components/common/MainLayout';
+import { TranslateSheetWrapper } from '@/src/components/common/TranslateSheetWrapper';
 import { GlobalProvider } from '@/src/context/GlobalProvider';
 import React from 'react';
-import { IOSTranslateSheetProvider } from 'react-native-ios-translate-sheet';
 
 export { GlobalErrorBoundary as ErrorBoundary };
 
@@ -13,10 +13,10 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
     return (
-        <IOSTranslateSheetProvider>
+        <TranslateSheetWrapper>
             <GlobalProvider>
                 <MainLayout />
             </GlobalProvider>
-        </IOSTranslateSheetProvider>
+        </TranslateSheetWrapper>
     );
 }

@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
+import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
 import { AnimatedPressable } from '../../common/AnimatedPressable';
 import ActiveChallengeCard from '../ActiveChallengeCard';
@@ -29,6 +30,7 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const { translateText } = useTranslation();
     const [selected, setSelected] = useState<string | null>(null);
     const isDone = isCompleted || isFailed;
 
@@ -50,7 +52,7 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
 
     return (
         <ActiveChallengeCard
-            title={challenge.title}
+            title={translateText(challenge.title)}
             points={challenge.points}
             type="trivia"
             isCompleted={isCompleted}
@@ -63,7 +65,7 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
             translateText={challenge.content || undefined}
         >
             <Text style={[styles.description, { color: theme.textPrimary }]}>
-                {challenge.content}
+                {translateText(challenge.content)}
             </Text>
             <View style={styles.content}>
 
