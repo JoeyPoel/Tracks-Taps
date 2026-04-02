@@ -48,6 +48,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
     const [photos, setPhotos] = useState<ReviewPhoto[]>([]);
     const [isWaitingForUploads, setIsWaitingForUploads] = useState(false);
 
+    const prevVisible = React.useRef(visible);
     const pendingUploads = React.useRef<Map<string, Promise<string | null>>>(new Map());
     const photosRef = React.useRef(photos);
     React.useEffect(() => {
@@ -59,7 +60,6 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
     // Load draft when modal opens
     React.useEffect(() => {
         const loadDraft = async () => {
-            if (!visible) return;
             try {
                 const stored = await AsyncStorage.getItem(DRAFT_KEY);
                 if (stored) {
@@ -77,15 +77,23 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
             }
         };
 
-        if (visible) {
+        if (visible && !prevVisible.current) {
+            // Only initialize when opening
             if (mode === 'edit' && initialData) {
                 setRating(initialData.rating);
                 setContent(initialData.content);
-                setPhotos(initialData.photos.map(url => ({ id: Math.random().toString(), uri: url, publicUrl: url, uploading: false })));
+                setPhotos(initialData.photos.map(url => ({ 
+                    id: Math.random().toString(), 
+                    uri: url, 
+                    publicUrl: url, 
+                    uploading: false 
+                })));
             } else {
                 loadDraft();
             }
         }
+        
+        prevVisible.current = visible;
     }, [visible, mode, initialData, tourId]);
 
     // Save draft on changes
@@ -160,7 +168,38 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
         } else {
             await onSubmit(rating, content, finalUrls);
         }
+        // Use onClose directly here to skip safeguard since we actually saved
         onClose();
+    };
+
+    const handleCloseAttempt = () => {
+        // Compare current state with initial/draft to see if something changed
+        let hasChanges = false;
+        if (mode === 'edit' && initialData) {
+            const currentPhotosUrls = photos.map(p => p.publicUrl).filter(Boolean).sort().join(',');
+            const initialPhotosUrls = initialData.photos.sort().join(',');
+            hasChanges = 
+                rating !== initialData.rating || 
+                content.trim() !== initialData.content.trim() || 
+                currentPhotosUrls !== initialPhotosUrls;
+        } else {
+            // For create mode, we check if anything is filled at all (or if it differs from a potentially loaded draft)
+            // But easiest safeguard is: if anything is typed/rated, ask.
+            hasChanges = rating > 0 || content.trim().length > 0 || photos.length > 0;
+        }
+
+        if (hasChanges && !submitting) {
+            Alert.alert(
+                t('discardChanges') || 'Discard Changes?',
+                t('discardChangesMessage') || 'You have unsaved changes. Are you sure you want to discard them?',
+                [
+                    { text: t('keepEditing') || 'Keep Editing', style: 'cancel' },
+                    { text: t('discard') || 'Discard', style: 'destructive', onPress: onClose }
+                ]
+            );
+        } else {
+            onClose();
+        }
     };
 
     const startUpload = async (uri: string, id: string) => {
@@ -238,7 +277,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
     return (
         <AppModal
             visible={visible}
-            onClose={onClose}
+            onClose={handleCloseAttempt}
             title={mode === 'edit' ? t('editReview') : t('rateExperience')}
             subtitle={tourName}
             alignment="center"

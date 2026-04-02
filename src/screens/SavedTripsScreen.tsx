@@ -14,6 +14,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useSavedTrips } from '../hooks/useSavedTrips';
 import { SavedTrip } from '../services/savedTripsService';
+import { FadeInItem } from '../components/common/FadeInList';
 
 export default function SavedTripsScreen() {
     const { theme } = useTheme();
@@ -36,7 +37,7 @@ export default function SavedTripsScreen() {
         const isFavourites = item.name === 'Favourites';
 
         return (
-            <Animated.View entering={FadeInDown.delay(index * 100).springify()}>
+            <FadeInItem index={index}>
                 <TouchableOpacity
                     style={[
                         styles.card,
@@ -108,7 +109,7 @@ export default function SavedTripsScreen() {
                         </View>
                     </View>
                 </TouchableOpacity>
-            </Animated.View>
+            </FadeInItem>
         );
     };
 
@@ -127,27 +128,17 @@ export default function SavedTripsScreen() {
             />
 
             <FlatList
-                data={(!loading || lists.length > 0) ? [...lists].sort((a, b) => {
-                    if (typeof a === 'number' || typeof b === 'number') return 0;
+                data={[...lists].sort((a, b) => {
                     if (a.name === 'Favourites') return -1;
                     if (b.name === 'Favourites') return 1;
                     return 0;
-                }) : ([1, 2, 3] as any)}
-                renderItem={({ item, index }) => {
-                    if (typeof item === 'number') {
-                        return (
-                            <Animated.View entering={FadeInDown.delay(index * 100).duration(400)}>
-                                <SavedTripSkeleton />
-                            </Animated.View>
-                        );
-                    }
-                    return renderItem({ item, index });
-                }}
-                keyExtractor={(item) => typeof item === 'number' ? `skeleton-${item}` : item.id.toString()}
+                })}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id.toString()}
                 contentContainerStyle={styles.listContent}
                 refreshControl={
                     <RefreshControl
-                        refreshing={loading && lists.length > 0}
+                        refreshing={loading}
                         onRefresh={loadLists}
                         tintColor={theme.primary}
                     />

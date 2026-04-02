@@ -8,6 +8,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { TextComponent } from '../common/TextComponent';
 import { useTranslation } from '../../context/TranslationContext';
+import { FadeInItem } from '../common/FadeInList';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -39,6 +40,139 @@ interface TourReviewsProps {
 
 import { ImageLightbox } from '../common/ImageLightbox';
 
+function ReviewItem({ 
+    review, 
+    index, 
+    currentUserId, 
+    onEditReview, 
+    onDeleteReview, 
+    handleOpenLightbox,
+    renderStars
+}: { 
+    review: Review, 
+    index: number, 
+    currentUserId?: string | number,
+    onEditReview?: (review: Review) => void,
+    onDeleteReview?: (reviewId: string) => void,
+    handleOpenLightbox: (images: string[], index: number) => void,
+    renderStars: (rating: number) => React.ReactNode
+}) {
+    const { theme } = useTheme();
+    const { t } = useLanguage();
+    const router = useRouter();
+    const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
+    const [isTranslated, setIsTranslated] = useState(isAutoTranslateEnabled);
+
+    const toggleTranslation = async () => {
+        if (!isTranslated) {
+            // If we're turning it ON, ensure we have the translation
+            await requireTranslation(review.comment);
+        }
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setIsTranslated(!isTranslated);
+    };
+
+    return (
+        <FadeInItem index={index}>
+            <View style={[styles.reviewCard, { backgroundColor: theme.bgSecondary, overflow: 'hidden' }]}>
+                <TouchableOpacity
+                    activeOpacity={0.4}
+                    style={styles.reviewHeader}
+                    onPress={() => {
+                        if (review.userId && review.userId !== 'unknown') {
+                            router.push({
+                                pathname: '/(tabs)/profile/friend-profile',
+                                params: { userId: review.userId }
+                            });
+                        }
+                    }}
+                >
+                    <Image
+                        source={review.userAvatar ? { uri: getOptimizedImageUrl(review.userAvatar, 40) } : require('../../../assets/images/profilePictureFallback.png')}
+                        style={[styles.avatar, { backgroundColor: theme.bgPrimary }]}
+                        cachePolicy="disk"
+                        contentFit="cover"
+                    />
+                    <View style={styles.userInfo}>
+                        <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">
+                            {review.name}
+                        </TextComponent>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <View style={styles.stars}>{renderStars(review.rating)}</View>
+                            <TextComponent style={styles.date} color={theme.textSecondary} variant="caption">
+                                {review.date}
+                            </TextComponent>
+                        </View>
+                    </View>
+                </TouchableOpacity>
+
+                {/* Author Actions (Edit/Delete) */}
+                {currentUserId && review.userId === String(currentUserId) && (
+                    <View style={styles.authorActions}>
+                        <TouchableOpacity 
+                            onPress={() => onEditReview?.(review)}
+                            style={[styles.actionIcon, { backgroundColor: theme.primary + '15' }]}
+                        >
+                            <Ionicons name="pencil" size={14} color={theme.primary} />
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                            onPress={() => onDeleteReview?.(review.id)}
+                            style={[styles.actionIcon, { backgroundColor: theme.danger + '15' }]}
+                        >
+                            <Ionicons name="trash-outline" size={14} color={theme.danger} />
+                        </TouchableOpacity>
+                    </View>
+                )}
+
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <View style={{ flex: 1 }}>
+                        <TextComponent style={styles.comment} color={theme.textPrimary} variant="body">
+                            {isTranslated ? translateText(review.comment, true) : review.comment}
+                        </TextComponent>
+                    </View>
+                    
+                    {review.comment && review.comment.trim().length > 0 && (
+                        <TouchableOpacity 
+                            onPress={toggleTranslation}
+                            style={[styles.translateToggle, { backgroundColor: isTranslated ? theme.primary + '15' : 'transparent' }]}
+                        >
+                            <Ionicons 
+                                name="language" 
+                                size={16} 
+                                color={isTranslated ? theme.primary : theme.textSecondary} 
+                            />
+                            <TextComponent 
+                                size={10} 
+                                color={isTranslated ? theme.primary : theme.textSecondary}
+                                bold={isTranslated}
+                            >
+                            </TextComponent>
+                        </TouchableOpacity>
+                    )}
+                </View>
+
+                {
+                    review.images && review.images.length > 0 && (
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imagesContainer}>
+                            {review.images.map((img, index) => (
+                                <TouchableOpacity key={index} activeOpacity={0.9} onPress={() => handleOpenLightbox(review.images!, index)}>
+                                    <Image
+                                        source={{ uri: getOptimizedImageUrl(img, 200) }}
+                                        style={styles.reviewImage}
+                                        contentFit="cover"
+                                        cachePolicy="disk"
+                                        transition={300}
+                                    />
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    )
+                }
+            </View>
+        </FadeInItem>
+    );
+}
+
 export default function TourReviews({ 
     reviews, 
     averageRating, 
@@ -63,30 +197,6 @@ export default function TourReviews({
 
     // pagination (sorting is now lifted)
     const [visibleCount, setVisibleCount] = useState(5);
-
-    const toggleExpanded = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        setExpanded(!expanded);
-    };
-
-    const handleOpenLightbox = (images: string[], index: number) => {
-        setLightboxImages(images);
-        setLightboxIndex(index);
-        setLightboxVisible(true);
-    };
-    
-    // Reviews are now pre-sorted by the backend/hook
-    const visibleReviews = reviews.slice(0, visibleCount);
-
-    const handleShowMore = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        setVisibleCount(prev => prev + 5);
-    };
-
-    const handleShowLess = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        setVisibleCount(5);
-    };
 
     const SortChip = ({ label, value, active }: any) => (
         <TouchableOpacity
@@ -121,9 +231,32 @@ export default function TourReviews({
         ));
     };
 
+    const toggleExpanded = () => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setExpanded(!expanded);
+    };
+
+    const handleOpenLightbox = (images: string[], index: number) => {
+        setLightboxImages(images);
+        setLightboxIndex(index);
+        setLightboxVisible(true);
+    };
+    
+    // Reviews are now pre-sorted by the backend/hook
+    const visibleReviews = reviews.slice(0, visibleCount);
+
+    const handleShowMore = () => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setVisibleCount(prev => prev + 5);
+    };
+
+    const handleShowLess = () => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setVisibleCount(5);
+    };
+
     return (
         <View style={styles.container}>
-
             {/* Summary Header (Always Visible) */}
             <TouchableOpacity
                 activeOpacity={0.7}
@@ -179,95 +312,19 @@ export default function TourReviews({
                         </View>
                     )}
 
-                    {visibleReviews.map((review) => (
-                        <View
-                            key={review.id}
-                            style={[styles.reviewCard, { backgroundColor: theme.bgSecondary, overflow: 'hidden' }]}
-                        >
-                            <TouchableOpacity
-                                activeOpacity={0.4}
-                                style={styles.reviewHeader}
-                                onPress={() => {
-                                    if (review.userId && review.userId !== 'unknown') {
-                                        router.push({
-                                            pathname: '/(tabs)/profile/friend-profile',
-                                            params: { userId: review.userId }
-                                        });
-                                    }
-                                }}
-                            >
-                                <Image
-                                    source={review.userAvatar ? { uri: getOptimizedImageUrl(review.userAvatar, 40) } : require('../../../assets/images/profilePictureFallback.png')}
-                                    style={[styles.avatar, { backgroundColor: theme.bgPrimary }]}
-                                    cachePolicy="disk"
-                                    contentFit="cover"
-                                />
-                                <View style={styles.userInfo}>
-                                    <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">
-                                        {review.name}
-                                    </TextComponent>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                                        <View style={styles.stars}>{renderStars(review.rating)}</View>
-                                        <TextComponent style={styles.date} color={theme.textSecondary} variant="caption">
-                                            {review.date}
-                                        </TextComponent>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-
-                            {/* Author Actions (Edit/Delete) */}
-                            {currentUserId && review.userId === String(currentUserId) && (
-                                <View style={styles.authorActions}>
-                                    <TouchableOpacity 
-                                        onPress={() => onEditReview?.(review)}
-                                        style={[styles.actionIcon, { backgroundColor: theme.primary + '15' }]}
-                                    >
-                                        <Ionicons name="pencil" size={14} color={theme.primary} />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity 
-                                        onPress={() => onDeleteReview?.(review.id)}
-                                        style={[styles.actionIcon, { backgroundColor: theme.danger + '15' }]}
-                                    >
-                                        <Ionicons name="trash-outline" size={14} color={theme.danger} />
-                                    </TouchableOpacity>
-                                </View>
-                            )}
-
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <View style={{ flex: 1 }}>
-                                    <TextComponent style={styles.comment} color={theme.textPrimary} variant="body">
-                                        {translateText(review.comment)}
-                                    </TextComponent>
-                                </View>
-                                {!isAutoTranslateEnabled && review.comment && (
-                                    <TouchableOpacity 
-                                        onPress={() => requireTranslation(review.comment)}
-                                        style={{ padding: 4, marginLeft: 8 }}
-                                    >
-                                        <Ionicons name="language" size={16} color={theme.primary} />
-                                    </TouchableOpacity>
-                                )}
-                            </View>
-
-                            {
-                                review.images && review.images.length > 0 && (
-                                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imagesContainer}>
-                                        {review.images.map((img, index) => (
-                                            <TouchableOpacity key={index} activeOpacity={0.9} onPress={() => handleOpenLightbox(review.images!, index)}>
-                                                <Image
-                                                    source={{ uri: getOptimizedImageUrl(img, 200) }}
-                                                    style={styles.reviewImage}
-                                                    contentFit="cover"
-                                                    cachePolicy="disk"
-                                                    transition={300}
-                                                />
-                                            </TouchableOpacity>
-                                        ))}
-                                    </ScrollView>
-                                )
-                            }
-                        </View>
+                    {visibleReviews.map((review, index) => (
+                        <ReviewItem 
+                            key={review.id} 
+                            review={review} 
+                            index={index}
+                            currentUserId={currentUserId}
+                            onEditReview={onEditReview}
+                            onDeleteReview={onDeleteReview}
+                            handleOpenLightbox={handleOpenLightbox}
+                            renderStars={renderStars}
+                        />
                     ))}
+
 
                     {/* Pagination Controls */}
                     {reviews.length > visibleCount && (
@@ -435,5 +492,12 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    translateToggle: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
     },
 });

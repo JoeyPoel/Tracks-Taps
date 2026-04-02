@@ -17,6 +17,7 @@ import ReviewForm from '../components/tourCompleted/ReviewForm';
 import { getOptimizedImageUrl } from '../utils/imageUtils';
 import { Image } from 'expo-image';
 import { ToursDoneTabs } from '../components/profileScreen/ToursDoneTabs';
+import { FadeInItem } from '../components/common/FadeInList';
 
 type ListType = 'done' | 'created' | 'reviews';
 
@@ -159,108 +160,102 @@ export default function TourListScreen() {
             )}
 
             <FlatList
-                data={(loading && hasExpectedData && tours.length === 0) ? [1, 2, 3, 4] as any : tours}
-                renderItem={({ item }) => {
-                    if (typeof item === 'number') {
-                        return (
-                            <View style={{ marginBottom: 16 }}>
-                                <TourSkeleton />
-                            </View>
-                        );
-                    }
+                data={tours}
+                renderItem={({ item, index }) => {
                     if (type === 'reviews') {
                         return (
-                            <View style={[styles.reviewItem, { backgroundColor: theme.bgSecondary }]}>
-                                <TouchableOpacity
-                                    style={styles.reviewTourHeader}
-                                    onPress={() => router.push(`/tour/${item.tour?.id}`)}
-                                >
-                                    <Image
-                                        source={{ uri: getOptimizedImageUrl(item.tour?.imageUrl || '') }}
-                                        style={styles.tourThumbnail}
-                                        contentFit="cover"
-                                    />
-                                    <View style={styles.tourInfo}>
-                                        <TextComponent bold color={theme.textPrimary}>{item.tour?.title}</TextComponent>
-                                        <TextComponent variant="caption" color={theme.textSecondary}>{item.tour?.location}</TextComponent>
-                                    </View>
-                                    <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
-                                </TouchableOpacity>
-
-                                <View style={styles.reviewContent}>
-                                    <View style={styles.ratingRow}>
-                                        {renderStars(item.rating)}
-                                        <TextComponent variant="caption" color={theme.textSecondary} style={{ marginLeft: 8 }}>
-                                            {new Date(item.createdAt).toLocaleDateString()}
-                                        </TextComponent>
-                                    </View>
-                                    <TextComponent color={theme.textPrimary} style={styles.comment}>{item.content}</TextComponent>
-                                    
-                                    {item.photos && item.photos.length > 0 && (
-                                        <View style={styles.photosRow}>
-                                            {item.photos.map((photo: string, idx: number) => (
-                                                <Image
-                                                    key={idx}
-                                                    source={{ uri: getOptimizedImageUrl(photo || '') }}
-                                                    style={styles.photoPreview}
-                                                />
-                                            ))}
+                            <FadeInItem index={index}>
+                                <View style={[styles.reviewItem, { backgroundColor: theme.bgSecondary }]}>
+                                    <TouchableOpacity
+                                        style={styles.reviewTourHeader}
+                                        onPress={() => router.push(`/tour/${item.tour?.id}`)}
+                                    >
+                                        <Image
+                                            source={{ uri: getOptimizedImageUrl(item.tour?.imageUrl || '') }}
+                                            style={styles.tourThumbnail}
+                                            contentFit="cover"
+                                        />
+                                        <View style={styles.tourInfo}>
+                                            <TextComponent bold color={theme.textPrimary}>{item.tour?.title}</TextComponent>
+                                            <TextComponent variant="caption" color={theme.textSecondary}>{item.tour?.location}</TextComponent>
                                         </View>
-                                    )}
-                                </View>
+                                        <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+                                    </TouchableOpacity>
 
-                                <View style={styles.reviewActions}>
-                                    <TouchableOpacity
-                                        onPress={() => setEditingReview({
-                                            id: item.id,
-                                            rating: item.rating,
-                                            content: item.content,
-                                            photos: item.photos,
-                                            tourName: item.tour?.title
-                                        })}
-                                        style={[styles.actionButton, { backgroundColor: theme.primary + '15' }]}
-                                    >
-                                        <Ionicons name="pencil" size={16} color={theme.primary} />
-                                        <TextComponent variant="label" color={theme.primary} style={{ marginLeft: 4 }}>{t('edit')}</TextComponent>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        onPress={() => handleDeleteReview(item.id)}
-                                        style={[styles.actionButton, { backgroundColor: theme.danger + '15' }]}
-                                    >
-                                        <Ionicons name="trash-outline" size={16} color={theme.danger} />
-                                        <TextComponent variant="label" color={theme.danger} style={{ marginLeft: 4 }}>{t('delete')}</TextComponent>
-                                    </TouchableOpacity>
+                                    <View style={styles.reviewContent}>
+                                        <View style={styles.ratingRow}>
+                                            {renderStars(item.rating)}
+                                            <TextComponent variant="caption" color={theme.textSecondary} style={{ marginLeft: 8 }}>
+                                                {new Date(item.createdAt).toLocaleDateString()}
+                                            </TextComponent>
+                                        </View>
+                                        <TextComponent color={theme.textPrimary} style={styles.comment}>{item.content}</TextComponent>
+                                        
+                                        {item.photos && item.photos.length > 0 && (
+                                            <View style={styles.photosRow}>
+                                                {item.photos.map((photo: string, idx: number) => (
+                                                    <Image
+                                                        key={idx}
+                                                        source={{ uri: getOptimizedImageUrl(photo || '') }}
+                                                        style={styles.photoPreview}
+                                                    />
+                                                ))}
+                                            </View>
+                                        )}
+                                    </View>
+
+                                    <View style={styles.reviewActions}>
+                                        <TouchableOpacity
+                                            onPress={() => setEditingReview({
+                                                id: item.id,
+                                                rating: item.rating,
+                                                content: item.content,
+                                                photos: item.photos,
+                                                tourName: item.tour?.title
+                                            })}
+                                            style={[styles.actionButton, { backgroundColor: theme.primary + '15' }]}
+                                        >
+                                            <Ionicons name="pencil" size={16} color={theme.primary} />
+                                            <TextComponent variant="label" color={theme.primary} style={{ marginLeft: 4 }}>{t('edit')}</TextComponent>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            onPress={() => handleDeleteReview(item.id)}
+                                            style={[styles.actionButton, { backgroundColor: theme.danger + '15' }]}
+                                        >
+                                            <Ionicons name="trash-outline" size={16} color={theme.danger} />
+                                            <TextComponent variant="label" color={theme.danger} style={{ marginLeft: 4 }}>{t('delete')}</TextComponent>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
-                            </View>
+                            </FadeInItem>
                         );
                     }
 
                     return (
-                        <View style={{ marginBottom: 16 }}>
-                            <TourCard
-                                title={item.title}
-                                author={item.author?.name || 'Unknown'}
-                                imageUrl={item.imageUrl}
-                                distance={item.distance ? `${item.distance} km` : '0 km'}
-                                duration={item.duration ? `${item.duration} min` : '0 min'}
-                                stops={item._count?.stops ?? item.stops?.length ?? 0}
-                                rating={item.rating || (item.reviews?.length > 0 ? (item.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / item.reviews.length) : 0)}
-                                reviewCount={item._count?.reviews ?? item.reviews?.length ?? 0}
-                                points={item.points || 0}
-                                location={item.location}
-                                modes={item.modes || []}
-                                genre={item.genre}
-                                tourType={item.type}
-                                onPress={() => router.push(`/tour/${item.id}`)}
-                                onEdit={type === 'created' ? () => router.push({ pathname: '/(tabs)/create', params: { tourId: item.id } }) : undefined}
-                            />
-                        </View>
+                        <FadeInItem index={index}>
+                            <View style={{ marginBottom: 16 }}>
+                                <TourCard
+                                    title={item.title}
+                                    author={item.author?.name || 'Unknown'}
+                                    imageUrl={item.imageUrl}
+                                    distance={item.distance ? `${item.distance} km` : '0 km'}
+                                    duration={item.duration ? `${item.duration} min` : '0 min'}
+                                    stops={item._count?.stops ?? item.stops?.length ?? 0}
+                                    rating={item.rating || (item.reviews?.length > 0 ? (item.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / item.reviews.length) : 0)}
+                                    reviewCount={item._count?.reviews ?? item.reviews?.length ?? 0}
+                                    points={item.points || 0}
+                                    location={item.location}
+                                    modes={item.modes || []}
+                                    genre={item.genre}
+                                    tourType={item.type}
+                                    onPress={() => router.push(`/tour/${item.id}`)}
+                                    onEdit={type === 'created' ? () => router.push({ pathname: '/(tabs)/create', params: { tourId: item.id } }) : undefined}
+                                />
+                            </View>
+                        </FadeInItem>
                     );
                 }}
-                keyExtractor={(item) => {
-                    if (typeof item === 'number') return `skeleton-${item}`;
-                    return item.uniqueKey || (item.id ? item.id.toString() : Math.random().toString());
-                }}
+                keyExtractor={(item) => item.uniqueKey || (item.id ? item.id.toString() : Math.random().toString())}
                 contentContainerStyle={styles.listContent}
                 refreshControl={
                     <RefreshControl
