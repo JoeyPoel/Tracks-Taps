@@ -27,7 +27,8 @@ export const userRepository = {
                 _count: {
                     select: {
                         createdTours: true,
-                        playedTours: true
+                        playedTours: true,
+                        reviews: true
                     }
                 }
             }
@@ -51,7 +52,8 @@ export const userRepository = {
                 _count: {
                     select: {
                         createdTours: true,
-                        playedTours: true
+                        playedTours: true,
+                        reviews: true
                     }
                 }
             }
@@ -75,7 +77,8 @@ export const userRepository = {
                 _count: {
                     select: {
                         createdTours: true,
-                        playedTours: true
+                        playedTours: true,
+                        reviews: true
                     }
                 }
             }

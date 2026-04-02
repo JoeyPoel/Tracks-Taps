@@ -5,8 +5,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { XMarkIcon } from 'react-native-heroicons/outline';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Keyboard, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Keyboard, Modal, Pressable, StyleSheet, TextInput, View, TouchableWithoutFeedback } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -89,16 +90,16 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
 
     // Save draft on changes
     React.useEffect(() => {
-        if (mode === 'create' && visible && (rating > 0 || content.length > 0 || photos.length > 0)) {
-            const saveDraft = async () => {
-                try {
-                    const draft = { rating, content, photos };
-                    await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-                } catch (e) {
-                    console.error("Failed to save review draft", e);
-                }
-            };
-            saveDraft();
+        if (mode === 'create' && visible) {
+            const draft = { rating, content, photos };
+            if (rating > 0 || content.length > 0 || photos.length > 0) {
+                const timeoutId = setTimeout(() => {
+                    AsyncStorage.setItem(DRAFT_KEY, JSON.stringify(draft)).catch(e => 
+                        console.error("Failed to save review draft", e)
+                    );
+                }, 500);
+                return () => clearTimeout(timeoutId);
+            }
         }
     }, [rating, content, photos, mode, visible, tourId]);
 
@@ -121,6 +122,8 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
             return;
         }
 
+        let finalUrls: string[] = [];
+
         // Wait for all currently uploading photos
         const stillUploading = photosRef.current.some(p => p.uploading);
         if (stillUploading) {
@@ -128,20 +131,26 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
             try {
                 // Collect and wait for all pending upload promises
                 const promises = Array.from(pendingUploads.current.values());
-                await Promise.all(promises);
+                const newUrls = await Promise.all(promises);
+                
+                // Merge already uploaded urls with new ones:
+                finalUrls = [
+                    ...photosRef.current.filter(p => !p.uploading && p.publicUrl).map(p => p.publicUrl!),
+                    ...newUrls.filter(Boolean) as string[]
+                ];
             } catch (err) {
                 console.error("Error waiting for uploads:", err);
             } finally {
                 setIsWaitingForUploads(false);
             }
+        } else {
+            // Re-check photos from ref to get the latest (post-upload) state
+            const finalPhotos = photosRef.current;
+            finalUrls = finalPhotos.map(p => p.publicUrl).filter(Boolean) as string[];
         }
-
-        // Re-check photos from ref to get the latest (post-upload) state
-        const finalPhotos = photosRef.current;
-        const urls = finalPhotos.map(p => p.publicUrl).filter(Boolean) as string[];
         
         if (mode === 'create') {
-            const result = onSubmit(rating, content, urls);
+            const result = onSubmit(rating, content, finalUrls);
             if (result instanceof Promise) {
                 await result;
                 clearDraft();
@@ -149,7 +158,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                 clearDraft();
             }
         } else {
-            await onSubmit(rating, content, urls);
+            await onSubmit(rating, content, finalUrls);
         }
         onClose();
     };
@@ -180,8 +189,11 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
         try {
             let result;
             if (useCamera) {
-                const { status } = await ImagePicker.requestCameraPermissionsAsync();
-                if (status !== 'granted') return Alert.alert(t('permissionNeeded'), t('cameraPermissionMsg'));
+                const [cameraPerm, galleryPerm] = await Promise.all([
+                    ImagePicker.requestCameraPermissionsAsync(),
+                    MediaLibrary.requestPermissionsAsync(),
+                ]);
+                if (cameraPerm.status !== 'granted') return Alert.alert(t('permissionNeeded'), t('cameraPermissionMsg'));
                 
                 result = await ImagePicker.launchCameraAsync({
                     mediaTypes: ['images'],
@@ -231,7 +243,8 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
             subtitle={tourName}
             alignment="center"
         >
-            <View style={{ paddingTop: 8 }}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={{ paddingTop: 8 }}>
                 <View style={styles.starsContainer}>
                     {[1, 2, 3, 4, 5].map((star, index) => (
                         <Animated.View
@@ -338,6 +351,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                     />
                 </View>
             </View>
+            </TouchableWithoutFeedback>
         </AppModal>
     );
 }

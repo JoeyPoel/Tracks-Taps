@@ -129,6 +129,7 @@ export const strings = {
     referralCodePlaceholder: 'e.g. 123 456 789',
     toursDone: 'Tours Done',
     toursCreated: 'Tours Created',
+    myReviews: 'My Reviews',
     totalPoints: 'Total Points',
     friends: 'Friends',
     recentAchievements: 'Recent Achievements',

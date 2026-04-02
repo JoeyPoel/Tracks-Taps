@@ -1,6 +1,7 @@
 import { randomInt } from 'crypto';
 import { LevelSystem } from '../../src/utils/levelUtils';
 import { friendRepository } from '../repositories/friendRepository';
+import { reviewRepository } from '../repositories/reviewRepository';
 import { userRepository } from '../repositories/userRepository';
 
 export const userService = {
@@ -29,6 +30,7 @@ export const userService = {
                 stats: {
                     toursDone: _count?.playedTours || 0,
                     toursCreated: _count?.createdTours || 0,
+                    reviews: _count?.reviews || 0,
                     friends: friendCount
                 }
             };
@@ -56,6 +58,7 @@ export const userService = {
                 stats: {
                     toursDone: _count?.playedTours || 0,
                     toursCreated: _count?.createdTours || 0,
+                    reviews: _count?.reviews || 0,
                     friends: friendCount
                 }
             };
@@ -83,6 +86,7 @@ export const userService = {
                 stats: {
                     toursDone: _count?.playedTours || 0,
                     toursCreated: _count?.createdTours || 0,
+                    reviews: _count?.reviews || 0,
                     friends: friendCount
                 }
             };
@@ -103,6 +107,7 @@ export const userService = {
                 stats: {
                     toursDone: _count?.playedTours || 0,
                     toursCreated: _count?.createdTours || 0,
+                    reviews: _count?.reviews || 0,
                     friends: friendCount
                 }
             };
@@ -166,6 +171,10 @@ export const userService = {
 
     async getUserCreatedTours(userId: number, page: number = 1, limit: number = 10) {
         return await userRepository.getUserCreatedTours(userId, page, limit);
+    },
+
+    async getUserReviews(userId: number, page: number = 1, limit: number = 10) {
+        return await reviewRepository.getReviewsForUser(userId, page, limit);
     },
 
     async getPurchase(transactionId: string) {

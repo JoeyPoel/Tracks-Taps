@@ -162,14 +162,7 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const init = async () => {
       try {
-        const [config, storedTargetLang] = await Promise.all([
-          AsyncStorage.getItem(TRANSLATION_CONFIG_KEY),
-          AsyncStorage.getItem(TRANSLATION_TARGET_LANG_KEY),
-        ]);
-
-        if (config !== null) {
-          setIsAutoTranslateEnabledState(config === 'true');
-        }
+        const storedTargetLang = await AsyncStorage.getItem(TRANSLATION_TARGET_LANG_KEY);
 
         if (storedTargetLang !== null) {
           setTargetLanguageState(storedTargetLang);
@@ -215,11 +208,6 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
 
   const setIsAutoTranslateEnabled = async (enabled: boolean) => {
     setIsAutoTranslateEnabledState(enabled);
-    try {
-      await AsyncStorage.setItem(TRANSLATION_CONFIG_KEY, enabled.toString());
-    } catch (e) {
-      console.error('Failed to save translation config', e);
-    }
   };
 
   const setTargetLanguage = async (lang: string | null) => {

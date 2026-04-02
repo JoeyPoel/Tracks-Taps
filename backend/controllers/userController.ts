@@ -52,6 +52,13 @@ export const userController = {
                 }
                 const tours = await userService.getUserCreatedTours(parsedUserId, page, limit);
                 return Response.json(tours);
+            } else if (userId && type === 'reviews') {
+                if (isNaN(parsedUserId)) {
+                    console.error('[userController] Invalid userId requested (reviews):', userId);
+                    return Response.json({ error: 'Invalid userId' }, { status: 400 });
+                }
+                const reviews = await userService.getUserReviews(parsedUserId, page, limit);
+                return Response.json(reviews);
             }
 
             let user;

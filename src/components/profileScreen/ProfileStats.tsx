@@ -8,18 +8,22 @@ interface ProfileStatsProps {
     toursDone: number;
     toursCreated: number;
     friends: number;
+    reviews: number;
     onPressToursDone?: () => void;
     onPressToursCreated?: () => void;
     onPressFriends?: () => void;
+    onPressReviews?: () => void;
 }
 
 export default function ProfileStats({
     toursDone,
     toursCreated,
     friends,
+    reviews,
     onPressToursDone,
     onPressToursCreated,
-    onPressFriends
+    onPressFriends,
+    onPressReviews
 }: ProfileStatsProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();

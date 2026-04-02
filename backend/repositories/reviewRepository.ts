@@ -72,4 +72,33 @@ export const reviewRepository = {
             where: { id },
         });
     },
+
+    async getReviewsForUser(userId: number, page: number = 1, limit: number = 10) {
+        return paginate(
+            prisma.review,
+            {
+                where: { authorId: userId },
+                include: {
+                    tour: {
+                        select: {
+                            id: true,
+                            title: true,
+                            imageUrl: true,
+                            location: true
+                        }
+                    },
+                    author: {
+                        select: {
+                            id: true,
+                            name: true,
+                            avatarUrl: true
+                        }
+                    }
+                },
+                orderBy: { createdAt: 'desc' },
+            },
+            page,
+            limit
+        );
+    },
 };

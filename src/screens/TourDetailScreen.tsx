@@ -21,6 +21,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from '../context/TranslationContext';
+import { useUserContext } from '../context/UserContext';
 import { useSavedTrips } from '../hooks/useSavedTrips';
 import { useStartTour } from '../hooks/useStartTour';
 import { useTourDetails } from '../hooks/useTourDetails';
@@ -33,6 +34,7 @@ import { useSafeNavigation } from '../hooks/useSafeNavigation';
 export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
   const { user } = useAuth();
+  const { user: profileUser } = useUserContext();
   const { t, language } = useLanguage();
   const { translateText, requireTranslation, isAutoTranslateEnabled, setIsAutoTranslateEnabled, isTargetLanguageSet } = useTranslation();
   const router = useRouter();
@@ -99,10 +101,10 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
       await refetch();
       setEditingReview(null);
-      Alert.alert(t('success'), t('updateSuccess') || 'Review updated successfully!');
+      Alert.alert(t('success'), t('reviewSubmitted') || 'Review updated successfully!');
     } catch (error: any) {
       console.error('Error updating review:', error);
-      Alert.alert(t('error'), t('updateError') || 'Failed to update review.');
+      Alert.alert(t('error'), t('reviewSubmitError') || 'Failed to update review.');
     } finally {
       setSubmittingReview(false);
     }
@@ -111,11 +113,11 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
     const handleDeleteReview = (reviewId: string) => {
     Alert.alert(
       t('deleteReview') || 'Delete Review',
-      t('confirmRemoveStop') || 'Are you sure you want to delete this review?',
+      t('confirmDeleteReview') || 'Are you sure you want to delete this review?',
       [
         { text: t('cancel'), style: 'cancel' },
         {
-          text: t('deleteAccountConfirm') || 'Delete',
+          text: t('delete') || 'Delete',
           style: 'destructive',
           onPress: async () => {
             try {
@@ -363,7 +365,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
             }}
             onEditReview={(review) => setEditingReview(review)}
             onDeleteReview={handleDeleteReview}
-            currentUserId={user?.id}
+            currentUserId={profileUser?.id}
           />
         </Animated.View>
 

@@ -125,6 +125,7 @@ export interface User {
     stats?: {
         toursDone: number;
         toursCreated: number;
+        reviews: number;
     };
     createdTours?: {
         id: number;

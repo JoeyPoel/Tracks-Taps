@@ -17,12 +17,12 @@ export const reviewService = {
         return response.data;
     },
 
-    async updateReview(id: string, data: { content?: string; rating?: number; photos?: string[] }) {
+    async updateReview(id: string | number, data: { content?: string; rating?: number; photos?: string[] }) {
         const response = await client.patch(`/reviews/${id}`, data);
         return response.data;
     },
 
-    async deleteReview(id: string) {
+    async deleteReview(id: string | number) {
         const response = await client.delete(`/reviews/${id}`);
         return response.data;
     }

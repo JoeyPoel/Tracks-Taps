@@ -32,5 +32,9 @@ export const reviewService = {
         if (review.authorId !== userId) throw new Error('Unauthorized');
 
         return await reviewRepository.deleteReview(id);
+    },
+
+    async getReviewsForUser(userId: number, page: number = 1, limit: number = 10) {
+        return await reviewRepository.getReviewsForUser(userId, page, limit);
     }
 };

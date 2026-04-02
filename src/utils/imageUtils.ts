@@ -16,6 +16,8 @@
  */
 import * as MediaLibrary from 'expo-media-library';
 import * as ImageManipulator from 'expo-image-manipulator';
+import * as FileSystem from 'expo-file-system/legacy';
+import { decode } from 'base64-arraybuffer';
 import { supabase } from '../../utils/supabase';
 
 /**
@@ -47,7 +49,7 @@ export async function saveImageToGallery(uri: string): Promise<void> {
  * HOW:
  * 1. Resizes image to max width 800px (sufficient for mobile usage/listing).
  * 2. Compresses to JPEG quality 0.6 (good balance of size vs quality).
- * 3. Uploads via standard Supabase client.
+ * 3. Uploads via standard Supabase client using ArrayBuffer.
  * 
  * @param uri Local file URI
  * @param bucket Target bucket (default 'images')
@@ -70,25 +72,27 @@ export const uploadOptimizedImage = async (
 
         const newUri = manipulatedImage.uri;
 
-        // 2. Convert to Blob directly (Much faster than Base64)
-        const response = await fetch(newUri);
-        const blob = await response.blob();
+        // 2. Convert to ArrayBuffer via Base64 to avoid React Native 0-byte Blob bug
+        const base64 = await FileSystem.readAsStringAsync(newUri, {
+            encoding: 'base64',
+        });
+        const arrayBuffer = decode(base64);
 
         // 3. Generate unique path
         const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
 
         console.log(`[Upload Service] Starting binary upload to bucket "${bucket}", path: "${fileName}"`);
-        console.log(`[Upload Service] Blob size: ${blob.size} bytes`);
+        console.log(`[Upload Service] Buffer size: ${arrayBuffer.byteLength} bytes`);
 
         // Check environment
         if (!supabase.storage.from(bucket)) {
             throw new Error(`Bucket "${bucket}" client not initialized or not found.`);
         }
 
-        // 4. Upload to Supabase (Passing Blob directly)
+        // 4. Upload to Supabase (Passing ArrayBuffer)
         const { error } = await supabase.storage
             .from(bucket)
-            .upload(fileName, blob, {
+            .upload(fileName, arrayBuffer, {
                 contentType: 'image/jpeg',
                 cacheControl: '3600',
                 upsert: false,

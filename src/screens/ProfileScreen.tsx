@@ -112,9 +112,11 @@ export default function ProfileScreen() {
               toursDone={user?.stats?.toursDone || 0}
               toursCreated={user?.stats?.toursCreated || 0}
               friends={friends.length}
+              reviews={user?.stats?.reviews || 0}
               onPressToursDone={() => router.push({ pathname: '/profile/tours-done', params: { type: 'done', title: t('toursDone') } })}
               onPressToursCreated={() => router.push({ pathname: '/profile/tours-created', params: { type: 'created', title: t('toursCreated') } })}
               onPressFriends={() => router.push('/profile/friends')}
+              onPressReviews={() => router.push({ pathname: '/profile/tours-done', params: { type: 'reviews', title: t('myReviews') || 'My Reviews' } })}
             />
           </Animated.View>
         )}

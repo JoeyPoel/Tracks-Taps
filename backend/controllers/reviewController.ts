@@ -76,5 +76,20 @@ export const reviewController = {
             if (error.message === 'Review not found') return Response.json({ error: 'Review not found' }, { status: 404 });
             return Response.json({ error: 'Failed to delete review' }, { status: 500 });
         }
+    },
+
+    async getUserReviews(request: Request, params: { userId: string }) {
+        try {
+            const userId = Number(params.userId);
+            const { searchParams } = new URL(request.url);
+            const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
+            const limit = searchParams.get('limit') ? Number(searchParams.get('limit')) : 20;
+
+            const reviews = await reviewService.getReviewsForUser(userId, page, limit);
+            return Response.json(reviews);
+        } catch (error) {
+            console.error('Error fetching user reviews:', error);
+            return Response.json({ error: 'Failed to fetch user reviews' }, { status: 500 });
+        }
     }
 };

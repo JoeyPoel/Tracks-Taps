@@ -16,6 +16,11 @@ export const userService = {
         return response.data;
     },
 
+    async getUserReviews(userId: number, page: number = 1, limit: number = 10) {
+        const response = await client.get(`/user?userId=${userId}&type=reviews&page=${page}&limit=${limit}`);
+        return response.data;
+    },
+
     async getUserByEmail(email: string) {
         const response = await client.get(`/user?email=${email}`);
         return response.data;
