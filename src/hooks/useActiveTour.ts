@@ -19,6 +19,9 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     const abandonTour = useStore((state) => state.abandonTour);
 
     const updateActiveTourLocal = useStore((state) => state.updateActiveTourLocal);
+    const triggerFloatingPoints = useStore((state) => state.triggerFloatingPoints);
+    const removeFloatingPoint = useStore((state) => state.removeFloatingPoint);
+    const floatingPointsQueue = useStore((state) => state.floatingPointsQueue);
 
     // Sync Ref
     const appState = useRef(AppState.currentState);
@@ -127,7 +130,6 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     }, [currentTeam]);
 
     // Local UI State (Visuals only)
-    const [floatingPointsQueue, setFloatingPointsQueue] = useState<{ id: string, amount: number, label?: string }[]>([]);
     const [showConfetti, setShowConfetti] = useState(false);
     const [triviaSelected, setTriviaSelected] = useState<{ [key: number]: number }>({});
 
@@ -136,15 +138,6 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     useEffect(() => {
         setShowConfetti(false);
     }, [activeTourId]);
-
-    const triggerFloatingPoints = (amount: number, label?: string) => {
-        const id = Math.random().toString(36).substring(7);
-        setFloatingPointsQueue(prev => [...prev, { id, amount, label }]);
-    };
-
-    const removeFloatingPoint = (id: string) => {
-        setFloatingPointsQueue(prev => prev.filter(p => p.id !== id));
-    };
 
     const handleChallengeComplete = async (challenge: any) => {
         // Prevent actions while loading to avoid duplicate awards or race conditions

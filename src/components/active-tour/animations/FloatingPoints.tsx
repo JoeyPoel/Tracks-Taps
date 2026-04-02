@@ -7,10 +7,12 @@ import { useAppWidth } from '@/src/hooks/useAppWidth';
 const { height } = Dimensions.get('window');
 
 const FloatingPoints = ({ 
+  id,
   pointAmount, 
   label,
   onAnimationComplete 
 }: { 
+  id: string,
   pointAmount: number, 
   label?: string,
   onAnimationComplete: () => void 
@@ -22,12 +24,21 @@ const FloatingPoints = ({
   const opacity = useRef(new Animated.Value(1)).current;
   const translateY = useRef(new Animated.Value(0)).current;
 
-  const randomPosition = useRef({
-    // X-Axis: Renders randomly between 20% and 80% of the screen width
-    left: Math.random() * (appWidth * 0.6) + (appWidth * 0.2),
-    // Y-Axis: Renders randomly between 30% and 50% from the bottom
-    bottom: Math.random() * (height * 0.2) + (height * 0.3),
-  }).current;
+  const randomPosition = React.useMemo(() => {
+    // Simple hash function for deterministic random numbers based on ID
+    const hash = (id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % 1000;
+    const seededRandom = (seed: number) => {
+      const x = Math.sin(seed + hash) * 10000;
+      return x - Math.floor(x);
+    };
+
+    return {
+      // X-Axis: Renders randomly between 20% and 80% of the screen width
+      left: seededRandom(1) * (appWidth * 0.6) + (appWidth * 0.2),
+      // Y-Axis: Renders randomly between 30% and 50% from the bottom
+      bottom: seededRandom(2) * (height * 0.2) + (height * 0.3),
+    };
+  }, [id, appWidth]);
 
   useEffect(() => {
     console.log(`[FloatingPoints] Mounted! Amount: ${pointAmount}, Label: ${label || 'none'}`);
@@ -56,6 +67,20 @@ const FloatingPoints = ({
     });
   }, [pointAmount, label]);
 
+  const renderRainbowLabel = (text: string) => {
+    // Vibrant rainbow-ish colors
+    const colors = ['#FF2D55', '#FF9500', '#FFCC00', '#4CD964', '#5AC8FA', '#AF52DE'];
+    return (
+      <Text style={[styles.labelText, { textShadowColor: theme.shadowColor }]}>
+        {text.split('').map((char, i) => (
+          <Text key={i} style={{ color: colors[i % colors.length] }}>
+            {char}
+          </Text>
+        ))}
+      </Text>
+    );
+  };
+
   return (
     <Animated.View
       style={[
@@ -74,9 +99,13 @@ const FloatingPoints = ({
       pointerEvents="none"
     >
       {label && (
-        <Text style={[styles.labelText, { color: theme.accent, textShadowColor: theme.shadowColor }]}>
-          {label}
-        </Text>
+        label.toUpperCase().includes('BINGO') ? (
+          renderRainbowLabel(label)
+        ) : (
+          <Text style={[styles.labelText, { color: theme.accent, textShadowColor: theme.shadowColor }]}>
+            {label}
+          </Text>
+        )
       )}
       <Text style={[styles.text, { textShadowColor: theme.shadowColor }]}>+{pointAmount}</Text>
     </Animated.View>

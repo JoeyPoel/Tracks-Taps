@@ -19,9 +19,10 @@ export function FadeInList({ children, delay = 0, stagger = 100, style }: FadeIn
                     key={index}
                     entering={
                         FadeInDown
-                            .delay(delay + index * stagger)
-                            .damping(20)
-                            .mass(0.8)
+                            .delay(delay + index * 40) // Faster stagger (from 70)
+                            .springify()
+                            .damping(28)
+                            .stiffness(260) // Faster spring (from 200)
                     }
                 >
                     {child}
@@ -37,9 +38,10 @@ export function FadeInItem({ children, delay = 0, index = 0 }: { children: React
         <Animated.View
             entering={
                 FadeInDown
-                    .delay(delay + index * 100)
-                    .damping(20)
-                    .mass(0.8)
+                    .delay(delay + index * 40) // Faster stagger
+                    .springify()
+                    .damping(28)
+                    .stiffness(260) // Faster spring
             }
         >
             {children}

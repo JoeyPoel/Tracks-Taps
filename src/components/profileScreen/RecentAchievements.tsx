@@ -2,7 +2,8 @@ import { TextComponent } from '@/src/components/common/TextComponent'; // Added 
 import { useLanguage } from '@/src/context/LanguageContext';
 import React, { useEffect } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import { FadeInItem } from '@/src/components/common/FadeInList';
 import { useTheme } from '../../context/ThemeContext';
 import { AchievementIcon } from '@/src/components/achievements/AchievementIcon';
 
@@ -70,10 +71,7 @@ export default function RecentAchievements({ achievements, loading, onSeeAll }: 
                     achievements.map((achievement, index) => {
                         const activeColor = achievement.color || theme.primary;
                         return (
-                            <Animated.View
-                                entering={FadeIn.delay(index * 100)}
-                                key={achievement.id}
-                            >
+                            <FadeInItem index={index} key={achievement.id}>
                                 <View
                                     style={[
                                         styles.card,
@@ -87,7 +85,7 @@ export default function RecentAchievements({ achievements, loading, onSeeAll }: 
                                         {achievement.title}
                                     </TextComponent>
                                 </View>
-                            </Animated.View>
+                            </FadeInItem>
                         );
                     })
                 ) : (

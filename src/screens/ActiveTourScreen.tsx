@@ -246,6 +246,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const floatingPointsOverlay = floatingPointsQueue.map(item => (
         <FloatingPoints
             key={item.id}
+            id={item.id}
             pointAmount={item.amount}
             label={item.label}
             onAnimationComplete={() => removeFloatingPoint(item.id)}

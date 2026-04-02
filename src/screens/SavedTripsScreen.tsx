@@ -9,7 +9,6 @@ import { EmptyState } from '../components/common/EmptyState';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { TextComponent } from '../components/common/TextComponent';
-import SavedTripSkeleton from '../components/saved-trips/SavedTripSkeleton';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useSavedTrips } from '../hooks/useSavedTrips';
@@ -23,11 +22,23 @@ export default function SavedTripsScreen() {
     const { lists, loading, loadLists, loadMore } = useSavedTrips();
     const { fontScale } = useWindowDimensions();
 
+    const [localRefreshing, setLocalRefreshing] = React.useState(false);
+
     useFocusEffect(
         useCallback(() => {
             loadLists();
         }, [loadLists])
     );
+
+    // Smooth transition for RefreshControl
+    React.useEffect(() => {
+        if (loading) {
+            setLocalRefreshing(true);
+        } else {
+            const timer = setTimeout(() => setLocalRefreshing(false), 150);
+            return () => clearTimeout(timer);
+        }
+    }, [loading]);
 
     const renderItem = ({ item, index }: { item: SavedTrip; index: number }) => {
         // Get up to 3 thumbnails for a gallery collage effect
@@ -136,9 +147,13 @@ export default function SavedTripsScreen() {
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id.toString()}
                 contentContainerStyle={styles.listContent}
+                removeClippedSubviews={true}
+                initialNumToRender={8}
+                maxToRenderPerBatch={8}
+                windowSize={10}
                 refreshControl={
                     <RefreshControl
-                        refreshing={loading}
+                        refreshing={localRefreshing}
                         onRefresh={loadLists}
                         tintColor={theme.primary}
                     />

@@ -13,6 +13,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 import { useStore } from '../store/store';
+import { FadeInItem } from '../components/common/FadeInList';
 import { Tour } from '../types/models';
 
 export default function ExploreScreen() {
@@ -229,7 +230,7 @@ export default function ExploreScreen() {
 
     return (
       <View style={gridMode ? {} : styles.listItemContainer}>
-        <Animated.View entering={FadeInDown.duration(400)}>
+        <FadeInItem index={0}>
           <TourCard
             title={tourItem.title}
             author={tourItem.author?.name || t('unknown')}
@@ -254,8 +255,9 @@ export default function ExploreScreen() {
               fetchTourDetails(tourItem.id, tourItem);
               router.push({ pathname: '/tour/[id]', params: { id: tourItem.id } });
             }}
+            onEdit={(tourItem as any).type === 'created' ? () => router.push({ pathname: '/(tabs)/create', params: { tourId: tourItem.id } }) : undefined}
           />
-        </Animated.View>
+        </FadeInItem>
       </View>
     );
   }

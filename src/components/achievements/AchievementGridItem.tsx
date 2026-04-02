@@ -6,6 +6,7 @@ import { LockClosedIcon, StarIcon } from 'react-native-heroicons/solid';
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { TextComponent } from '../common/TextComponent';
 import { AchievementIcon } from './AchievementIcon';
+import { FadeInItem } from '../common/FadeInList';
 
 interface Achievement {
     id: number | string;
@@ -31,10 +32,7 @@ export const AchievementGridItem = ({ achievement, index }: AchievementGridItemP
     const activeColor = achievement.color || theme.primary;
 
     return (
-        <Animated.View
-            entering={FadeInDown.delay(index * 50).duration(500)}
-            style={styles.container}
-        >
+        <FadeInItem index={index}>
             <LinearGradient
                 colors={isUnlocked
                     ? [activeColor + '40', theme.bgSecondary]  // Tinted gradient based on color
@@ -101,7 +99,7 @@ export const AchievementGridItem = ({ achievement, index }: AchievementGridItemP
                     </View>
                 )}
             </LinearGradient>
-        </Animated.View>
+        </FadeInItem>
     );
 };
 

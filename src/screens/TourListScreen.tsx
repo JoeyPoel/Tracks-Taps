@@ -6,7 +6,6 @@ import { EmptyState } from '../components/common/EmptyState';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import TourCard from '../components/exploreScreen/TourCard';
-import TourSkeleton from '../components/exploreScreen/TourSkeleton';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
@@ -41,15 +40,13 @@ export default function TourListScreen() {
     // If targetUserId is provided, use that, otherwise use logged in user's ID
     const effectiveUserId = targetUserId ? Number(targetUserId) : user?.id;
 
-    // Improved Skeleton Logic: Only show skeleton if we expect data
     const hasExpectedData = type === 'done'
         ? (user?.playedTours?.length || 0) > 0 || !!targetUserId
         : type === 'created'
             ? (user?.createdTours?.length || 0) > 0 || !!targetUserId
             : (user?.stats?.reviews || 0) > 0 || !!targetUserId;
 
-    // If we don't expect data, don't start with loading=true that triggers skeleton. 
-    // We still fetch to be sure, but visually we start empty.
+    // Loading state: Only start with loading=true if we expect data to avoid flash of empty state
     const [loading, setLoading] = useState(hasExpectedData);
 
     useEffect(() => {
@@ -59,6 +56,7 @@ export default function TourListScreen() {
     const loadTours = async () => {
         if (!effectiveUserId) return;
         setLoading(true);
+        setTours([]); // Clear current items when loading new data to avoid stale rendering
         try {
             if (type === 'done') {
                 const response: any = await userService.getUserPlayedTours(effectiveUserId);
@@ -89,7 +87,8 @@ export default function TourListScreen() {
         } catch (error) {
             console.error('Error loading tours', error);
         } finally {
-            setLoading(false);
+            // Small delay to ensure state batching doesn't cause a layout "bump" before animations start
+            setTimeout(() => setLoading(false), 100);
         }
     };
 
@@ -257,6 +256,10 @@ export default function TourListScreen() {
                 }}
                 keyExtractor={(item) => item.uniqueKey || (item.id ? item.id.toString() : Math.random().toString())}
                 contentContainerStyle={styles.listContent}
+                removeClippedSubviews={true}
+                initialNumToRender={10}
+                maxToRenderPerBatch={10}
+                windowSize={10}
                 refreshControl={
                     <RefreshControl
                         refreshing={loading}

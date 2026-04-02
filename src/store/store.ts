@@ -52,6 +52,9 @@ interface StoreState {
     // --- UI/Global Slice ---
     isTabBarVisible: boolean;
     setTabBarVisible: (visible: boolean) => void;
+    floatingPointsQueue: { id: string; amount: number; label?: string }[];
+    triggerFloatingPoints: (amount: number, label?: string) => void;
+    removeFloatingPoint: (id: string) => void;
 
     // --- User Slice ---
     user: User | null;
@@ -85,6 +88,18 @@ export const useStore = create<StoreState>()(
             // --- UI/Global Slice ---
             isTabBarVisible: true,
             setTabBarVisible: (visible: boolean) => set({ isTabBarVisible: visible }),
+            floatingPointsQueue: [],
+            triggerFloatingPoints: (amount: number, label?: string) => {
+                const id = Math.random().toString(36).substring(7);
+                set((state) => ({ 
+                    floatingPointsQueue: [...state.floatingPointsQueue, { id, amount, label }] 
+                }));
+            },
+            removeFloatingPoint: (id: string) => {
+                set((state) => ({ 
+                    floatingPointsQueue: state.floatingPointsQueue.filter(p => p.id !== id) 
+                }));
+            },
 
             // --- Tours Slice ---
             tours: [],
@@ -560,7 +575,8 @@ export const useStore = create<StoreState>()(
                 achievements: state.achievements,
                 friends: state.friends,
                 requests: state.requests,
-                tourFilters: state.tourFilters
+                tourFilters: state.tourFilters,
+                // Do NOT persist floating points queue to storage
             }),
         }
     )
