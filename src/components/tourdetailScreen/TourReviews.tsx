@@ -6,7 +6,8 @@ import React, { useState } from 'react';
 import { LayoutAnimation, Platform, ScrollView, StyleSheet, TouchableOpacity, UIManager, View } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
-import { TextComponent } from '../common/TextComponent'; // Added import
+import { TextComponent } from '../common/TextComponent';
+import { useTranslation } from '../../context/TranslationContext';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -31,13 +32,27 @@ interface TourReviewsProps {
     sortBy: 'newest' | 'oldest' | 'highest' | 'lowest';
     onSortChange: (sort: 'newest' | 'oldest' | 'highest' | 'lowest') => void;
     onWriteReview?: () => void;
+    onEditReview?: (review: Review) => void;
+    onDeleteReview?: (reviewId: string) => void;
+    currentUserId?: string | number;
 }
 
 import { ImageLightbox } from '../common/ImageLightbox';
 
-export default function TourReviews({ reviews, averageRating, totalReviews, sortBy, onSortChange, onWriteReview }: TourReviewsProps) {
+export default function TourReviews({ 
+    reviews, 
+    averageRating, 
+    totalReviews, 
+    sortBy, 
+    onSortChange, 
+    onWriteReview,
+    onEditReview,
+    onDeleteReview,
+    currentUserId
+}: TourReviewsProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
     const router = useRouter();
     const [expanded, setExpanded] = useState(false);
 
@@ -200,9 +215,39 @@ export default function TourReviews({ reviews, averageRating, totalReviews, sort
                                 </View>
                             </TouchableOpacity>
 
-                            <TextComponent style={styles.comment} color={theme.textPrimary} variant="body">
-                                {review.comment}
-                            </TextComponent>
+                            {/* Author Actions (Edit/Delete) */}
+                            {currentUserId && review.userId === String(currentUserId) && (
+                                <View style={styles.authorActions}>
+                                    <TouchableOpacity 
+                                        onPress={() => onEditReview?.(review)}
+                                        style={[styles.actionIcon, { backgroundColor: theme.primary + '15' }]}
+                                    >
+                                        <Ionicons name="pencil" size={14} color={theme.primary} />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity 
+                                        onPress={() => onDeleteReview?.(review.id)}
+                                        style={[styles.actionIcon, { backgroundColor: theme.danger + '15' }]}
+                                    >
+                                        <Ionicons name="trash-outline" size={14} color={theme.danger} />
+                                    </TouchableOpacity>
+                                </View>
+                            )}
+
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <View style={{ flex: 1 }}>
+                                    <TextComponent style={styles.comment} color={theme.textPrimary} variant="body">
+                                        {translateText(review.comment)}
+                                    </TextComponent>
+                                </View>
+                                {!isAutoTranslateEnabled && review.comment && (
+                                    <TouchableOpacity 
+                                        onPress={() => requireTranslation(review.comment)}
+                                        style={{ padding: 4, marginLeft: 8 }}
+                                    >
+                                        <Ionicons name="language" size={16} color={theme.primary} />
+                                    </TouchableOpacity>
+                                )}
+                            </View>
 
                             {
                                 review.images && review.images.length > 0 && (
@@ -376,5 +421,19 @@ const styles = StyleSheet.create({
     },
     writeReviewText: {
         fontSize: 15,
-    }
+    },
+    authorActions: {
+        position: 'absolute',
+        top: 16,
+        right: 16,
+        flexDirection: 'row',
+        gap: 8,
+    },
+    actionIcon: {
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
 });

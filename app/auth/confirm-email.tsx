@@ -33,14 +33,14 @@ export default function ConfirmEmailScreen() {
                     entering={FadeInDown.delay(400).springify()}
                     style={[styles.title, { color: theme.textPrimary }]}
                 >
-                    {t('emailConfirmed') || "Email Confirmed!"}
+                    {t('emailConfirmed')}
                 </Animated.Text>
 
                 <Animated.Text
                     entering={FadeInDown.delay(600).springify()}
                     style={[styles.subtitle, { color: theme.textSecondary }]}
                 >
-                    {t('emailConfirmedSubtitle') || "Your email has been successfully verified. You can now access all features of the app."}
+                    {t('emailConfirmedSubtitle')}
                 </Animated.Text>
 
                 {/* Button Section */}
@@ -53,7 +53,7 @@ export default function ConfirmEmailScreen() {
                             style={[styles.button, { backgroundColor: theme.primary }]}
                         >
                             <Text style={[styles.buttonText, { color: theme.textOnPrimary }]}>
-                                {t('continueToApp') || "Continue to App"}
+                                {t('continueToApp')}
                             </Text>
                         </TouchableOpacity>
                     </Link>

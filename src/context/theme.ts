@@ -204,8 +204,8 @@ export const darkTheme = {
     tripleBogey: ['#9CA3AF', '#6B7280', '#111827'],
   },
 
-  bgPrimaryColor: '#2e1b2bff',
-  bgSecondaryColor: '#1a2f42ff',
+  bgPrimaryColor: '#0F172A',
+  bgSecondaryColor: '#1E293B',
   bgAccentColor: '#4D4426',
 
   navBarBackground: 'rgba(15, 23, 42, 0.7)', // Matches bgPrimary (Slate-900)

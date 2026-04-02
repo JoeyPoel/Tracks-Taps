@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { ColorSchemeName, useColorScheme } from "react-native";
 import { darkTheme, lightTheme, romanticLightTheme, romanticDarkTheme } from './theme';
+import * as SystemUI from 'expo-system-ui';
 
 type ThemeMode = "light" | "dark";
 
@@ -89,6 +90,15 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
         return themes[mode];
     }, [mode, overlayType]);
 
+    // Sync native background color with the current theme
+    useEffect(() => {
+        if (isLoaded) {
+            SystemUI.setBackgroundColorAsync(theme.bgPrimary).catch(e => 
+                console.error('Failed to sync native background', e)
+            );
+        }
+    }, [theme.bgPrimary, isLoaded]);
+
     const value = React.useMemo(() => ({
         mode,
         theme,
@@ -98,13 +108,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
         overlayType
     }), [mode, theme, toggleTheme, triggerOverlay, overlayTrigger, overlayType]);
 
-    // We use a ref to track if we've ever successfully loaded from storage
-    // to avoid returning null and flickering after the first mount.
-    const hasOnceLoaded = React.useRef(false);
-    if (isLoaded) hasOnceLoaded.current = true;
-
-    // We no longer return null here to ensure the app starts rendering 
-    // the UI tree immediately with the system theme while storage loads.
+    // Defer rendering until the first successful load from storage
+    // to prevent "theme flash" where the app shows the OS theme for a split second.
+    if (!isLoaded) return null;
 
     return (
         <ThemeContext.Provider value={value}>

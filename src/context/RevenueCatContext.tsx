@@ -32,6 +32,15 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
     useEffect(() => {
         const init = async () => {
             try {
+                const isDev = __DEV__;
+                const isAndroidTestKey = Platform.OS === 'android' && API_KEY_ANDROID?.startsWith('test_');
+
+                if (isDev || isAndroidTestKey) {
+                    console.log(`[RevenueCat] Skipping initialization: dev=${isDev}, isAndroidTestKey=${isAndroidTestKey}`);
+                    setLoading(false);
+                    return;
+                }
+
                 if (Platform.OS === 'android') {
                     if (API_KEY_ANDROID) {
                         Purchases.configure({ apiKey: API_KEY_ANDROID });

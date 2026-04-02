@@ -96,7 +96,7 @@ export const useInvites = () => {
                 setInvites(prev => prev.filter(i => i.id !== inviteId));
                 setExpiredModalVisible(true);
             } else {
-                alert('Failed to join game. It might have already started or been cancelled.');
+                alert(t('failedToJoinInvite'));
             }
         } finally {
             setProcessingId(null);

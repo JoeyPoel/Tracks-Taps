@@ -26,7 +26,7 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
 
     const { theme } = useTheme();
     const { t, language } = useLanguage();
-    const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
+    const { translateText, isAutoTranslateEnabled } = useTranslation();
     const bingoCard = team.bingoCard;
 
     if (!bingoCard) {
@@ -44,16 +44,7 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
         return challenges.find(c => c.bingoRow === row && c.bingoCol === col);
     }).filter(Boolean) as Challenge[];
 
-    const handleTranslateAll = () => {
-        // We will attempt to fetch translations sequentially or in parallel?
-        // Since the API accepts one string, we join them, then translate the block.
-        // Wait, requireTranslation accepts single string and Google API doesn't guarantee preserving \n strictly.
-        // Google API preserves newlines.
-        const allTitles = gridChallenges.map(c => c.title).join('\n');
-        requireTranslation(allTitles);
-    };
 
-    const showTranslateButton = !isAutoTranslateEnabled && language !== 'en';
 
     // Helper to get challenge details
     const getChallenge = (id: number) => challenges.find(c => c.id === id);
@@ -97,14 +88,7 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
             <View style={styles.header}>
                 <TextComponent variant="h3" bold>{t('bingoCardTitle')}</TextComponent>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    {showTranslateButton && gridChallenges.length > 0 && (
-                        <TouchableOpacity
-                            onPress={handleTranslateAll}
-                            style={{ padding: 6, backgroundColor: theme.primary + '15', borderRadius: 8 }}
-                        >
-                            <Ionicons name="language" size={14} color={theme.primary} />
-                        </TouchableOpacity>
-                    )}
+
                     <View style={[styles.badge, { backgroundColor: theme.accent }]}>
                         <TextComponent variant="caption" color="#FFF" bold>
                             {team.bingoCard?.fullHouseAwarded ? t('fullHouse') : `${team.bingoCard?.awardedLines.length || 0} ${t('lines')}`}

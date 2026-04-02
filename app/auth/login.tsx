@@ -30,7 +30,6 @@ export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loadingType, setLoadingType] = useState<'email' | 'google' | 'apple' | null>(null);
-    const [showPassword, setShowPassword] = useState(false);
 
     React.useEffect(() => {
         AuthService.configureGoogle();
@@ -115,23 +114,17 @@ export default function LoginScreen() {
                         </View>
 
                         <View style={styles.inputContainer}>
-                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('password')}</Text>
-                            <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderInput }]}>
-                                <Ionicons name="lock-closed-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
-                                <TextInput
-                                    style={[styles.input, { color: theme.textPrimary }]}
-                                    placeholder={t('enterPassword')}
-                                    placeholderTextColor={theme.textTertiary}
-                                    value={password}
-                                    onChangeText={setPassword}
-                                    secureTextEntry={!showPassword}
-
-                                    maxLength={100}
-                                />
-                                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                                    <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={theme.textTertiary} />
-                                </TouchableOpacity>
-                            </View>
+                            <FormInput
+                                label={t('password')}
+                                value={password}
+                                onChange={setPassword}
+                                placeholder={t('enterPassword')}
+                                secureTextEntry
+                                showPasswordToggle
+                                leftIcon={<Ionicons name="lock-closed-outline" size={20} color={theme.textTertiary} />}
+                                textContentType="password"
+                                autoComplete="password"
+                            />
                             <Link href="/auth/forgot-password" asChild>
                                 <TouchableOpacity style={styles.forgotContainer}>
                                     <Text style={[styles.forgotText, { color: theme.primary }]}>{t('forgotPassword')}</Text>
@@ -233,23 +226,6 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
         marginBottom: 20,
-    },
-    label: {
-        fontSize: 14,
-        marginBottom: 8,
-        fontWeight: '600',
-        marginLeft: 4,
-    },
-    inputWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        height: 56,
-        borderWidth: 1,
-        borderRadius: 16,
-        paddingHorizontal: 16,
-    },
-    inputIcon: {
-        marginRight: 12,
     },
     input: {
         flex: 1,

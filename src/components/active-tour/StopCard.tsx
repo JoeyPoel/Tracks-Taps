@@ -11,16 +11,10 @@ import { TextComponent } from '../common/TextComponent';
 export default function StopCard({ stop }: { stop: Stop }) {
     const { theme } = useTheme();
     const { t, language } = useLanguage();
-    const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
+    const { translateText, isAutoTranslateEnabled } = useTranslation();
 
     const originalDescription = stop.description || t('completeAllChallengesToContinue') || '';
     const displayedDescription = translateText(originalDescription);
-
-    const handleTranslate = () => {
-        requireTranslation(originalDescription);
-    };
-
-    const showTranslateButton = !isAutoTranslateEnabled && language !== 'en' && originalDescription.length > 0;
 
     return (
         <GenericCard
@@ -33,14 +27,7 @@ export default function StopCard({ stop }: { stop: Stop }) {
                     <TextComponent style={[styles.headerTitle, { flex: 1, marginRight: 8 }]} color={theme.textPrimary} bold variant="h3">
                         {`${t('Stop')} ${stop.number}: ${stop.name}`}
                     </TextComponent>
-                    {showTranslateButton && (
-                        <TouchableOpacity
-                            onPress={handleTranslate}
-                            style={{ padding: 6, backgroundColor: theme.primary + '15', borderRadius: 8 }}
-                        >
-                            <Ionicons name="language" size={14} color={theme.primary} />
-                        </TouchableOpacity>
-                    )}
+
                 </View>
                 <TextComponent style={styles.subtitle} color={theme.textSecondary} variant="body">
                     {displayedDescription}

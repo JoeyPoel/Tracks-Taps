@@ -341,6 +341,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                     onSubmit={handleCreateReview}
                     submitting={submittingReview}
                     tourName={activeTour.tour?.title}
+                    tourId={activeTour.tour?.id}
                 />
 
             </ScrollView>

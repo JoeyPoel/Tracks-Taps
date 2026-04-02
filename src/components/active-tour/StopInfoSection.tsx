@@ -18,18 +18,12 @@ interface StopInfoSectionProps {
 export default function StopInfoSection({ stop }: StopInfoSectionProps) {
     const { theme } = useTheme();
     const { t, language } = useLanguage();
-    const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
+    const { translateText, isAutoTranslateEnabled } = useTranslation();
 
     if (!stop) return null;
 
     const originalDescription = stop.detailedDescription || stop.description || '';
     const displayedDescription = translateText(originalDescription) || t('noStopDescription');
-    const showTranslateButton = !isAutoTranslateEnabled && language !== 'en' && originalDescription !== '';
-
-    const handleTranslate = () => {
-        requireTranslation(originalDescription);
-    };
-
     const stopTypeKey = (stop.type || 'viewpoint').replace(/_/g, '').replace(/ /g, '');
     const camelCaseKey = stopTypeKey.charAt(0).toLowerCase() + stopTypeKey.slice(1);
     const label = t(camelCaseKey) || stop.type?.replace('_', ' ') || 'Stop';
@@ -75,14 +69,7 @@ export default function StopInfoSection({ stop }: StopInfoSectionProps) {
             ]}>
                 <View style={[styles.headerRow, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
                     <TextComponent style={[styles.title, { flex: 1, marginRight: 8 }]} color={theme.textPrimary} bold variant="h2">{stop.name}</TextComponent>
-                    {showTranslateButton && (
-                        <TouchableOpacity
-                            onPress={handleTranslate}
-                            style={{ padding: 6, backgroundColor: theme.primary + '15', borderRadius: 8 }}
-                        >
-                            <Ionicons name="language" size={14} color={theme.primary} />
-                        </TouchableOpacity>
-                    )}
+
                 </View>
 
                 <View style={[styles.divider, { backgroundColor: theme.borderSecondary }]} />

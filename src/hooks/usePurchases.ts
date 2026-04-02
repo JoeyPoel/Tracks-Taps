@@ -8,11 +8,9 @@ import { useStore } from '../store/store'; // Keep for user context
 
 // Use env variables for keys
 // Falls back to the shared key if platform-specific ones aren't set
-const SHARED_KEY = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY || 'test_taLApHZCoJTqPGUoTNvXCVlgGxq'; // Default to android test key if generic shared key missing
-
 const API_KEYS = {
-    apple: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY || SHARED_KEY,
-    google: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY || SHARED_KEY,
+    apple: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY,
+    google: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY,
 };
 
 const ENTITLEMENT_ID = 'Tracks & Taps Pro'; // Matches user request
@@ -35,6 +33,14 @@ export const usePurchases = () => {
             }
 
             try {
+                const isDev = __DEV__;
+                const isAndroidTestKey = Platform.OS === 'android' && API_KEYS.google?.startsWith('test_');
+
+                if (isDev || isAndroidTestKey) {
+                    console.log(`[usePurchases] Skipping initialization: dev=${isDev}, isAndroidTestKey=${isAndroidTestKey}`);
+                    return;
+                }
+
                 if (Platform.OS === 'android') {
                     if (API_KEYS.google) await Purchases.configure({ apiKey: API_KEYS.google });
                 } else {

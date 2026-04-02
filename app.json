@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tracks&Taps",
     "slug": "tracks-and-taps",
-    "version": "2.6.1",
+    "version": "2.6.2",
     "orientation": "portrait",
     "icon": "./assets/images/AppIconColouredDarkTheme.png",
     "scheme": "tracks-taps",
@@ -69,13 +69,20 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/SplashScreenColouredWhiteTheme.png",
-          "imageWidth": 1024,
-          "imageHeight": 1024,
           "resizeMode": "contain",
           "backgroundColor": "#F8FAFC",
           "dark": {
             "image": "./assets/images/SplashScreenColouredDarkTheme.png",
             "backgroundColor": "#0F172A"
+          },
+          "ios": {
+            "imageWidth": 1024,
+            "imageHeight": 1024
+          },
+          "android": {
+            "image": "./assets/images/AppIconColouredWhiteTheme.png",
+            "imageWidth": 250,
+            "imageHeight": 250
           }
         }
       ],

@@ -31,16 +31,10 @@ export default function PubGolfStopHeader({
 }: PubGolfStopHeaderProps) {
     const { theme, mode } = useTheme();
     const { t, language } = useLanguage();
-    const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
+    const { translateText, isAutoTranslateEnabled } = useTranslation();
 
-    const originalText = `${stopName}\nDrink: ${drinkName}`;
     const displayedStopName = translateText(stopName);
     const displayedDrinkName = translateText(drinkName);
-    const showTranslateButton = !isAutoTranslateEnabled && language !== 'en';
-
-    const handleTranslate = () => {
-        requireTranslation(originalText);
-    };
 
     const textColor = theme.textPrimary;
     const subTextColor = theme.textSecondary;
@@ -78,14 +72,7 @@ export default function PubGolfStopHeader({
             <View style={styles.info}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6, flexWrap: 'wrap' }}>
                     <Text style={[styles.stopName, { color: textColor, marginBottom: 0, flexShrink: 1 }]}>{displayedStopName}</Text>
-                    {showTranslateButton && (
-                        <TouchableOpacity 
-                            onPress={handleTranslate}
-                            style={{ marginLeft: 8, padding: 4, backgroundColor: theme.primary + '15', borderRadius: 8 }}
-                        >
-                            <Ionicons name="language" size={14} color={theme.primary} />
-                        </TouchableOpacity>
-                    )}
+
                 </View>
                 <View style={[styles.drinkBadge, { backgroundColor: drinkBadgeBg }]}>
                     <Text style={[styles.drinkName, { color: drinkBadgeText }]}>

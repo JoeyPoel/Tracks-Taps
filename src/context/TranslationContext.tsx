@@ -11,7 +11,7 @@ import { TextComponent } from '../components/common/TextComponent';
 import { Ionicons } from '@expo/vector-icons';
 import { Alert } from 'react-native';
 
-type Language = 'en' | 'es' | 'nl' | 'pl' | 'fr' | 'de';
+type Language = string;
 
 interface TranslationCache {
   [key: string]: string;
@@ -22,74 +22,196 @@ interface TranslationContextType {
   setIsAutoTranslateEnabled: (enabled: boolean) => void;
   translateText: (text: string | null | undefined, force?: boolean) => string;
   cacheTranslation: (original: string, translated: string) => void;
-  forceTranslate: (text: string | null | undefined, forceLang?: Language) => Promise<boolean>;
+  forceTranslate: (text: string | null | undefined, forceLang?: string) => Promise<boolean>;
   requireTranslation: (text: string | null | undefined) => Promise<void>;
-  targetLanguage: Language | null;
-  setTargetLanguage: (lang: Language) => Promise<void>;
+  targetLanguage: string | null;
+  isTargetLanguageSet: boolean;
+  setTargetLanguage: (lang: string | null) => void;
   clearCache: () => void;
 }
 
 const TRANSLATION_CONFIG_KEY = '@app_auto_translate_enabled';
+const TRANSLATION_TARGET_LANG_KEY = '@app_translation_target_lang';
 const TRANSLATION_CACHE_KEY_PREFIX = '@app_translation_cache_';
-const TRANSLATION_TARGET_LANG_KEY = '@app_target_translate_language';
 
 const TranslationContext = createContext<TranslationContextType | undefined>(undefined);
 
-const SUPPORTED_LANGUAGES = [
+export const SUPPORTED_TRANSLATION_LANGUAGES = [
+  { code: 'af', label: 'Afrikaans', flag: '🇿🇦' },
+  { code: 'sq', label: 'Albanian', flag: '🇦🇱' },
+  { code: 'am', label: 'Amharic', flag: '🇪🇹' },
+  { code: 'ar', label: 'Arabic', flag: '🇸🇦' },
+  { code: 'hy', label: 'Armenian', flag: '🇦🇲' },
+  { code: 'az', label: 'Azerbaijani', flag: '🇦🇿' },
+  { code: 'eu', label: 'Basque', flag: '🇪🇸' },
+  { code: 'be', label: 'Belarusian', flag: '🇧🇾' },
+  { code: 'bn', label: 'Bengali', flag: '🇧🇩' },
+  { code: 'bs', label: 'Bosnian', flag: '🇧🇦' },
+  { code: 'bg', label: 'Bulgarian', flag: '🇧🇬' },
+  { code: 'ca', label: 'Catalan', flag: '🇪🇸' },
+  { code: 'ceb', label: 'Cebuano', flag: '🇵🇭' },
+  { code: 'ny', label: 'Chichewa', flag: '🇲🇼' },
+  { code: 'zh-CN', label: 'Chinese (Simplified)', flag: '🇨🇳' },
+  { code: 'zh-TW', label: 'Chinese (Traditional)', flag: '🇹🇼' },
+  { code: 'co', label: 'Corsican', flag: '🇫🇷' },
+  { code: 'hr', label: 'Croatian', flag: '🇭🇷' },
+  { code: 'cs', label: 'Czech', flag: '🇨🇿' },
+  { code: 'da', label: 'Danish', flag: '🇩🇰' },
+  { code: 'nl', label: 'Dutch', flag: '🇳🇱' },
   { code: 'en', label: 'English', flag: '🇬🇧' },
-  { code: 'es', label: 'Español', flag: '🇪🇸' },
-  { code: 'nl', label: 'Nederlands', flag: '🇳🇱' },
-  { code: 'pl', label: 'Polski', flag: '🇵🇱' },
-  { code: 'fr', label: 'Français', flag: '🇫🇷' },
-  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+  { code: 'eo', label: 'Esperanto', flag: '🌍' },
+  { code: 'et', label: 'Estonian', flag: '🇪🇪' },
+  { code: 'tl', label: 'Filipino', flag: '🇵🇭' },
+  { code: 'fi', label: 'Finnish', flag: '🇫🇮' },
+  { code: 'fr', label: 'French', flag: '🇫🇷' },
+  { code: 'fy', label: 'Frisian', flag: '🇳🇱' },
+  { code: 'gl', label: 'Galician', flag: '🇪🇸' },
+  { code: 'ka', label: 'Georgian', flag: '🇬🇪' },
+  { code: 'de', label: 'German', flag: '🇩🇪' },
+  { code: 'el', label: 'Greek', flag: '🇬🇷' },
+  { code: 'gu', label: 'Gujarati', flag: '🇮🇳' },
+  { code: 'ht', label: 'Haitian Creole', flag: '🇭🇹' },
+  { code: 'ha', label: 'Hausa', flag: '🇳🇬' },
+  { code: 'haw', label: 'Hawaiian', flag: '🇺🇸' },
+  { code: 'iw', label: 'Hebrew', flag: '🇮🇱' },
+  { code: 'hi', label: 'Hindi', flag: '🇮🇳' },
+  { code: 'hmn', label: 'Hmong', flag: '🏳️' },
+  { code: 'hu', label: 'Hungarian', flag: '🇭🇺' },
+  { code: 'is', label: 'Icelandic', flag: '🇮🇸' },
+  { code: 'ig', label: 'Igbo', flag: '🇳🇬' },
+  { code: 'id', label: 'Indonesian', flag: '🇮🇩' },
+  { code: 'ga', label: 'Irish', flag: '🇮🇪' },
+  { code: 'it', label: 'Italian', flag: '🇮🇹' },
+  { code: 'ja', label: 'Japanese', flag: '🇯🇵' },
+  { code: 'jw', label: 'Javanese', flag: '🇮🇩' },
+  { code: 'kn', label: 'Kannada', flag: '🇮🇳' },
+  { code: 'kk', label: 'Kazakh', flag: '🇰🇿' },
+  { code: 'km', label: 'Khmer', flag: '🇰🇭' },
+  { code: 'ko', label: 'Korean', flag: '🇰🇷' },
+  { code: 'ku', label: 'Kurdish (Kurmanji)', flag: '🇹🇷' },
+  { code: 'ky', label: 'Kyrgyz', flag: '🇰🇬' },
+  { code: 'lo', label: 'Lao', flag: '🇱🇦' },
+  { code: 'la', label: 'Latin', flag: '🏛️' },
+  { code: 'lv', label: 'Latvian', flag: '🇱🇻' },
+  { code: 'lt', label: 'Lithuanian', flag: '🇱🇹' },
+  { code: 'lb', label: 'Luxembourgish', flag: '🇱🇺' },
+  { code: 'mk', label: 'Macedonian', flag: '🇲🇰' },
+  { code: 'mg', label: 'Malagasy', flag: '🇲🇬' },
+  { code: 'ms', label: 'Malay', flag: '🇲🇾' },
+  { code: 'ml', label: 'Malayalam', flag: '🇮🇳' },
+  { code: 'mt', label: 'Maltese', flag: '🇲🇹' },
+  { code: 'mi', label: 'Maori', flag: '🇳🇿' },
+  { code: 'mr', label: 'Marathi', flag: '🇮🇳' },
+  { code: 'mn', label: 'Mongolian', flag: '🇲🇳' },
+  { code: 'my', label: 'Myanmar (Burmese)', flag: '🇲🇲' },
+  { code: 'ne', label: 'Nepali', flag: '🇳🇵' },
+  { code: 'no', label: 'Norwegian', flag: '🇳🇴' },
+  { code: 'or', label: 'Odia', flag: '🇮🇳' },
+  { code: 'ps', label: 'Pashto', flag: '🇦🇫' },
+  { code: 'fa', label: 'Persian', flag: '🇮🇷' },
+  { code: 'pl', label: 'Polish', flag: '🇵🇱' },
+  { code: 'pt', label: 'Portuguese', flag: '🇵🇹' },
+  { code: 'pa', label: 'Punjabi', flag: '🇮🇳' },
+  { code: 'ro', label: 'Romanian', flag: '🇷🇴' },
+  { code: 'ru', label: 'Russian', flag: '🇷🇺' },
+  { code: 'sm', label: 'Samoan', flag: '🇼🇸' },
+  { code: 'gd', label: 'Scots Gaelic', flag: '🏴󠁧󠁢󠁳󠁣󠁴󠁿' },
+  { code: 'sr', label: 'Serbian', flag: '🇷🇸' },
+  { code: 'st', label: 'Sesotho', flag: '🇿🇦' },
+  { code: 'sn', label: 'Shona', flag: '🇿🇼' },
+  { code: 'sd', label: 'Sindhi', flag: '🇵🇰' },
+  { code: 'si', label: 'Sinhala', flag: '🇱🇰' },
+  { code: 'sk', label: 'Slovak', flag: '🇸🇰' },
+  { code: 'sl', label: 'Slovenian', flag: '🇸🇮' },
+  { code: 'so', label: 'Somali', flag: '🇸🇴' },
+  { code: 'es', label: 'Spanish', flag: '🇪🇸' },
+  { code: 'su', label: 'Sundanese', flag: '🇮🇩' },
+  { code: 'sw', label: 'Swahili', flag: '🇰🇪' },
+  { code: 'sv', label: 'Swedish', flag: '🇸🇪' },
+  { code: 'tg', label: 'Tajik', flag: '🇹🇯' },
+  { code: 'ta', label: 'Tamil', flag: '🇮🇳' },
+  { code: 'te', label: 'Telugu', flag: '🇮🇳' },
+  { code: 'th', label: 'Thai', flag: '🇹🇭' },
+  { code: 'tr', label: 'Turkish', flag: '🇹🇷' },
+  { code: 'uk', label: 'Ukrainian', flag: '🇺🇦' },
+  { code: 'ur', label: 'Urdu', flag: '🇵🇰' },
+  { code: 'uz', label: 'Uzbek', flag: '🇺🇿' },
+  { code: 'vi', label: 'Vietnamese', flag: '🇻🇳' },
+  { code: 'cy', label: 'Welsh', flag: '🏴󠁧󠁢󠁷󠁬󠁳󠁿' },
+  { code: 'xh', label: 'Xhosa', flag: '🇿🇦' },
+  { code: 'yi', label: 'Yiddish', flag: '🇪🇺' },
+  { code: 'yo', label: 'Yoruba', flag: '🇳🇬' },
+  { code: 'zu', label: 'Zulu', flag: '🇿🇦' },
 ];
 
 export const TranslationProvider = ({ children }: { children: ReactNode }) => {
   const { theme } = useTheme();
   const { language, t } = useLanguage();
   const [isAutoTranslateEnabled, setIsAutoTranslateEnabledState] = useState(false);
-  const [targetLanguage, setTargetLanguageState] = useState<Language | null>(null);
+  const [targetLanguage, setTargetLanguageState] = useState<string | null>(null);
+  const [isTargetLanguageSet, setIsTargetLanguageSet] = useState(false);
   const [cache, setCache] = useState<TranslationCache>({});
   const [isLoaded, setIsLoaded] = useState(false);
   
   // Modal State
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [pendingTextToTranslate, setPendingTextToTranslate] = useState<string | null>(null);
 
   const { presentIOSTranslateSheet, isSupported } = useIOSTranslateSheet();
 
-  // Load configuration and cache for current language
+  // Initial Load - ONLY ONCE
   useEffect(() => {
-    const loadData = async () => {
+    const init = async () => {
       try {
-        const [config, targetLangStr, storedCache] = await Promise.all([
+        const [config, storedTargetLang] = await Promise.all([
           AsyncStorage.getItem(TRANSLATION_CONFIG_KEY),
           AsyncStorage.getItem(TRANSLATION_TARGET_LANG_KEY),
-          AsyncStorage.getItem(`${TRANSLATION_CACHE_KEY_PREFIX}${language}`)
         ]);
 
         if (config !== null) {
           setIsAutoTranslateEnabledState(config === 'true');
         }
 
-        if (targetLangStr !== null) {
-          setTargetLanguageState(targetLangStr as Language);
+        if (storedTargetLang !== null) {
+          setTargetLanguageState(storedTargetLang);
+          setIsTargetLanguageSet(true);
         }
+      } catch (e) {
+        console.error('Failed to init translation config', e);
+      } finally {
+        setIsLoaded(true);
+      }
+    };
+    init();
+  }, []);
 
+  // Cache Loading Effect - Runs whenever language/target changes
+  useEffect(() => {
+    if (!isLoaded) return;
+    
+    // Clear cache immediately in UI memory to prevent showing stale language
+    setCache({});
+    
+    let isCancelled = false;
+    const loadCache = async () => {
+      const activeLang = targetLanguage || language;
+      try {
+        const storedCache = await AsyncStorage.getItem(`${TRANSLATION_CACHE_KEY_PREFIX}${activeLang}`);
+        if (isCancelled) return;
+        
         if (storedCache !== null) {
           setCache(JSON.parse(storedCache));
         } else {
           setCache({});
         }
       } catch (e) {
-        console.error('Failed to load translation data', e);
-      } finally {
-        setIsLoaded(true);
+        console.error('Failed to load cache', e);
+        if (!isCancelled) setCache({});
       }
     };
 
-    loadData();
-  }, [language]);
+    loadCache();
+    return () => { isCancelled = true; };
+  }, [language, targetLanguage, isLoaded]);
 
   const setIsAutoTranslateEnabled = async (enabled: boolean) => {
     setIsAutoTranslateEnabledState(enabled);
@@ -100,14 +222,22 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const setTargetLanguage = async (lang: Language) => {
+  const setTargetLanguage = async (lang: string | null) => {
     setTargetLanguageState(lang);
     try {
-      await AsyncStorage.setItem(TRANSLATION_TARGET_LANG_KEY, lang);
+      if (lang) {
+        await AsyncStorage.setItem(TRANSLATION_TARGET_LANG_KEY, lang);
+        setIsTargetLanguageSet(true);
+      } else {
+        await AsyncStorage.removeItem(TRANSLATION_TARGET_LANG_KEY);
+        setIsTargetLanguageSet(false);
+      }
     } catch (e) {
       console.error('Failed to save target language', e);
     }
   };
+
+
 
   const cacheTranslation = async (original: string, translated: string) => {
     if (!original || !translated || original === translated) return;
@@ -115,9 +245,9 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
     setCache(prevCache => {
       const newCache = { ...prevCache, [original]: translated };
       
-      // Save to AsyncStorage safely without blocking state
+      const activeLang = targetLanguage || language;
       AsyncStorage.setItem(
-        `${TRANSLATION_CACHE_KEY_PREFIX}${language}`,
+        `${TRANSLATION_CACHE_KEY_PREFIX}${activeLang}`,
         JSON.stringify(newCache)
       ).catch(e => console.error('Failed to save translation to cache', e));
 
@@ -127,7 +257,7 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
 
   const pendingTranslations = useRef<Set<string>>(new Set());
 
-  const queueTranslation = async (text: string | null | undefined, forceLang?: Language): Promise<boolean> => {
+  const queueTranslation = async (text: string | null | undefined, forceLang?: string): Promise<boolean> => {
     if (!text || text.trim() === '') return false;
     // Auto translate skips if not enabled (unless manual force)
     if (!forceLang && !isAutoTranslateEnabled) return false;
@@ -136,7 +266,7 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
     pendingTranslations.current.add(text);
 
     // Prefer explicitly provided language, then target settings, then fallback to global app language settings
-    const langToUse = forceLang || targetLanguage || language;
+    const langToUse = forceLang || language;
 
     try {
       const response = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${langToUse}&dt=t&q=${encodeURIComponent(text)}`);
@@ -168,42 +298,27 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const requireTranslation = async (text: string | null | undefined) => {
-      if (!text || text.trim() === '') return;
-      
-      if (!targetLanguage) {
-          // Trigger first-time language modal picker
-          setPendingTextToTranslate(text);
-          setIsModalVisible(true);
-          return;
-      }
+    if (!text || text.trim() === '') return;
 
-      // Try Google API silent background first
-      const success = await queueTranslation(text, targetLanguage);
-      
-      // If we completely failed to get a translation, seamlessly fallback to Apple Translate
-      if (!success && isSupported) {
-          Alert.alert("API Busy", "Using offline Apple Translator...", [{ text: "OK" }]);
-          
-          presentIOSTranslateSheet({
-              text: text,
-              replacementAction: (translatedText) => {
-                  cacheTranslation(text, translatedText);
-              }
-          });
-      } else if (!success) {
-          Alert.alert('Translation failed', 'Please try again later or check your connection.');
-      }
+    // Try Google API silent background first
+    const success = await queueTranslation(text, targetLanguage || language);
+
+    // If we completely failed to get a translation, seamlessly fallback to Apple Translate
+    if (!success && isSupported) {
+      Alert.alert("API Busy", "Using offline Apple Translator...", [{ text: "OK" }]);
+
+      presentIOSTranslateSheet({
+        text: text,
+        replacementAction: (translatedText: string) => {
+          cacheTranslation(text, translatedText);
+        }
+      });
+    } else if (!success) {
+      Alert.alert('Translation failed', 'Please try again later or check your connection.');
+    }
   };
 
-  const handleLanguageModalSelect = async (lang: Language) => {
-      await setTargetLanguage(lang);
-      setIsModalVisible(false);
-      
-      if (pendingTextToTranslate) {
-          requireTranslation(pendingTextToTranslate);
-          setPendingTextToTranslate(null);
-      }
-  };
+
 
   const translateText = (text: string | null | undefined, force: boolean = false): string => {
     if (!text) return text || '';
@@ -215,21 +330,25 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
       return (allStrings[language] as any)[key] || text;
     }
 
-    // 2. Always return cache if we have it (ensures manual translations always override immediately)
+    // 2. Dynamic content translation
+    // Master toggle is isAutoTranslateEnabled. If OFF, return original text (unless forced)
+    if (!isAutoTranslateEnabled && !force) return text;
+
+    // 3. Return cache if it exists
     if (cache[text as string]) return cache[text as string];
     
-    // 3. If auto translate is enabled, language is not EN, and we haven't fetched it yet
-    if (isAutoTranslateEnabled && language !== 'en') {
-      queueTranslation(text);
-    }
+    // 4. If translation is enabled and we haven't fetched it yet, queue it
+    const activeTargetLang = targetLanguage || language;
+    queueTranslation(text, activeTargetLang);
 
     return text;
   };
 
   const clearCache = async () => {
     setCache({});
+    const activeLang = targetLanguage || language;
     try {
-      await AsyncStorage.removeItem(`${TRANSLATION_CACHE_KEY_PREFIX}${language}`);
+      await AsyncStorage.removeItem(`${TRANSLATION_CACHE_KEY_PREFIX}${activeLang}`);
     } catch (e) {
       console.error('Failed to clear translation cache', e);
     }
@@ -244,57 +363,15 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
         cacheTranslation,
         forceTranslate: queueTranslation,
         requireTranslation,
-        targetLanguage,
+        targetLanguage: targetLanguage || language,
+        isTargetLanguageSet,
         setTargetLanguage,
         clearCache
       }}
     >
       {children}
       
-      <AppModal
-        visible={isModalVisible}
-        onClose={() => {
-            setIsModalVisible(false);
-            setPendingTextToTranslate(null);
-        }}
-        title="Translate to..."
-        subtitle="Select the language you want to translate active tours into. You can change this later."
-        height={380}
-      >
-        <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.languageGridContainer}
-        >
-            <View style={styles.grid}>
-                {SUPPORTED_LANGUAGES.map((lang, index) => {
-                    const isActive = targetLanguage === lang.code;
-                    return (
-                        <AnimatedPressable
-                            key={lang.code}
-                            onPress={() => handleLanguageModalSelect(lang.code as Language)}
-                            style={[
-                                styles.languageOption,
-                                {
-                                    backgroundColor: isActive ? theme.primary + '15' : theme.bgSecondary,
-                                    borderColor: isActive ? theme.primary : theme.borderSecondary,
-                                    borderWidth: 1.5
-                                }
-                            ]}
-                        >
-                            <TextComponent style={{ fontSize: 28, marginBottom: 8 }}>{lang.flag}</TextComponent>
-                            <TextComponent
-                                color={isActive ? theme.primary : theme.textPrimary}
-                                bold={isActive}
-                                variant="body"
-                            >
-                                {lang.label}
-                            </TextComponent>
-                        </AnimatedPressable>
-                    );
-                })}
-            </View>
-        </ScrollView>
-      </AppModal>
+
     </TranslationContext.Provider>
   );
 };

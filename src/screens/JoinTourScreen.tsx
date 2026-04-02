@@ -190,12 +190,12 @@ export default function JoinTourScreen() {
             <AppModal
                 visible={expiredModalVisible}
                 onClose={() => setExpiredModalVisible(false)}
-                title={"Invitation Expired"}
+                title={t('invitationExpiredTitle')}
                 alignment="center"
             >
                 <View style={{ alignItems: 'center', paddingVertical: 20 }}>
                     <TextComponent color={theme.textSecondary} center style={{ marginBottom: 20 }}>
-                        {"This invitation has expired. The tour may have already finished or been cancelled."}
+                        {t('invitationExpiredMessage')}
                     </TextComponent>
                     <AnimatedButton
                         title="OK"

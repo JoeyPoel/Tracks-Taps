@@ -32,6 +32,14 @@ export const offlineStorage = {
         }
     },
 
+    async deleteActiveTour(activeTourId: number) {
+        try {
+            await AsyncStorage.removeItem(`${OFFLINE_TOUR_KEY_PREFIX}${activeTourId}`);
+        } catch (e) {
+            console.error('Failed to delete offline tour', e);
+        }
+    },
+
     // --- Action Queue ---
     async getQueue(): Promise<OfflineAction[]> {
         try {
@@ -65,6 +73,16 @@ export const offlineStorage = {
             await AsyncStorage.setItem(PENDING_ACTIONS_KEY, JSON.stringify(newQueue));
         } catch (e) {
             console.error('Failed to remove offline action', e);
+        }
+    },
+
+    async clearActionsForTour(activeTourId: number) {
+        try {
+            const queue = await this.getQueue();
+            const newQueue = queue.filter(a => a.activeTourId !== activeTourId);
+            await AsyncStorage.setItem(PENDING_ACTIONS_KEY, JSON.stringify(newQueue));
+        } catch (e) {
+            console.error('Failed to clear offline actions for tour', e);
         }
     },
 

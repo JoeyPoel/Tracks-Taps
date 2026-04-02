@@ -9,9 +9,34 @@ interface TourSkeletonProps {
 }
 
 export default function TourSkeleton({ variant = 'hero' }: TourSkeletonProps) {
-    const { theme } = useTheme();
+    const { theme, mode } = useTheme();
     const isGrid = variant === 'grid';
     const cardHeight = isGrid ? 240 : 320;
+
+    const renderContent = () => (
+        <>
+            {/* Top Section */}
+            <View style={styles.topRow}>
+                <Shimmer width={isGrid ? 60 : 80} height={24} borderRadius={12} />
+                {isGrid && <Shimmer width={30} height={24} borderRadius={12} />}
+            </View>
+
+            {/* Bottom Content */}
+            <View style={styles.bottomContent}>
+                {/* Title */}
+                <Shimmer width="85%" height={isGrid ? 22 : 28} borderRadius={6} style={{ marginBottom: 4 }} />
+                {!isGrid && <Shimmer width="40%" height={16} borderRadius={4} />}
+
+                {!isGrid && <View style={{ height: 12 }} />}
+
+                {/* Stats Row */}
+                <View style={styles.statsRow}>
+                    <Shimmer width={isGrid ? 80 : 120} height={16} borderRadius={4} />
+                    <Shimmer width={isGrid ? 30 : 50} height={20} borderRadius={10} />
+                </View>
+            </View>
+        </>
+    );
 
     return (
         <View style={[styles.card, { backgroundColor: theme.bgSecondary, height: cardHeight }]}>
@@ -19,31 +44,18 @@ export default function TourSkeleton({ variant = 'hero' }: TourSkeletonProps) {
             <View style={[StyleSheet.absoluteFill, { backgroundColor: theme.bgSecondary }]} />
 
             {/* Main Shimmer Overlay for the whole card "feel" */}
-            <LinearGradient
-                colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.8)']}
-                style={styles.gradient}
-            >
-                {/* Top Section */}
-                <View style={styles.topRow}>
-                    <Shimmer width={isGrid ? 60 : 80} height={24} borderRadius={12} />
-                    {isGrid && <Shimmer width={30} height={24} borderRadius={12} />}
+            {mode === 'dark' ? (
+                <LinearGradient
+                    colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.8)']}
+                    style={styles.gradient}
+                >
+                    {renderContent()}
+                </LinearGradient>
+            ) : (
+                <View style={styles.gradient}>
+                    {renderContent()}
                 </View>
-
-                {/* Bottom Content */}
-                <View style={styles.bottomContent}>
-                    {/* Title */}
-                    <Shimmer width="85%" height={isGrid ? 22 : 28} borderRadius={6} style={{ marginBottom: 4 }} />
-                    {!isGrid && <Shimmer width="40%" height={16} borderRadius={4} />}
-
-                    {!isGrid && <View style={{ height: 12 }} />}
-
-                    {/* Stats Row */}
-                    <View style={styles.statsRow}>
-                        <Shimmer width={isGrid ? 80 : 120} height={16} borderRadius={4} />
-                        <Shimmer width={isGrid ? 30 : 50} height={20} borderRadius={10} />
-                    </View>
-                </View>
-            </LinearGradient>
+            )}
 
             {/* Subtle border to catch the eye */}
             <View style={[styles.border, { borderColor: theme.borderPrimary }]} />

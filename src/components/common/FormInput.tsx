@@ -1,4 +1,5 @@
 import { useTheme } from '@/src/context/ThemeContext';
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { TextComponent } from './TextComponent';
@@ -19,6 +20,10 @@ interface FormInputProps {
     editable?: boolean;
     pointerEvents?: 'auto' | 'none' | 'box-none' | 'box-only';
     autoFocus?: boolean;
+    secureTextEntry?: boolean;
+    showPasswordToggle?: boolean;
+    textContentType?: string;
+    autoComplete?: any;
 }
 
 export function FormInput({
@@ -36,9 +41,19 @@ export function FormInput({
     rightIcon,
     editable = true,
     pointerEvents,
-    autoFocus
+    autoFocus,
+    secureTextEntry,
+    showPasswordToggle,
+    textContentType,
+    autoComplete
 }: FormInputProps) {
     const { theme } = useTheme();
+    const [isPasswordVisible, setIsPasswordVisible] = React.useState(!secureTextEntry);
+
+    // Sync visibility if secureTextEntry changes
+    React.useEffect(() => {
+        setIsPasswordVisible(!secureTextEntry);
+    }, [secureTextEntry]);
 
     return (
         <View style={styles.container} pointerEvents={pointerEvents}>
@@ -79,8 +94,29 @@ export function FormInput({
                     keyboardType={keyboardType}
                     editable={editable}
                     autoFocus={autoFocus}
+                    secureTextEntry={secureTextEntry && !isPasswordVisible}
+                    textContentType={textContentType as any}
+                    autoComplete={autoComplete}
                 />
-                {rightIcon && <View style={styles.iconRight}>{rightIcon}</View>}
+                {showPasswordToggle ? (
+                    <View style={styles.iconRight}>
+                        <React.Suspense fallback={null}>
+                            {/* We'll use Ionicons directly logic or pass through iconRight */}
+                            <TextComponent 
+                                onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+                                style={{ padding: 4 }}
+                            >
+                                <Ionicons 
+                                    name={isPasswordVisible ? "eye-off-outline" : "eye-outline"} 
+                                    size={20} 
+                                    color={theme.textTertiary} 
+                                />
+                            </TextComponent>
+                        </React.Suspense>
+                    </View>
+                ) : rightIcon ? (
+                    <View style={styles.iconRight}>{rightIcon}</View>
+                ) : null}
             </View>
 
             {description && !error && (

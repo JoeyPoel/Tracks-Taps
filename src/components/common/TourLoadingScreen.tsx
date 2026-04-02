@@ -11,6 +11,7 @@ import Animated, {
     withSequence,
     withTiming
 } from 'react-native-reanimated';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { TextComponent } from './TextComponent';
 
@@ -21,10 +22,13 @@ interface TourLoadingScreenProps {
 }
 
 export const TourLoadingScreen: React.FC<TourLoadingScreenProps> = ({
-    message = "Planning your adventure...",
+    message,
     fullScreen = true
 }) => {
     const { theme } = useTheme();
+    const { t } = useLanguage();
+
+    const displayMessage = message || t('planningAdventure') || "Planning your adventure...";
 
     // Animation Values
     const rotation = useSharedValue(0);
@@ -129,7 +133,7 @@ export const TourLoadingScreen: React.FC<TourLoadingScreenProps> = ({
                         center
                         bold
                     >
-                        {message}
+                        {displayMessage}
                     </TextComponent>
                 </View>
             </View>

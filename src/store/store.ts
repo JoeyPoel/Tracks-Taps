@@ -7,7 +7,7 @@ import { friendService } from '../services/friendsService';
 import { mapTourService } from '../services/mapTourService';
 import { tourService } from '../services/tourService';
 import { userService } from '../services/userService';
-
+import { offlineStorage } from '../utils/offlineStorage';
 import { TourFilters } from '../types/filters';
 import { ActiveTour, SessionStatus, Tour, TourDetail, User } from '../types/models';
 import { LevelSystem } from '../utils/levelUtils';
@@ -362,11 +362,18 @@ export const useStore = create<StoreState>()(
                     await activeTourService.abandonTour(activeTourId, userId);
                     // Update local state
                     set((state) => {
-                        if (state.activeTour && state.activeTour.id === activeTourId) {
-                            return { activeTour: { ...state.activeTour, status: SessionStatus.ABANDONED } };
-                        }
-                        return {};
+                        const newActiveTours = state.activeTours.filter(t => t.id !== activeTourId);
+                        const isCurrentActive = state.activeTour?.id === activeTourId;
+
+                        return {
+                            activeTours: newActiveTours,
+                            activeTour: isCurrentActive ? null : state.activeTour
+                        };
                     });
+
+                    // Clear offline storage & pending actions
+                    await offlineStorage.deleteActiveTour(activeTourId);
+                    await offlineStorage.clearActionsForTour(activeTourId);
                 } catch (error) {
                     console.error('Failed to abandon tour', error);
                 }

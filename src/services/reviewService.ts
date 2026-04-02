@@ -15,5 +15,15 @@ export const reviewService = {
     async getReviewsForTour(tourId: number, page: number = 1, limit: number = 10) {
         const response = await client.get(`/reviews?tourId=${tourId}&page=${page}&limit=${limit}`);
         return response.data;
+    },
+
+    async updateReview(id: string, data: { content?: string; rating?: number; photos?: string[] }) {
+        const response = await client.patch(`/reviews/${id}`, data);
+        return response.data;
+    },
+
+    async deleteReview(id: string) {
+        const response = await client.delete(`/reviews/${id}`);
+        return response.data;
     }
 };

@@ -8,6 +8,7 @@ import { useTranslation } from '../../context/TranslationContext';
 import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 import { TextComponent } from '../common/TextComponent';
+import { LanguagePickerModal } from '../common/LanguagePickerModal';
 import { Ionicons } from '@expo/vector-icons';
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
@@ -35,7 +36,8 @@ export default function ActiveTourHeader({
 }: ActiveTourHeaderProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
-    const { isAutoTranslateEnabled, setIsAutoTranslateEnabled } = useTranslation();
+    const { isAutoTranslateEnabled, setIsAutoTranslateEnabled, isTargetLanguageSet } = useTranslation();
+    const [isLangModalVisible, setIsLangModalVisible] = React.useState(false);
     const insets = useSafeAreaInsets();
 
     const xpProgress = Math.min(Math.max(currentXP / maxXP, 0), 1) * 100;
@@ -79,7 +81,13 @@ export default function ActiveTourHeader({
 
                 <View style={styles.statsContainer}>
                     <AnimatedPressable 
-                        onPress={() => setIsAutoTranslateEnabled(!isAutoTranslateEnabled)}
+                        onPress={() => {
+                            const newEnabled = !isAutoTranslateEnabled;
+                            setIsAutoTranslateEnabled(newEnabled);
+                            if (newEnabled && !isTargetLanguageSet) {
+                                setIsLangModalVisible(true);
+                            }
+                        }}
                         style={[styles.statBadge, { backgroundColor: isAutoTranslateEnabled ? theme.primary + '20' : theme.bgTertiary }]}
                         interactionScale="subtle"
                         haptic="light"
@@ -137,6 +145,11 @@ export default function ActiveTourHeader({
                     </View>
                 </View>
             </View>
+            <LanguagePickerModal
+                visible={isLangModalVisible}
+                onClose={() => setIsLangModalVisible(false)}
+                showManagePreferencesHint={true}
+            />
         </View>
     );
 }

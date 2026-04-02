@@ -9,7 +9,8 @@ import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-nat
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { AnimatedButton } from '../components/common/AnimatedButton';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
-import { TextComponent } from '../components/common/TextComponent'; // Added import
+import { TextComponent } from '../components/common/TextComponent';
+import { LanguagePickerModal } from '../components/common/LanguagePickerModal';
 import { TourLoadingScreen } from '../components/common/TourLoadingScreen';
 import BuyTokensModal from '../components/profileScreen/BuyTokensModal';
 import AddToSavedTripsModal from '../components/saved-trips/AddToSavedTripsModal';
@@ -24,6 +25,7 @@ import { useSavedTrips } from '../hooks/useSavedTrips';
 import { useStartTour } from '../hooks/useStartTour';
 import { useTourDetails } from '../hooks/useTourDetails';
 import { tourService } from '../services/tourService';
+import { reviewService } from '../services/reviewService';
 import { authEvents } from '../utils/authEvents';
 import { getOptimizedImageUrl } from '../utils/imageUtils';
 import { useSafeNavigation } from '../hooks/useSafeNavigation';
@@ -32,7 +34,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
   const { user } = useAuth();
   const { t, language } = useLanguage();
-  const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
+  const { translateText, requireTranslation, isAutoTranslateEnabled, setIsAutoTranslateEnabled, isTargetLanguageSet } = useTranslation();
   const router = useRouter();
   const { goBack } = useSafeNavigation();
   const [showSavedTripModal, setShowSavedTripModal] = useState(false);
@@ -40,6 +42,8 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [submittingReview, setSubmittingReview] = useState(false);
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'highest' | 'lowest'>('newest');
+  const [isLangModalVisible, setIsLangModalVisible] = useState(false);
+  const [editingReview, setEditingReview] = useState<any>(null);
 
   const {
     tour,
@@ -82,6 +86,52 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
     }
   };
 
+  const handleUpdateReview = async (rating: number, content: string, photos: string[]) => {
+    if (!editingReview) return;
+
+    setSubmittingReview(true);
+    try {
+      await reviewService.updateReview(editingReview.id, {
+        rating,
+        content,
+        photos
+      });
+
+      await refetch();
+      setEditingReview(null);
+      Alert.alert(t('success'), t('updateSuccess') || 'Review updated successfully!');
+    } catch (error: any) {
+      console.error('Error updating review:', error);
+      Alert.alert(t('error'), t('updateError') || 'Failed to update review.');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+    const handleDeleteReview = (reviewId: string) => {
+    Alert.alert(
+      t('deleteReview') || 'Delete Review',
+      t('confirmRemoveStop') || 'Are you sure you want to delete this review?',
+      [
+        { text: t('cancel'), style: 'cancel' },
+        {
+          text: t('deleteAccountConfirm') || 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await reviewService.deleteReview(reviewId);
+              await refetch();
+              Alert.alert(t('success'), t('reviewDeleted') || 'Review deleted.');
+            } catch (error) {
+              console.error('Error deleting review:', error);
+              Alert.alert(t('error'), t('reviewSubmitError'));
+            }
+          }
+        }
+      ]
+    );
+  };
+
   React.useEffect(() => {
     loadLists();
   }, [tourId, loadLists]);
@@ -100,7 +150,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
   if (loading) {
     return (
-      <TourLoadingScreen message="Loading tour details..." />
+      <TourLoadingScreen message={t('loadingTourDetails')} />
     );
   }
 
@@ -250,13 +300,39 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
         <Animated.View entering={FadeInUp.delay(600)} style={styles.section}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <TextComponent style={[styles.sectionTitle, { marginBottom: 0 }]} variant="h2" bold color={theme.textPrimary}>{t('aboutThisTour')}</TextComponent>
-            {!isAutoTranslateEnabled && language !== 'en' && tour.description && (
+            {tour.description && (
               <TouchableOpacity
-                onPress={() => requireTranslation(tour.description)}
-                style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: theme.bgSecondary, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 }}
+                onPress={() => {
+                  const newEnabled = !isAutoTranslateEnabled;
+                  setIsAutoTranslateEnabled(newEnabled);
+                  if (newEnabled && !isTargetLanguageSet) {
+                    setIsLangModalVisible(true);
+                  }
+                }}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: isAutoTranslateEnabled ? theme.primary + '15' : theme.bgSecondary,
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
+                  borderRadius: 16,
+                  borderWidth: 1,
+                  borderColor: isAutoTranslateEnabled ? theme.primary + '30' : 'transparent'
+                }}
               >
-                <Ionicons name="language" size={16} color={theme.primary} />
-                <TextComponent variant="caption" color={theme.primary} bold style={{ marginLeft: 6 }}>Translate</TextComponent>
+                <Ionicons
+                  name="language"
+                  size={16}
+                  color={isAutoTranslateEnabled ? theme.primary : theme.textSecondary}
+                />
+                <TextComponent
+                  variant="caption"
+                  color={isAutoTranslateEnabled ? theme.primary : theme.textSecondary}
+                  bold
+                  style={{ marginLeft: 6 }}
+                >
+                  {t('translate')}
+                </TextComponent>
               </TouchableOpacity>
             )}
           </View>
@@ -285,6 +361,9 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
               }
               setShowReviewForm(true);
             }}
+            onEditReview={(review) => setEditingReview(review)}
+            onDeleteReview={handleDeleteReview}
+            currentUserId={user?.id}
           />
         </Animated.View>
 
@@ -308,11 +387,11 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
               const isPubGolf = tour.modes?.some((m: string) => m.toLowerCase() === 'pubgolf') || tour.genre?.toLowerCase() === 'pubgolf';
               if (isPubGolf) {
                 Alert.alert(
-                  "Age Restriction & Disclaimer",
-                  "This game mode involves locations that serve alcohol. You must be of legal drinking age (18+ in most regions) to play this mode. Tracks & Taps is not responsible for inappropriate alcohol usage. Do you agree and confirm you meet the age requirement?",
+                  t('ageRestrictionTitle') || "Age Restriction & Disclaimer",
+                  t('ageRestrictionMessage') || "This game mode involves locations that serve alcohol. You must be of legal drinking age (18+ in most regions) to play this mode. Tracks & Taps is not responsible for inappropriate alcohol usage. Do you agree and confirm you meet the age requirement?",
                   [
-                    { text: "Cancel", style: "cancel" },
-                    { text: "I Confirm (18+)", onPress: startSoloTour }
+                    { text: t('cancel'), style: "cancel" },
+                    { text: t('confirm18') || "I Confirm (18+)", onPress: startSoloTour }
                   ]
                 );
               } else {
@@ -341,11 +420,11 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
               const isPubGolf = tour.modes?.some((m: string) => m.toLowerCase() === 'pubgolf') || tour.genre?.toLowerCase() === 'pubgolf';
               if (isPubGolf) {
                 Alert.alert(
-                  "Age Restriction & Disclaimer",
-                  "This game mode involves locations that serve alcohol. You must be of legal drinking age (18+ in most regions) to play this mode. Tracks & Taps is not responsible for inappropriate alcohol usage. Do you agree and confirm you meet the age requirement?",
+                  t('ageRestrictionTitle') || "Age Restriction & Disclaimer",
+                  t('ageRestrictionMessage') || "This game mode involves locations that serve alcohol. You must be of legal drinking age (18+ in most regions) to play this mode. Tracks & Taps is not responsible for inappropriate alcohol usage. Do you agree and confirm you meet the age requirement?",
                   [
-                    { text: "Cancel", style: "cancel" },
-                    { text: "I Confirm (18+)", onPress: startGroupTour }
+                    { text: t('cancel'), style: "cancel" },
+                    { text: t('confirm18') || "I Confirm (18+)", onPress: startGroupTour }
                   ]
                 );
               } else {
@@ -385,11 +464,28 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
       />
 
       <ReviewForm
-        visible={showReviewForm}
-        onClose={() => setShowReviewForm(false)}
-        onSubmit={handleCreateReview}
+        visible={showReviewForm || !!editingReview}
+        onClose={() => {
+          setShowReviewForm(false);
+          setEditingReview(null);
+        }}
+        onSubmit={editingReview ? handleUpdateReview : handleCreateReview}
         submitting={submittingReview}
         tourName={tour.title}
+        tourId={tourId}
+        initialData={editingReview ? {
+          id: editingReview.id,
+          rating: editingReview.rating,
+          content: editingReview.comment, // Note: comment vs content mapping
+          photos: editingReview.images || []
+        } : undefined}
+        mode={editingReview ? 'edit' : 'create'}
+      />
+
+      <LanguagePickerModal
+        visible={isLangModalVisible}
+        onClose={() => setIsLangModalVisible(false)}
+        showManagePreferencesHint={true}
       />
     </ScreenWrapper>
   );

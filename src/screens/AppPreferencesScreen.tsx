@@ -3,26 +3,29 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, View, TextInput, FlatList, Pressable } from 'react-native';
+import { AppModal } from '../components/common/AppModal';
 import { AnimatedPressable } from '../components/common/AnimatedPressable';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
+import { LanguagePickerModal } from '../components/common/LanguagePickerModal';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
-import { useTranslation } from '../context/TranslationContext';
+import { useTranslation, SUPPORTED_TRANSLATION_LANGUAGES } from '../context/TranslationContext';
 
 export default function AppPreferencesScreen() {
   const { theme, toggleTheme, mode } = useTheme();
   const { t, language, setLanguage } = useLanguage();
   const { isAutoTranslateEnabled, setIsAutoTranslateEnabled, targetLanguage, setTargetLanguage } = useTranslation();
+  const [isLangModalVisible, setIsLangModalVisible] = React.useState(false);
 
   const languages = [
     { code: 'en', label: 'English', flag: '🇬🇧' },
-    { code: 'es', label: 'Español', flag: '🇪🇸' },
-    { code: 'nl', label: 'Nederlands', flag: '🇳🇱' },
-    { code: 'pl', label: 'Polski', flag: '🇵🇱' },
-    { code: 'fr', label: 'Français', flag: '🇫🇷' },
-    { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+    { code: 'es', label: 'Spanish', flag: '🇪🇸' },
+    { code: 'nl', label: 'Dutch', flag: '🇳🇱' },
+    { code: 'pl', label: 'Polish', flag: '🇵🇱' },
+    { code: 'fr', label: 'French', flag: '🇫🇷' },
+    { code: 'de', label: 'German', flag: '🇩🇪' },
   ];
 
   const renderSectionHeader = (title: string, icon: string) => (
@@ -55,7 +58,7 @@ export default function AppPreferencesScreen() {
         <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
           <View style={[styles.row, styles.lastRow]}>
             <View style={styles.rowInfo}>
-              <TextComponent style={styles.rowTitle} color={theme.textPrimary} bold variant="body">{t('darkMode')}</TextComponent>
+              <TextComponent style={styles.rowTitle} color={theme.textPrimary} bold variant="body">{mode === 'dark' ? t('darkMode') : t('lightMode')}</TextComponent>
               <TextComponent style={styles.rowSubtitle} color={theme.textSecondary} variant="caption">
                 {mode === 'dark' ? t('easyOnTheEyes') : t('brightAndClear')}
               </TextComponent>
@@ -71,9 +74,14 @@ export default function AppPreferencesScreen() {
         </View>
 
 
-        {/* Language Section */}
-        {renderSectionHeader(t('language'), 'language-outline')}
+        {/* App Interface Language Section */}
+        {renderSectionHeader(t('appInterfaceLanguage'), 'language-outline')}
         <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
+          <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 4 }}>
+            <TextComponent color={theme.textSecondary} variant="caption">
+              {t('appLanguageDescription')}
+            </TextComponent>
+          </View>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -114,8 +122,9 @@ export default function AppPreferencesScreen() {
           </ScrollView>
         </View>
 
-        {/* Auto Translation Toggle */}
-        <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor, marginTop: 12 }]}>
+        {/* Translation Service Section */}
+        {renderSectionHeader(t('translationService'), 'sync-outline')}
+        <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
           <View style={[styles.row, styles.lastRow]}>
             <View style={styles.rowInfo}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
@@ -123,7 +132,7 @@ export default function AppPreferencesScreen() {
                 <TextComponent style={styles.rowTitle} color={theme.textPrimary} bold variant="body">{t('autoTranslateActiveTour')}</TextComponent>
               </View>
               <TextComponent style={styles.rowSubtitle} color={theme.textSecondary} variant="caption">
-                {t('autoTranslateDesc')}
+                {t('translationServiceDescription')}
               </TextComponent>
             </View>
             <Switch
@@ -135,50 +144,47 @@ export default function AppPreferencesScreen() {
             />
           </View>
 
-          {!isAutoTranslateEnabled && (
-              <View style={[styles.row, { borderTopWidth: 1, borderTopColor: theme.borderSecondary, flexDirection: 'column', alignItems: 'flex-start', paddingBottom: 8 }]}>
-                  <TextComponent style={[styles.rowTitle, { marginBottom: 12 }]} color={theme.textPrimary} bold variant="body">Translate To</TextComponent>
-                  <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={[styles.languageContainer, { padding: 0 }]}
+          {isAutoTranslateEnabled && (
+              <View style={[styles.row, { borderTopWidth: 1, borderTopColor: theme.borderSecondary, flexDirection: 'column', alignItems: 'flex-start', paddingBottom: 16 }]}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 12 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Ionicons name="flag-outline" size={14} color={theme.textSecondary} style={{ marginRight: 6 }} />
+                      <TextComponent style={styles.rowTitle} color={theme.textPrimary} bold variant="body">{t('translateTo') || 'Translate To'}</TextComponent>
+                    </View>
+                    <AnimatedPressable 
+                        onPress={() => setIsLangModalVisible(true)}
+                        style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, backgroundColor: theme.primary + '15' }}
+                    >
+                        <TextComponent color={theme.primary} bold variant="caption">{t('change') || 'Change'}</TextComponent>
+                    </AnimatedPressable>
+                  </View>
+                  
+                  <AnimatedPressable 
+                    onPress={() => setIsLangModalVisible(true)}
+                    style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: theme.bgPrimary, padding: 12, borderRadius: 16, width: '100%', borderWidth: 1, borderColor: theme.borderSecondary }}
                   >
-                      {languages.map((lang, index) => {
-                          const isActive = (targetLanguage || language) === lang.code;
-                          return (
-                              <AnimatedPressable
-                                  key={lang.code}
-                                  onPress={() => setTargetLanguage(lang.code as any)}
-                                  style={[
-                                      styles.languageOption,
-                                      {
-                                          backgroundColor: isActive ? theme.primary + '10' : 'transparent',
-                                          borderColor: isActive ? theme.primary : theme.borderSecondary,
-                                          borderWidth: isActive ? 1.5 : 1
-                                      }
-                                  ]}
-                              >
-                                  <TextComponent style={{ fontSize: 24, marginBottom: 4 }}>{lang.flag}</TextComponent>
-                                  <TextComponent
-                                      style={styles.languageLabel}
-                                      color={isActive ? theme.primary : theme.textPrimary}
-                                      bold={isActive}
-                                      variant="body"
-                                  >
-                                      {lang.label}
-                                  </TextComponent>
-                                  {isActive && (
-                                      <View style={[styles.activeBadge, { backgroundColor: theme.primary }]}>
-                                          <Ionicons name="checkmark" size={10} color="#FFF" />
-                                      </View>
-                                  )}
-                              </AnimatedPressable>
-                          );
-                      })}
-                  </ScrollView>
+                      <TextComponent style={{ fontSize: 24, marginRight: 12 }}>
+                          {SUPPORTED_TRANSLATION_LANGUAGES.find(l => l.code === (targetLanguage || language))?.flag || '🌍'}
+                      </TextComponent>
+                      <View style={{ flex: 1 }}>
+                          <TextComponent color={theme.textPrimary} bold variant="body">
+                              {SUPPORTED_TRANSLATION_LANGUAGES.find(l => l.code === (targetLanguage || language))?.label || (targetLanguage || language)}
+                          </TextComponent>
+                          <TextComponent color={theme.textSecondary} variant="caption">
+                              {t('translationServiceDescription')}
+                          </TextComponent>
+                      </View>
+                  </AnimatedPressable>
               </View>
           )}
         </View>
+
+        {/* Language Selection Modal */}
+        <LanguagePickerModal 
+            visible={isLangModalVisible}
+            onClose={() => setIsLangModalVisible(false)}
+            showManagePreferencesHint={false} 
+        />
 
         {/* Notifications Mockup (Future Proofing) - Hidden for now
         {renderSectionHeader('Notifications', 'notifications-outline')}
@@ -302,5 +308,29 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 20,
     marginBottom: 20,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    height: 44,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 16,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    paddingVertical: 8,
+  },
+  modalLanguageItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderRadius: 12,
+    marginBottom: 4,
   },
 });

@@ -169,18 +169,20 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
                         </TextComponent>
 
                         {user?.referralCode && (
-                            <AnimatedPressable
-                                style={[styles.codeContainer, { backgroundColor: theme.bgTertiary }]}
-                                onPress={handleCopy}
-                            >
+                            <View style={styles.codeContainer}>
                                 <TextComponent style={styles.codeLabel} color={theme.textSecondary} variant="caption">{t('yourCode')}:</TextComponent>
-                                <View style={styles.codeWrapper}>
+                                <AnimatedPressable
+                                    style={[styles.codeWrapper, { backgroundColor: theme.bgTertiary }]}
+                                    onPress={handleCopy}
+                                >
                                     <TextComponent style={styles.codeText} color={theme.textPrimary} bold variant="body">
                                         {user.referralCode?.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3') || user.referralCode}
                                     </TextComponent>
-                                    {copied ? <CheckIcon size={18} color={theme.success} /> : <ClipboardDocumentIcon size={18} color={theme.textSecondary} />}
-                                </View>
-                            </AnimatedPressable>
+                                    <View style={{ width: 32, alignItems: 'flex-end' }}>
+                                        {copied ? <CheckIcon size={18} color={theme.success} /> : <ClipboardDocumentIcon size={18} color={theme.textSecondary} />}
+                                    </View>
+                                </AnimatedPressable>
+                            </View>
                         )}
                     </View>
                 </View>
@@ -275,24 +277,24 @@ const styles = StyleSheet.create({
         lineHeight: 20,
     },
     codeContainer: {
-        marginTop: 12,
-        padding: 8,
-        paddingHorizontal: 12,
-        borderRadius: 8,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        marginTop: 16,
         gap: 8,
     },
     codeLabel: {
-        marginRight: 4,
+        marginLeft: 4,
     },
     codeWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        justifyContent: 'space-between',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'transparent',
     },
     codeText: {
         letterSpacing: 1,
+        fontSize: 16,
     }
 });

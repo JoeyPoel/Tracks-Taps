@@ -42,5 +42,39 @@ export const reviewController = {
             console.error('Error creating review:', error);
             return Response.json({ error: 'Failed to create review' }, { status: 500 });
         }
+    },
+
+    async updateReview(request: Request, params: { id: string }, userId: number) {
+        try {
+            const reviewId = Number(params.id);
+            const body = await request.json();
+            const { content, rating, photos } = body;
+
+            const updatedReview = await reviewService.updateReview(reviewId, userId, {
+                content,
+                rating,
+                photos
+            });
+
+            return Response.json(updatedReview);
+        } catch (error: any) {
+            console.error('Error updating review:', error);
+            if (error.message === 'Unauthorized') return Response.json({ error: 'Unauthorized' }, { status: 403 });
+            if (error.message === 'Review not found') return Response.json({ error: 'Review not found' }, { status: 404 });
+            return Response.json({ error: 'Failed to update review' }, { status: 500 });
+        }
+    },
+
+    async deleteReview(request: Request, params: { id: string }, userId: number) {
+        try {
+            const reviewId = Number(params.id);
+            await reviewService.deleteReview(reviewId, userId);
+            return Response.json({ success: true });
+        } catch (error: any) {
+            console.error('Error deleting review:', error);
+            if (error.message === 'Unauthorized') return Response.json({ error: 'Unauthorized' }, { status: 403 });
+            if (error.message === 'Review not found') return Response.json({ error: 'Review not found' }, { status: 404 });
+            return Response.json({ error: 'Failed to delete review' }, { status: 500 });
+        }
     }
 };

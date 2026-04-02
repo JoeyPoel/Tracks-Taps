@@ -1,5 +1,6 @@
 import { TextComponent } from '@/src/components/common/TextComponent';
 import { uploadOptimizedImage } from '@/src/utils/imageUtils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { XMarkIcon } from 'react-native-heroicons/outline';
 import { Image } from 'expo-image';
@@ -12,6 +13,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { AnimatedButton } from '../common/AnimatedButton';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 import { saveImageToGallery } from '../../utils/imageUtils';
+import { AppModal } from '../common/AppModal';
 
 interface ReviewPhoto {
     id: string;
@@ -23,29 +25,92 @@ interface ReviewPhoto {
 interface ReviewFormProps {
     visible: boolean;
     onClose: () => void;
-    onSubmit: (rating: number, content: string, photos: string[]) => void;
+    onSubmit: (rating: number, content: string, photos: string[]) => Promise<void> | void;
     submitting: boolean;
-    tourName?: string;
+    tourName: string;
+    tourId?: string | number;
+    initialData?: {
+        id: string;
+        rating: number;
+        content: string;
+        photos: string[];
+    };
+    mode?: 'create' | 'edit';
 }
 
-export default function ReviewForm({ visible, onClose, onSubmit, submitting, tourName = "the tour" }: ReviewFormProps) {
+export default function ReviewForm({ visible, onClose, onSubmit, submitting, tourName, tourId, initialData, mode = 'create' }: ReviewFormProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
-    const [rating, setRating] = useState(0);
-    const [content, setContent] = useState('');
+    const [rating, setRating] = useState(initialData?.rating || 0);
+    const [content, setContent] = useState(initialData?.content || '');
     const [photos, setPhotos] = useState<ReviewPhoto[]>([]);
+    const [isWaitingForUploads, setIsWaitingForUploads] = useState(false);
 
-    // Reset state when modal opens
+    const pendingUploads = React.useRef<Map<string, Promise<string | null>>>(new Map());
+    const photosRef = React.useRef(photos);
     React.useEffect(() => {
-        if (visible) {
-            setRating(0);
-            setContent('');
-            setPhotos([]);
-        }
-    }, [visible]);
+        photosRef.current = photos;
+    }, [photos]);
 
-    const handlePress = () => {
+    const DRAFT_KEY = `@review_draft_v1_${tourId}`;
+
+    // Load draft when modal opens
+    React.useEffect(() => {
+        const loadDraft = async () => {
+            if (!visible) return;
+            try {
+                const stored = await AsyncStorage.getItem(DRAFT_KEY);
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    setRating(parsed.rating || 0);
+                    setContent(parsed.content || '');
+                    setPhotos(parsed.photos || []);
+                } else {
+                    setRating(0);
+                    setContent('');
+                    setPhotos([]);
+                }
+            } catch (e) {
+                console.error("Failed to load review draft", e);
+            }
+        };
+
+        if (visible) {
+            if (mode === 'edit' && initialData) {
+                setRating(initialData.rating);
+                setContent(initialData.content);
+                setPhotos(initialData.photos.map(url => ({ id: Math.random().toString(), uri: url, publicUrl: url, uploading: false })));
+            } else {
+                loadDraft();
+            }
+        }
+    }, [visible, mode, initialData, tourId]);
+
+    // Save draft on changes
+    React.useEffect(() => {
+        if (mode === 'create' && visible && (rating > 0 || content.length > 0 || photos.length > 0)) {
+            const saveDraft = async () => {
+                try {
+                    const draft = { rating, content, photos };
+                    await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+                } catch (e) {
+                    console.error("Failed to save review draft", e);
+                }
+            };
+            saveDraft();
+        }
+    }, [rating, content, photos, mode, visible, tourId]);
+
+    const clearDraft = async () => {
+        try {
+            await AsyncStorage.removeItem(DRAFT_KEY);
+        } catch (e) {
+            console.error("Failed to clear review draft", e);
+        }
+    };
+
+    const handlePress = async () => {
         if (rating === 0) {
             Alert.alert(t('error'), t('pleaseSelectStars') || 'Please select a star rating.');
             return;
@@ -56,25 +121,57 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
             return;
         }
 
-        const stillUploading = photos.some(p => p.uploading);
+        // Wait for all currently uploading photos
+        const stillUploading = photosRef.current.some(p => p.uploading);
         if (stillUploading) {
-            Alert.alert(t('pleaseWait'), t('uploadsInProgress') || 'Please wait for photos to finish uploading.');
-            return;
+            setIsWaitingForUploads(true);
+            try {
+                // Collect and wait for all pending upload promises
+                const promises = Array.from(pendingUploads.current.values());
+                await Promise.all(promises);
+            } catch (err) {
+                console.error("Error waiting for uploads:", err);
+            } finally {
+                setIsWaitingForUploads(false);
+            }
         }
 
-        const urls = photos.map(p => p.publicUrl).filter(Boolean) as string[];
-        onSubmit(rating, content, urls);
+        // Re-check photos from ref to get the latest (post-upload) state
+        const finalPhotos = photosRef.current;
+        const urls = finalPhotos.map(p => p.publicUrl).filter(Boolean) as string[];
+        
+        if (mode === 'create') {
+            const result = onSubmit(rating, content, urls);
+            if (result instanceof Promise) {
+                await result;
+                clearDraft();
+            } else {
+                clearDraft();
+            }
+        } else {
+            await onSubmit(rating, content, urls);
+        }
+        onClose();
     };
 
     const startUpload = async (uri: string, id: string) => {
-        try {
-            const publicUrl = await uploadOptimizedImage(uri, 'images', 'reviews');
-            setPhotos(prev => prev.map(p => p.id === id ? { ...p, publicUrl, uploading: false } : p));
-        } catch (error) {
-            console.error("Upload error:", error);
-            setPhotos(prev => prev.filter(p => p.id !== id)); // Remove if failed
-            Alert.alert(t('uploadFailed'), t('uploadErrorMsg'));
-        }
+        const uploadTask = (async () => {
+            try {
+                const publicUrl = await uploadOptimizedImage(uri, 'images', 'reviews');
+                setPhotos(prev => prev.map(p => p.id === id ? { ...p, publicUrl, uploading: false } : p));
+                return publicUrl;
+            } catch (error) {
+                console.error("Upload error:", error);
+                setPhotos(prev => prev.filter(p => p.id !== id));
+                Alert.alert(t('uploadFailed'), t('uploadErrorMsg'));
+                return null;
+            } finally {
+                pendingUploads.current.delete(id);
+            }
+        })();
+
+        pendingUploads.current.set(id, uploadTask);
+        return uploadTask;
     };
 
     const handleAddPhoto = async (useCamera: boolean = false) => {
@@ -108,15 +205,11 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                 const uri = result.assets[0].uri;
                 const id = Math.random().toString(36).substring(7);
 
-                // If taken with camera, save to gallery optimistically
                 if (useCamera) {
                     saveImageToGallery(uri);
                 }
 
-                // OPTIMISTIC UI: Add to state immediately
                 setPhotos(prev => [...prev, { id, uri, uploading: true }]);
-
-                // Start background upload
                 startUpload(uri, id);
             }
         } catch (error) {
@@ -131,191 +224,125 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
     };
 
     return (
-        <Modal
-            animationType="fade"
-            transparent={true}
+        <AppModal
             visible={visible}
-            onRequestClose={onClose}
+            onClose={onClose}
+            title={mode === 'edit' ? t('editReview') : t('rateExperience')}
+            subtitle={tourName}
+            alignment="center"
         >
-            <Pressable
-                style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.6)' }]}
-                onPress={() => {
-                    Keyboard.dismiss();
-                    onClose();
-                }}
-            >
-                {/* Main Card */}
-                <Animated.View
-                    entering={ZoomIn.duration(300)}
-                    style={[styles.modalContent, { backgroundColor: theme.bgSecondary }]}
-                >
-                    <Pressable onPress={Keyboard.dismiss}>
-                        {/* Header */}
-                        <View style={styles.header}>
-                            <View>
-                                <TextComponent style={styles.title} color={theme.textPrimary} bold variant="h2">{t('rateExperience')}</TextComponent>
-                                <TextComponent style={styles.subtitle} color={theme.textSecondary} variant="body">
-                                    {tourName}
-                                </TextComponent>
-                            </View>
-                            <AnimatedPressable onPress={onClose} interactionScale="subtle" style={styles.closeBtn}>
-                                <XMarkIcon size={24} color={theme.textSecondary} />
+            <View style={{ paddingTop: 8 }}>
+                <View style={styles.starsContainer}>
+                    {[1, 2, 3, 4, 5].map((star, index) => (
+                        <Animated.View
+                            key={star}
+                            entering={FadeInDown.delay(index * 50).springify()}
+                        >
+                            <AnimatedPressable onPress={() => setRating(star)} interactionScale="medium" haptic="selection">
+                                <Ionicons
+                                    name={star <= rating ? "star" : "star-outline"}
+                                    size={42}
+                                    color={star <= rating ? theme.gold : theme.textTertiary}
+                                    style={{ marginHorizontal: 4 }}
+                                />
                             </AnimatedPressable>
+                        </Animated.View>
+                    ))}
+                </View>
+
+                <View style={{ alignItems: 'center', marginBottom: 20, height: 20 }}>
+                    {rating > 0 && (
+                        <TextComponent style={{ fontSize: 14 }} color={theme.primary} bold variant="body">
+                            {rating === 5 ? t('amazing') : rating === 4 ? t('good') : rating === 3 ? t('okay') : t('notGreat')}
+                        </TextComponent>
+                    )}
+                </View>
+
+                <TextComponent style={styles.label} color={theme.textSecondary} bold variant="caption">{t('writeReview')}</TextComponent>
+                <TextInput
+                    style={[styles.input, { backgroundColor: theme.bgInput, color: theme.textPrimary, borderColor: theme.borderInput }]}
+                    placeholder={t('reviewPlaceholder')}
+                    placeholderTextColor={theme.textTertiary}
+                    multiline
+                    numberOfLines={4}
+                    value={content}
+                    onChangeText={setContent}
+                    textAlignVertical="top"
+                />
+
+                <View style={styles.photoSection}>
+                    <View style={styles.uploadButtonsRow}>
+                        <AnimatedPressable
+                            style={[styles.addPhotoButton, { borderColor: theme.borderPrimary, backgroundColor: theme.bgSecondary }]}
+                            onPress={() => handleAddPhoto(false)}
+                            disabled={photos.length >= 5}
+                            interactionScale="subtle"
+                        >
+                            <Ionicons name="images" size={20} color={theme.primary} />
+                            <TextComponent style={styles.addPhotoText} color={theme.textPrimary} bold variant="caption">
+                                {t('gallery')}
+                            </TextComponent>
+                        </AnimatedPressable>
+
+                        <AnimatedPressable
+                            style={[styles.addPhotoButton, { borderColor: theme.borderPrimary, backgroundColor: theme.bgSecondary }]}
+                            onPress={() => handleAddPhoto(true)}
+                            disabled={photos.length >= 5}
+                            interactionScale="subtle"
+                        >
+                            <Ionicons name="camera" size={20} color={theme.primary} />
+                            <TextComponent style={styles.addPhotoText} color={theme.textPrimary} bold variant="caption">
+                                {t('camera')}
+                            </TextComponent>
+                        </AnimatedPressable>
+
+                        <View style={styles.countBadge}>
+                            <TextComponent color={theme.textTertiary} bold variant="caption">
+                                {photos.length}/5
+                            </TextComponent>
                         </View>
+                    </View>
 
-                        {/* Star Rating - Bigger & Centered */}
-                        <View style={styles.starsContainer}>
-                            {[1, 2, 3, 4, 5].map((star, index) => (
-                                <Animated.View
-                                    key={star}
-                                    entering={FadeInDown.delay(index * 50).springify()}
-                                >
-                                    <AnimatedPressable onPress={() => setRating(star)} interactionScale="medium" haptic="selection">
-                                        <Ionicons
-                                            name={star <= rating ? "star" : "star-outline"}
-                                            size={42}
-                                            color={star <= rating ? theme.gold : theme.textTertiary}
-                                            style={{ marginHorizontal: 4 }}
-                                        />
-                                    </AnimatedPressable>
-                                </Animated.View>
-                            ))}
-                        </View>
-
-                        {/* Rating Label */}
-                        <View style={{ alignItems: 'center', marginBottom: 20, height: 20 }}>
-                            {rating > 0 && (
-                                <TextComponent style={{ fontSize: 14 }} color={theme.primary} bold variant="body">
-                                    {rating === 5 ? t('amazing') : rating === 4 ? t('good') : rating === 3 ? t('okay') : t('notGreat')}
-                                </TextComponent>
-                            )}
-                        </View>
-
-                        {/* Input Area */}
-                        <TextComponent style={styles.label} color={theme.textSecondary} bold variant="caption">{t('writeReview')}</TextComponent>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.bgInput, color: theme.textPrimary, borderColor: theme.borderInput }]}
-                            placeholder={t('reviewPlaceholder')}
-                            placeholderTextColor={theme.textTertiary}
-                            multiline
-                            numberOfLines={4}
-                            value={content}
-                            onChangeText={setContent}
-                            textAlignVertical="top"
-                        />
-
-                        {/* Photo Upload Section */}
-                        <View style={styles.photoSection}>
-                            <View style={styles.uploadButtonsRow}>
-                                <AnimatedPressable
-                                    style={[styles.addPhotoButton, { borderColor: theme.borderPrimary, backgroundColor: theme.bgSecondary }]}
-                                    onPress={() => handleAddPhoto(false)}
-                                    disabled={photos.length >= 5}
-                                    interactionScale="subtle"
-                                >
-                                    <Ionicons name="images" size={20} color={theme.primary} />
-                                    <TextComponent style={styles.addPhotoText} color={theme.textPrimary} bold variant="caption">
-                                        {t('gallery')}
-                                    </TextComponent>
-                                </AnimatedPressable>
-
-                                <AnimatedPressable
-                                    style={[styles.addPhotoButton, { borderColor: theme.borderPrimary, backgroundColor: theme.bgSecondary }]}
-                                    onPress={() => handleAddPhoto(true)}
-                                    disabled={photos.length >= 5}
-                                    interactionScale="subtle"
-                                >
-                                    <Ionicons name="camera" size={20} color={theme.primary} />
-                                    <TextComponent style={styles.addPhotoText} color={theme.textPrimary} bold variant="caption">
-                                        {t('camera')}
-                                    </TextComponent>
-                                </AnimatedPressable>
-
-                                <View style={styles.countBadge}>
-                                    <TextComponent color={theme.textTertiary} bold variant="caption">
-                                        {photos.length}/5
-                                    </TextComponent>
-                                </View>
-                            </View>
-
-                            <View style={styles.photoList}>
-                                {photos.map((item, index) => (
-                                    <Animated.View key={item.id} entering={FadeInDown.springify()}>
-                                        <View style={styles.photoItem}>
-                                            <Image source={{ uri: item.uri }} style={styles.photo} contentFit="cover" />
-                                            {item.uploading && (
-                                                <View style={[styles.uploadingOverlay, { backgroundColor: 'rgba(0,0,0,0.3)' }]}>
-                                                    <ActivityIndicator size="small" color="#fff" />
-                                                </View>
-                                            )}
-                                            <AnimatedPressable
-                                                style={[styles.deletePhotoBtn, { backgroundColor: theme.error }]}
-                                                onPress={() => removePhoto(index)}
-                                                haptic="light"
-                                            >
-                                                <Ionicons name="close" size={12} color="#fff" />
-                                            </AnimatedPressable>
+                    <View style={styles.photoList}>
+                        {photos.map((item, index) => (
+                            <Animated.View key={item.id} entering={FadeInDown.springify()}>
+                                <View style={styles.photoItem}>
+                                    <Image source={{ uri: item.uri }} style={styles.photo} contentFit="cover" />
+                                    {item.uploading && (
+                                        <View style={[styles.uploadingOverlay, { backgroundColor: 'rgba(0,0,0,0.3)' }]}>
+                                            <ActivityIndicator size="small" color="#fff" />
                                         </View>
-                                    </Animated.View>
-                                ))}
-                            </View>
-                        </View>
+                                    )}
+                                    <AnimatedPressable
+                                        style={[styles.deletePhotoBtn, { backgroundColor: theme.error }]}
+                                        onPress={() => removePhoto(index)}
+                                        haptic="light"
+                                    >
+                                        <Ionicons name="close" size={12} color="#fff" />
+                                    </AnimatedPressable>
+                                </View>
+                            </Animated.View>
+                        ))}
+                    </View>
+                </View>
 
-                        {/* Footer Actions */}
-                        <View style={styles.footer}>
-                            <AnimatedButton
-                                title={t('submitReview')}
-                                onPress={handlePress}
-                                variant="primary"
-                                loading={submitting}
-                                disabled={submitting}
-                                style={styles.submitButton}
-                                icon="send"
-                            />
-                        </View>
-                    </Pressable>
-                </Animated.View>
-            </Pressable>
-        </Modal>
+                <View style={styles.footer}>
+                    <AnimatedButton
+                        title={isWaitingForUploads ? t('waitingForUploads') || 'Processing Photos...' : (mode === 'edit' ? t('updateReview') : t('submitReview'))}
+                        onPress={handlePress}
+                        variant="primary"
+                        loading={submitting || isWaitingForUploads}
+                        disabled={submitting || isWaitingForUploads || rating === 0 || content.trim().length === 0}
+                        style={styles.submitButton}
+                        icon={isWaitingForUploads ? undefined : "send"}
+                    />
+                </View>
+            </View>
+        </AppModal>
     );
 }
 
 const styles = StyleSheet.create({
-    modalOverlay: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    modalContent: {
-        width: '100%',
-        maxWidth: 400,
-        borderRadius: 24,
-        padding: 24,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.25,
-        shadowRadius: 20,
-        elevation: 10,
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    title: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 14,
-        fontWeight: '500',
-    },
-    closeBtn: {
-        padding: 4,
-    },
     starsContainer: {
         flexDirection: 'row',
         justifyContent: 'center',

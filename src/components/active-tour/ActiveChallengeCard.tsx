@@ -47,15 +47,9 @@ export default function ActiveChallengeCard({
 }: ActiveChallengeCardProps & { disabled?: boolean, isFailed?: boolean, index?: number, isBonus?: boolean, translateText?: string }) {
     const { theme } = useTheme();
     const { t, language } = useLanguage();
-    const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
+    const { translateText, isAutoTranslateEnabled } = useTranslation();
 
     const displayedTranslateText = translateText(translateTextProp || '');
-    const showTranslateButton = !isAutoTranslateEnabled && language !== 'en' && !!translateTextProp;
-
-    const handleTranslate = () => {
-        if (!translateTextProp) return;
-        requireTranslation(translateTextProp);
-    };
 
     // Entrance Animation
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -139,14 +133,7 @@ export default function ActiveChallengeCard({
                             <TextComponent style={styles.cardTitle} color={theme.textPrimary} bold variant="body">{title}</TextComponent>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            {showTranslateButton && (
-                                <TouchableOpacity 
-                                    onPress={handleTranslate}
-                                    style={{ padding: 6, marginRight: 8, backgroundColor: theme.primary + '15', borderRadius: 8 }}
-                                >
-                                    <Ionicons name="language" size={16} color={theme.primary} />
-                                </TouchableOpacity>
-                            )}
+
                             <View style={[styles.pointsBadge, { backgroundColor: theme.gold + '20' }]}>
                                 <BoltIcon size={14} color={theme.gold} />
                                 <TextComponent style={styles.pointsText} color={theme.gold} bold variant="label">{points}</TextComponent>

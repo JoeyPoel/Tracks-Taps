@@ -28,6 +28,7 @@ export const reviewRepository = {
                 include: {
                     author: {
                         select: {
+                            id: true,
                             name: true,
                             avatarUrl: true
                         },
@@ -38,5 +39,37 @@ export const reviewRepository = {
             page,
             limit
         );
+    },
+
+    async getReviewById(id: number) {
+        return await prisma.review.findUnique({
+            where: { id },
+            include: {
+                author: {
+                    select: {
+                        id: true,
+                        name: true,
+                        avatarUrl: true
+                    }
+                }
+            }
+        });
+    },
+
+    async updateReview(id: number, data: { content?: string; rating?: number; photos?: string[] }) {
+        return await prisma.review.update({
+            where: { id },
+            data: {
+                content: data.content,
+                rating: data.rating,
+                photos: data.photos,
+            },
+        });
+    },
+
+    async deleteReview(id: number) {
+        return await prisma.review.delete({
+            where: { id },
+        });
     },
 };

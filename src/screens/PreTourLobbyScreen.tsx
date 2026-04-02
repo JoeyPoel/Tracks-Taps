@@ -7,6 +7,7 @@ import InviteFriendsModal from '../components/common/InviteFriendsModal';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { TourLoadingScreen } from '../components/common/TourLoadingScreen';
 import { TourCodeDisplay } from '../components/teamSetup/TourCodeDisplay';
+import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 import { useFriends } from '../hooks/useFriends';
@@ -21,6 +22,7 @@ import { LobbyTourInfo } from '../components/preTourLobby/LobbyTourInfo';
 
 export default function PreTourLobbyScreen() {
     const { theme } = useTheme();
+    const { t } = useLanguage();
     const router = useRouter();
     const params = useLocalSearchParams();
     const { user } = useUserContext();
@@ -38,7 +40,7 @@ export default function PreTourLobbyScreen() {
             setShowInviteModal(true);
         } catch (error) {
             console.error('Failed to load friends for invite:', error);
-            Alert.alert('Error', 'Failed to load friends. Please try again.');
+            Alert.alert(t('error') || 'Error', t('noFriendsFound') || 'Failed to load friends. Please try again.');
         } finally {
             setIsInviteLoading(false);
         }
@@ -62,7 +64,7 @@ export default function PreTourLobbyScreen() {
     if (isStarting) {
         return (
             <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} animateEntry={false}>
-                <TourLoadingScreen message="Loading Tour..." />
+                <TourLoadingScreen message={t('loadingTour')} />
             </ScreenWrapper>
         );
     }
@@ -70,7 +72,7 @@ export default function PreTourLobbyScreen() {
     if (loading && !activeTour) {
         return (
             <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} animateEntry={false}>
-                <TourLoadingScreen message="Loading lobby..." />
+                <TourLoadingScreen message={t('loadingLobby')} />
             </ScreenWrapper>
         );
     }
@@ -118,11 +120,11 @@ export default function PreTourLobbyScreen() {
                     const isPubGolf = tourData?.modes?.some((m: string) => m.toLowerCase() === 'pubgolf') || tourData?.genre?.toLowerCase() === 'pubgolf';
                     if (isPubGolf) {
                         Alert.alert(
-                            "Age Restriction & Disclaimer",
-                            "This game mode involves locations that serve alcohol. You must be of legal drinking age (18+ in most regions) to play this mode. Tracks & Taps is not responsible for inappropriate alcohol usage. Do you agree and confirm you meet the age requirement?",
+                            t('ageRestrictionTitle') || "Age Restriction & Disclaimer",
+                            t('ageRestrictionMessage') || "This game mode involves locations that serve alcohol. You must be of legal drinking age (18+ in most regions) to play this mode. Tracks & Taps is not responsible for inappropriate alcohol usage. Do you agree and confirm you meet the age requirement?",
                             [
-                                { text: "Cancel", style: "cancel" },
-                                { text: "I Confirm (18+)", onPress: start }
+                                { text: t('cancel'), style: "cancel" },
+                                { text: t('confirm18') || "I Confirm (18+)", onPress: start }
                             ]
                         );
                     } else {

@@ -32,8 +32,6 @@ export default function RegisterScreen() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loadingType, setLoadingType] = useState<'register' | 'google' | 'apple' | null>(null);
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
 
 
@@ -153,45 +151,31 @@ export default function RegisterScreen() {
                         </View>
 
                         <View style={styles.inputContainer}>
-                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('password')}</Text>
-                            <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderInput }]}>
-                                <Ionicons name="lock-closed-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
-                                <TextInput
-                                    style={[styles.input, { color: theme.textPrimary }]}
-                                    placeholder={t('enterPassword')}
-                                    placeholderTextColor={theme.textTertiary}
-                                    value={password}
-                                    onChangeText={setPassword}
-                                    secureTextEntry={!showPassword}
-                                    textContentType="newPassword"
-                                    autoComplete="new-password"
-                                    maxLength={100}
-                                />
-                                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                                    <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={theme.textTertiary} />
-                                </TouchableOpacity>
-                            </View>
+                            <FormInput
+                                label={t('password')}
+                                value={password}
+                                onChange={setPassword}
+                                placeholder={t('enterPassword')}
+                                secureTextEntry
+                                showPasswordToggle
+                                leftIcon={<Ionicons name="lock-closed-outline" size={20} color={theme.textTertiary} />}
+                                textContentType="newPassword"
+                                autoComplete="new-password"
+                            />
                         </View>
 
                         <View style={styles.inputContainer}>
-                            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('confirmPassword')}</Text>
-                            <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderInput }]}>
-                                <Ionicons name="lock-closed-outline" size={20} color={theme.textTertiary} style={styles.inputIcon} />
-                                <TextInput
-                                    style={[styles.input, { color: theme.textPrimary }]}
-                                    placeholder={t('confirmPassword')}
-                                    placeholderTextColor={theme.textTertiary}
-                                    value={confirmPassword}
-                                    onChangeText={setConfirmPassword}
-                                    secureTextEntry={!showConfirmPassword}
-                                    textContentType="newPassword"
-                                    autoComplete="new-password"
-                                    maxLength={100}
-                                />
-                                <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                                    <Ionicons name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} size={20} color={theme.textTertiary} />
-                                </TouchableOpacity>
-                            </View>
+                            <FormInput
+                                label={t('confirmPassword')}
+                                value={confirmPassword}
+                                onChange={setConfirmPassword}
+                                placeholder={t('confirmPassword')}
+                                secureTextEntry
+                                showPasswordToggle
+                                leftIcon={<Ionicons name="lock-closed-outline" size={20} color={theme.textTertiary} />}
+                                textContentType="newPassword"
+                                autoComplete="new-password"
+                            />
                         </View>
 
                         <View style={styles.termsContainer}>
@@ -302,23 +286,6 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
         marginBottom: 20,
-    },
-    label: {
-        fontSize: 14,
-        marginBottom: 8,
-        fontWeight: '600',
-        marginLeft: 4,
-    },
-    inputWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        height: 56,
-        borderWidth: 1,
-        borderRadius: 16,
-        paddingHorizontal: 16,
-    },
-    inputIcon: {
-        marginRight: 12,
     },
     input: {
         flex: 1,
