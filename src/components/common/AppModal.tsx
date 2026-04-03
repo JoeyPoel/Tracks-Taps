@@ -77,7 +77,7 @@ export function AppModal({
                             styles.card,
                             {
                                 backgroundColor: theme.bgPrimary,
-                                maxHeight: isBottom ? '95%' : '80%',
+                                maxHeight: isBottom ? '95%' : '90%',
                                 height: computedHeight,
                                 paddingBottom: isBottom ? Math.max(insets.bottom, 20) : 20,
                                 ...(isBottom ? styles.cardBottom : styles.cardCenter)
