@@ -68,9 +68,9 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/SplashScreenColouredWhiteTheme.png",
+          "image": "./assets/images/SplashScreenColouredDarkTheme.png",
           "resizeMode": "contain",
-          "backgroundColor": "#F8FAFC",
+          "backgroundColor": "#0F172A",
           "dark": {
             "image": "./assets/images/SplashScreenColouredDarkTheme.png",
             "backgroundColor": "#0F172A"
@@ -80,7 +80,7 @@
             "imageHeight": 1024
           },
           "android": {
-            "image": "./assets/images/AppIconColouredWhiteTheme.png",
+            "image": "./assets/images/AppIconColouredDarkTheme.png",
             "imageWidth": 250,
             "imageHeight": 250
           }

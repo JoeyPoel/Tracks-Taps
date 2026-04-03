@@ -36,7 +36,7 @@ const ThemeContext = createContext<ThemeContextProps>({
 
 export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode => {
     const systemScheme: ColorSchemeName = useColorScheme(); // "light" | "dark"
-    const [mode, setMode] = useState<ThemeMode>(systemScheme === "dark" ? "dark" : "light");
+    const [mode, setMode] = useState<ThemeMode>("dark"); // Default to dark for fail-safe initialization
     const [isLoaded, setIsLoaded] = useState(false);
     const [overlayTrigger, setOverlayTrigger] = useState(0);
     const [overlayType, setOverlayType] = useState<string | null>(null);
@@ -49,9 +49,11 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
                     setMode(storedTheme);
                 } else if (systemScheme) {
                     setMode(systemScheme);
+                } else {
+                    setMode("dark"); // Absolute fall-safe
                 }
             } catch (e) {
-                if (systemScheme) setMode(systemScheme);
+                setMode("dark"); // Error fall-safe
             } finally {
                 setIsLoaded(true);
             }

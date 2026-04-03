@@ -13,10 +13,11 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, View } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { useStore } from '../../store/store';
+import { Image } from 'expo-image';
 
 export function MainLayout() {
     const { session, loading: authLoading } = useAuth();
-    const { theme, overlayTrigger, overlayType } = useTheme();
+    const { theme, mode, overlayTrigger, overlayType } = useTheme();
     const segment = useSegments();
     const router = useRouter();
     const hasHydrated = useStore((state) => state._hasHydrated);
@@ -180,9 +181,22 @@ export function MainLayout() {
     }, [session, isTutorialLoading, hasSeenTutorial, isActive, isLoading, segment, user, resetTutorial]);
 
     if (isLoading) {
+        const splashImage = mode === 'dark' 
+            ? require('@/assets/images/SplashScreenColouredDarkTheme.png')
+            : require('@/assets/images/SplashScreenColouredWhiteTheme.png');
+
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.bgPrimary }}>
-                <ActivityIndicator size="large" color={theme.primary} />
+                <Image 
+                    source={splashImage} 
+                    contentFit="contain"
+                    style={{ width: '100%', height: '100%', position: 'absolute' }}
+                />
+                <ActivityIndicator 
+                    size="large" 
+                    color={theme.primary} 
+                    style={{ position: 'absolute', bottom: Platform.OS === 'ios' ? 100 : 80 }} 
+                />
             </View>
         );
     }
