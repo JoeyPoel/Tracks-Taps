@@ -8,6 +8,7 @@ import { useAchievements } from '@/src/hooks/useAchievements';
 import { Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
+import { FadeInItem } from '@/src/components/common/FadeInList';
 
 export default function AchievementsScreen() {
     const { theme } = useTheme();
@@ -42,19 +43,26 @@ export default function AchievementsScreen() {
                 contentContainerStyle={styles.content}
                 showsVerticalScrollIndicator={false}
                 ListHeaderComponent={
-                    <AchievementProgressCard
-                        loading={loading}
-                        unlockedCount={unlockedCount}
-                        totalCount={totalCount}
-                    />
+                    <FadeInItem index={0}>
+                        <AchievementProgressCard
+                            loading={loading}
+                            unlockedCount={unlockedCount}
+                            totalCount={totalCount}
+                        />
+                    </FadeInItem>
                 }
-                renderItem={({ item }) => {
+                renderItem={({ item, index }) => {
                     if (loading || !item) {
-                        // Skeleton? Or reuse generic loading state
-                        return <View style={{ height: 80, marginBottom: 16, backgroundColor: theme.bgSecondary, borderRadius: 16, opacity: 0.3 }} />;
+                        return (
+                            <FadeInItem index={index + 1}>
+                                <View style={{ height: 80, backgroundColor: theme.bgSecondary, borderRadius: 16, opacity: 0.3 }} />
+                            </FadeInItem>
+                        );
                     }
                     return (
-                        <AchievementListItem achievement={item} />
+                        <FadeInItem index={index + 1}>
+                            <AchievementListItem achievement={item} />
+                        </FadeInItem>
                     );
                 }}
                 ItemSeparatorComponent={() => <View style={{ height: 16 }} />} // Spacing between items

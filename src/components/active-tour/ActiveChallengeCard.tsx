@@ -55,6 +55,14 @@ export default function ActiveChallengeCard({
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const translateY = useRef(new Animated.Value(30)).current;
 
+    // Feedback Animations
+    const scaleAnim = useRef(new Animated.Value(1)).current;
+    const shakeAnim = useRef(new Animated.Value(0)).current;
+
+    // Refs to track previous states to prevent re-triggering animations on mount
+    const prevCompleted = useRef(isCompleted);
+    const prevFailed = useRef(isFailed);
+
     useEffect(() => {
         Animated.parallel([
             Animated.timing(fadeAnim, {
@@ -71,6 +79,28 @@ export default function ActiveChallengeCard({
             }),
         ]).start();
     }, []);
+
+    useEffect(() => {
+        // Only run animations if the state changed from false to true
+        if (isCompleted && !prevCompleted.current) {
+            Animated.sequence([
+                Animated.timing(scaleAnim, { toValue: 1.05, duration: 150, useNativeDriver: true }),
+                Animated.spring(scaleAnim, { toValue: 1, friction: 3, tension: 40, useNativeDriver: true }),
+            ]).start();
+        } else if (isFailed && !prevFailed.current) {
+            Animated.sequence([
+                Animated.timing(shakeAnim, { toValue: 8, duration: 40, useNativeDriver: true }),
+                Animated.timing(shakeAnim, { toValue: -8, duration: 40, useNativeDriver: true }),
+                Animated.timing(shakeAnim, { toValue: 5, duration: 40, useNativeDriver: true }),
+                Animated.timing(shakeAnim, { toValue: -5, duration: 40, useNativeDriver: true }),
+                Animated.timing(shakeAnim, { toValue: 0, duration: 40, useNativeDriver: true }),
+            ]).start();
+        }
+
+        // Update previous states
+        prevCompleted.current = isCompleted;
+        prevFailed.current = isFailed;
+    }, [isCompleted, isFailed]);
 
     const getBorderColors = (): [string, string] => {
         if (isCompleted) return [theme.success, theme.success + '50'];
@@ -106,7 +136,14 @@ export default function ActiveChallengeCard({
     };
 
     return (
-        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY }] }}>
+        <Animated.View style={{ 
+            opacity: fadeAnim, 
+            transform: [
+                { translateY }, 
+                { scale: scaleAnim }, 
+                { translateX: shakeAnim }
+            ] 
+        }}>
             {/* Gradient Border Container */}
             <LinearGradient
                 colors={getBorderColors()}

@@ -194,7 +194,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                 t('discardChangesMessage') || 'You have unsaved changes. Are you sure you want to discard them?',
                 [
                     { text: t('keepEditing') || 'Keep Editing', style: 'cancel' },
-                    { text: t('discard') || 'Discard', style: 'destructive', onPress: onClose }
+                    { text: t('discard') || 'Discard', style: 'destructive', onPress: () => { clearDraft(); onClose(); } }
                 ]
             );
         } else {
@@ -384,7 +384,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                         onPress={handlePress}
                         variant="primary"
                         loading={submitting || isWaitingForUploads}
-                        disabled={submitting || isWaitingForUploads || rating === 0 || content.trim().length === 0}
+                        disabled={submitting || isWaitingForUploads}
                         style={styles.submitButton}
                         icon={isWaitingForUploads ? undefined : "send"}
                     />

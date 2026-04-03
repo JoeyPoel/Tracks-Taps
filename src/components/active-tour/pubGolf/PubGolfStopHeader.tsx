@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import Reanimated, { BounceIn, ZoomInEasyUp, FadeInDown, FadeIn } from 'react-native-reanimated';
 import { FlagIcon } from 'react-native-heroicons/outline';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -17,6 +18,7 @@ interface PubGolfStopHeaderProps {
     scoreDetails: ScoreDetails | null;
     isCompleted: boolean;
     isActive: boolean;
+    isNewlySaved?: boolean;
 }
 
 export default function PubGolfStopHeader({
@@ -28,6 +30,7 @@ export default function PubGolfStopHeader({
     scoreDetails,
     isCompleted,
     isActive,
+    isNewlySaved = false,
 }: PubGolfStopHeaderProps) {
     const { theme, mode } = useTheme();
     const { t, language } = useLanguage();
@@ -57,6 +60,26 @@ export default function PubGolfStopHeader({
     const drinkBadgeText = isColoredCard
         ? (isLight ? theme.pubGolf[scoreDetails.colorKey as keyof typeof theme.pubGolf][0] : theme.fixedWhite)
         : theme.textSecondary;
+    
+    const getEmojiAnimation = () => {
+        if (!scoreDetails) return undefined;
+        const key = scoreDetails.colorKey;
+        
+        switch (key) {
+            case 'holeInOne':
+                return BounceIn.duration(1000).springify().damping(10);
+            case 'albatross':
+                return BounceIn.duration(800).springify().damping(12);
+            case 'eagle':
+                return ZoomInEasyUp.duration(800).springify();
+            case 'birdie':
+                return FadeInDown.duration(600);
+            case 'par':
+                return FadeIn.duration(600);
+            default:
+                return FadeIn.duration(400);
+        }
+    };
 
     return (
         <View style={styles.topSection}>
@@ -90,7 +113,12 @@ export default function PubGolfStopHeader({
 
                 {isCompleted && scoreDetails && (
                     <View style={styles.scoreContainer}>
-                        <Text style={styles.scoreEmojiBg}>{scoreDetails.emoji}</Text>
+                        <Reanimated.Text 
+                            entering={isNewlySaved ? getEmojiAnimation() : undefined}
+                            style={styles.scoreEmojiBg}
+                        >
+                            {scoreDetails.emoji}
+                        </Reanimated.Text>
                         <Text style={[styles.scoreValue, { color: theme.pubGolf[scoreDetails.colorKey as keyof typeof theme.pubGolf][0] }]}>
                             {sips}
                         </Text>

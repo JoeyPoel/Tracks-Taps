@@ -5,6 +5,7 @@ import { Alert, Platform } from 'react-native';
 import Purchases, { CustomerInfo, LOG_LEVEL, PurchasesPackage } from 'react-native-purchases';
 import { userService } from '../services/userService'; // Keep for tokens
 import { useStore } from '../store/store'; // Keep for user context
+import { useLanguage } from '../context/LanguageContext';
 
 // Use env variables for keys
 // Falls back to the shared key if platform-specific ones aren't set
@@ -90,6 +91,8 @@ export const usePurchases = () => {
         }
     }, [isConfigured, user?.id]);
 
+    const { t } = useLanguage();
+
     const checkEntitlement = (info: CustomerInfo) => {
         if (info.entitlements.active[ENTITLEMENT_ID]) {
             setIsPro(true);
@@ -98,7 +101,7 @@ export const usePurchases = () => {
         }
     };
 
-    const purchasePackage = async (pack: PurchasesPackage) => {
+    const purchasePackage = async (pack: PurchasesPackage, tokenCount: number) => {
         if (isExpoGo) {
             Alert.alert("Development Build Required", "In-app purchases are not available in Expo Go. You must create a development build to test this feature.");
             return false;
@@ -129,22 +132,19 @@ export const usePurchases = () => {
             try {
                 const result = await userService.verifyPurchase(user.id, user.id.toString(), transactionId);
 
-                if (result.success && result.newTokens > 0) {
-                    Alert.alert("Success", `You have purchased ${result.newTokens} tokens!`);
-                    await fetchUser(user.id);
-                } else if (result.success && result.processedTransactions > 0) {
-                    // This handles cases where tokens were awarded but newTokens might be 0 due to idempotency or quirks
-                    Alert.alert("Success", "Your purchase has been verified and tokens awarded.");
-                    await fetchUser(user.id);
-                } else {
-                    // This might happen if the webhook beat the manual verification
-                    await fetchUser(user.id);
-                }
+                // Always show the standardized message with the token count we know was bought
+                Alert.alert(
+                    t('purchaseSuccessTitle'),
+                    t('tokensPurchasedMessage').replace('{0}', (result.newTokens || tokenCount).toString())
+                );
+                await fetchUser(user.id);
+
             } catch (verifyError) {
                 console.warn("Manual verification failed, but purchase was successful. Webhook will handle delivery.", verifyError);
+                // Standardized message even on failure (fallback to expected token count)
                 Alert.alert(
-                    "Purchase Complete",
-                    "Your purchase was successful! Your tokens are being processed and will appear in your account momentarily."
+                    t('purchaseSuccessTitle'),
+                    t('tokensPurchasedMessage').replace('{0}', tokenCount.toString())
                 );
                 // Background refresh after a short delay as a fallback
                 setTimeout(() => fetchUser(user.id), 3000);

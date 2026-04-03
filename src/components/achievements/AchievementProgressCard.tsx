@@ -8,6 +8,7 @@ import Animated, {
     FadeInDown,
     useAnimatedStyle,
     useSharedValue,
+    withDelay,
     withRepeat,
     withSequence,
     withTiming
@@ -39,16 +40,44 @@ export const AchievementProgressCard = ({ unlockedCount, totalCount, loading }: 
         );
     }, []);
 
+    // Progress bar animation
+    const progress = useSharedValue(0);
+    const [displayCount, setDisplayCount] = React.useState(0);
+
+    useEffect(() => {
+        if (!loading) {
+            // Animate progress bar
+            progress.value = withDelay(100, withTiming(progressPercent, { duration: 500 }));
+
+            // Slowly count up the number
+            let start = 0;
+            const end = unlockedCount;
+            if (end === 0) return;
+
+            const duration = 500;
+            const incrementTime = Math.max(duration / end, 20); // Faster incrementing logic
+
+            const timer = setInterval(() => {
+                start += 1;
+                setDisplayCount(start);
+                if (start >= end) clearInterval(timer);
+            }, incrementTime);
+
+            return () => clearInterval(timer);
+        }
+    }, [unlockedCount, progressPercent, loading]);
+
     const animatedIconStyle = useAnimatedStyle(() => ({
         transform: [{ scale: scale.value }]
     }));
 
-    if (loading) {
-        return <ProgressSkeleton />;
-    }
+    const animatedProgressStyle = useAnimatedStyle(() => ({
+        width: `${progress.value}%`
+    }));
+
 
     return (
-        <Animated.View entering={FadeInDown.duration(500)} style={styles.container}>
+        <View style={styles.container}>
             <LinearGradient
                 colors={[theme.primary, theme.secondary]} // Keep primary to secondary for brand consistency, but maybe adjust opacity/start/end
                 start={{ x: 0, y: 0 }}
@@ -63,7 +92,7 @@ export const AchievementProgressCard = ({ unlockedCount, totalCount, loading }: 
 
                         <View style={styles.statsContainer}>
                             <TextComponent style={styles.progressValue} color={theme.fixedWhite} bold variant="h1">
-                                {unlockedCount}
+                                {displayCount}
                             </TextComponent>
                             <TextComponent style={styles.totalValue} color={theme.fixedWhite} variant="h3">
                                 / {totalCount}
@@ -83,30 +112,13 @@ export const AchievementProgressCard = ({ unlockedCount, totalCount, loading }: 
                 </View>
 
                 <View style={styles.progressBarBg}>
-                    <View style={[styles.progressBarFill, { width: `${progressPercent}%`, backgroundColor: theme.fixedWhite }]} />
+                    <Animated.View style={[styles.progressBarFill, animatedProgressStyle, { backgroundColor: theme.fixedWhite }]} />
                 </View>
             </LinearGradient>
-        </Animated.View>
+        </View>
     );
 };
 
-const ProgressSkeleton = () => {
-    const { theme } = useTheme();
-    const opacity = useSharedValue(0.3);
-
-    useEffect(() => {
-        opacity.value = withRepeat(withTiming(0.7, { duration: 800 }), -1, true);
-    }, []);
-
-    const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
-
-    return (
-        <Animated.View style={[styles.container, styles.skeletonCard, { backgroundColor: theme.bgSecondary }, animatedStyle]}>
-            <View style={{ width: '40%', height: 20, backgroundColor: theme.bgPrimary, borderRadius: 4, marginBottom: 10 }} />
-            <View style={{ width: '60%', height: 32, backgroundColor: theme.bgPrimary, borderRadius: 4 }} />
-        </Animated.View>
-    );
-};
 
 const styles = StyleSheet.create({
     container: {
@@ -128,10 +140,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 8,
         elevation: 4,
-    },
-    skeletonCard: {
-        height: 140,
-        padding: 24,
     },
     contentRow: {
         flexDirection: 'row',

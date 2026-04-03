@@ -79,7 +79,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
 
             if (pkg.rcPackage) {
                 // Purchase via RevenueCat
-                const success = await purchasePackage(pkg.rcPackage);
+                const success = await purchasePackage(pkg.rcPackage, pkg.tokens + (pkg.bonus || 0));
 
                 if (success) {
                     await refreshUser();

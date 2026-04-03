@@ -203,28 +203,31 @@ export default function TourListScreen() {
                                         )}
                                     </View>
 
-                                    <View style={styles.reviewActions}>
-                                        <TouchableOpacity
-                                            onPress={() => setEditingReview({
-                                                id: item.id,
-                                                rating: item.rating,
-                                                content: item.content,
-                                                photos: item.photos,
-                                                tourName: item.tour?.title
-                                            })}
-                                            style={[styles.actionButton, { backgroundColor: theme.primary + '15' }]}
-                                        >
-                                            <Ionicons name="pencil" size={16} color={theme.primary} />
-                                            <TextComponent variant="label" color={theme.primary} style={{ marginLeft: 4 }}>{t('edit')}</TextComponent>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            onPress={() => handleDeleteReview(item.id)}
-                                            style={[styles.actionButton, { backgroundColor: theme.danger + '15' }]}
-                                        >
-                                            <Ionicons name="trash-outline" size={16} color={theme.danger} />
-                                            <TextComponent variant="label" color={theme.danger} style={{ marginLeft: 4 }}>{t('delete')}</TextComponent>
-                                        </TouchableOpacity>
-                                    </View>
+                                    {/* Action buttons (only if it's the current user's profile) */}
+                                    {effectiveUserId === user?.id && (
+                                        <View style={styles.reviewActions}>
+                                            <TouchableOpacity
+                                                onPress={() => setEditingReview({
+                                                    id: item.id,
+                                                    rating: item.rating,
+                                                    content: item.content,
+                                                    photos: item.photos,
+                                                    tourName: item.tour?.title
+                                                })}
+                                                style={[styles.actionButton, { backgroundColor: theme.primary + '15' }]}
+                                            >
+                                                <Ionicons name="pencil" size={16} color={theme.primary} />
+                                                <TextComponent variant="label" color={theme.primary} style={{ marginLeft: 4 }}>{t('edit')}</TextComponent>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                onPress={() => handleDeleteReview(item.id)}
+                                                style={[styles.actionButton, { backgroundColor: theme.danger + '15' }]}
+                                            >
+                                                <Ionicons name="trash-outline" size={16} color={theme.danger} />
+                                                <TextComponent variant="label" color={theme.danger} style={{ marginLeft: 4 }}>{t('delete')}</TextComponent>
+                                            </TouchableOpacity>
+                                        </View>
+                                    )}
                                 </View>
                             </FadeInItem>
                         );

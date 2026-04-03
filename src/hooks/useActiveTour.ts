@@ -8,6 +8,7 @@ import { useToast } from '../context/ToastContext';
 import { ActiveChallenge, PubGolfStop, Stop, Team } from '../types/models';
 import { offlineStorage } from '../utils/offlineStorage';
 import { getScoreDetails } from '../utils/pubGolfUtils';
+import { triggerHaptic } from '../utils/haptics';
 
 export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?: (amount: number) => void) => {
     // Global State
@@ -145,6 +146,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
 
         // 1. Optimistic update
         triggerFloatingPoints(challenge.points);
+        triggerHaptic('success');
         if (onXpEarned) {
             onXpEarned(challenge.points);
         }
@@ -203,6 +205,8 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
 
     const handleChallengeFail = async (challenge: any) => {
         if (!currentTeam || completedChallenges.has(challenge.id) || failedChallenges.has(challenge.id)) return;
+
+        triggerHaptic('error');
 
         const optimisticChallenge: ActiveChallenge = {
             id: -Date.now(),

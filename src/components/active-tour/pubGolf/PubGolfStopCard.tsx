@@ -27,6 +27,7 @@ export default function PubGolfStopCard({
 }: PubGolfStopCardProps) {
     const { theme } = useTheme();
     const [selectedSips, setSelectedSips] = useState<number | null>(null);
+    const [isNewlySaved, setIsNewlySaved] = useState(false);
 
     const isCompleted = sips !== undefined;
     const scoreDetails = getScoreDetails(par, sips);
@@ -59,6 +60,7 @@ export default function PubGolfStopCard({
                 scoreDetails={scoreDetails}
                 isCompleted={isCompleted}
                 isActive={isActive}
+                isNewlySaved={isNewlySaved}
             />
 
             {/* Middle: Input Grid (Only when active and playing) */}
@@ -68,6 +70,7 @@ export default function PubGolfStopCard({
                     selectedSips={selectedSips}
                     onSelectSips={(num) => {
                         setSelectedSips(num);
+                        setIsNewlySaved(true);
                         onSave(num);
                     }}
                 />
@@ -78,6 +81,7 @@ export default function PubGolfStopCard({
                 <PubGolfResultFooter
                     scoreDetails={scoreDetails}
                     diffText={diffText}
+                    isNewlySaved={isNewlySaved}
                 />
             )}
         </View>

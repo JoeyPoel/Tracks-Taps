@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { Animated, Dimensions, Easing, StyleSheet, Text } from 'react-native';
+import React, { useEffect, useRef, useMemo } from 'react';
+import { Animated, Dimensions, Easing, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../../../context/ThemeContext';
 
 import { useAppWidth } from '@/src/hooks/useAppWidth';
@@ -23,8 +23,10 @@ const FloatingPoints = ({
   // 1. Initial Values for Animation
   const opacity = useRef(new Animated.Value(1)).current;
   const translateY = useRef(new Animated.Value(0)).current;
+  const translateX = useRef(new Animated.Value(0)).current; // Added for waving
+  const scale = useRef(new Animated.Value(0.5)).current; // Start small for pulse/pop
 
-  const randomPosition = React.useMemo(() => {
+  const randomPosition = useMemo(() => {
     // Simple hash function for deterministic random numbers based on ID
     const hash = (id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % 1000;
     const seededRandom = (seed: number) => {
@@ -45,19 +47,57 @@ const FloatingPoints = ({
     
     // 3. Define the Animation
     Animated.parallel([
-      // Move upwards
+      // 3.1 Smooth Scale Entry
+      Animated.timing(scale, {
+        toValue: 1,
+        duration: 400,
+        easing: Easing.out(Easing.back(1)),
+        useNativeDriver: true,
+      }),
+      // 3.2 Move upwards
       Animated.timing(translateY, {
-        toValue: -150, // Floats up by 150 pixels
-        duration: 2000,
-        easing: Easing.out(Easing.ease),
+        toValue: -180, 
+        duration: 2500, 
+        easing: Easing.out(Easing.quad),
         useNativeDriver: true,
       }),
-      // Fade out
-      Animated.timing(opacity, {
-        toValue: 0,
-        duration: 2000,
-        useNativeDriver: true,
-      }),
+      // 3.3 Horizontal "Wave" (only at the beginning)
+      Animated.sequence([
+        Animated.timing(translateX, {
+          toValue: -15,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateX, {
+          toValue: 15,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateX, {
+          toValue: -8,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateX, {
+          toValue: 8,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateX, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]),
+      // 3.4 Fade out (starts later)
+      Animated.sequence([
+        Animated.delay(1800),
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+      ]),
     ]).start(() => {
       console.log(`[FloatingPoints] Animation complete for ${pointAmount}`);
       // 4. Callback when animation finishes
@@ -91,8 +131,11 @@ const FloatingPoints = ({
           opacity: opacity,
           transform: [
             { translateY: translateY },
+            { translateX: translateX }, // Apply waving translateX
+            { scale: scale }, // Applied pop/pulse scale
             // This centers the text on the random point so it doesn't overflow if close to the edge
-            { translateX: -50 }
+            // Combined with translateX waving
+            { translateX: -50 } 
           ],
         },
       ]}
@@ -100,7 +143,9 @@ const FloatingPoints = ({
     >
       {label && (
         label.toUpperCase().includes('BINGO') ? (
-          renderRainbowLabel(label)
+          <View style={{ flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'center', width: 400, marginLeft: -140 }}>
+            {renderRainbowLabel(label)}
+          </View>
         ) : (
           <Text style={[styles.labelText, { color: theme.accent, textShadowColor: theme.shadowColor }]}>
             {label}
@@ -128,14 +173,14 @@ const styles = StyleSheet.create({
     width: 120, // Fixed width helps the centering logic work consistently
   },
   labelText: {
-    fontSize: 24,
+    fontSize: 52, // MASSIVELY increased for "BINGO!" impact
     fontWeight: '900',
     textAlign: 'center',
-    marginBottom: -4,
+    marginBottom: -8,
     textTransform: 'uppercase',
-    letterSpacing: 2,
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 8,
+    letterSpacing: 4, // Wider spacing for modern premium look
+    textShadowOffset: { width: -2, height: 2 },
+    textShadowRadius: 12,
   }
 });
 

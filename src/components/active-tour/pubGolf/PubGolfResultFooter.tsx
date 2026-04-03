@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BoltIcon } from 'react-native-heroicons/solid';
+import Animated, { FadeInDown, BounceIn, FadeIn, ZoomInEasyUp } from 'react-native-reanimated';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
 import { ScoreDetails } from '../../../utils/pubGolfUtils';
@@ -8,17 +9,36 @@ import { ScoreDetails } from '../../../utils/pubGolfUtils';
 interface PubGolfResultFooterProps {
     scoreDetails: ScoreDetails;
     diffText: string;
+    isNewlySaved?: boolean;
 }
 
 export default function PubGolfResultFooter({
     scoreDetails,
     diffText,
+    isNewlySaved = false,
 }: PubGolfResultFooterProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
 
+    const getAnimation = () => {
+        const key = scoreDetails.colorKey;
+        // Premium scores get more excitement
+        if (['holeInOne', 'albatross', 'eagle'].includes(key)) {
+            return BounceIn.duration(800).springify().damping(12);
+        }
+        // Good scores get a nice slide up
+        if (['birdie', 'par'].includes(key)) {
+            return FadeInDown.duration(600).springify().damping(15);
+        }
+        // Over par gets a simple entry
+        return FadeIn.duration(400);
+    };
+
     return (
-        <View style={[styles.resultFooter, { borderTopColor: 'rgba(255,255,255,0.05)' }]}>
+        <Animated.View 
+            entering={isNewlySaved ? getAnimation() : undefined}
+            style={[styles.resultFooter, { borderTopColor: 'rgba(255,255,255,0.05)' }]}
+        >
             <View>
                 <Text style={[styles.resultText, { color: theme.pubGolf[scoreDetails.colorKey as keyof typeof theme.pubGolf][0] }]}>
                     {t(scoreDetails.nameKey as any)} <Text style={{ color: theme.textSecondary, fontWeight: 'normal' }}>{t(scoreDetails.subKey as any)}</Text> {diffText}
@@ -32,7 +52,7 @@ export default function PubGolfResultFooter({
                     </View>
                 )}
             </View>
-        </View>
+        </Animated.View>
     );
 }
 

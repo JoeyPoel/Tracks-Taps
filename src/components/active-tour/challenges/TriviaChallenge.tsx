@@ -106,9 +106,11 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
                     })}
                 </View>
                 {isFailed && (
-                    <Text style={{ color: theme.danger, marginTop: 8, fontWeight: 'bold' }}>
-                        {t('wrongAnswerCorrectWas')} {challenge.answer}
-                    </Text>
+                    <View style={styles.feedbackContainer}>
+                        <Text style={[styles.feedback, { color: theme.danger }]}>
+                            {t('wrongAnswerCorrectWas')} {challenge.answer}
+                        </Text>
+                    </View>
                 )}
             </View>
         </ActiveChallengeCard>
@@ -150,6 +152,24 @@ const styles = StyleSheet.create({
     },
     optionText: {
         fontSize: 16,
+    },
+    feedbackContainer: {
+        marginTop: 12,
+        padding: 12,
+        borderRadius: 12,
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        alignItems: 'center',
+    },
+    feedback: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    correctAnswer: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginTop: 4,
+        textAlign: 'center',
     },
 });
 

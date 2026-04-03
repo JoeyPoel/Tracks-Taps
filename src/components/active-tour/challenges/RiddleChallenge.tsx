@@ -100,13 +100,10 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
                     />
                 )}
 
-                {isFailed && (  
-                    <View>
+                {isFailed && (
+                    <View style={styles.feedbackContainer}>
                         <Text style={[styles.feedback, { color: theme.danger }]}>
-                            {t('wrongAnswer')}
-                        </Text>
-                        <Text style={{ color: theme.danger, marginTop: 4, fontWeight: 'bold', textAlign: 'center' }}>
-                            {t('correctAnswerWas')} {challenge.answer}
+                            {t('wrongAnswerCorrectWas')} {challenge.answer}
                         </Text>
                     </View>
                 )}
@@ -153,7 +150,20 @@ const styles = StyleSheet.create({
         marginTop: 8,
         fontWeight: 'bold',
         textAlign: 'center',
-    }
+    },
+    feedbackContainer: {
+        marginTop: 12,
+        padding: 12,
+        borderRadius: 12,
+        backgroundColor: 'rgba(239, 68, 68, 0.1)', // theme.danger with low opacity
+        alignItems: 'center',
+    },
+    correctAnswer: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginTop: 4,
+        textAlign: 'center',
+    },
 });
 
 export default RiddleChallenge;
