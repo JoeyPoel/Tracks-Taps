@@ -30,7 +30,7 @@ export default function AchievementsScreen() {
     };
 
     const unlockedCount = allAchievements.filter(a => a.unlocked).length;
-    const totalCount = allAchievements.length;
+    const totalCount = allAchievements.length > 0 ? allAchievements.length : 12;
 
     return (
         <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={false}>
