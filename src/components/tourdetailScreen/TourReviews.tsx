@@ -107,7 +107,7 @@ function ReviewItem({
                 </TouchableOpacity>
 
                 {/* Author Actions (Edit/Delete) */}
-                {currentUserId && Number(review.userId) === Number(currentUserId) && (
+                {currentUserId != null && String(review.userId) === String(currentUserId) && (
                     <View style={styles.authorActions}>
                         <TouchableOpacity 
                             onPress={() => onEditReview?.(review)}

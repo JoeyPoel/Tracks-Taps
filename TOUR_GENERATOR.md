@@ -47,7 +47,12 @@ The JSON contains two completely separate arrays for challenges. Do NOT duplicat
 - **Modes**: Always include "WALKING". If Bingo is enabled, include "BINGO" in the `modes` array, if pubgolf is enabled, include "PUBGOLF" in the `modes` array, if driving is necessary, include "DRIVING" in the `modes` array, if public transport is necessary, include "PUBLIC_TRANSPORT" in the `modes` array. if biking is necessary, include "BIKING" in the `modes` array.
 - **Difficulty**: The difficulty should match one of: 'EASY', 'MEDIUM', 'HARD'.
 - **Points per stop**: Points should always be 50 to 200.
+- **Points per bonus challenge**: Points should always be 50 to 200.
+- **Points per bingo challenge**: Points should always be 50 to 200.
 - **Total amount of points**: Total amount of points should alsways be all challenge points added up + 200 for every pubgolf stop.
+- **Challenges**: Should always be written in a fun language and should be engaging and interesting. No words as must, should be encouraging and fun to read.
+- **Bingo Challenges**: Should always be written in a fun language and should be engaging and interesting. No words as must, should be encouraging and fun to read.
+- **Bonus Challenges**: Should always be written in a fun language and should be engaging and interesting. No words as must, should be encouraging and fun to read.
 
 # MASTER JSON TEMPLATE
 ```json

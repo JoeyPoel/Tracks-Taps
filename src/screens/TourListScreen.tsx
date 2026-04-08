@@ -204,7 +204,7 @@ export default function TourListScreen() {
                                     </View>
 
                                     {/* Action buttons (only if it's the current user's profile) */}
-                                    {Number(effectiveUserId) === Number(user?.id) && (
+                                    {effectiveUserId != null && user?.id != null && String(effectiveUserId) === String(user.id) && (
                                         <View style={styles.reviewActions}>
                                             <TouchableOpacity
                                                 onPress={() => setEditingReview({

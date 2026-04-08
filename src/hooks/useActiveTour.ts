@@ -27,6 +27,14 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     // Sync Ref
     const appState = useRef(AppState.currentState);
 
+    // Pending Actions Tracker (Prevents Reversion Flickers)
+    const [pendingCompleteIds, setPendingCompleteIds] = useState<Set<number>>(new Set());
+    const [pendingFailIds, setPendingFailIds] = useState<Set<number>>(new Set());
+    const [pendingStop, setPendingStop] = useState<number | null>(null);
+    const [pendingPubGolfSips, setPendingPubGolfSips] = useState<Record<number, number>>({});
+    const [pendingScoreOffset, setPendingScoreOffset] = useState<number>(0);
+    const [pendingStreak, setPendingStreak] = useState<number | null>(null);
+
     // Derived error state: If we have the active tour loaded locally, ignore network errors
     const isDataLoaded = activeTour?.id === activeTourId;
     const error = isDataLoaded ? null : errorActiveTours;
@@ -95,8 +103,8 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         || activeTour?.teams?.[0],
         [activeTour, userId]);
 
-    const currentStop = currentTeam?.currentStop || 1;
-    const streak = currentTeam?.streak || 0;
+    const currentStop = pendingStop ?? currentTeam?.currentStop ?? 1;
+    const streak = pendingStreak ?? currentTeam?.streak ?? 0;
 
     const pubGolfXP = useMemo(() => {
         const stops = activeTour?.tour?.stops as Stop[] | undefined;
@@ -107,28 +115,39 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         return pgStops.reduce((total: number, pgStop: PubGolfStop) => {
             const stop = stops.find((s: Stop) => s.id === pgStop.stopId);
             // Ensure we have a valid stop, par, and played sips
-            if (!stop || typeof stop.pubgolfPar !== 'number' || !pgStop.sips || pgStop.sips <= 0) return total;
+            if (!stop || typeof stop.pubgolfPar !== 'number') return total;
 
-            const details = getScoreDetails(stop.pubgolfPar, pgStop.sips);
+            // Use pending sips if available for this specific stop
+            const sips = pendingPubGolfSips[pgStop.stopId] ?? pgStop.sips;
+            if (!sips || sips <= 0) return total;
+
+            const details = getScoreDetails(stop.pubgolfPar, sips);
             return total + (details?.recommendedXP || 0);
         }, 0);
-    }, [currentTeam, activeTour]);
+    }, [currentTeam, activeTour, pendingPubGolfSips]);
 
-    const points = (currentTeam?.score || 0) + pubGolfXP;
+    const points = (currentTeam?.score || 0) + pubGolfXP + pendingScoreOffset;
 
     // Derived Challenge State
     const { completedChallenges, failedChallenges } = useMemo(() => {
         const completed = new Set<number>();
         const failed = new Set<number>();
 
+        // 1. Start with data from Global Store (may be reverted by background fetches)
         if (currentTeam?.activeChallenges) {
             currentTeam.activeChallenges.forEach((ac: ActiveChallenge) => {
                 if (ac.completed) completed.add(ac.challengeId);
                 if (ac.failed) failed.add(ac.challengeId);
             });
         }
+
+        // 2. Overlay pending local actions (Locked state while server is processing)
+        pendingCompleteIds.forEach(id => completed.add(id));
+        pendingFailIds.forEach(id => failed.add(id));
+
         return { completedChallenges: completed, failedChallenges: failed };
-    }, [currentTeam]);
+    }, [currentTeam, pendingCompleteIds, pendingFailIds]);
+
 
     // Local UI State (Visuals only)
     const [showConfetti, setShowConfetti] = useState(false);
@@ -144,7 +163,11 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         // Prevent actions while loading to avoid duplicate awards or race conditions
         if (loading || !currentTeam || completedChallenges.has(challenge.id) || failedChallenges.has(challenge.id)) return;
 
-        // 1. Optimistic update
+        // 1. Optimistic update (Local State + Global Store)
+        setPendingCompleteIds(prev => new Set(prev).add(challenge.id));
+        setPendingScoreOffset(prev => prev + challenge.points);
+        setPendingStreak(prev => (currentTeam.streak || 0) + 1);
+
         triggerFloatingPoints(challenge.points);
         triggerHaptic('success');
         if (onXpEarned) {
@@ -167,7 +190,6 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
             activeChallenges: [...(currentTeam.activeChallenges || []), optimisticChallenge]
         };
 
-        const previousTeams = activeTour?.teams || [];
         updateActiveTourLocal({ teams: [updatedTeam] });
 
         try {
@@ -190,7 +212,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
                 updatedProgress.newAchievements.forEach((ach: any) => showAchievement(ach));
             }
 
-            // Sync any newly awarded bingo lines by updating the local store with response payload
+            // Sync with fresh server state
             updateActiveTourLocal(updatedProgress);
         } catch (err) {
             console.warn('[Offline] Failed to complete challenge, queuing action.', err);
@@ -200,12 +222,23 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
                 activeTourId,
                 payload: { challengeId: challenge.id, userId }
             });
+        } finally {
+            // Unlock the local ID so the store becomes source of truth again
+            setPendingCompleteIds(prev => {
+                const next = new Set(prev);
+                next.delete(challenge.id);
+                return next;
+            });
+            setPendingScoreOffset(prev => Math.max(0, prev - challenge.points));
+            setPendingStreak(null);
         }
     };
 
     const handleChallengeFail = async (challenge: any) => {
         if (!currentTeam || completedChallenges.has(challenge.id) || failedChallenges.has(challenge.id)) return;
 
+        setPendingFailIds(prev => new Set(prev).add(challenge.id));
+        setPendingStreak(0);
         triggerHaptic('error');
 
         const optimisticChallenge: ActiveChallenge = {
@@ -223,7 +256,6 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
             activeChallenges: [...(currentTeam.activeChallenges || []), optimisticChallenge]
         };
 
-        const previousTeams = activeTour?.teams || [];
         updateActiveTourLocal({ teams: [updatedTeam] });
 
         try {
@@ -235,6 +267,13 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
                 activeTourId,
                 payload: { challengeId: challenge.id, userId }
             });
+        } finally {
+            setPendingFailIds(prev => {
+                const next = new Set(prev);
+                next.delete(challenge.id);
+                return next;
+            });
+            setPendingStreak(null);
         }
     };
 
@@ -273,12 +312,13 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     const performStopUpdate = async (newStop: number) => {
         if (!currentTeam) return;
 
-        // 1. Optimistic Update
+        // 1. Optimistic Update (Local + Store)
+        setPendingStop(newStop);
+
         const optimisticTeam: Team = {
             ...currentTeam,
             currentStop: newStop
         };
-        const previousTeams = activeTour?.teams || [];
         updateActiveTourLocal({ teams: [optimisticTeam] });
 
         try {
@@ -290,16 +330,16 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
                 activeTourId,
                 payload: { currentStop: newStop, userId }
             });
+        } finally {
+            setPendingStop(null);
         }
     }
 
     const handleSaveSips = async (stopId: number, sips: number) => {
         if (loading || !currentTeam) return;
 
-        // Optimistic update via Store
-        const updatedPubGolfStops = currentTeam.pubGolfStops?.map((pg: any) =>
-            pg.stopId === stopId ? { ...pg, sips } : pg
-        ) || [];
+        // Optimistic update via Local State + Store
+        setPendingPubGolfSips(prev => ({ ...prev, [stopId]: sips }));
 
         // XP Calculation
         const stop = activeTour?.tour?.stops?.find((s: any) => s.id === stopId);
@@ -320,20 +360,22 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
             }
         }
 
+        const updatedPubGolfStops = currentTeam.pubGolfStops?.map((pg: any) =>
+            pg.stopId === stopId ? { ...pg, sips } : pg
+        ) || [];
+
         // If not found, add it
         if (!updatedPubGolfStops.find((pg: any) => pg.stopId === stopId)) {
             updatedPubGolfStops.push({ stopId, sips, teamId: currentTeam.id });
         }
 
         const updatedTeam = { ...currentTeam, pubGolfStops: updatedPubGolfStops };
-        const previousTeams = activeTour?.teams || [];
-
         updateActiveTourLocal({ teams: [updatedTeam] });
 
         if (userId) {
             try {
                 const response = await activeTourService.updatePubGolfScore(activeTourId, stopId, sips, userId);
-                
+
                 // Trigger Achievement Toasts
                 if (response?.newAchievements && Array.isArray(response.newAchievements)) {
                     response.newAchievements.forEach((ach: any) => showAchievement(ach));
@@ -344,6 +386,12 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
                     type: 'UPDATE_PUB_GOLF',
                     activeTourId,
                     payload: { stopId, sips, userId }
+                });
+            } finally {
+                setPendingPubGolfSips(prev => {
+                    const next = { ...prev };
+                    delete next[stopId];
+                    return next;
                 });
             }
         }
