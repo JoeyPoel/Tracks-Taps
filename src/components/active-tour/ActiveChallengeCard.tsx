@@ -29,6 +29,7 @@ interface ActiveChallengeCardProps {
     index?: number;
     isBonus?: boolean;
     translateText?: string;
+    isLoading?: boolean;
 }
 
 export default function ActiveChallengeCard({
@@ -43,8 +44,9 @@ export default function ActiveChallengeCard({
     disabled = false,
     index = 0,
     isBonus = false,
-    translateText: translateTextProp
-}: ActiveChallengeCardProps & { disabled?: boolean, isFailed?: boolean, index?: number, isBonus?: boolean, translateText?: string }) {
+    translateText: translateTextProp,
+    isLoading = false,
+}: ActiveChallengeCardProps & { disabled?: boolean, isFailed?: boolean, index?: number, isBonus?: boolean, translateText?: string, isLoading?: boolean }) {
     const { theme } = useTheme();
     const { t, language } = useLanguage();
     const { translateText, isAutoTranslateEnabled } = useTranslation();
@@ -209,16 +211,24 @@ export default function ActiveChallengeCard({
                             interactionScale="medium"
                             haptic="light"
                         >
-                            <TextComponent 
-                                style={styles.buttonText} 
-                                color={disabled ? theme.textTertiary : theme.fixedWhite} 
-                                bold 
-                                variant="body"
-                            >
-                                {actionLabel}
-                            </TextComponent>
-                            {!disabled && <Ionicons name="arrow-forward" size={18} color={theme.fixedWhite} />}
-                        </AnimatedPressable>
+                                {isLoading ? (
+                                    <View style={{ marginRight: 8 }}>
+                                        <Animated.View style={{ transform: [{ rotate: '0deg' }] }}>
+                                            <Ionicons name="sync" size={18} color={disabled ? theme.textTertiary : theme.fixedWhite} />
+                                        </Animated.View>
+                                    </View>
+                                ) : (
+                                    <TextComponent 
+                                        style={styles.buttonText} 
+                                        color={disabled ? theme.textTertiary : theme.fixedWhite} 
+                                        bold 
+                                        variant="body"
+                                    >
+                                        {actionLabel}
+                                    </TextComponent>
+                                )}
+                                {!disabled && !isLoading && <Ionicons name="arrow-forward" size={18} color={theme.fixedWhite} />}
+                            </AnimatedPressable>
                     )}
                 </LinearGradient>
             </LinearGradient>

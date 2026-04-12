@@ -127,15 +127,7 @@ export function EditableTourCard({
                             <View style={styles.dropdownCaret} />
                         </TouchableOpacity>
 
-                        <TouchableOpacity
-                            onPress={() => setPickerType('difficulty')}
-                            style={[styles.badge, styles.blurBadge]}
-                        >
-                            <TextComponent style={styles.badgeText} color="#FFF" bold size={12}>
-                                {draft.difficulty ? t(draft.difficulty.toLowerCase() as any) : t('medium')}
-                            </TextComponent>
-                            <View style={styles.dropdownCaret} />
-                        </TouchableOpacity>
+                        {/* Difficulty Badge removed as per user request */}
                     </View>
                 </View>
 
@@ -225,18 +217,6 @@ export function EditableTourCard({
                 currentValue={draft.type}
             />
 
-            <SelectionModal
-                visible={pickerType === 'difficulty'}
-                onClose={() => setPickerType(null)}
-                title={t('selectDifficulty')}
-                options={[
-                    { label: t('easy'), value: 'Easy' },
-                    { label: t('medium'), value: 'Medium' },
-                    { label: t('hard'), value: 'Hard' }
-                ]}
-                onSelect={(val) => updateDraft('difficulty', val)}
-                currentValue={draft.difficulty}
-            />
         </>
     );
 }

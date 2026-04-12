@@ -4,8 +4,8 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
-import { AnimatedPressable } from '../../common/AnimatedPressable';
 import ActiveChallengeCard from '../ActiveChallengeCard';
+import { isFlexibleMatch } from '../../../utils/stringUtils';
 
 import { Challenge } from '../../../types/models';
 
@@ -30,21 +30,55 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
-    const { translateText } = useTranslation();
+    const { translateText, forceTranslate } = useTranslation();
     const [answer, setAnswer] = useState('');
     const [showHint, setShowHint] = useState(false);
+    const [isValidating, setIsValidating] = useState(false);
     const isDone = isCompleted || isFailed;
 
-    const handleSubmit = (): void => {
-        if (!answer.trim() || isDone) return;
+    const handleSubmit = async (): Promise<void> => {
+        if (!answer.trim() || isDone || isValidating) return;
 
-        const normalizedInput = answer.trim().toLowerCase();
-        const normalizedAnswer = challenge.answer?.toLowerCase();
+        setIsValidating(true);
+        try {
+            const input = answer.trim();
+            const correctAnswer = challenge.answer || '';
 
-        if (normalizedInput === normalizedAnswer) {
-            onComplete(challenge);
-        } else {
+            // 1. Initial Flexible Match (Fuzzy + Substring)
+            if (isFlexibleMatch(input, correctAnswer)) {
+                onComplete(challenge);
+                return;
+            }
+
+            // 2. Translation Fallback (Check if correct in another language)
+            
+            // Try translating user input to English (common bridge language)
+            await forceTranslate(input, 'en');
+            const translatedInput = translateText(input, true); // Get translated version from cache
+            
+            if (translatedInput && translatedInput !== input) {
+                if (isFlexibleMatch(translatedInput, correctAnswer)) {
+                    onComplete(challenge);
+                    return;
+                }
+            }
+
+            // Also try translating the ANSWER to the user's language and checking
+            const userLangAnswer = translateText(correctAnswer, true);
+            if (userLangAnswer && userLangAnswer !== correctAnswer) {
+                if (isFlexibleMatch(input, userLangAnswer)) {
+                    onComplete(challenge);
+                    return;
+                }
+            }
+
+            // If everything fails
             onFail(challenge);
+        } catch (error) {
+            console.error('Validation failed:', error);
+            onFail(challenge);
+        } finally {
+            setIsValidating(false);
         }
     };
 
@@ -57,7 +91,8 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
             isFailed={isFailed}
             onPress={handleSubmit}
             actionLabel={t('submitAnswer')}
-            disabled={isDone || !answer.trim()}
+            disabled={isDone || !answer.trim() || isValidating}
+            isLoading={isValidating}
             index={index}
             isBonus={isBonus}
             translateText={challenge.content + (challenge.hint ? '\n\nHint: ' + challenge.hint : '')}

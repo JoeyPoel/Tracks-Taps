@@ -3,6 +3,8 @@ import React, { createContext, ReactNode, useContext, useEffect, useState } from
 import { ColorSchemeName, useColorScheme } from "react-native";
 import { darkTheme, lightTheme, romanticLightTheme, romanticDarkTheme } from './theme';
 import * as SystemUI from 'expo-system-ui';
+import { useStore } from '../store/store';
+import { userService } from '../services/userService';
 
 type ThemeMode = "light" | "dark";
 
@@ -33,10 +35,16 @@ const ThemeContext = createContext<ThemeContextProps>({
     overlayType: null,
 });
 
-
 export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode => {
-    const systemScheme: ColorSchemeName = useColorScheme(); // "light" | "dark"
-    const [mode, setMode] = useState<ThemeMode>("dark"); // Default to dark for fail-safe initialization
+    const systemScheme: ColorSchemeName = useColorScheme();
+    const user = useStore(state => state.user);
+    // Default to stored user preference immediately if available to prevent flash
+    const [mode, setMode] = useState<ThemeMode>(() => {
+        if (user?.themePreference && user.themePreference !== 'system') {
+            return user.themePreference as ThemeMode;
+        }
+        return systemScheme === "light" ? "light" : "dark";
+    });
     const [isLoaded, setIsLoaded] = useState(false);
     const [overlayTrigger, setOverlayTrigger] = useState(0);
     const [overlayType, setOverlayType] = useState<string | null>(null);
@@ -49,11 +57,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
                     setMode(storedTheme);
                 } else if (systemScheme) {
                     setMode(systemScheme);
-                } else {
-                    setMode("dark"); // Absolute fall-safe
                 }
             } catch (e) {
-                setMode("dark"); // Error fall-safe
+                console.warn('Failed to load theme from storage', e);
             } finally {
                 setIsLoaded(true);
             }
@@ -61,9 +67,28 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
         loadTheme();
     }, [systemScheme]);
 
+    const userId = user?.id;
+
+    // Sync with remote user profile
+    useEffect(() => {
+        if (isLoaded && user?.themePreference && user.themePreference !== 'system') {
+            const remoteMode = user.themePreference as ThemeMode;
+            if (remoteMode !== mode) {
+                setMode(remoteMode);
+            }
+        }
+    }, [user?.themePreference, isLoaded]);
+
     const toggleTheme = React.useCallback((): void => {
-        setMode(prev => prev === "light" ? "dark" : "light");
-    }, []);
+        setMode(prev => {
+            const next = prev === "light" ? "dark" : "light";
+            // Persist to remote if online
+            if (userId) {
+                userService.updateUser(userId, { themePreference: next } as any).catch(() => {});
+            }
+            return next;
+        });
+    }, [userId]);
 
     // Persist theme changes
     useEffect(() => {

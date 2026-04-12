@@ -1,6 +1,6 @@
 import { reviewController } from '@/backend/controllers/reviewController';
 import { verifyAuth } from '@/backend/utils/auth';
-import { userService } from '../../backend/services/userService';
+import { userService } from '@/backend/services/userService';
 
 export async function GET(request: Request) {
     return await reviewController.getReviews(request);

@@ -46,7 +46,20 @@ export const reviewController = {
 
     async updateReview(request: Request, params: { id: string }, userId: number) {
         try {
-            const reviewId = Number(params.id);
+            let id = params?.id;
+
+            if (!id) {
+                // Fallback: extract from URL (e.g., /api/reviews/123)
+                const url = new URL(request.url);
+                const segments = url.pathname.split('/');
+                id = segments[segments.length - 1];
+            }
+
+            if (!id || isNaN(Number(id))) {
+                 return Response.json({ error: 'Invalid or missing review ID' }, { status: 400 });
+            }
+
+            const reviewId = Number(id);
             const body = await request.json();
             const { content, rating, photos } = body;
 
@@ -67,7 +80,20 @@ export const reviewController = {
 
     async deleteReview(request: Request, params: { id: string }, userId: number) {
         try {
-            const reviewId = Number(params.id);
+            let id = params?.id;
+
+            if (!id) {
+                // Fallback: extract from URL
+                const url = new URL(request.url);
+                const segments = url.pathname.split('/');
+                id = segments[segments.length - 1];
+            }
+
+            if (!id || isNaN(Number(id))) {
+                return Response.json({ error: 'Invalid or missing review ID' }, { status: 400 });
+            }
+
+            const reviewId = Number(id);
             await reviewService.deleteReview(reviewId, userId);
             return Response.json({ success: true });
         } catch (error: any) {

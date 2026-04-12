@@ -2,7 +2,7 @@ import { reviewController } from '@/backend/controllers/reviewController';
 import { userRepository } from '@/backend/repositories/userRepository';
 import { verifyAuth } from '@/backend/utils/auth';
 
-export async function PATCH(request: Request, params: { id: string }) {
+export async function PATCH(request: Request, { params }: { params: { id: string } }) {
     const id = params?.id;
 
     if (!id) {
@@ -27,7 +27,7 @@ export async function PATCH(request: Request, params: { id: string }) {
     }
 }
 
-export async function DELETE(request: Request, params: { id: string }) {
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     const id = params?.id;
 
     if (!id) {

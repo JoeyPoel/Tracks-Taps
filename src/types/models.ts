@@ -113,6 +113,7 @@ export interface User {
     referralCode?: string;
     referralCount?: number;
     isNewUser?: boolean; // Flag populated by backend during creation
+    themePreference?: 'light' | 'dark' | 'system';
     createdAt: Date;
     updatedAt: Date;
     teams?: {

@@ -692,6 +692,8 @@ export const strings = {
     selectCity: "Select City",
     searchCityPlaceholder: "Search for a city...",
     noCitiesFound: "No cities found",
+    searchPlacePlaceholder: "Search for a place...",
+    noPlacesFound: "No places found",
     useManualCity: "Use '{0}'",
     clearSelection: "Clear Selection",
     pleaseWait: "Please wait...",

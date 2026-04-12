@@ -223,14 +223,17 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
                 payload: { challengeId: challenge.id, userId }
             });
         } finally {
-            // Unlock the local ID so the store becomes source of truth again
-            setPendingCompleteIds(prev => {
-                const next = new Set(prev);
-                next.delete(challenge.id);
-                return next;
-            });
-            setPendingScoreOffset(prev => Math.max(0, prev - challenge.points));
-            setPendingStreak(null);
+            // Tiny delay to ensure the global store has updated and React has batched the re-render
+            // before we release the local lock. This prevents the "reversion flicker".
+            setTimeout(() => {
+                setPendingCompleteIds(prev => {
+                    const next = new Set(prev);
+                    next.delete(challenge.id);
+                    return next;
+                });
+                setPendingScoreOffset(prev => Math.max(0, prev - challenge.points));
+                setPendingStreak(null);
+            }, 100);
         }
     };
 
@@ -268,12 +271,14 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
                 payload: { challengeId: challenge.id, userId }
             });
         } finally {
-            setPendingFailIds(prev => {
-                const next = new Set(prev);
-                next.delete(challenge.id);
-                return next;
-            });
-            setPendingStreak(null);
+            setTimeout(() => {
+                setPendingFailIds(prev => {
+                    const next = new Set(prev);
+                    next.delete(challenge.id);
+                    return next;
+                });
+                setPendingStreak(null);
+            }, 100);
         }
     };
 
