@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { Alert, Platform } from 'react-native';
 import Purchases, { CustomerInfo, LOG_LEVEL, PurchasesPackage, PurchasesStoreTransaction } from 'react-native-purchases';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { useUserContext } from './UserContext';
 
 const API_KEY_IOS = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY;
@@ -32,11 +33,10 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
     useEffect(() => {
         const init = async () => {
             try {
-                const isDev = __DEV__;
-                const isAndroidTestKey = Platform.OS === 'android' && API_KEY_ANDROID?.startsWith('test_');
+                const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
-                if (isDev || isAndroidTestKey) {
-                    console.log(`[RevenueCat] Skipping initialization: dev=${isDev}, isAndroidTestKey=${isAndroidTestKey}`);
+                if (isExpoGo || Platform.OS === 'web') {
+                    console.log(`[RevenueCat] Skipping initialization: Expo Go or Web detected.`);
                     setLoading(false);
                     return;
                 }
@@ -71,15 +71,26 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
 
         init();
 
+        const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+        if (isExpoGo || Platform.OS === 'web') return;
+
         const customerInfoUpdateListener = (info: CustomerInfo) => {
             setCustomerInfo(info);
             checkEntitlements(info);
         };
 
-        Purchases.addCustomerInfoUpdateListener(customerInfoUpdateListener);
+        try {
+            Purchases.addCustomerInfoUpdateListener(customerInfoUpdateListener);
+        } catch (e) {
+            console.warn("Failed to add RevenueCat listener", e);
+        }
 
         return () => {
-            Purchases.removeCustomerInfoUpdateListener(customerInfoUpdateListener);
+            try {
+                Purchases.removeCustomerInfoUpdateListener(customerInfoUpdateListener);
+            } catch (e) {
+                // Ignore cleanup errors
+            }
         };
     }, []);
 

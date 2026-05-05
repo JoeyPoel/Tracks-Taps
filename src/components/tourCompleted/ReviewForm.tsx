@@ -43,64 +43,87 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
     const { theme } = useTheme();
     const { t } = useLanguage();
 
-    const [rating, setRating] = useState(initialData?.rating || 0);
-    const [content, setContent] = useState(initialData?.content || '');
-    const [photos, setPhotos] = useState<ReviewPhoto[]>([]);
+    const [formState, setFormState] = useState({
+        rating: 0,
+        content: '',
+        photos: [] as ReviewPhoto[],
+        mode: mode,
+        title: mode === 'edit' ? t('editReview') : t('rateExperience')
+    });
     const [isWaitingForUploads, setIsWaitingForUploads] = useState(false);
 
     const prevVisible = React.useRef(visible);
     const pendingUploads = React.useRef<Map<string, Promise<string | null>>>(new Map());
-    const photosRef = React.useRef(photos);
+    const photosRef = React.useRef(formState.photos);
+    
     React.useEffect(() => {
-        photosRef.current = photos;
-    }, [photos]);
+        photosRef.current = formState.photos;
+    }, [formState.photos]);
 
     const DRAFT_KEY = `@review_draft_v1_${tourId}`;
 
-    // Load draft when modal opens
+    // Load draft or initial data when modal opens
     React.useEffect(() => {
-        const loadDraft = async () => {
-            try {
-                const stored = await AsyncStorage.getItem(DRAFT_KEY);
-                if (stored) {
-                    const parsed = JSON.parse(stored);
-                    setRating(parsed.rating || 0);
-                    setContent(parsed.content || '');
-                    setPhotos(parsed.photos || []);
-                } else {
-                    setRating(0);
-                    setContent('');
-                    setPhotos([]);
+        const loadInitialData = async () => {
+            if (mode === 'edit' && initialData) {
+                setFormState({
+                    rating: initialData.rating,
+                    content: initialData.content,
+                    photos: initialData.photos.map(url => ({ 
+                        id: Math.random().toString(), 
+                        uri: url, 
+                        publicUrl: url, 
+                        uploading: false 
+                    })),
+                    mode: 'edit',
+                    title: t('editReview')
+                });
+            } else {
+                try {
+                    const stored = await AsyncStorage.getItem(DRAFT_KEY);
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        setFormState({
+                            rating: parsed.rating || 0,
+                            content: parsed.content || '',
+                            photos: parsed.photos || [],
+                            mode: 'create',
+                            title: t('rateExperience')
+                        });
+                    } else {
+                        setFormState({
+                            rating: 0,
+                            content: '',
+                            photos: [],
+                            mode: 'create',
+                            title: t('rateExperience')
+                        });
+                    }
+                } catch (e) {
+                    console.error("Failed to load review draft", e);
                 }
-            } catch (e) {
-                console.error("Failed to load review draft", e);
             }
         };
 
         if (visible && !prevVisible.current) {
-            // Only initialize when opening
-            if (mode === 'edit' && initialData) {
-                setRating(initialData.rating);
-                setContent(initialData.content);
-                setPhotos(initialData.photos.map(url => ({ 
-                    id: Math.random().toString(), 
-                    uri: url, 
-                    publicUrl: url, 
-                    uploading: false 
-                })));
-            } else {
-                loadDraft();
-            }
+            loadInitialData();
         }
         
+        // If the modal was closed, we don't clear immediate state so closing is smooth,
+        // but we ensure next open is fresh.
+        
         prevVisible.current = visible;
-    }, [visible, mode, initialData, tourId]);
+    }, [visible, mode, initialData, tourId, t]);
 
-    // Save draft on changes
+    // Save draft on changes (only in create mode)
     React.useEffect(() => {
-        if (mode === 'create' && visible) {
-            const draft = { rating, content, photos };
-            if (rating > 0 || content.length > 0 || photos.length > 0) {
+        if (formState.mode === 'create' && visible) {
+            const draft = { 
+                rating: formState.rating, 
+                content: formState.content, 
+                photos: formState.photos 
+            };
+            if (draft.rating > 0 || draft.content.length > 0 || draft.photos.length > 0) {
                 const timeoutId = setTimeout(() => {
                     AsyncStorage.setItem(DRAFT_KEY, JSON.stringify(draft)).catch(e => 
                         console.error("Failed to save review draft", e)
@@ -109,7 +132,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                 return () => clearTimeout(timeoutId);
             }
         }
-    }, [rating, content, photos, mode, visible, tourId]);
+    }, [formState.rating, formState.content, formState.photos, formState.mode, visible, tourId]);
 
     const clearDraft = async () => {
         try {
@@ -120,12 +143,12 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
     };
 
     const handlePress = async () => {
-        if (rating === 0) {
+        if (formState.rating === 0) {
             Alert.alert(t('error'), t('pleaseSelectStars') || 'Please select a star rating.');
             return;
         }
 
-        if (!content.trim()) {
+        if (!formState.content.trim()) {
             Alert.alert(t('error'), t('pleaseWriteReview') || 'Please write a short review.');
             return;
         }
@@ -157,8 +180,8 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
             finalUrls = finalPhotos.map(p => p.publicUrl).filter(Boolean) as string[];
         }
         
-        if (mode === 'create') {
-            const result = onSubmit(rating, content, finalUrls);
+        if (formState.mode === 'create') {
+            const result = onSubmit(formState.rating, formState.content, finalUrls);
             if (result instanceof Promise) {
                 await result;
                 clearDraft();
@@ -166,7 +189,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                 clearDraft();
             }
         } else {
-            await onSubmit(rating, content, finalUrls);
+            await onSubmit(formState.rating, formState.content, finalUrls);
         }
         // Use onClose directly here to skip safeguard since we actually saved
         onClose();
@@ -175,17 +198,17 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
     const handleCloseAttempt = () => {
         // Compare current state with initial/draft to see if something changed
         let hasChanges = false;
-        if (mode === 'edit' && initialData) {
-            const currentPhotosUrls = photos.map(p => p.publicUrl).filter(Boolean).sort().join(',');
+        if (formState.mode === 'edit' && initialData) {
+            const currentPhotosUrls = formState.photos.map(p => p.publicUrl).filter(Boolean).sort().join(',');
             const initialPhotosUrls = initialData.photos.sort().join(',');
             hasChanges = 
-                rating !== initialData.rating || 
-                content.trim() !== initialData.content.trim() || 
+                formState.rating !== initialData.rating || 
+                formState.content.trim() !== initialData.content.trim() || 
                 currentPhotosUrls !== initialPhotosUrls;
         } else {
             // For create mode, we check if anything is filled at all (or if it differs from a potentially loaded draft)
             // But easiest safeguard is: if anything is typed/rated, ask.
-            hasChanges = rating > 0 || content.trim().length > 0 || photos.length > 0;
+            hasChanges = formState.rating > 0 || formState.content.trim().length > 0 || formState.photos.length > 0;
         }
 
         if (hasChanges && !submitting) {
@@ -206,11 +229,17 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
         const uploadTask = (async () => {
             try {
                 const publicUrl = await uploadOptimizedImage(uri, 'images', 'reviews');
-                setPhotos(prev => prev.map(p => p.id === id ? { ...p, publicUrl, uploading: false } : p));
+                setFormState(prev => ({
+                    ...prev,
+                    photos: prev.photos.map(p => p.id === id ? { ...p, publicUrl, uploading: false } : p)
+                }));
                 return publicUrl;
             } catch (error) {
                 console.error("Upload error:", error);
-                setPhotos(prev => prev.filter(p => p.id !== id));
+                setFormState(prev => ({
+                    ...prev,
+                    photos: prev.photos.filter(p => p.id !== id)
+                }));
                 Alert.alert(t('uploadFailed'), t('uploadErrorMsg'));
                 return null;
             } finally {
@@ -223,7 +252,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
     };
 
     const handleAddPhoto = async (useCamera: boolean = false) => {
-        if (photos.length >= 5) return;
+        if (formState.photos.length >= 5) return;
 
         try {
             let result;
@@ -260,7 +289,10 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                     saveImageToGallery(uri);
                 }
 
-                setPhotos(prev => [...prev, { id, uri, uploading: true }]);
+                setFormState(prev => ({
+                    ...prev,
+                    photos: [...prev.photos, { id, uri, uploading: true }]
+                }));
                 startUpload(uri, id);
             }
         } catch (error) {
@@ -269,23 +301,25 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
     };
 
     const removePhoto = (index: number) => {
-        const newPhotos = [...photos];
-        newPhotos.splice(index, 1);
-        setPhotos(newPhotos);
+        setFormState(prev => {
+            const newPhotos = [...prev.photos];
+            newPhotos.splice(index, 1);
+            return { ...prev, photos: newPhotos };
+        });
     };
 
     return (
         <AppModal
             visible={visible}
             onClose={handleCloseAttempt}
-            title={mode === 'edit' ? t('editReview') : t('rateExperience')}
+            title={formState.title}
             subtitle={tourName}
             alignment="center"
         >
             <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={{ width: '100%' }}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
             >
                 <View style={{ width: '100%' }}>
                     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -294,13 +328,12 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                             {[1, 2, 3, 4, 5].map((star, index) => (
                                 <Animated.View
                                     key={star}
-                                    entering={FadeInDown.delay(index * 50).springify()}
                                 >
-                                    <AnimatedPressable onPress={() => setRating(star)} interactionScale="medium" haptic="selection">
+                                    <AnimatedPressable onPress={() => setFormState(prev => ({ ...prev, rating: star }))} interactionScale="medium" haptic="selection">
                                         <Ionicons
-                                            name={star <= rating ? "star" : "star-outline"}
+                                            name={star <= formState.rating ? "star" : "star-outline"}
                                             size={42}
-                                            color={star <= rating ? theme.gold : theme.textTertiary}
+                                            color={star <= formState.rating ? theme.gold : theme.textTertiary}
                                             style={{ marginHorizontal: 4 }}
                                         />
                                     </AnimatedPressable>
@@ -309,9 +342,9 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                         </View>
 
                         <View style={{ alignItems: 'center', marginBottom: 20, height: 20 }}>
-                            {rating > 0 && (
+                            {formState.rating > 0 && (
                                 <TextComponent style={{ fontSize: 14 }} color={theme.primary} bold variant="body">
-                                    {rating === 5 ? t('amazing') : rating === 4 ? t('good') : rating === 3 ? t('okay') : t('notGreat')}
+                                    {formState.rating === 5 ? t('amazing') : formState.rating === 4 ? t('good') : formState.rating === 3 ? t('okay') : t('notGreat')}
                                 </TextComponent>
                             )}
                         </View>
@@ -323,8 +356,8 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                             placeholderTextColor={theme.textTertiary}
                             multiline
                             numberOfLines={4}
-                            value={content}
-                            onChangeText={setContent}
+                            value={formState.content}
+                            onChangeText={(text) => setFormState(prev => ({ ...prev, content: text }))}
                             textAlignVertical="top"
                         />
 
@@ -333,7 +366,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                                 <AnimatedPressable
                                     style={[styles.addPhotoButton, { borderColor: theme.borderPrimary, backgroundColor: theme.bgSecondary }]}
                                     onPress={() => handleAddPhoto(false)}
-                                    disabled={photos.length >= 5}
+                                    disabled={formState.photos.length >= 5}
                                     interactionScale="subtle"
                                 >
                                     <Ionicons name="images" size={20} color={theme.primary} />
@@ -345,7 +378,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
                                 <AnimatedPressable
                                     style={[styles.addPhotoButton, { borderColor: theme.borderPrimary, backgroundColor: theme.bgSecondary }]}
                                     onPress={() => handleAddPhoto(true)}
-                                    disabled={photos.length >= 5}
+                                    disabled={formState.photos.length >= 5}
                                     interactionScale="subtle"
                                 >
                                     <Ionicons name="camera" size={20} color={theme.primary} />
@@ -356,13 +389,13 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
 
                                 <View style={styles.countBadge}>
                                     <TextComponent color={theme.textTertiary} bold variant="caption">
-                                        {photos.length}/5
+                                        {formState.photos.length}/5
                                     </TextComponent>
                                 </View>
                             </View>
 
                             <View style={styles.photoList}>
-                                {photos.map((item, index) => (
+                                {formState.photos.map((item, index) => (
                                     <Animated.View key={item.id} entering={FadeInDown.springify()}>
                                         <View style={styles.photoItem}>
                                             <Image source={{ uri: item.uri }} style={styles.photo} contentFit="cover" />
@@ -386,7 +419,7 @@ export default function ReviewForm({ visible, onClose, onSubmit, submitting, tou
 
                         <View style={styles.footer}>
                             <AnimatedButton
-                                title={isWaitingForUploads ? t('waitingForUploads') || 'Processing Photos...' : (mode === 'edit' ? t('updateReview') : t('submitReview'))}
+                                title={isWaitingForUploads ? t('waitingForUploads') || 'Processing Photos...' : (formState.mode === 'edit' ? t('updateReview') : t('submitReview'))}
                                 onPress={handlePress}
                                 variant="primary"
                                 loading={submitting || isWaitingForUploads}

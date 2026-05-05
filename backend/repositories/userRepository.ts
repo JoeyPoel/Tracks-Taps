@@ -24,6 +24,7 @@ export const userRepository = {
                 tokens: true,
                 referralCode: true,
                 createdAt: true,
+                isAdmin: true,
                 _count: {
                     select: {
                         createdTours: true,
@@ -49,6 +50,7 @@ export const userRepository = {
                 tokens: true,
                 referralCode: true,
                 createdAt: true,
+                isAdmin: true,
                 _count: {
                     select: {
                         createdTours: true,
@@ -74,6 +76,7 @@ export const userRepository = {
                 tokens: true,
                 referralCode: true,
                 createdAt: true,
+                isAdmin: true,
                 _count: {
                     select: {
                         createdTours: true,
@@ -98,6 +101,7 @@ export const userRepository = {
                 tokens: true,
                 referralCode: true,
                 createdAt: true,
+                isAdmin: true,
                 _count: {
                     select: {
                         createdTours: true,

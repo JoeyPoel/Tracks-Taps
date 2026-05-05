@@ -34,11 +34,10 @@ export const usePurchases = () => {
             }
 
             try {
-                const isDev = __DEV__;
-                const isAndroidTestKey = Platform.OS === 'android' && API_KEYS.google?.startsWith('test_');
+                const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
-                if (isDev || isAndroidTestKey) {
-                    console.log(`[usePurchases] Skipping initialization: dev=${isDev}, isAndroidTestKey=${isAndroidTestKey}`);
+                if (isExpoGo || Platform.OS === 'web') {
+                    console.log(`[usePurchases] Skipping initialization: Expo Go or Web detected.`);
                     return;
                 }
 
@@ -65,10 +64,14 @@ export const usePurchases = () => {
                 checkEntitlement(info);
 
                 // Listen for updates (restores, purchases from other devices, etc.)
-                Purchases.addCustomerInfoUpdateListener((info) => {
-                    setCustomerInfo(info);
-                    checkEntitlement(info);
-                });
+                try {
+                    Purchases.addCustomerInfoUpdateListener((info) => {
+                        setCustomerInfo(info);
+                        checkEntitlement(info);
+                    });
+                } catch (e) {
+                    console.warn("Failed to add RevenueCat listener in usePurchases", e);
+                }
 
             } catch (e) {
                 console.error("Error initializing RevenueCat", e);

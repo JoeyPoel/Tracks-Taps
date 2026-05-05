@@ -150,16 +150,20 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
     }, []);
   }, [formattedReviews]);
 
-  if (loading) {
+  // Show loading screen only if we have no tour data at all (including cached/placeholder)
+  if (loading && !tour) {
     return (
       <TourLoadingScreen message={t('loadingTourDetails')} />
     );
   }
 
-  if (error || !tour) {
+  // Show error blocker only if we have no tour data to show
+  if (!tour) {
     return (
       <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}>
-        <TextComponent style={{ color: theme.textPrimary }}>Error: {error || 'Tour not found'}</TextComponent>
+        <TextComponent style={{ color: theme.textPrimary }}>
+          {error ? `Error: ${error}` : t('tourNotFound') || 'Tour not found'}
+        </TextComponent>
       </View>
     );
   }

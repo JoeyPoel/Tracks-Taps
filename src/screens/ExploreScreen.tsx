@@ -1,7 +1,11 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useState } from 'react';
-import { RefreshControl, SectionList, StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import React, { useCallback, useEffect, useState } from 'react';
+import { RefreshControl, SectionList, StyleSheet, View, TouchableOpacity } from 'react-native';
+import Animated, { FadeInDown, SlideInDown } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import client from '@/src/api/apiClient';
+import { AppSettings } from '../types/models';
 import { EmptyState } from '../components/common/EmptyState'; // Added import
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { TextComponent } from '../components/common/TextComponent';
@@ -34,6 +38,7 @@ export default function ExploreScreen() {
   const [filterVisible, setFilterVisible] = useState(false);
   const [searchText, setSearchText] = useState(tourFilters.searchQuery || '');
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -56,6 +61,15 @@ export default function ExploreScreen() {
           // Guest mode: fetch tours only
           await fetchTours();
         }
+        
+        // Fetch global settings
+        try {
+          const response = await client.get('/app-settings');
+          setAppSettings(response.data);
+        } catch (error) {
+          console.error('Failed to fetch app settings:', error);
+        }
+
         setHasInitialized(true);
       };
       init();
@@ -116,12 +130,41 @@ export default function ExploreScreen() {
     },
   ] : [];
 
+  const isFreeMode = appSettings?.freeToursEnabled && 
+                    (!appSettings.freeToursUntil || new Date(appSettings.freeToursUntil) > new Date());
+
   return (
     <ScreenWrapper
       style={{ backgroundColor: theme.bgPrimary }}
       includeTop={true} // Changed to true
       includeBottom={false}
     >
+      {isFreeMode && (
+        <Animated.View 
+          entering={SlideInDown.delay(500)}
+          style={styles.freeBannerWrapper}
+        >
+          <LinearGradient
+            colors={[theme.primary, theme.secondary || theme.primary]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.freeBannerGradient}
+          >
+            <View style={styles.freeBannerContent}>
+              <TextComponent variant="h3" bold color="#fff" style={styles.freeBannerText}>
+                ALL TOURS ARE CURRENTLY FREE!
+              </TextComponent>
+              {appSettings?.freeToursUntil && (
+                <View style={styles.freeExpiryBadge}>
+                  <TextComponent variant="tiny" bold color="#fff" style={{ opacity: 0.9 }}>
+                    ENDS: {new Date(appSettings.freeToursUntil).toLocaleDateString()}
+                  </TextComponent>
+                </View>
+              )}
+            </View>
+          </LinearGradient>
+        </Animated.View>
+      )}
       <SectionList
         sections={sections}
         stickySectionHeadersEnabled={true}
@@ -297,6 +340,46 @@ const styles = StyleSheet.create({
   },
   emptyScrollContent: {
     flexGrow: 1,
+  },
+  freeBannerWrapper: {
+    marginHorizontal: 20,
+    marginTop: 12,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  freeBannerGradient: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+  },
+  freeBannerContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  freeIconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  freeBannerText: {
+    textAlign: 'center',
+    letterSpacing: 0.5,
+    fontSize: 18,
+  },
+  freeExpiryBadge: {
+    marginTop: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.2)',
   }
 });
 

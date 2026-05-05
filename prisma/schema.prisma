@@ -37,6 +37,7 @@ model User {
   referrals            User[]            @relation("UserReferrals")
   achievements         UserAchievement[]
   playedTours          UserPlayedTour[]
+  isAdmin              Boolean           @default(false)
 
   @@index([email])
 }
@@ -345,6 +346,13 @@ model TourList {
 
   @@unique([userId, name])
   @@index([userId])
+}
+
+model AppSettings {
+  id                String   @id @default("global")
+  freeToursEnabled  Boolean  @default(false)
+  freeToursUntil    DateTime?
+  updatedAt         DateTime @updatedAt
 }
 
 enum StopType {

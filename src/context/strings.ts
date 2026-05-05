@@ -708,6 +708,7 @@ export const strings = {
     purchaseVerifiedMessage: "You have purchased {0} tokens! It may take up to a minute for them to appear in your account.",
     purchaseCompleteTitle: "Success",
     purchaseProcessingMessage: "You have purchased {0} tokens! It may take up to a minute for them to appear in your account.",
+    selectThisLocation: "Select This Location",
   },
   es: {
     modes: 'Modos',
@@ -1401,6 +1402,7 @@ export const strings = {
     purchaseVerifiedMessage: "¡Has comprado {0} fichas! Puede tardar hasta un minuto en aparecer en tu cuenta.",
     purchaseCompleteTitle: "Éxito",
     purchaseProcessingMessage: "¡Has comprado {0} fichas! Puede tardar hasta un minuto en aparecer en tu cuenta.",
+    selectThisLocation: "Seleccionar Esta Ubicación",
   },
   nl: {
     modes: 'Modi',

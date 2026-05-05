@@ -8,6 +8,7 @@ import {
   EnvelopeIcon,
   HeartIcon,
   QuestionMarkCircleIcon,
+  ShieldCheckIcon,
   TicketIcon,
   UserIcon
 } from 'react-native-heroicons/outline';
@@ -29,6 +30,7 @@ import { useUserContext } from '../context/UserContext';
 import { useFriends } from '../hooks/useFriends';
 import { useStore } from '../store/store';
 import { LevelSystem } from '../utils/levelUtils';
+import { AdminSettingsModal } from '../components/profileScreen/AdminSettingsModal';
 
 export default function ProfileScreen() {
   const { theme } = useTheme();
@@ -42,6 +44,7 @@ export default function ProfileScreen() {
   const { loadFriends, friends } = useFriends();
   const { isPro } = useRevenueCat();
   const { startTutorial } = useTutorial();
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   // Load achievements once when profile loads (if not already loaded)
   useEffect(() => {
@@ -177,6 +180,13 @@ export default function ProfileScreen() {
                   title={t('appPreferences')}
                   onPress={() => router.push('/profile/preferences')}
                 />
+                {user.isAdmin && (
+                  <SettingsItem
+                    icon={<ShieldCheckIcon size={22} color={theme.accent} />}
+                    title="Admin Panel"
+                    onPress={() => setShowAdminPanel(true)}
+                  />
+                )}
               </>
             )}
 
@@ -219,6 +229,10 @@ export default function ProfileScreen() {
       <ReferralClaimModal
         visible={showReferralModal}
         onClose={() => setShowReferralModal(false)}
+      />
+      <AdminSettingsModal
+        isVisible={showAdminPanel}
+        onClose={() => setShowAdminPanel(false)}
       />
     </ScreenWrapper>
   );

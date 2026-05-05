@@ -5,8 +5,8 @@ import { StopType } from '@/src/types/models';
 import { getStopIcon } from '@/src/utils/stopIcons';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
-import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Keyboard, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, FlatList, Keyboard, LayoutAnimation, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_DEFAULT, Region } from 'react-native-maps';
 
 interface StopMapPickerProps {
@@ -17,6 +17,8 @@ interface StopMapPickerProps {
     existingStops: any[];
     currentStopType?: StopType;
     editingIndex?: number | null;
+    onSearchActiveChange?: (active: boolean) => void;
+    isExpanded?: boolean;
 }
 
 interface SearchResult {
@@ -33,7 +35,9 @@ export function StopMapPicker({
     setMarker,
     existingStops,
     currentStopType = StopType.Viewpoint,
-    editingIndex = null
+    editingIndex = null,
+    onSearchActiveChange,
+    isExpanded = false
 }: StopMapPickerProps) {
     const { theme, mode } = useTheme();
     const { t } = useLanguage();
@@ -41,11 +45,19 @@ export function StopMapPicker({
     const [results, setResults] = useState<SearchResult[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isResultsVisible, setIsResultsVisible] = useState(false);
+    const [selectedResult, setSelectedResult] = useState<{ item: SearchResult; index: number } | null>(null);
+    const [preStageRegion, setPreStageRegion] = useState<Region | null>(null);
+    const [initialRegion, setInitialRegion] = useState<Region | null>(null);
+    const mapRef = useRef<MapView>(null);
+    const isAnimating = useRef(false);
 
     const handleMapPress = (e: any) => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setMarker(e.nativeEvent.coordinate);
         Keyboard.dismiss();
         setIsResultsVisible(false);
+        setSelectedResult(null);
+        onSearchActiveChange?.(false);
     };
 
     const fetchResults = useCallback(async (query: string) => {
@@ -56,13 +68,21 @@ export function StopMapPicker({
 
         setIsLoading(true);
         try {
-            const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5`;
+            // Calculate bounding box from current region to prioritize local results
+            // minLon, minLat, maxLon, maxLat
+            const minLon = region.longitude - region.longitudeDelta / 2;
+            const minLat = region.latitude - region.latitudeDelta / 2;
+            const maxLon = region.longitude + region.longitudeDelta / 2;
+            const maxLat = region.latitude + region.latitudeDelta / 2;
+            const bbox = `${minLon},${minLat},${maxLon},${maxLat}`;
+
+            const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&bbox=${bbox}&limit=10`;
             const response = await fetch(url);
             const data = await response.json();
 
             const mappedResults = data.features.map((f: any) => ({
                 name: f.properties.name,
-                description: [f.properties.city, f.properties.state, f.properties.country].filter(Boolean).join(', '),
+                description: [f.properties.city, f.properties.district, f.properties.state, f.properties.country].filter(Boolean).join(', '),
                 latitude: f.geometry.coordinates[1],
                 longitude: f.geometry.coordinates[0],
             }));
@@ -74,7 +94,7 @@ export function StopMapPicker({
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [region]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -83,20 +103,69 @@ export function StopMapPicker({
         return () => clearTimeout(timer);
     }, [searchQuery, fetchResults]);
 
-    const handleSelectResult = (result: SearchResult) => {
+    const handleStageResult = (result: SearchResult, index: number) => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setPreStageRegion(region); // Save current view to return to on cancel
+        
         const newRegion = {
-            ...region,
             latitude: result.latitude,
             longitude: result.longitude,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
+            latitudeDelta: 0.002,
+            longitudeDelta: 0.002,
         };
-        setRegion(newRegion);
-        setMarker({ latitude: result.latitude, longitude: result.longitude });
+        
+        isAnimating.current = true;
+        mapRef.current?.animateToRegion(newRegion, 600);
+        setTimeout(() => { isAnimating.current = false; }, 700);
+
+        setSelectedResult({ item: result, index });
         setSearchQuery(result.name);
-        setIsResultsVisible(false);
+        setIsResultsVisible(false); // Hide the broad list to focus on selection
         Keyboard.dismiss();
     };
+
+    const handleFinalizeResult = () => {
+        if (!selectedResult) return;
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setMarker({ latitude: selectedResult.item.latitude, longitude: selectedResult.item.longitude });
+        setSearchQuery('');
+        setResults([]);
+        setPreStageRegion(null);
+        setSelectedResult(null);
+        onSearchActiveChange?.(false);
+        setInitialRegion(null);
+        
+        const finalizeRegion = {
+            latitude: selectedResult.item.latitude,
+            longitude: selectedResult.item.longitude,
+            latitudeDelta: region.latitudeDelta,
+            longitudeDelta: region.longitudeDelta,
+        };
+        isAnimating.current = true;
+        mapRef.current?.animateToRegion(finalizeRegion, 400);
+        setTimeout(() => { isAnimating.current = false; }, 500);
+    };
+
+    // Re-center map when isExpanded changes (smooth transition)
+    useEffect(() => {
+        if (!isExpanded) {
+            const targetRegion = marker ? {
+                latitude: marker.latitude,
+                longitude: marker.longitude,
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.005,
+            } : preStageRegion || initialRegion;
+
+            if (targetRegion) {
+                isAnimating.current = true;
+                mapRef.current?.animateToRegion(targetRegion, 500);
+                setTimeout(() => { isAnimating.current = false; }, 600);
+            }
+            
+            setPreStageRegion(null);
+            setInitialRegion(null);
+        }
+    }, [isExpanded]);
 
     const routeCoordinates = [...existingStops.map(s => ({ latitude: s.latitude, longitude: s.longitude }))];
 
@@ -109,13 +178,18 @@ export function StopMapPicker({
     }
 
     return (
-        <View style={styles.mapContainer}>
+        <View style={[styles.mapContainer, isExpanded && styles.expandedContainer]}>
             <MapView
+                ref={mapRef}
                 provider={PROVIDER_DEFAULT}
                 style={styles.map}
                 region={region}
                 userInterfaceStyle={mode}
-                onRegionChangeComplete={setRegion}
+                onRegionChangeComplete={(newRegion) => {
+                    if (!isAnimating.current) {
+                        setRegion(newRegion);
+                    }
+                }}
                 onPress={handleMapPress}
                 showsUserLocation
                 showsMyLocationButton
@@ -140,8 +214,42 @@ export function StopMapPicker({
                     lineDashPattern={[5, 5]}
                 />
 
-                {marker && (
-                    <Marker coordinate={marker}>
+                {marker && !selectedResult && (
+                    <Marker key={`marker-${marker.latitude}-${marker.longitude}`} coordinate={marker} zIndex={100}>
+                        <View style={[styles.markerPip, { backgroundColor: theme.primary, borderColor: 'white', borderWidth: 2 }]}>
+                            {getStopIcon(currentStopType, 16, 'white')}
+                        </View>
+                    </Marker>
+                )}
+
+                {/* Search Result Markers (Apple Maps style) */}
+                {isResultsVisible && results.map((result, idx) => (
+                    <Marker
+                        key={`search-${idx}`}
+                        coordinate={{ latitude: result.latitude, longitude: result.longitude }}
+                        onPress={() => handleStageResult(result, idx)}
+                        zIndex={50}
+                    >
+                        <View style={[
+                            styles.searchMarker, 
+                            { backgroundColor: theme.secondary, borderColor: theme.bgSecondary },
+                            selectedResult?.item.latitude === result.latitude && { transform: [{ scale: 1.2 }], borderWidth: 3, borderColor: theme.primary }
+                        ]}>
+                            <TextComponent bold variant="caption" color="#FFF">{idx + 1}</TextComponent>
+                        </View>
+                    </Marker>
+                ))}
+
+                {/* Explicit Highlight for Selected (if list is cleared) */}
+                {selectedResult && !isResultsVisible && (
+                    <Marker 
+                        coordinate={{ latitude: selectedResult.item.latitude, longitude: selectedResult.item.longitude }} 
+                        zIndex={100}
+                        onPress={() => {
+                            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                            setSelectedResult(selectedResult); // Trigger re-center/card if needed
+                        }}
+                    >
                         <View style={[styles.markerPip, { backgroundColor: theme.primary, borderColor: 'white', borderWidth: 2 }]}>
                             {getStopIcon(currentStopType, 16, 'white')}
                         </View>
@@ -151,7 +259,7 @@ export function StopMapPicker({
 
             {/* Search Bar Overlay */}
             <View style={styles.searchOverlay}>
-                <BlurView intensity={80} tint={mode} style={styles.searchContainer}>
+                <BlurView intensity={90} tint={mode} style={styles.searchContainer}>
                     <Ionicons name="search" size={20} color={theme.textSecondary} style={styles.searchIcon} />
                     <TextInput
                         style={[styles.searchInput, { color: theme.textPrimary }]}
@@ -166,16 +274,36 @@ export function StopMapPicker({
                             }
                         }}
                         onFocus={() => {
+                            if (!initialRegion) setInitialRegion(region);
                             if (results.length > 0) setIsResultsVisible(true);
+                            onSearchActiveChange?.(true);
                         }}
                     />
                     {isLoading ? (
                         <ActivityIndicator size="small" color={theme.primary} style={styles.loader} />
                     ) : searchQuery.length > 0 ? (
                         <TouchableOpacity onPress={() => {
+                            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
                             setSearchQuery('');
                             setResults([]);
                             setIsResultsVisible(false);
+                            onSearchActiveChange?.(false);
+                            
+                            // Revert map to original state if we were previewing
+                            if (preStageRegion) {
+                                isAnimating.current = true;
+                                mapRef.current?.animateToRegion(preStageRegion, 500);
+                                setTimeout(() => { isAnimating.current = false; }, 600);
+                                setPreStageRegion(null);
+                            } else if (marker) {
+                                isAnimating.current = true;
+                                mapRef.current?.animateToRegion({
+                                    ...marker,
+                                    latitudeDelta: 0.005,
+                                    longitudeDelta: 0.005,
+                                }, 500);
+                                setTimeout(() => { isAnimating.current = false; }, 600);
+                            }
                         }}>
                             <Ionicons name="close-circle" size={20} color={theme.textSecondary} />
                         </TouchableOpacity>
@@ -183,16 +311,18 @@ export function StopMapPicker({
                 </BlurView>
 
                 {isResultsVisible && results.length > 0 && (
-                    <View style={[styles.resultsList, { backgroundColor: theme.bgPrimary, borderColor: theme.borderPrimary }]}>
+                    <BlurView intensity={60} tint={mode} style={[styles.resultsList, { borderColor: theme.borderPrimary }]}>
                         <FlatList
                             data={results}
                             keyExtractor={(item, index) => `${item.latitude}-${item.longitude}-${index}`}
-                            renderItem={({ item }) => (
+                            renderItem={({ item, index }) => (
                                 <TouchableOpacity
                                     style={[styles.resultItem, { borderBottomColor: theme.borderSecondary }]}
-                                    onPress={() => handleSelectResult(item)}
+                                    onPress={() => handleStageResult(item, index)}
                                 >
-                                    <Ionicons name="location-outline" size={18} color={theme.primary} style={styles.resultIcon} />
+                                    <View style={[styles.resultNumberBadge, { backgroundColor: theme.secondary + '20' }]}>
+                                        <TextComponent bold variant="label" color={theme.secondary}>{index + 1}</TextComponent>
+                                    </View>
                                     <View style={styles.resultTextContainer}>
                                         <TextComponent bold variant="body" color={theme.textPrimary}>{item.name}</TextComponent>
                                         <TextComponent variant="caption" color={theme.textSecondary} numberOfLines={1}>{item.description}</TextComponent>
@@ -201,16 +331,52 @@ export function StopMapPicker({
                             )}
                             keyboardShouldPersistTaps="handled"
                         />
-                    </View>
+                    </BlurView>
                 )}
             </View>
 
-            {!marker && !isResultsVisible && (
+            {!marker && !isResultsVisible && !selectedResult && (
                 <View style={styles.mapInstruction}>
                     <TextComponent style={styles.mapInstructionText} color="white" bold variant="body">
                         Tap map to set location
                     </TextComponent>
                 </View>
+            )}
+
+            {/* Confirmation Card Overlay */}
+            {selectedResult && (
+                <BlurView intensity={95} tint={mode} style={styles.confirmationCard}>
+                    <View style={styles.confirmationHeader}>
+                        <View style={styles.confirmationInfo}>
+                            <TextComponent bold variant="body" color={theme.textPrimary} numberOfLines={1}>{selectedResult.item.name}</TextComponent>
+                            <TextComponent variant="caption" color={theme.textSecondary} numberOfLines={1}>{selectedResult.item.description}</TextComponent>
+                        </View>
+                        <TouchableOpacity 
+                            onPress={() => {
+                                LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                                setSelectedResult(null);
+                                setIsResultsVisible(true);
+                                if (preStageRegion) {
+                                    isAnimating.current = true;
+                                    mapRef.current?.animateToRegion(preStageRegion, 600);
+                                    setTimeout(() => { isAnimating.current = false; }, 700);
+                                    setPreStageRegion(null);
+                                }
+                            }}
+                            style={[styles.cancelButton, { backgroundColor: theme.bgTertiary }]}
+                        >
+                            <Ionicons name="close" size={18} color={theme.textPrimary} />
+                        </TouchableOpacity>
+                    </View>
+                    
+                    <TouchableOpacity
+                        style={[styles.confirmButton, { backgroundColor: theme.primary }]}
+                        onPress={handleFinalizeResult}
+                    >
+                        <TextComponent bold variant="body" color="white">{t('selectThisLocation') || 'Select This Location'}</TextComponent>
+                        <Ionicons name="checkmark-circle" size={18} color="white" />
+                    </TouchableOpacity>
+                </BlurView>
             )}
         </View>
     );
@@ -221,15 +387,19 @@ const styles = StyleSheet.create({
         height: '40%',
         width: '100%',
         position: 'relative',
+        zIndex: 5,
+    },
+    expandedContainer: {
+        height: '100%',
     },
     map: {
         ...StyleSheet.absoluteFillObject,
     },
     searchOverlay: {
         position: 'absolute',
-        top: 20,
+        top: Platform.OS === 'ios' ? 20 : 16,
         left: 16,
-        right: 16,
+        right: 64,
         zIndex: 1000,
     },
     searchContainer: {
@@ -257,13 +427,14 @@ const styles = StyleSheet.create({
         marginTop: 8,
         borderRadius: 16,
         borderWidth: 1,
-        maxHeight: 200,
+        maxHeight: 180,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.15,
         shadowRadius: 10,
         elevation: 5,
         overflow: 'hidden',
+        backgroundColor: 'rgba(255,255,255,0.05)',
     },
     resultItem: {
         flexDirection: 'row',
@@ -301,5 +472,67 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 3,
         elevation: 4,
+    },
+    searchMarker: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+        elevation: 3,
+    },
+    resultNumberBadge: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+    },
+    confirmationCard: {
+        position: 'absolute',
+        bottom: 20,
+        left: 20,
+        right: 20,
+        borderRadius: 24,
+        padding: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 10,
+        elevation: 8,
+        overflow: 'hidden',
+    },
+    confirmationHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    confirmationInfo: {
+        flex: 1,
+        marginRight: 12,
+    },
+    confirmButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 14,
+        borderRadius: 16,
+        gap: 8,
+    },
+    cancelButton: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });

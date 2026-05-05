@@ -115,7 +115,10 @@ export const useStore = create<StoreState>()(
             fetchTours: async () => {
                 const { tourFilters, tours } = get();
                 // If appending, don't set global loadingTours (maybe add a loadingMore state? For now, we use loadingTours)
-                set({ loadingTours: true, errorTours: null });
+                set({ errorTours: null });
+                if (tours.length === 0) {
+                    set({ loadingTours: true });
+                }
                 try {
                     const response: any = await tourService.getAllTours(tourFilters);
                     let newTours: Tour[] = [];
@@ -192,6 +195,9 @@ export const useStore = create<StoreState>()(
                 const cached = get().tourDetails[id];
                 if (!force && cached && !params) return;
 
+                // Clear error immediately on new attempt
+                set({ errorTours: null });
+
                 // If placeholder provided, set it immediately to allow instant navigation
                 if (placeholder && !cached) {
                     const placeholderDetail: TourDetail = {
@@ -206,7 +212,7 @@ export const useStore = create<StoreState>()(
                     }));
                 } else if (!cached) {
                     // Only set loading if no cached data (including placeholders)
-                    set({ loadingTours: true, errorTours: null });
+                    set({ loadingTours: true });
                 }
 
                 try {

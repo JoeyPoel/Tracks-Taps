@@ -112,6 +112,7 @@ export interface User {
     tokens: number;
     referralCode?: string;
     referralCount?: number;
+    isAdmin?: boolean;
     isNewUser?: boolean; // Flag populated by backend during creation
     themePreference?: 'light' | 'dark' | 'system';
     createdAt: Date;
@@ -238,4 +239,11 @@ export interface TourDetail extends Tour {
         name: string;
         avatarUrl?: string;
     };
+}
+
+export interface AppSettings {
+    id: string;
+    freeToursEnabled: boolean;
+    freeToursUntil: Date | string | null;
+    updatedAt: Date | string;
 }

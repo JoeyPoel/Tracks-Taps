@@ -7,6 +7,7 @@ import { challengeRepository } from '../repositories/challengeRepository';
 import { tourRepository } from '../repositories/tourRepository';
 import { userRepository } from '../repositories/userRepository';
 import { achievementService } from './achievementService';
+import { appSettingsRepository } from '../repositories/appSettingsRepository';
 
 export const activeTourService = {
     async getActiveToursForUser(userId: number) {
@@ -32,8 +33,15 @@ export const activeTourService = {
         if (!tour) throw new Error("Tour not found");
 
         if (tour.author.id !== userId) {
-            // Deduct 1 token for playing a tour IF not author
-            await userRepository.deductTokens(userId, 1);
+            // Check global free mode
+            const settings = await appSettingsRepository.getSettings();
+            const isCurrentlyFree = settings?.freeToursEnabled && 
+                                  (!settings.freeToursUntil || new Date(settings.freeToursUntil) > new Date());
+
+            if (!isCurrentlyFree) {
+                // Deduct 1 token for playing a tour IF not author and not globally free
+                await userRepository.deductTokens(userId, 1);
+            }
         }
 
         return await activeTourRepository.createActiveTour(tourId, userId, teamName, teamColor, teamEmoji);

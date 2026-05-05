@@ -1,6 +1,6 @@
 import client from '@/src/api/apiClient'; // Use configured client
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { useUserContext } from '../context/UserContext';
@@ -12,8 +12,21 @@ export const useStartTour = (tourId: number, authorId?: number, onInsufficientTo
     const { user, refreshUser } = useUserContext();
     const router = useRouter();
     const [loadingMode, setLoadingMode] = useState<StartTourMode>(null);
+    const [appSettings, setAppSettings] = useState<any>(null);
 
     const { t } = useLanguage();
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const response = await client.get('/app-settings');
+                setAppSettings(response.data);
+            } catch (err) {
+                console.error('Failed to fetch settings in useStartTour:', err);
+            }
+        };
+        fetchSettings();
+    }, []);
 
     const executeStartTour = async (force: boolean, isLobbyMode: boolean) => {
         // Explicitly set 'lobby' or 'solo' based on the button clicked
@@ -96,7 +109,10 @@ export const useStartTour = (tourId: number, authorId?: number, onInsufficientTo
             isAuthor = user.createdTours.some(t => String(t.id) === String(tourId));
         }
 
-        if (!isAuthor && user.tokens < 1) {
+        const isFreeMode = appSettings?.freeToursEnabled && 
+                          (!appSettings.freeToursUntil || new Date(appSettings.freeToursUntil) > new Date());
+
+        if (!isAuthor && !isFreeMode && user.tokens < 1) {
             if (onInsufficientTokens) {
                 if (Platform.OS === 'web') {
                     if (window.confirm(t('insufficientTokensMessage'))) {
@@ -122,7 +138,7 @@ export const useStartTour = (tourId: number, authorId?: number, onInsufficientTo
             return;
         }
 
-        if (!force && !isAuthor) {
+        if (!force && !isAuthor && !isFreeMode) {
             if (Platform.OS === 'web') {
                 if (window.confirm(t('startTourCostMessage').replace('{0}', user.tokens.toString()))) {
                     await executeStartTour(force, isLobbyMode);
