@@ -100,15 +100,85 @@ export const tourRepository = {
             orderBy.createdAt = 'desc';
         }
 
-        const result = await paginate<any, Prisma.TourFindManyArgs>(
-            prisma.tour,
-            {
-                where,
-                orderBy,
+        const tours = await prisma.tour.findMany({
+            where,
+            orderBy,
+            skip,
+            take: limit + 1,
+            select: {
+                id: true,
+                title: true,
+                location: true,
+                imageUrl: true,
+                distance: true,
+                duration: true,
+                points: true,
+                modes: true,
+                difficulty: true,
+                status: true,
+                type: true,
+                genre: true,
+                createdAt: true,
+                author: { select: { name: true, avatarUrl: true, isAdmin: true } },
+                _count: { select: { stops: true } },
+                reviews: {
+                    select: {
+                        rating: true
+                    }
+                }
+            }
+        });
+
+        const hasMore = tours.length > limit;
+        const pageData = hasMore ? tours.slice(0, limit) : tours;
+
+        const data = pageData.map(tour => {
+            const reviewsList = tour.reviews || [];
+            const count = reviewsList.length;
+            const avg = count > 0 ? reviewsList.reduce((sum, r) => sum + r.rating, 0) / count : 0;
+            return {
+                id: tour.id,
+                title: tour.title,
+                location: tour.location,
+                imageUrl: tour.imageUrl,
+                distance: tour.distance,
+                duration: tour.duration,
+                points: tour.points,
+                modes: tour.modes,
+                difficulty: tour.difficulty,
+                status: tour.status,
+                type: tour.type,
+                genre: tour.genre,
+                createdAt: tour.createdAt,
+                author: tour.author,
+                _count: tour._count,
+                averageRating: avg,
+                reviewCount: count,
+                reviews: count > 0 ? [{ rating: avg }] : []
+            };
+        });
+
+        const meta = {
+            total: hasMore ? skip + limit + 1 : skip + tours.length,
+            lastPage: hasMore ? page + 1 : page,
+            currentPage: page,
+            perPage: limit,
+            prev: page > 1 ? page - 1 : null,
+            next: hasMore ? page + 1 : null,
+        };
+
+        return { data, meta };
+    },
+
+    async getTourById(id: number, reviewsSortBy?: string, lightweight?: boolean) {
+        if (lightweight) {
+            const tour = await prisma.tour.findUnique({
+                where: { id },
                 select: {
                     id: true,
                     title: true,
                     location: true,
+                    description: true,
                     imageUrl: true,
                     distance: true,
                     duration: true,
@@ -119,41 +189,50 @@ export const tourRepository = {
                     type: true,
                     genre: true,
                     createdAt: true,
-                    author: { select: { name: true, avatarUrl: true, isAdmin: true } },
-                    _count: { select: { stops: true } },
-                },
-            },
-            page,
-            limit
-        );
+                    author: {
+                        select: {
+                            id: true,
+                            name: true,
+                            avatarUrl: true
+                        }
+                    },
+                    stops: {
+                        orderBy: { number: 'asc' },
+                        select: {
+                            id: true,
+                            number: true,
+                            name: true,
+                            description: true,
+                            latitude: true,
+                            longitude: true,
+                            type: true
+                        }
+                    },
+                    _count: {
+                        select: {
+                            reviews: true
+                        }
+                    }
+                }
+            });
 
-        return await this.enrichTours(result.data, result.meta);
-    },
+            if (!tour) return null;
 
-    // Helper to enrich tours with ratings
-    async enrichTours(tours: any[], meta: any) {
-        const tourIds = tours.map(t => t.id);
-        const ratings = await prisma.review.groupBy({
-            by: ['tourId'],
-            _avg: { rating: true },
-            _count: { rating: true },
-            where: { tourId: { in: tourIds } }
-        });
+            const ratingAgg = await prisma.review.aggregate({
+                where: { tourId: id },
+                _avg: { rating: true }
+            });
 
-        const data = tours.map(tour => {
-            const ratingData = ratings.find(r => r.tourId === tour.id);
             return {
                 ...tour,
-                averageRating: ratingData?._avg.rating || 0,
-                reviewCount: ratingData?._count.rating || 0,
-                reviews: ratingData?._avg.rating ? [{ rating: ratingData._avg.rating }] : []
+                stops: tour.stops || [],
+                challenges: [],
+                reviews: [],
+                averageRating: ratingAgg._avg.rating || 0,
+                reviewCount: tour._count.reviews
             };
-        });
+        }
 
-        return { data, meta };
-    },
-
-    async getTourById(id: number, reviewsSortBy?: string) {
         // 1. Fetch Tour Data
         let reviewOrder: any = { createdAt: 'desc' };
         if (reviewsSortBy === 'highest_rating') reviewOrder = { rating: 'desc' };

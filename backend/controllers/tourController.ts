@@ -102,8 +102,9 @@ export const tourController = {
         try {
             const url = new URL(request.url);
             const reviewsSortBy = url.searchParams.get('reviewsSortBy') || undefined;
+            const lightweight = url.searchParams.get('lightweight') === 'true';
             
-            const tour = await tourService.getTourById(tourId, reviewsSortBy);
+            const tour = await tourService.getTourById(tourId, reviewsSortBy, lightweight);
             if (!tour) {
                 return Response.json({ error: 'Tour not found' }, { status: 404 });
             }

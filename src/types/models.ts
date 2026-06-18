@@ -97,6 +97,8 @@ export interface Tour {
     stops?: Stop[];
     challenges?: Challenge[];
     reviews?: Review[];
+    averageRating?: number;
+    reviewCount?: number;
     _count?: {
         stops: number;
     };

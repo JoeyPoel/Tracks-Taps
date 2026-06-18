@@ -26,7 +26,7 @@ interface StoreState {
     errorTours: string | null;
     fetchTours: () => Promise<void>;
     fetchAllData: (userId: number) => Promise<void>;
-    fetchTourDetails: (id: number, placeholder?: Tour, force?: boolean, params?: { reviewsSortBy?: string }) => Promise<void>;
+    fetchTourDetails: (id: number, placeholder?: Tour, force?: boolean, params?: { reviewsSortBy?: string; lightweight?: boolean }) => Promise<void>;
     fetchMapTours: (bounds?: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => Promise<void>;
 
     // Active Tours Slice
@@ -105,7 +105,8 @@ export const useStore = create<StoreState>()(
             tours: [],
             tourFilters: {
                 sortBy: 'createdAt',
-                sortOrder: 'desc'
+                sortOrder: 'desc',
+                limit: 5
             },
             tourDetails: {},
             mapTours: [],
@@ -146,16 +147,21 @@ export const useStore = create<StoreState>()(
             },
 
             setTourFilters: (filters: TourFilters) => {
-                set({ tourFilters: filters });
+                const isResetOrSearch = !filters.page || filters.page === 1;
+                set({
+                    tourFilters: filters,
+                    loadingTours: isResetOrSearch ? true : get().loadingTours,
+                    tours: isResetOrSearch ? [] : get().tours
+                });
                 get().fetchTours();
             },
 
             fetchAllData: async (userId: number) => {
                 const state = get();
-                const shouldFetchTours = state.tours.length === 0;
+                const hasTours = state.tours.length > 0;
 
                 set({
-                    loadingTours: shouldFetchTours,
+                    loadingTours: !hasTours, // Only block UI with loading indicator if cache is empty
                     loadingActiveTours: true,
                     errorTours: null,
                     errorActiveTours: null
@@ -163,18 +169,15 @@ export const useStore = create<StoreState>()(
 
                 try {
                     const promises: Promise<any>[] = [
-                        activeTourService.getActiveToursForUser(userId)
+                        activeTourService.getActiveToursForUser(userId),
+                        tourService.getAllTours(state.tourFilters) // Always background fetch to keep feed fresh
                     ];
-
-                    if (shouldFetchTours) {
-                        promises.push(tourService.getAllTours(get().tourFilters));
-                    }
 
                     const results = await Promise.all(promises);
                     const activeTours = results[0];
-                    let toursData = shouldFetchTours ? results[1] : state.tours;
+                    let toursData = results[1];
 
-                    if (shouldFetchTours && toursData && !Array.isArray(toursData) && toursData.data && Array.isArray(toursData.data)) {
+                    if (toursData && !Array.isArray(toursData) && toursData.data && Array.isArray(toursData.data)) {
                         toursData = toursData.data;
                     }
 
@@ -190,7 +193,7 @@ export const useStore = create<StoreState>()(
                 }
             },
 
-            fetchTourDetails: async (id: number, placeholder?: Tour, force?: boolean, params?: { reviewsSortBy?: string }) => {
+            fetchTourDetails: async (id: number, placeholder?: Tour, force?: boolean, params?: { reviewsSortBy?: string; lightweight?: boolean }) => {
                 // Check cache first if not forced and no params (sorting)
                 const cached = get().tourDetails[id];
                 if (!force && cached && !params) return;
@@ -576,13 +579,10 @@ export const useStore = create<StoreState>()(
                 activeTour: state.activeTour,
                 activeTours: state.activeTours,
                 user: state.user,
-                tours: state.tours,
-                tourDetails: state.tourDetails,
                 achievements: state.achievements,
                 friends: state.friends,
                 requests: state.requests,
                 tourFilters: state.tourFilters,
-                // Do NOT persist floating points queue to storage
             }),
         }
     )

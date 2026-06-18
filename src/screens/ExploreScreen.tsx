@@ -176,7 +176,7 @@ export default function ExploreScreen() {
             onSearchSubmit={() => {
               const query = (searchText || '').trim();
               if (query !== (tourFilters.searchQuery || '')) {
-                setTourFilters({ ...tourFilters, searchQuery: query, page: 1, limit: 20 });
+                setTourFilters({ ...tourFilters, searchQuery: query, page: 1, limit: 5 });
               }
             }}
             viewMode={viewMode}
@@ -247,7 +247,7 @@ export default function ExploreScreen() {
           return renderTourItem(item, false);
         }}
         onEndReached={() => {
-          if (!loading && !showSkeleton && tours.length >= (tourFilters.limit || 20)) {
+          if (!loading && !showSkeleton && tours.length >= (tourFilters.limit || 5)) {
             setTourFilters({ ...tourFilters, page: (tourFilters.page || 1) + 1 });
           }
         }}

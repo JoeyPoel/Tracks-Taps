@@ -6,6 +6,7 @@ import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
 import ActiveChallengeCard from '../ActiveChallengeCard';
 import { isFlexibleMatch } from '../../../utils/stringUtils';
+import { AnimatedPressable } from '../../common/AnimatedPressable';
 
 import { Challenge } from '../../../types/models';
 

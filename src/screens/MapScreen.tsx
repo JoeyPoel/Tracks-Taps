@@ -179,10 +179,10 @@ export default function MapScreen() {
               distance={`${(selectedTour as any).distance} km`}
               duration={`${(selectedTour as any).duration} min`}
               stops={(selectedTour as any).stops?.length || 0}
-              rating={selectedTour.reviews && selectedTour.reviews.length > 0
+              rating={selectedTour.averageRating ?? (selectedTour.reviews && selectedTour.reviews.length > 0
                 ? selectedTour.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / selectedTour.reviews.length
-                : 0}
-              reviewCount={selectedTour.reviews?.length || 0}
+                : 0)}
+              reviewCount={selectedTour.reviewCount ?? selectedTour.reviews?.length ?? 0}
               points={(selectedTour as any).points || 0}
               location={(selectedTour as any).location}
               genre={(selectedTour as any).genre || 'Adventure'}

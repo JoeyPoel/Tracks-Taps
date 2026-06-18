@@ -129,6 +129,8 @@ model Tour {
   @@index([difficulty])
   @@index([distance])
   @@index([duration])
+  @@index([status, createdAt])
+  @@index([genre])
 }
 
 model Stop {

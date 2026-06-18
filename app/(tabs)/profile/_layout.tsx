@@ -6,6 +6,7 @@ export default function ProfileStack() {
             <Stack.Screen name="index" />
             <Stack.Screen name="preferences" />
             <Stack.Screen name="personal-info" />
+            <Stack.Screen name="admin-panel" />
             <Stack.Screen name="friend-profile" />
             <Stack.Screen name="friends" />
             <Stack.Screen name="tours-done" />

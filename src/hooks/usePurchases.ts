@@ -28,7 +28,7 @@ export const usePurchases = () => {
 
     useEffect(() => {
         const initPurchases = async () => {
-            if (isExpoGo || Platform.OS === 'web') {
+            if (isExpoGo || (Platform.OS as string) === 'web') {
                 console.warn("Skipping RevenueCat configuration: Not supported in Expo Go or Web. Please create a development build to test in-app purchases.");
                 return;
             }
@@ -36,7 +36,7 @@ export const usePurchases = () => {
             try {
                 const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
-                if (isExpoGo || Platform.OS === 'web') {
+                if (isExpoGo || (Platform.OS as string) === 'web') {
                     console.log(`[usePurchases] Skipping initialization: Expo Go or Web detected.`);
                     return;
                 }

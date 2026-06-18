@@ -8,7 +8,7 @@ interface ProfileStatsProps {
     toursDone: number;
     toursCreated: number;
     friends: number;
-    reviews: number;
+    reviews?: number;
     onPressToursDone?: () => void;
     onPressToursCreated?: () => void;
     onPressFriends?: () => void;

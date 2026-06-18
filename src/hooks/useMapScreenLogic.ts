@@ -33,7 +33,7 @@ export const useMapScreenLogic = () => {
                 handleTourSelect(found);
             } else {
                 // If not in current list (maybe outside bounds), fetch it specifically
-                tourService.getTourById(id).then(tour => {
+                tourService.getTourById(id, { lightweight: true }).then(tour => {
                     if (tour) {
                         // Cast to Map Tour type if needed or ensure compatibility
                         // Assuming getTourById returns full Tour which matches Map Tour structure
@@ -152,7 +152,7 @@ export const useMapScreenLogic = () => {
         // This satisfies the requirement to "wait for the whole get is done" before ANY animation/UI update.
         setIsFetchingDetails(true);
         try {
-            const fetched = await tourService.getTourById(tour.id);
+            const fetched = await tourService.getTourById(tour.id, { lightweight: true });
             if (fetched) {
                 const detailedTour = fetched as Tour;
                 // AFTER FETCH: Update UI and Zoom

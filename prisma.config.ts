@@ -4,6 +4,6 @@ require('dotenv').config();
 module.exports = defineConfig({
     earlyAccess: true,
     datasource: {
-        url: process.env.DATABASE_URL,
+        url: process.env.DIRECT_URL || process.env.DATABASE_URL,
     }
 });

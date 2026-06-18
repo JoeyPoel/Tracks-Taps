@@ -15,9 +15,11 @@ import { ImageLightbox } from '../common/ImageLightbox';
 
 interface TourGalleryProps {
     images: string[];
+    /** Pass the loading state from the parent so the gallery skips the grace period when data is confirmed loaded */
+    loading?: boolean;
 }
 
-export default function TourGallery({ images }: TourGalleryProps) {
+export default function TourGallery({ images, loading = true }: TourGalleryProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -26,14 +28,20 @@ export default function TourGallery({ images }: TourGalleryProps) {
     useEffect(() => {
         let timer: ReturnType<typeof setTimeout>;
         if (!images || images.length === 0) {
-            timer = setTimeout(() => {
+            if (!loading) {
+                // Data is confirmed loaded and there are no images — show empty state immediately
                 setShowEmpty(true);
-            }, 800); // 800ms delay before showing "No photos" to avoid flash
+            } else {
+                // Still loading — use a grace period to avoid a flash of empty state
+                timer = setTimeout(() => {
+                    setShowEmpty(true);
+                }, 800);
+            }
         } else {
             setShowEmpty(false);
         }
         return () => clearTimeout(timer);
-    }, [images]);
+    }, [images, loading]);
 
     const openGallery = (index: number) => {
         setSelectedIndex(index);
@@ -43,7 +51,7 @@ export default function TourGallery({ images }: TourGalleryProps) {
         setSelectedIndex(null);
     };
 
-    // If no images and waiting period is over, show empty state
+    // If no images and we know it's truly empty, show empty state
     if ((!images || images.length === 0) && showEmpty) {
         return (
             <View style={styles.container}>
@@ -58,7 +66,7 @@ export default function TourGallery({ images }: TourGalleryProps) {
         );
     }
 
-    // If no images but still within grace period, show loading skeleton
+    // Still within grace period — show loading skeleton
     if ((!images || images.length === 0) && !showEmpty) {
         return (
             <View style={styles.container}>

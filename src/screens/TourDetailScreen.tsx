@@ -349,7 +349,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
         {/* Gallery Section */}
         <Animated.View entering={FadeInUp.delay(700)}>
-          <TourGallery images={allReviewImages} />
+          <TourGallery images={allReviewImages} loading={loading} />
         </Animated.View>
 
         {/* Reviews Section (Expandable) */}

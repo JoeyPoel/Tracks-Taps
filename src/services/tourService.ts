@@ -8,7 +8,7 @@ export const tourService = {
         return response.data;
     },
 
-    async getTourById(id: number, params?: { reviewsSortBy?: string }) {
+    async getTourById(id: number, params?: { reviewsSortBy?: string; lightweight?: boolean }) {
         const response = await client.get(`/tours/${id}`, { params });
         return response.data;
     },
