@@ -156,7 +156,7 @@ export default function ExploreScreen() {
               </TextComponent>
               {appSettings?.freeToursUntil && (
                 <View style={styles.freeExpiryBadge}>
-                  <TextComponent variant="tiny" bold color="#fff" style={{ opacity: 0.9 }}>
+                  <TextComponent bold color="#fff" style={{ opacity: 0.9 }}>
                     ENDS: {new Date(appSettings.freeToursUntil).toLocaleDateString()}
                   </TextComponent>
                 </View>

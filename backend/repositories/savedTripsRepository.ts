@@ -54,7 +54,7 @@ export const savedTripsRepository = {
             include: {
                 tours: {
                     include: {
-                        author: { select: { name: true, avatarUrl: true } },
+                        author: { select: { name: true, avatarUrl: true, isAdmin: true } },
                         reviews: { select: { rating: true } }
                     }
                 },

@@ -119,7 +119,7 @@ export const tourRepository = {
                     type: true,
                     genre: true,
                     createdAt: true,
-                    author: { select: { name: true, avatarUrl: true } },
+                    author: { select: { name: true, avatarUrl: true, isAdmin: true } },
                     _count: { select: { stops: true } },
                 },
             },
@@ -182,7 +182,8 @@ export const tourRepository = {
                         id: true,
                         name: true,
                         avatarUrl: true,
-                        level: true
+                        level: true,
+                        isAdmin: true
                     }
                 },
                 stops: {
@@ -244,7 +245,8 @@ export const tourRepository = {
                             select: {
                                 id: true,
                                 name: true,
-                                avatarUrl: true
+                                avatarUrl: true,
+                                isAdmin: true
                             }
                         }
                     }
@@ -280,7 +282,8 @@ export const tourRepository = {
                 author: {
                     select: {
                         name: true,
-                        avatarUrl: true
+                        avatarUrl: true,
+                        isAdmin: true
                     },
                 },
                 stops: {

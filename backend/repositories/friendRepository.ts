@@ -10,7 +10,8 @@ const friendshipWithUsersArgs = Prisma.validator<Prisma.FriendshipDefaultArgs>()
                 name: true,
                 avatarUrl: true,
                 level: true,
-                xp: true
+                xp: true,
+                isAdmin: true
             }
         },
         addressee: {
@@ -19,7 +20,8 @@ const friendshipWithUsersArgs = Prisma.validator<Prisma.FriendshipDefaultArgs>()
                 name: true,
                 avatarUrl: true,
                 level: true,
-                xp: true
+                xp: true,
+                isAdmin: true
             }
         },
     },
@@ -57,7 +59,8 @@ export const friendRepository = {
                         id: true,
                         name: true,
                         avatarUrl: true,
-                        level: true
+                        level: true,
+                        isAdmin: true
                     }
                 },
             },

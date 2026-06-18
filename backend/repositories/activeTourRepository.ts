@@ -191,7 +191,8 @@ export const activeTourRepository = {
                         type: true,
                         author: {
                             select: {
-                                name: true
+                                name: true,
+                                isAdmin: true
                             }
                         },
                         challenges: {
@@ -259,7 +260,8 @@ export const activeTourRepository = {
                             select: {
                                 id: true,
                                 name: true,
-                                avatarUrl: true
+                                avatarUrl: true,
+                                isAdmin: true
                             }
                         }
                     }
@@ -349,6 +351,7 @@ export const activeTourRepository = {
                                 id: true,
                                 name: true,
                                 avatarUrl: true,
+                                isAdmin: true
                             }
                         }
                     }

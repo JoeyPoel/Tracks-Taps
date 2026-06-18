@@ -126,7 +126,8 @@ export const userRepository = {
                 name: true,
                 email: true,
                 avatarUrl: true,
-                level: true
+                level: true,
+                isAdmin: true
             },
             skip,
             take: limit

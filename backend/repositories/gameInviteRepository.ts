@@ -21,7 +21,7 @@ export const gameInviteRepository = {
                     }
                 },
                 inviter: {
-                    select: { name: true, avatarUrl: true }
+                    select: { name: true, avatarUrl: true, isAdmin: true }
                 }
             },
             orderBy: {

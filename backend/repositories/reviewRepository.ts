@@ -30,7 +30,8 @@ export const reviewRepository = {
                         select: {
                             id: true,
                             name: true,
-                            avatarUrl: true
+                            avatarUrl: true,
+                            isAdmin: true
                         },
                     },
                 },
@@ -49,7 +50,8 @@ export const reviewRepository = {
                     select: {
                         id: true,
                         name: true,
-                        avatarUrl: true
+                        avatarUrl: true,
+                        isAdmin: true
                     }
                 }
             }
@@ -91,7 +93,8 @@ export const reviewRepository = {
                         select: {
                             id: true,
                             name: true,
-                            avatarUrl: true
+                            avatarUrl: true,
+                            isAdmin: true
                         }
                     }
                 },
