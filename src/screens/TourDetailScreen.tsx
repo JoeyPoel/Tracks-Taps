@@ -6,7 +6,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import Animated, { 
+  FadeInDown, 
+  FadeInUp,
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  withSequence
+} from 'react-native-reanimated';
 import { AnimatedButton } from '../components/common/AnimatedButton';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { TextComponent } from '../components/common/TextComponent';
@@ -40,7 +48,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { translateText, requireTranslation, isAutoTranslateEnabled, setIsAutoTranslateEnabled, isTargetLanguageSet } = useTranslation();
   const router = useRouter();
   const { goBack } = useSafeNavigation();
-  const { isActive: isTutorialActive, nextStep: tutorialNextStep } = useTutorial();
+  const { isActive: isTutorialActive, nextStep: tutorialNextStep, currentStepIndex, steps } = useTutorial();
   const [showSavedTripModal, setShowSavedTripModal] = useState(false);
   const [showBuyTokens, setShowBuyTokens] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -139,6 +147,21 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   React.useEffect(() => {
     loadLists();
   }, [tourId, loadLists]);
+
+  React.useEffect(() => {
+    const isTourDetailsStep = isTutorialActive && steps?.[currentStepIndex]?.id === 'tour_details';
+    if (isTutorialActive && !isTourDetailsStep && isAutoTranslateEnabled) {
+      setIsAutoTranslateEnabled(false);
+    }
+  }, [currentStepIndex, isTutorialActive, isAutoTranslateEnabled, steps]);
+
+  React.useEffect(() => {
+    return () => {
+      if (isTutorialActive) {
+        setIsAutoTranslateEnabled(false);
+      }
+    };
+  }, [isTutorialActive]);
 
   // Collect all images from reviews for the gallery
   const allReviewImages = React.useMemo(() => {
@@ -309,39 +332,15 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <TextComponent style={[styles.sectionTitle, { marginBottom: 0 }]} variant="h2" bold color={theme.textPrimary}>{t('aboutThisTour')}</TextComponent>
             {tour.description && (
-              <TouchableOpacity
-                onPress={() => {
-                  const newEnabled = !isAutoTranslateEnabled;
-                  setIsAutoTranslateEnabled(newEnabled);
-                  if (newEnabled && !isTargetLanguageSet) {
-                    setIsLangModalVisible(true);
-                  }
-                }}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  backgroundColor: isAutoTranslateEnabled ? theme.primary + '15' : theme.bgSecondary,
-                  paddingHorizontal: 12,
-                  paddingVertical: 6,
-                  borderRadius: 16,
-                  borderWidth: 1,
-                  borderColor: isAutoTranslateEnabled ? theme.primary + '30' : 'transparent'
-                }}
-              >
-                <Ionicons
-                  name="language"
-                  size={16}
-                  color={isAutoTranslateEnabled ? theme.primary : theme.textSecondary}
-                />
-                <TextComponent
-                  variant="caption"
-                  color={isAutoTranslateEnabled ? theme.primary : theme.textSecondary}
-                  bold
-                  style={{ marginLeft: 6 }}
-                >
-                  {t('translate')}
-                </TextComponent>
-              </TouchableOpacity>
+              <TranslationButton
+                theme={theme}
+                t={t}
+                isTourDetailsStep={isTutorialActive && steps?.[currentStepIndex]?.id === 'tour_details'}
+                isAutoTranslateEnabled={isAutoTranslateEnabled}
+                setIsAutoTranslateEnabled={setIsAutoTranslateEnabled}
+                isTargetLanguageSet={isTargetLanguageSet}
+                setIsLangModalVisible={setIsLangModalVisible}
+              />
             )}
           </View>
           <TextComponent style={styles.description} variant="body" color={theme.textSecondary}>
@@ -508,6 +507,93 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
     </ScreenWrapper>
   );
 }
+
+interface TranslationButtonProps {
+  theme: any;
+  t: (key: string) => string;
+  isTourDetailsStep: boolean;
+  isAutoTranslateEnabled: boolean;
+  setIsAutoTranslateEnabled: (enabled: boolean) => void;
+  isTargetLanguageSet: boolean;
+  setIsLangModalVisible: (visible: boolean) => void;
+}
+
+const TranslationButton = ({
+  theme,
+  t,
+  isTourDetailsStep,
+  isAutoTranslateEnabled,
+  setIsAutoTranslateEnabled,
+  isTargetLanguageSet,
+  setIsLangModalVisible,
+}: TranslationButtonProps) => {
+  const pulseValue = useSharedValue(1);
+
+  React.useEffect(() => {
+    if (isTourDetailsStep) {
+      pulseValue.value = withRepeat(
+        withSequence(
+          withTiming(1.15, { duration: 800 }),
+          withTiming(1.0, { duration: 800 })
+        ),
+        -1,
+        true
+      );
+    } else {
+      pulseValue.value = 1;
+    }
+  }, [isTourDetailsStep]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: pulseValue.value }],
+      shadowOpacity: isTourDetailsStep ? 0.35 : 0,
+      shadowRadius: isTourDetailsStep ? 8 : 0,
+      shadowColor: theme.primary,
+      shadowOffset: { width: 0, height: 0 },
+      elevation: isTourDetailsStep ? 6 : 0,
+      borderRadius: 16,
+      borderWidth: isTourDetailsStep ? 1.5 : (isAutoTranslateEnabled ? 1 : 0),
+      borderColor: isTourDetailsStep ? theme.primary : (isAutoTranslateEnabled ? theme.primary + '30' : 'transparent'),
+    };
+  });
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <TouchableOpacity
+        onPress={() => {
+          const newEnabled = !isAutoTranslateEnabled;
+          setIsAutoTranslateEnabled(newEnabled);
+          if (newEnabled && !isTargetLanguageSet) {
+            setIsLangModalVisible(true);
+          }
+        }}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: isAutoTranslateEnabled || isTourDetailsStep ? theme.primary + '15' : theme.bgSecondary,
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+          borderRadius: 16,
+        }}
+      >
+        <Ionicons
+          name="language"
+          size={16}
+          color={isAutoTranslateEnabled || isTourDetailsStep ? theme.primary : theme.textSecondary}
+        />
+        <TextComponent
+          variant="caption"
+          color={isAutoTranslateEnabled || isTourDetailsStep ? theme.primary : theme.textSecondary}
+          bold
+          style={{ marginLeft: 6 }}
+        >
+          {t('translate')}
+        </TextComponent>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
 
 // Mini Component for Stats
 const StatCard = ({ icon, label, value, theme, delay }: any) => (

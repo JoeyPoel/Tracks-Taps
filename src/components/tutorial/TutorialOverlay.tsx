@@ -135,26 +135,13 @@ export const TutorialOverlay = () => {
                     styles.card,
                     getPositionStyle(),
                     {
-                        backgroundColor: theme.bgSecondary,
-                        borderColor: theme.primary,
-                        shadowColor: theme.textPrimary,
+                        shadowColor: theme.primary,
                         width: Math.min(appWidth * 0.8, 340)
                     }
                 ]}
             >
-                {/* Top Glow Bar — wrapped in overflow:hidden so it clips to the card corners.
-                    The outer card keeps overflow:visible for the pointer triangle. */}
-                <View style={styles.topGlowBarClip}>
-                    <LinearGradient
-                        colors={[theme.primary, theme.accent || theme.primary]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.topGlowBar}
-                    />
-                </View>
-
-                {step.position === 'top' && (
-                    <Animated.View style={[styles.pointer, styles.pointerTop, { backgroundColor: theme.bgSecondary, borderColor: theme.primary }, animatedPointerStyle]} />
+                 {step.position === 'top' && (
+                    <Animated.View style={[styles.pointer, styles.pointerTop, { backgroundColor: theme.bgSecondary, borderColor: '#EA580C' }, animatedPointerStyle]} />
                 )}
 
                 <Animated.View style={[styles.iconContainer, { backgroundColor: theme.primary, borderColor: theme.bgSecondary }, animatedIconStyle]}>
@@ -165,159 +152,174 @@ export const TutorialOverlay = () => {
                     <Wand2 size={24} color="#FFF" />
                 </Animated.View>
 
-                {/* Guide companion indicator tag to make it feel like a helpful character guide */}
-                <View style={[styles.guideBadge, { backgroundColor: theme.primary + '12', borderColor: theme.primary + '25' }]}>
-                    <TextComponent variant="caption" bold color={theme.primary} style={{ letterSpacing: 0.8 }}>
-                        ✨ QUEST GUIDE
-                    </TextComponent>
-                </View>
+                <LinearGradient
+                    colors={[theme.primary, theme.accent || theme.primary]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={{ borderRadius: 20, padding: 2, width: '100%' }}
+                >
+                    <View style={[styles.cardContent, { backgroundColor: theme.bgSecondary }]}>
 
-                <View style={styles.content}>
-                    <TextComponent variant="h3" style={{ marginBottom: 8 }} center>{step.title}</TextComponent>
-                    <TextComponent variant="body" color={theme.textSecondary} center style={{ marginBottom: step.id === 'language_select' ? 16 : 0 }}>
-                        {step.description}
-                    </TextComponent>
 
-                    {step.id === 'language_select' && (
-                        <View style={styles.languageContainer}>
-                            {[
-                                { code: 'en', label: 'English', flag: '🇬🇧' },
-                                { code: 'es', label: 'Español', flag: '🇪🇸' },
-                                { code: 'nl', label: 'Nederlands', flag: '🇳🇱' },
-                                { code: 'fr', label: 'Français', flag: '🇫🇷' },
-                                { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
-                                { code: 'pl', label: 'Polski', flag: '🇵🇱' },
-                            ].map((lang, idx) => (
-                                <Animated.View
-                                    key={lang.code}
-                                    entering={FadeInDown.delay(idx * 80).duration(400).springify().damping(28)}
-                                >
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.languageBtn,
-                                            { 
-                                                borderColor: theme.borderPrimary, 
-                                                backgroundColor: theme.bgPrimary 
-                                            }
-                                        ]}
-                                        onPress={() => {
-                                            setLanguage(lang.code as any);
-                                            nextStep();
-                                        }}
-                                    >
-                                        <TextComponent variant="body" bold>{lang.flag}  {lang.label}</TextComponent>
-                                    </TouchableOpacity>
-                                </Animated.View>
-                            ))}
-                        </View>
-                    )}
-                </View>
-
-                {step.id !== 'language_select' && (
-                    <View style={[styles.footer, { justifyContent: 'space-between' }]}>
-                        {/* Left Side Action */}
-                        {step.id === 'finish' && !session ? (
-                            <TouchableOpacity
-                                onPress={() => {
-                                    skipTutorial();
-                                }}
-                                style={{ padding: 10 }}
-                            >
-                                <TextComponent variant="label" color={theme.textSecondary}>Maybe Later</TextComponent>
-                            </TouchableOpacity>
-                        ) : step.id !== 'finish' && !isInteractiveStep ? (
-                            <TouchableOpacity onPress={skipTutorial} style={{ padding: 10 }}>
-                                <TextComponent variant="label" color={theme.textSecondary}>Skip</TextComponent>
-                            </TouchableOpacity>
-                        ) : (
-                            <View />
-                        )}
-
-                        {/* Right Side Action */}
-                        {step.id === 'finish' ? (
-                            !session ? (
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        skipTutorial();
-                                        router.push('/auth/register');
-                                    }}
-                                    style={styles.nextButtonWrapper}
-                                >
-                                    <LinearGradient
-                                        colors={[theme.primary, theme.accent || theme.primary]}
-                                        start={{ x: 0, y: 0 }}
-                                        end={{ x: 1, y: 1 }}
-                                        style={styles.nextButtonGradient}
-                                    >
-                                        <TextComponent variant="label" color="#FFF" bold style={{ fontSize: 15 }}>
-                                            Sign Up! 🚀
-                                        </TextComponent>
-                                    </LinearGradient>
-                                </TouchableOpacity>
-                            ) : (
-                                <TouchableOpacity
-                                    onPress={nextStep}
-                                    style={styles.nextButtonWrapper}
-                                >
-                                    <LinearGradient
-                                        colors={[theme.primary, theme.accent || theme.primary]}
-                                        start={{ x: 0, y: 0 }}
-                                        end={{ x: 1, y: 1 }}
-                                        style={styles.nextButtonGradient}
-                                    >
-                                        <TextComponent variant="label" color="#FFF" bold style={{ fontSize: 15 }}>
-                                            Let's Play! 🍻
-                                        </TextComponent>
-                                    </LinearGradient>
-                                </TouchableOpacity>
-                            )
-                        ) : step.id === 'tour_select' ? (
-                            <TextComponent variant="caption" color={theme.primary} bold style={{ paddingVertical: 10 }}>
-                                👇 Tap the first card below to proceed!
+                        <View style={styles.content}>
+                            <TextComponent variant="h3" style={{ marginBottom: 8 }} center>{step.title}</TextComponent>
+                            <TextComponent variant="body" color={theme.textSecondary} center style={{ marginBottom: step.id === 'language_select' ? 16 : 0 }}>
+                                {step.description}
                             </TextComponent>
-                        ) : step.id === 'tour_details' ? (
-                            <TouchableOpacity
-                                onPress={nextStep}
-                                style={styles.nextButtonWrapper}
-                            >
-                                <LinearGradient
-                                    colors={[theme.primary, theme.accent || theme.primary]}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 1 }}
-                                    style={styles.nextButtonGradient}
-                                >
-                                    <TextComponent variant="label" color="#FFF" bold>
-                                        Next
-                                    </TextComponent>
-                                </LinearGradient>
-                            </TouchableOpacity>
-                        ) : (
-                            <TouchableOpacity
-                                onPress={nextStep}
-                                style={styles.nextButtonWrapper}
-                            >
-                                <LinearGradient
-                                    colors={[theme.primary, theme.accent || theme.primary]}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 1 }}
-                                    style={styles.nextButtonGradient}
-                                >
-                                    <TextComponent variant="label" color="#FFF" bold>
-                                        Next
-                                    </TextComponent>
-                                </LinearGradient>
-                            </TouchableOpacity>
-                        )}
+
+                            {step.id === 'language_select' && (
+                                <View style={styles.languageContainer}>
+                                    {[
+                                        { code: 'en', label: 'English', flag: '🇬🇧' },
+                                        { code: 'es', label: 'Español', flag: '🇪🇸' },
+                                        { code: 'nl', label: 'Nederlands', flag: '🇳🇱' },
+                                        { code: 'fr', label: 'Français', flag: '🇫🇷' },
+                                        { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+                                        { code: 'pl', label: 'Polski', flag: '🇵🇱' },
+                                    ].map((lang, idx) => (
+                                        <Animated.View
+                                            key={lang.code}
+                                            entering={FadeInDown.delay(idx * 80).duration(400).springify().damping(28)}
+                                        >
+                                            <TouchableOpacity
+                                                style={[
+                                                    styles.languageBtn,
+                                                    { 
+                                                        borderColor: theme.borderPrimary, 
+                                                        backgroundColor: theme.bgPrimary 
+                                                    }
+                                                ]}
+                                                onPress={() => {
+                                                    setLanguage(lang.code as any);
+                                                    nextStep();
+                                                }}
+                                            >
+                                                <TextComponent variant="body" bold>{lang.flag}  {lang.label}</TextComponent>
+                                            </TouchableOpacity>
+                                        </Animated.View>
+                                    ))}
+                                </View>
+                            )}
+                        </View>
+
+                        {step.id !== 'language_select' && (() => {
+                            const hasSingleButton = (step.id === 'tour_details') || (step.id === 'finish' && session);
+                            const footerStyle = [
+                                styles.footer,
+                                (step.id === 'tour_select' || hasSingleButton) ? { justifyContent: 'center' } : { justifyContent: 'space-between' }
+                            ];
+                            const buttonStyle = hasSingleButton ? { width: '100%' } : {};
+
+                            return (
+                                <View style={footerStyle}>
+                                    {/* Left Side Action */}
+                                    {(step.id === 'tour_select' || hasSingleButton) ? null : (
+                                        step.id === 'finish' && !session ? (
+                                            <TouchableOpacity
+                                                onPress={() => {
+                                                    skipTutorial();
+                                                }}
+                                                style={{ padding: 10 }}
+                                            >
+                                                <TextComponent variant="label" color={theme.textSecondary}>Maybe Later</TextComponent>
+                                            </TouchableOpacity>
+                                        ) : step.id !== 'finish' && !isInteractiveStep ? (
+                                            <TouchableOpacity onPress={skipTutorial} style={{ padding: 10 }}>
+                                                <TextComponent variant="label" color={theme.textSecondary}>Skip</TextComponent>
+                                            </TouchableOpacity>
+                                        ) : (
+                                            <View />
+                                        )
+                                    )}
+
+                                    {/* Right Side Action */}
+                                    {step.id === 'finish' ? (
+                                        !session ? (
+                                            <TouchableOpacity
+                                                onPress={() => {
+                                                    skipTutorial();
+                                                    router.push('/auth/register');
+                                                }}
+                                                style={[styles.nextButtonWrapper, buttonStyle]}
+                                            >
+                                                <LinearGradient
+                                                    colors={[theme.primary, theme.accent || theme.primary]}
+                                                    start={{ x: 0, y: 0 }}
+                                                    end={{ x: 1, y: 1 }}
+                                                    style={[styles.nextButtonGradient, buttonStyle]}
+                                                >
+                                                    <TextComponent variant="label" color="#FFF" bold style={{ fontSize: 15 }}>
+                                                        Sign Up! 🚀
+                                                    </TextComponent>
+                                                </LinearGradient>
+                                            </TouchableOpacity>
+                                        ) : (
+                                            <TouchableOpacity
+                                                onPress={nextStep}
+                                                style={[styles.nextButtonWrapper, buttonStyle]}
+                                            >
+                                                <LinearGradient
+                                                    colors={[theme.primary, theme.accent || theme.primary]}
+                                                    start={{ x: 0, y: 0 }}
+                                                    end={{ x: 1, y: 1 }}
+                                                    style={[styles.nextButtonGradient, buttonStyle]}
+                                                >
+                                                    <TextComponent variant="label" color="#FFF" bold style={{ fontSize: 15 }}>
+                                                        Let's Play! 🍻
+                                                    </TextComponent>
+                                                </LinearGradient>
+                                            </TouchableOpacity>
+                                        )
+                                    ) : step.id === 'tour_select' ? (
+                                        <TextComponent variant="caption" color={theme.primary} bold center style={{ paddingVertical: 10 }}>
+                                            👇 Tap the first card below to proceed!
+                                        </TextComponent>
+                                    ) : step.id === 'tour_details' ? (
+                                        <TouchableOpacity
+                                            onPress={nextStep}
+                                            style={[styles.nextButtonWrapper, buttonStyle]}
+                                        >
+                                            <LinearGradient
+                                                colors={[theme.primary, theme.accent || theme.primary]}
+                                                start={{ x: 0, y: 0 }}
+                                                end={{ x: 1, y: 1 }}
+                                                style={[styles.nextButtonGradient, buttonStyle]}
+                                            >
+                                                <TextComponent variant="label" color="#FFF" bold>
+                                                    Next
+                                                </TextComponent>
+                                            </LinearGradient>
+                                        </TouchableOpacity>
+                                    ) : (
+                                        <TouchableOpacity
+                                            onPress={nextStep}
+                                            style={[styles.nextButtonWrapper, buttonStyle]}
+                                        >
+                                            <LinearGradient
+                                                colors={[theme.primary, theme.accent || theme.primary]}
+                                                start={{ x: 0, y: 0 }}
+                                                end={{ x: 1, y: 1 }}
+                                                style={[styles.nextButtonGradient, buttonStyle]}
+                                            >
+                                                <TextComponent variant="label" color="#FFF" bold>
+                                                    Next
+                                                </TextComponent>
+                                            </LinearGradient>
+                                        </TouchableOpacity>
+                                    )}
+                                </View>
+                            );
+                        })()}
                     </View>
-                )}
+                </LinearGradient>
 
                 {(step.position === 'bottom' || step.position === 'top-down') && (
                     // tour_select: static pointer — no bobbing so the UI feels calmer
                     // while the user is looking for the first tour card to tap.
                     step.id === 'tour_select' ? (
-                        <View style={[styles.pointer, styles.pointerBottom, { backgroundColor: theme.bgSecondary, borderColor: theme.primary, transform: [{ rotate: '45deg' }] }]} />
+                        <View style={[styles.pointer, styles.pointerBottom, { backgroundColor: theme.bgSecondary, borderColor: '#EA580C', transform: [{ rotate: '45deg' }] }]} />
                     ) : (
-                        <Animated.View style={[styles.pointer, styles.pointerBottom, { backgroundColor: theme.bgSecondary, borderColor: theme.primary }, animatedPointerStyle]} />
+                        <Animated.View style={[styles.pointer, styles.pointerBottom, { backgroundColor: theme.bgSecondary, borderColor: '#EA580C' }, animatedPointerStyle]} />
                     )
                 )}
             </Animated.View>
@@ -338,16 +340,19 @@ const styles = StyleSheet.create({
     card: {
         position: 'absolute',
         borderRadius: 20,
-        padding: 20, // Reduced padding
-        paddingTop: 32,
-        borderWidth: 2,
-        alignItems: 'center',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 10,
         elevation: 10,
         overflow: 'visible', // Allow pointer to stick out
         alignSelf: 'center',
+    },
+    cardContent: {
+        borderRadius: 18,
+        padding: 20,
+        paddingTop: 32,
+        alignItems: 'center',
+        width: '100%',
     },
     guideBadge: {
         paddingHorizontal: 12,
@@ -357,30 +362,10 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         marginTop: -4,
     },
-    topGlowBarClip: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: 6,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        overflow: 'hidden',
-    },
-    topGlowBar: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: 6,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-    },
     iconContainer: {
         position: 'absolute',
         top: -24,
-        left: '50%',
-        marginLeft: -24,
+        alignSelf: 'center',
         width: 48,
         height: 48,
         borderRadius: 24,

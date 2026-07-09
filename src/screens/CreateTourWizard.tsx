@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     content: {
         paddingHorizontal: 24,
         paddingTop: 10,
-        paddingBottom: 120, // Standardized spacing for tab bar
+        paddingBottom: 250, // Increased to prevent keyboard overlaps
         flexGrow: 1,
     },
     inlineFooter: {

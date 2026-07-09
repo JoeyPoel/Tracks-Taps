@@ -233,6 +233,9 @@ export default function TourListScreen() {
                         );
                     }
 
+                    const isRejected = item.status === 'REJECTED';
+                    const isPending = item.status === 'PENDING_REVIEW';
+
                     return (
                         <FadeInItem index={index}>
                             <View style={{ marginBottom: 16 }}>
@@ -253,6 +256,57 @@ export default function TourListScreen() {
                                     onPress={() => router.push(`/tour/${item.id}`)}
                                     onEdit={type === 'created' ? () => router.push({ pathname: '/(tabs)/create', params: { tourId: item.id } }) : undefined}
                                 />
+                                {isPending && (
+                                    <View style={{
+                                        backgroundColor: theme.warning + '15',
+                                        borderColor: theme.warning + '30',
+                                        borderWidth: 1,
+                                        borderTopWidth: 0,
+                                        borderBottomLeftRadius: 24,
+                                        borderBottomRightRadius: 24,
+                                        borderTopLeftRadius: 0,
+                                        borderTopRightRadius: 0,
+                                        padding: 12,
+                                        marginTop: -16,
+                                        zIndex: -1,
+                                        paddingTop: 28,
+                                        flexDirection: 'row',
+                                        alignItems: 'center'
+                                    }}>
+                                        <Ionicons name="time-outline" size={16} color={theme.warning} style={{ marginRight: 6 }} />
+                                        <TextComponent variant="caption" bold color={theme.warning}>
+                                            Pending Admin Review
+                                        </TextComponent>
+                                    </View>
+                                )}
+                                {isRejected && (
+                                    <View style={{
+                                        backgroundColor: theme.danger + '15',
+                                        borderColor: theme.danger + '30',
+                                        borderWidth: 1,
+                                        borderTopWidth: 0,
+                                        borderBottomLeftRadius: 24,
+                                        borderBottomRightRadius: 24,
+                                        borderTopLeftRadius: 0,
+                                        borderTopRightRadius: 0,
+                                        padding: 12,
+                                        marginTop: -16,
+                                        zIndex: -1,
+                                        paddingTop: 28,
+                                    }}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                                            <Ionicons name="warning-outline" size={16} color={theme.danger} style={{ marginRight: 6 }} />
+                                            <TextComponent variant="caption" bold color={theme.danger}>
+                                                Needs Attention ⚠️ (Rejected by Admin)
+                                            </TextComponent>
+                                        </View>
+                                        {item.rejectionReason && (
+                                            <TextComponent variant="caption" color={theme.textSecondary}>
+                                                Reason: {item.rejectionReason}
+                                            </TextComponent>
+                                        )}
+                                    </View>
+                                )}
                             </View>
                         </FadeInItem>
                     );

@@ -169,7 +169,7 @@ export const adminController = {
      * Updates the status of a specific tour (e.g. approve/reject).
      */
     async updateTourStatus(request: Request, body: any) {
-        const { userId, tourId, status } = body;
+        const { userId, tourId, status, rejectionReason } = body;
 
         if (!userId || !tourId || !status) {
             return Response.json({ error: 'Missing required fields: userId, tourId, or status' }, { status: 400 });
@@ -190,12 +190,14 @@ export const adminController = {
                     id: Number(tourId)
                 },
                 data: {
-                    status
+                    status,
+                    rejectionReason: status === 'REJECTED' ? (rejectionReason || null) : null
                 },
                 select: {
                     id: true,
                     title: true,
-                    status: true
+                    status: true,
+                    rejectionReason: true
                 }
             });
 

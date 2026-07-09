@@ -307,6 +307,7 @@ export const userRepository = {
                     points: true,
                     modes: true,
                     status: true,
+                    rejectionReason: true,
                     createdAt: true,
                     author: { select: { name: true } },
                     _count: { select: { stops: true, reviews: true } },

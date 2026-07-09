@@ -106,6 +106,7 @@ model Tour {
   modes       String[]
   difficulty  Difficulty
   status      TourStatus       @default(PENDING_REVIEW)
+  rejectionReason String?
   type        TourType         @default(QUICK_TRIP)
   genre       String           @default("Adventure")
   createdAt   DateTime         @default(now())

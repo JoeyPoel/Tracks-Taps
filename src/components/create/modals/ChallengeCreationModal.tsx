@@ -107,8 +107,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     content: {
-        paddingVertical: 24,
+        paddingTop: 24,
         paddingHorizontal: 24,
+        paddingBottom: 250,
         gap: 20,
     },
     footer: {

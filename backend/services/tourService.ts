@@ -118,6 +118,24 @@ export const tourService = {
         return createdTour;
     },
     async updateTour(id: number, data: any) {
+        const existingTour = await prisma.tour.findUnique({
+            where: { id },
+            select: { status: true, authorId: true }
+        });
+        const currentStatus = existingTour?.status || 'PENDING_REVIEW';
+
+        let newStatus = data.status || currentStatus;
+        let newRejectionReason = data.rejectionReason;
+
+        // If the tour was previously REJECTED, and we are updating it,
+        // automatically change its status back to PENDING_REVIEW and clear the rejectionReason.
+        let triggerAlert = false;
+        if (currentStatus === 'REJECTED') {
+            newStatus = 'PENDING_REVIEW';
+            newRejectionReason = null; // Clear rejection comment
+            triggerAlert = true;
+        }
+
         const tourInput: Prisma.TourUpdateInput = {
             title: data.title,
             location: data.location,
@@ -130,7 +148,8 @@ export const tourService = {
             difficulty: data.difficulty,
             type: data.type,
             genre: data.genre,
-            status: data.status || 'PENDING_REVIEW',
+            status: newStatus,
+            rejectionReason: newRejectionReason,
             startLat: data.startLat ? parseFloat(data.startLat) : null,
             startLng: data.startLng ? parseFloat(data.startLng) : null,
 
@@ -177,6 +196,25 @@ export const tourService = {
             }
         };
 
-        return await tourRepository.updateTour(id, tourInput);
+        const updatedTour = await tourRepository.updateTour(id, tourInput);
+
+        // If it was REJECTED and now edited, send review email alert to admin
+        if (triggerAlert) {
+            try {
+                const authorId = existingTour?.authorId;
+                const author = authorId ? await prisma.user.findUnique({ where: { id: authorId } }) : null;
+                emailService.sendAdminReviewAlert({
+                    id: updatedTour.id,
+                    title: updatedTour.title,
+                    location: updatedTour.location,
+                    description: updatedTour.description || '',
+                    authorName: author?.name || 'Anonymous'
+                }).catch(err => console.error('Failed to trigger update email alert:', err));
+            } catch (emailErr) {
+                console.error('Failed to prepare update email alert details:', emailErr);
+            }
+        }
+
+        return updatedTour;
     },
 };

@@ -1,6 +1,6 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import {
   AcademicCapIcon,
   Cog6ToothIcon,
@@ -33,6 +33,8 @@ import { useUserContext } from '../context/UserContext';
 import { useFriends } from '../hooks/useFriends';
 import { useStore } from '../store/store';
 import { LevelSystem } from '../utils/levelUtils';
+import { Ionicons } from '@expo/vector-icons';
+import { userService } from '../services/userService';
 
 export default function ProfileScreen() {
   const { theme } = useTheme();
@@ -47,33 +49,44 @@ export default function ProfileScreen() {
   const { isPro } = useRevenueCat();
   const { startTutorial } = useTutorial();
   const [pendingCount, setPendingCount] = useState(0);
-
-  useEffect(() => {
-    if (user?.isAdmin) {
-      client.get(`/admin?action=stats&userId=${user.id}`)
-        .then(res => {
-          if (res.data?.tourStatusCounts?.PENDING_REVIEW !== undefined) {
-            setPendingCount(res.data.tourStatusCounts.PENDING_REVIEW);
-          }
-        })
-        .catch(err => console.error('Failed to load admin stats for badge:', err));
-    }
-  }, [user?.isAdmin, user?.id]);
+  const [rejectedCount, setRejectedCount] = useState(0);
 
   // Load achievements once when profile loads (if not already loaded)
   useEffect(() => {
     if (user?.id && achievements.length === 0) {
       fetchAchievements(user.id);
     }
-  }, [user?.id]); // Only dependency is user.id, so it runs once per user login essentially
+  }, [user?.id]);
 
   useFocusEffect(
     useCallback(() => {
       if (user?.id) {
         refreshUser();
         loadFriends();
+        
+        // Fetch pending reviews count for admin
+        if (user.isAdmin) {
+          client.get(`/admin?action=stats&userId=${user.id}`)
+            .then(res => {
+              if (res.data?.tourStatusCounts?.PENDING_REVIEW !== undefined) {
+                setPendingCount(res.data.tourStatusCounts.PENDING_REVIEW);
+              }
+            })
+            .catch(err => console.error('Failed to load admin stats for badge:', err));
+        }
+
+        // Fetch user's created tours to check for rejected ones
+        userService.getUserCreatedTours(user.id)
+          .then(res => {
+            const data = res.data && Array.isArray(res.data) ? res.data : res;
+            if (Array.isArray(data)) {
+              const count = data.filter((t: any) => t.status === 'REJECTED').length;
+              setRejectedCount(count);
+            }
+          })
+          .catch(err => console.error('Failed to load user created tours for rejected count:', err));
       }
-    }, [user?.id, refreshUser, loadFriends])
+    }, [user?.id, user?.isAdmin, refreshUser, loadFriends])
   );
 
   if (loading && !user) {
@@ -136,6 +149,21 @@ export default function ProfileScreen() {
               onPressReviews={() => router.push({ pathname: '/profile/tours-done', params: { type: 'reviews', title: t('myReviews') || 'My Reviews' } })}
             />
           </Animated.View>
+        )}
+
+        {user && rejectedCount > 0 && (
+          <TouchableOpacity 
+            style={[styles.notificationBanner, { backgroundColor: theme.danger + '15', borderColor: theme.danger }]}
+            onPress={() => router.push({ pathname: '/profile/tours-created', params: { type: 'created', title: t('toursCreated') } })}
+          >
+            <Ionicons name="warning" size={20} color={theme.danger} />
+            <TextComponent variant="caption" bold color={theme.textPrimary} style={{ marginLeft: 8, flex: 1 }}>
+              {rejectedCount === 1 
+                ? "You have 1 tour that needs attention! Tap to view." 
+                : `You have ${rejectedCount} tours that need attention! Tap to view.`}
+            </TextComponent>
+            <ChevronRightIcon size={16} color={theme.textSecondary} />
+          </TouchableOpacity>
         )}
 
         {user && (
@@ -293,5 +321,16 @@ const styles = StyleSheet.create({
     elevation: 2,
     marginTop: 4, // Spacing for shadow
   },
-
+  notificationBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginTop: 24,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 1,
+  },
 });

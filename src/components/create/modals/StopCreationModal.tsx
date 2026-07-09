@@ -172,6 +172,7 @@ const styles = StyleSheet.create({
     },
     formContent: {
         padding: 24,
+        paddingBottom: 250,
         gap: 16,
     },
     footer: {

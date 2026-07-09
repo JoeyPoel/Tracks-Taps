@@ -3,6 +3,7 @@ import {
     ActivityIndicator,
     Alert,
     KeyboardAvoidingView,
+    Modal,
     Platform,
     ScrollView,
     StyleSheet,
@@ -10,6 +11,8 @@ import {
     TextInput,
     TouchableOpacity,
     View,
+    Keyboard,
+    TouchableWithoutFeedback,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
@@ -155,6 +158,11 @@ export default function AdminPanelScreen() {
     const [pendingTours, setPendingTours] = useState<TourMetadata[]>([]);
     const [moderatingAction, setModeratingAction] = useState<{ id: number; action: 'approve' | 'reject' } | null>(null);
     const [expandedTours, setExpandedTours] = useState<Record<number, boolean>>({});
+    
+    // Rejection Reason Modal States
+    const [rejectionModalVisible, setRejectionModalVisible] = useState(false);
+    const [rejectionTourId, setRejectionTourId] = useState<number | null>(null);
+    const [rejectionReasonText, setRejectionReasonText] = useState('');
 
     // Moderation search & sort state
     const [moderationSearchQuery, setModerationSearchQuery] = useState('');
@@ -520,6 +528,46 @@ export default function AdminPanelScreen() {
         }
     };
 
+    const openRejectionPrompt = (tourId: number) => {
+        setRejectionTourId(tourId);
+        setRejectionReasonText('');
+        setRejectionModalVisible(true);
+    };
+
+    const handleConfirmRejection = async () => {
+        if (!rejectionTourId || !user) return;
+        const tourId = rejectionTourId;
+        const reason = rejectionReasonText.trim();
+        if (!reason) {
+            Alert.alert('Required', 'Please provide a reason for rejection.');
+            return;
+        }
+
+        setRejectionModalVisible(false);
+        setModeratingAction({ id: tourId, action: 'reject' });
+        try {
+            await client.post('/admin', {
+                action: 'update-tour-status',
+                userId: user.id,
+                tourId,
+                status: 'REJECTED',
+                rejectionReason: reason
+            });
+            Alert.alert('Success', 'Tour status updated to rejected.');
+            setPendingTours(prev => prev.filter(t => t.id !== tourId));
+            const statsRes = await client.get(`/admin?action=stats&userId=${user?.id}`);
+            setStats(statsRes.data);
+            setStatsLoaded(true);
+        } catch (error: any) {
+            console.error('Failed to moderate tour:', error);
+            Alert.alert('Error', error.message || 'Failed to update tour status');
+        } finally {
+            setModeratingAction(null);
+            setRejectionTourId(null);
+            setRejectionReasonText('');
+        }
+    };
+
     const getFormattedPresetCheck = (value: number | null) => {
         if (value === null) {
             return untilDate === null;
@@ -626,7 +674,7 @@ export default function AdminPanelScreen() {
                             bold
                             color={activeTab === tab ? '#fff' : theme.textSecondary}
                         >
-                            {tab.toUpperCase()}
+                            {tab === 'moderation' ? 'TOURS' : tab.toUpperCase()}
                         </TextComponent>
                     </TouchableOpacity>
                 ))}
@@ -1159,6 +1207,23 @@ export default function AdminPanelScreen() {
 
                                         <View style={styles.moderationActions}>
                                             <TouchableOpacity
+                                                style={[styles.moderationBtn, { backgroundColor: theme.danger + '20', borderColor: theme.danger, borderWidth: 1 }]}
+                                                onPress={() => openRejectionPrompt(tour.id)}
+                                                disabled={moderatingAction !== null}
+                                            >
+                                                {moderatingAction?.id === tour.id && moderatingAction?.action === 'reject' ? (
+                                                    <ActivityIndicator size="small" color={theme.danger} />
+                                                ) : (
+                                                    <>
+                                                        <Ionicons name="close" size={16} color={theme.danger} style={{ marginRight: 6 }} />
+                                                        <TextComponent variant="caption" bold color={theme.danger}>
+                                                            Reject
+                                                        </TextComponent>
+                                                    </>
+                                                )}
+                                            </TouchableOpacity>
+
+                                            <TouchableOpacity
                                                 style={[styles.moderationBtn, { backgroundColor: theme.primary + '20', borderColor: theme.primary, borderWidth: 1 }]}
                                                 onPress={() => handleModerateTour(tour.id, 'PUBLISHED')}
                                                 disabled={moderatingAction !== null}
@@ -1170,23 +1235,6 @@ export default function AdminPanelScreen() {
                                                         <Ionicons name="checkmark" size={16} color={theme.primary} style={{ marginRight: 6 }} />
                                                         <TextComponent variant="caption" bold color={theme.primary}>
                                                             Approve
-                                                        </TextComponent>
-                                                    </>
-                                                )}
-                                            </TouchableOpacity>
-
-                                            <TouchableOpacity
-                                                style={[styles.moderationBtn, { backgroundColor: theme.danger + '20', borderColor: theme.danger, borderWidth: 1 }]}
-                                                onPress={() => handleModerateTour(tour.id, 'REJECTED')}
-                                                disabled={moderatingAction !== null}
-                                            >
-                                                {moderatingAction?.id === tour.id && moderatingAction?.action === 'reject' ? (
-                                                    <ActivityIndicator size="small" color={theme.danger} />
-                                                ) : (
-                                                    <>
-                                                        <Ionicons name="close" size={16} color={theme.danger} style={{ marginRight: 6 }} />
-                                                        <TextComponent variant="caption" bold color={theme.danger}>
-                                                            Reject
                                                         </TextComponent>
                                                     </>
                                                 )}
@@ -1399,13 +1447,17 @@ export default function AdminPanelScreen() {
                                                 </View>
                                                 <View style={[styles.userCardActions, { borderTopWidth: 1, borderTopColor: theme.borderPrimary }]}>
                                                     <TouchableOpacity
-                                                        style={[styles.userActionBtn, { borderColor: theme.primary, borderWidth: 1 }]}
-                                                        onPress={() => startEditingUser(usr)}
-                                                        disabled={savingUser || togglingAdminId !== null || deletingUserId !== null}
+                                                        style={[styles.userActionBtn, { backgroundColor: theme.danger + '10', borderColor: theme.danger, borderWidth: 1 }]}
+                                                        onPress={() => handleDeleteUser(usr.id, usr.name)}
+                                                        disabled={deletingUserId !== null || usr.id === user?.id || togglingAdminId !== null}
                                                     >
-                                                        <TextComponent variant="caption" bold color={theme.primary}>
-                                                            Edit
-                                                        </TextComponent>
+                                                        {deletingUserId === usr.id ? (
+                                                            <ActivityIndicator size="small" color={theme.danger} />
+                                                        ) : (
+                                                            <TextComponent variant="caption" bold color={theme.danger}>
+                                                                Delete
+                                                            </TextComponent>
+                                                        )}
                                                     </TouchableOpacity>
 
                                                     <TouchableOpacity
@@ -1423,17 +1475,13 @@ export default function AdminPanelScreen() {
                                                     </TouchableOpacity>
 
                                                     <TouchableOpacity
-                                                        style={[styles.userActionBtn, { backgroundColor: theme.danger + '10', borderColor: theme.danger, borderWidth: 1 }]}
-                                                        onPress={() => handleDeleteUser(usr.id, usr.name)}
-                                                        disabled={deletingUserId !== null || usr.id === user?.id || togglingAdminId !== null}
+                                                        style={[styles.userActionBtn, { borderColor: theme.primary, borderWidth: 1 }]}
+                                                        onPress={() => startEditingUser(usr)}
+                                                        disabled={savingUser || togglingAdminId !== null || deletingUserId !== null}
                                                     >
-                                                        {deletingUserId === usr.id ? (
-                                                            <ActivityIndicator size="small" color={theme.danger} />
-                                                        ) : (
-                                                            <TextComponent variant="caption" bold color={theme.danger}>
-                                                                Delete
-                                                            </TextComponent>
-                                                        )}
+                                                        <TextComponent variant="caption" bold color={theme.primary}>
+                                                            Edit
+                                                        </TextComponent>
                                                     </TouchableOpacity>
                                                 </View>
                                             </>
@@ -1498,7 +1546,7 @@ export default function AdminPanelScreen() {
                                         <TextComponent variant="body" color={theme.textPrimary} style={{ marginVertical: 10 }}>
                                             "{rev.content}"
                                         </TextComponent>
-                                        <View style={[styles.userCardActions, { borderTopWidth: 1, borderTopColor: theme.borderPrimary, justifyContent: 'flex-end' }]}>
+                                        <View style={[styles.userCardActions, { borderTopWidth: 1, borderTopColor: theme.borderPrimary, justifyContent: 'flex-start' }]}>
                                             <TouchableOpacity
                                                 style={[styles.userActionBtn, { backgroundColor: theme.danger + '10', borderColor: theme.danger, borderWidth: 1, maxWidth: 120 }]}
                                                 onPress={() => handleDeleteReview(rev.id)}
@@ -1527,6 +1575,92 @@ export default function AdminPanelScreen() {
             </KeyboardAvoidingView>
             </>
             )}
+
+            {/* Rejection Prompt Modal */}
+            <Modal
+                visible={rejectionModalVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setRejectionModalVisible(false)}
+            >
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <View style={{
+                        flex: 1,
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: 20
+                    }}>
+                        <View style={{
+                            width: '100%',
+                            maxWidth: 400,
+                            backgroundColor: theme.bgSecondary,
+                            borderRadius: 24,
+                            padding: 24,
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 8 },
+                            shadowOpacity: 0.15,
+                            shadowRadius: 16,
+                            elevation: 10
+                        }}>
+                            <TextComponent variant="h3" bold color={theme.textPrimary} style={{ marginBottom: 8 }}>
+                                Reason for Rejection
+                            </TextComponent>
+                            <TextComponent variant="caption" color={theme.textSecondary} style={{ marginBottom: 16 }}>
+                                Please explain why this tour is being rejected. The creator will be notified of this reason.
+                            </TextComponent>
+                            <TextInput
+                                style={{
+                                    backgroundColor: theme.bgPrimary,
+                                    color: theme.textPrimary,
+                                    borderRadius: 16,
+                                    padding: 16,
+                                    height: 120,
+                                    textAlignVertical: 'top',
+                                    borderWidth: 1,
+                                    borderColor: theme.borderPrimary,
+                                    marginBottom: 24,
+                                    fontSize: 14
+                                }}
+                                placeholder="e.g. Inappropriate language, invalid locations, low quality stops..."
+                                placeholderTextColor={theme.textSecondary + '80'}
+                                multiline={true}
+                                value={rejectionReasonText}
+                                onChangeText={setRejectionReasonText}
+                            />
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12 }}>
+                                <TouchableOpacity
+                                    style={{
+                                        paddingHorizontal: 20,
+                                        paddingVertical: 12,
+                                        borderRadius: 30,
+                                        borderWidth: 1,
+                                        borderColor: theme.borderPrimary
+                                    }}
+                                    onPress={() => setRejectionModalVisible(false)}
+                                >
+                                    <TextComponent variant="caption" bold color={theme.textSecondary}>
+                                        Cancel
+                                    </TextComponent>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={{
+                                        paddingHorizontal: 20,
+                                        paddingVertical: 12,
+                                        borderRadius: 30,
+                                        backgroundColor: theme.primary
+                                    }}
+                                    onPress={handleConfirmRejection}
+                                >
+                                    <TextComponent variant="caption" bold color="#fff">
+                                        Reject Tour
+                                    </TextComponent>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
         </ScreenWrapper>
     );
 }
