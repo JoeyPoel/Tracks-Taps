@@ -83,7 +83,7 @@ interface StatsData {
 
 export default function AdminPanelScreen() {
     const { theme, refreshThemeSettings } = useTheme();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const router = useRouter();
     const { user, refreshUser } = useUserContext();
 
@@ -106,6 +106,9 @@ export default function AdminPanelScreen() {
     // Global Theme Settings
     const [globalThemeOverride, setGlobalThemeOverride] = useState<string | null>(null);
     const [autoThemeEnabled, setAutoThemeEnabled] = useState(true);
+
+    // Show Unmoderated Tours Settings
+    const [showUnmoderatedTours, setShowUnmoderatedTours] = useState(false);
 
     // Custom Date calendar states
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
@@ -236,11 +239,19 @@ export default function AdminPanelScreen() {
             setFreeEnabled(settingsRes.data.freeToursEnabled);
             setGlobalThemeOverride(settingsRes.data.globalThemeOverride || null);
             setAutoThemeEnabled(settingsRes.data.autoThemeEnabled !== false);
+            setShowUnmoderatedTours(settingsRes.data.showUnmoderatedTours || false);
             const dateVal = settingsRes.data.freeToursUntil ? new Date(settingsRes.data.freeToursUntil) : null;
             setUntilDate(dateVal);
             if (dateVal) {
                 setCurrentMonth(dateVal.getMonth());
                 setCurrentYear(dateVal.getFullYear());
+            }
+
+            // Fetch stats to always populate pending reviews banner on load
+            if (user) {
+                const statsRes = await client.get(`/admin?action=stats&userId=${user.id}`);
+                setStats(statsRes.data);
+                setStatsLoaded(true);
             }
         } catch (error) {
             console.error('Failed to fetch admin panel settings:', error);
@@ -470,7 +481,8 @@ export default function AdminPanelScreen() {
                 freeToursEnabled: freeEnabled,
                 freeToursUntil: finalDateString,
                 globalThemeOverride,
-                autoThemeEnabled
+                autoThemeEnabled,
+                showUnmoderatedTours
             });
             Alert.alert(t('success') || 'Success', 'Admin settings updated successfully!');
             await refreshThemeSettings();
@@ -620,6 +632,19 @@ export default function AdminPanelScreen() {
                 ))}
             </ScrollView>
 
+            {stats && stats.tourStatusCounts.PENDING_REVIEW > 0 && (
+                <TouchableOpacity 
+                    style={[styles.notificationBanner, { backgroundColor: theme.primary + '20', borderColor: theme.primary }]}
+                    onPress={() => setActiveTab('moderation')}
+                >
+                    <Ionicons name="notifications" size={20} color={theme.primary} />
+                    <TextComponent variant="caption" bold color={theme.textPrimary} style={{ marginLeft: 8, flex: 1 }}>
+                        There are {stats.tourStatusCounts.PENDING_REVIEW} tours pending review! Tap to moderate.
+                    </TextComponent>
+                    <Ionicons name="chevron-forward" size={16} color={theme.textSecondary} />
+                </TouchableOpacity>
+            )}
+
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
@@ -649,6 +674,26 @@ export default function AdminPanelScreen() {
                                          onValueChange={setFreeEnabled}
                                          trackColor={{ false: theme.bgInput, true: theme.primary }}
                                          thumbColor={Platform.OS === 'ios' ? '#fff' : (freeEnabled ? theme.primary : '#f4f3f4')}
+                                     />
+                                 </View>
+                            </View>
+
+                            {/* Show Unmoderated Tours Card */}
+                            <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor, marginTop: 12 }]}>
+                                <View style={styles.settingRow}>
+                                     <View style={styles.settingInfo}>
+                                         <TextComponent variant="body" bold color={theme.textPrimary}>
+                                             Show Unmoderated Tours
+                                         </TextComponent>
+                                         <TextComponent variant="caption" color={theme.textSecondary} style={{ marginTop: 4 }}>
+                                             Allows pending review tours to be visible on the Explore and Map screens.
+                                         </TextComponent>
+                                     </View>
+                                     <Switch
+                                         value={showUnmoderatedTours}
+                                         onValueChange={setShowUnmoderatedTours}
+                                         trackColor={{ false: theme.bgInput, true: theme.primary }}
+                                         thumbColor={Platform.OS === 'ios' ? '#fff' : (showUnmoderatedTours ? theme.primary : '#f4f3f4')}
                                      />
                                  </View>
                             </View>
@@ -715,7 +760,7 @@ export default function AdminPanelScreen() {
                                                 onPress={() => setGlobalThemeOverride(key)}
                                             >
                                                 <TextComponent variant="caption" bold={isActive} color={isActive ? '#fff' : theme.textSecondary}>
-                                                    {HOLIDAY_THEMES[key].name}
+                                                    {HOLIDAY_THEMES[key].translations?.[language]?.name || HOLIDAY_THEMES[key].name}
                                                 </TextComponent>
                                             </TouchableOpacity>
                                         );
@@ -1846,5 +1891,20 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 20,
+    },
+    notificationBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 12,
+        marginHorizontal: 16,
+        marginTop: 10,
+        marginBottom: 2,
+        borderRadius: 12,
+        borderWidth: 1,
+    },
+    scrollContent: {
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        paddingBottom: 140,
     }
 });

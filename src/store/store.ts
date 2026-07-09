@@ -236,10 +236,29 @@ export const useStore = create<StoreState>()(
             },
 
             fetchMapTours: async (bounds?: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => {
-                set({ loadingTours: true, errorTours: null });
+                // Only show a loading state on the very first (unbounded) fetch, not on
+                // every bounds re-fetch — otherwise markers flash away on each pan.
+                if (!bounds) {
+                    set({ loadingTours: true, errorTours: null });
+                }
                 try {
-                    const tours = await mapTourService.getTours(bounds);
-                    set({ mapTours: tours, loadingTours: false });
+                    const response = await mapTourService.getTours(bounds);
+                    // Unwrap paginated shape { data: [...], meta: {...} } or plain array
+                    const newTours = response && !Array.isArray(response) && Array.isArray(response.data)
+                        ? response.data
+                        : Array.isArray(response)
+                            ? response
+                            : [];
+
+                    // If this was a bounded query and returned nothing, keep the previous
+                    // tour markers visible — user may have just panned slightly outside
+                    // the cached set, no need to wipe the map clean.
+                    if (bounds && newTours.length === 0) {
+                        set({ loadingTours: false });
+                        return;
+                    }
+
+                    set({ mapTours: newTours, loadingTours: false });
                 } catch (error: any) {
                     set({ errorTours: error.message || 'Failed to fetch map tours', loadingTours: false });
                 }
@@ -605,7 +624,20 @@ export const useStore = create<StoreState>()(
                 achievements: state.achievements,
                 friends: state.friends,
                 requests: state.requests,
-                tourFilters: state.tourFilters,
+                tourFilters: {
+                    sortBy: state.tourFilters.sortBy,
+                    sortOrder: state.tourFilters.sortOrder,
+                    limit: state.tourFilters.limit,
+                    difficulty: state.tourFilters.difficulty,
+                    genres: state.tourFilters.genres,
+                    modes: state.tourFilters.modes,
+                    location: state.tourFilters.location,
+                    minDistance: state.tourFilters.minDistance,
+                    maxDistance: state.tourFilters.maxDistance,
+                    minDuration: state.tourFilters.minDuration,
+                    maxDuration: state.tourFilters.maxDuration,
+                    minRating: state.tourFilters.minRating
+                },
             }),
         }
     )

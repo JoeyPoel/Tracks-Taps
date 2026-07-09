@@ -56,8 +56,8 @@ export function AppModal({
                     onPress={onClose}
                 >
                     <Animated.View
-                        entering={FadeIn.duration(200)}
-                        exiting={FadeOut.duration(200)}
+                        entering={FadeIn.duration(400)}
+                        exiting={FadeOut.duration(300)}
                         style={[StyleSheet.absoluteFill, { backgroundColor: theme.overlay }]}
                     />
                 </Pressable>
@@ -71,8 +71,8 @@ export function AppModal({
                     pointerEvents="box-none"
                 >
                     <Animated.View
-                        entering={SlideInDown.duration(300)}
-                        exiting={SlideOutDown.duration(300)}
+                        entering={SlideInDown.duration(500)}
+                        exiting={SlideOutDown.duration(500)}
                         style={[
                             styles.card,
                             {

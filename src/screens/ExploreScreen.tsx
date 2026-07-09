@@ -51,7 +51,14 @@ export default function ExploreScreen() {
   useFocusEffect(
     useCallback(() => {
       const init = async () => {
-        const currentFilterQuery = tourFilters.searchQuery || '';
+        // Reset page back to 1 on mount/focus if it hydrated with a different page
+        let currentFilters = useStore.getState().tourFilters;
+        if (currentFilters.page && currentFilters.page !== 1) {
+          currentFilters = { ...currentFilters, page: 1 };
+          useStore.setState({ tourFilters: currentFilters });
+        }
+
+        const currentFilterQuery = currentFilters.searchQuery || '';
         if (currentFilterQuery !== searchText) {
           setSearchText(currentFilterQuery);
         }
@@ -79,6 +86,12 @@ export default function ExploreScreen() {
   const onRefresh = useCallback(async () => {
     setIsRefreshing(true);
     try {
+      // Reset page back to 1 on pull-to-refresh
+      const currentFilters = useStore.getState().tourFilters;
+      if (currentFilters.page && currentFilters.page !== 1) {
+        useStore.setState({ tourFilters: { ...currentFilters, page: 1 } });
+      }
+
       if (user?.id) {
         await Promise.all([fetchTours(), fetchActiveTours(user.id)]);
       } else {
@@ -167,6 +180,7 @@ export default function ExploreScreen() {
       )}
       <SectionList
         sections={sections}
+        style={{ backgroundColor: theme.bgPrimary }}
         stickySectionHeadersEnabled={true}
         keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
         ListHeaderComponent={

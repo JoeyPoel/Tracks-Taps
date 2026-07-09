@@ -37,18 +37,34 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
     onActiveTourPress,
 }) => {
     const { theme, triggerOverlay, activeHoliday } = useTheme();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     const getCleanHolidayName = (name: string) => {
-        return name.replace(/\s*\(Global\)/gi, '');
+        return name.replace(/\s*\(Global\)/gi, '').replace(/\s*\(NL\)/gi, '').replace(/\s*\(US\)/gi, '').replace(/\s*\(ES\)/gi, '');
     };
+
+    const getHolidayGreeting = (name: string, lang: string) => {
+        const cleanName = getCleanHolidayName(name);
+        switch (lang) {
+            case 'es': return `¡Feliz ${cleanName}!`;
+            case 'nl': return `Fijne ${cleanName}!`;
+            case 'de': return `Frohe ${cleanName}!`;
+            case 'fr': return `Joyeux ${cleanName}!`;
+            case 'pl': return `Wesołych ${cleanName}!`;
+            default: return `Happy ${cleanName}!`;
+        }
+    };
+
+    const activeHolidayTranslations = activeHoliday?.translations;
+    const localizedName = activeHolidayTranslations?.[language]?.name || activeHoliday?.name || '';
+    const localizedDesc = activeHolidayTranslations?.[language]?.description || activeHoliday?.description || '';
 
     return (
         <View style={{ paddingHorizontal: 20, paddingBottom: 8, paddingTop: 10 }}>
             <ScreenHeader
-                title={activeHoliday ? getCleanHolidayName(activeHoliday.name) : (t('explore') || 'Explore')}
+                title={activeHoliday ? getCleanHolidayName(localizedName) : (t('explore') || 'Explore')}
                 titleColor={activeHoliday ? theme.primary : undefined}
-                subtitle={activeHoliday ? `Happy ${getCleanHolidayName(activeHoliday.name)}! ${activeHoliday.description}` : t('findYourNextAdventure')}
+                subtitle={activeHoliday ? `${getHolidayGreeting(localizedName, language)} ${localizedDesc}` : t('findYourNextAdventure')}
                 style={[styles.headerTop, { paddingHorizontal: 0, paddingTop: 0 }]}
             />
 

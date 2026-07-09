@@ -18,7 +18,7 @@ interface ThemeContextProps {
     overlayTrigger: number;
     overlayType: string | null;
     refreshThemeSettings: () => Promise<void>;
-    activeHoliday: { id: string; name: string; description: string } | null;
+    activeHoliday: { id: string; name: string; description: string; translations?: any } | null;
 }
 
 const themes = {
@@ -212,7 +212,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
                 return {
                     id: holidayConfig.id,
                     name: holidayConfig.name,
-                    description: holidayConfig.description
+                    description: holidayConfig.description,
+                    translations: holidayConfig.translations
                 };
             }
         }

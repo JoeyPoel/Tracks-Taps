@@ -9,6 +9,7 @@ export interface ThemeConfig {
     specialDate?: { month: number; day: number }; // 1-indexed (e.g. Christmas is month 12, day 25)
     light: Partial<typeof lightTheme>;
     dark: Partial<typeof darkTheme>;
+    translations?: Record<string, { name: string; description: string }>;
 }
 
 // 18 Holiday / Special Day Themes
@@ -16,10 +17,32 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     kings_day: {
         id: 'kings_day',
         name: "King's Day (NL)",
-        description: "Koningsdag: Bright Dutch orange celebration colors",
+        description: "Celebrating with nationwide flea markets, canal parties, and orange-colored festivities on April 27th",
         isHoliday: true,
         country: 'NL',
         specialDate: { month: 4, day: 27 },
+        translations: {
+            nl: {
+                name: "Koningsdag (NL)",
+                description: "Vieren met landelijke vrijmarkten, grachtenfeestjes en oranje festiviteiten op 27 april"
+            },
+            es: {
+                name: "Día del Rey (NL)",
+                description: "Celebración con mercadillos en todo el país, fiestas en los canales y festividades naranjas el 27 de abril"
+            },
+            fr: {
+                name: "Fête du Roi (NL)",
+                description: "Célébration avec des vide-greniers nationaux, des fêtes sur les canaux et des festivités orange le 27 avril"
+            },
+            de: {
+                name: "Königstag (NL)",
+                description: "Feiern mit landesweiten Flohmärkten, Kanalpartys und orangefarbenen Festen am 27. April"
+            },
+            pl: {
+                name: "Dzień Króla (NL)",
+                description: "Świętowanie z ogólnokrajowymi pchlimi targami, imprezami na kanałach i pomarańczowymi festiwalami 27 kwietnia"
+            }
+        },
         light: {
             primary: '#FF8C00', // Orange
             primaryHover: '#E07B00',
@@ -45,7 +68,7 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     liberation_day: {
         id: 'liberation_day',
         name: "Liberation Day (NL)",
-        description: "Bevrijdingsdag: Freedom red, white, blue & cyan",
+        description: "Marking the end of World War II in the Netherlands and celebrating freedom on May 5th",
         isHoliday: true,
         country: 'NL',
         specialDate: { month: 5, day: 5 },
@@ -72,10 +95,32 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     sinterklaas: {
         id: 'sinterklaas',
         name: "Sinterklaas (NL)",
-        description: "Chocolate brown, traditional gold, and staff red",
+        description: "Celebrating the traditional feast with sweet treats, poems, and gift-giving on December 5th",
         isHoliday: true,
         country: 'NL',
         specialDate: { month: 12, day: 5 },
+        translations: {
+            nl: {
+                name: "Sinterklaas (NL)",
+                description: "Het traditionele feest vieren met zoetigheden, gedichten en cadeautjes op 5 december"
+            },
+            es: {
+                name: "Sinterklaas (NL)",
+                description: "Celebración de la fiesta tradicional con dulces, poemas y regalos el 5 de diciembre"
+            },
+            fr: {
+                name: "Saint-Nicolas (NL)",
+                description: "Célébration de la fête traditionnelle avec des friandises, des poèmes et des cadeaux le 5 décembre"
+            },
+            de: {
+                name: "Sinterklaas (NL)",
+                description: "Feiern des traditionellen Festes mit Süßigkeiten, Gedichten und Geschenken am 5. Dezember"
+            },
+            pl: {
+                name: "Mikołajki (NL)",
+                description: "Świętowanie tradycyjnego festiwalu ze słodkimi smakołykami, wierszami i prezentami 5 grudnia"
+            }
+        },
         light: {
             primary: '#8B4513', // Chocolate Brown
             primaryHover: '#5C2D0C',
@@ -101,10 +146,32 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     independence_day: {
         id: 'independence_day',
         name: "Independence Day (US)",
-        description: "4th of July: Red, white, and blue patriotic stars",
+        description: "Commemorating the historic birth of the United States on July 4th with fireworks, parades, and barbecues",
         isHoliday: true,
         country: 'US',
         specialDate: { month: 7, day: 4 },
+        translations: {
+            nl: {
+                name: "Onafhankelijkheidsdag (US)",
+                description: "De historische geboorte van de Verenigde Staten herdenken op 4 juli met vuurwerk, parades en barbecues"
+            },
+            es: {
+                name: "Día de la Independencia (US)",
+                description: "Conmemoración del nacimiento histórico de los Estados Unidos el 4 de julio con fuegos artificiales, desfiles y barbacoas"
+            },
+            fr: {
+                name: "Jour de l'Indépendance (US)",
+                description: "Commémoration de la naissance historique des États-Unis le 4 juillet avec des feux d'artifice, des défilés et des barbecues"
+            },
+            de: {
+                name: "Unabhängigkeitstag (US)",
+                description: "Gedenken an die historische Geburt der Vereinigten Staaten am 4. Juli mit Feuerwerk, Paraden und Grillabenden"
+            },
+            pl: {
+                name: "Dzień Niepodległości (US)",
+                description: "Upamiętnienie historycznych narodzin Stanów Zjednoczonych 4 lipca przy pomocy fajerwerków, parad i grillowania"
+            }
+        },
         light: {
             primary: '#B22234', // US Flag Red
             primaryHover: '#8B1A27',
@@ -130,7 +197,7 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     thanksgiving: {
         id: 'thanksgiving',
         name: "Thanksgiving (US)",
-        description: "Autumn foliage, pumpkin orange, and harvest gold",
+        description: "A North American tradition of giving thanks for the harvest and blessings of the past year",
         isHoliday: true,
         country: 'US',
         specialDate: { month: 11, day: 26 },
@@ -157,7 +224,7 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     halloween: {
         id: 'halloween',
         name: "Halloween (Global)",
-        description: "Spooky dark purple, glowing orange, and shadow black",
+        description: "A fun and spooky night of dressing up, carving pumpkins, and trick-or-treating on October 31st",
         isHoliday: true,
         specialDate: { month: 10, day: 31 },
         light: {
@@ -185,7 +252,7 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     bonfire_night: {
         id: 'bonfire_night',
         name: "Bonfire Night (UK)",
-        description: "Guy Fawkes: Sparking ember red and charcoal gray",
+        description: "Marking the failure of the 1605 Gunpowder Plot with fireworks and bonfires on November 5th",
         isHoliday: true,
         country: 'UK',
         specialDate: { month: 11, day: 5 },
@@ -212,7 +279,7 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     st_georges_day: {
         id: 'st_georges_day',
         name: "St. George's Day (UK)",
-        description: "Classic red cross design over clean white backgrounds",
+        description: "Honoring the patron saint of England and celebrating English heritage on April 23rd",
         isHoliday: true,
         country: 'UK',
         specialDate: { month: 4, day: 23 },
@@ -240,7 +307,7 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     german_unity: {
         id: 'german_unity',
         name: "German Unity Day (DE)",
-        description: "Oktoberfest: Traditional flag colors (Black, Red, Gold)",
+        description: "Commemorating the anniversary of German reunification in 1990 on October 3rd",
         isHoliday: true,
         country: 'DE',
         specialDate: { month: 10, day: 3 },
@@ -269,10 +336,32 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     spain_national: {
         id: 'spain_national',
         name: "Spain National Day (ES)",
-        description: "Fiesta: Spanish red and warm marigold yellow",
+        description: "Commemorating historical connections and cultural heritage on October 12th",
         isHoliday: true,
         country: 'ES',
         specialDate: { month: 10, day: 12 },
+        translations: {
+            nl: {
+                name: "Nationale feestdag van Spanje (ES)",
+                description: "Historische verbindingen en cultureel erfgoed herdenken op 12 oktober"
+            },
+            es: {
+                name: "Día de la Hispanidad (ES)",
+                description: "Conmemoración de las conexiones históricas y el patrimonio cultural el 12 de octubre"
+            },
+            fr: {
+                name: "Fête Nationale d'Espagne (ES)",
+                description: "Commémoration des liens historiques et du patrimoine culturel le 12 octobre"
+            },
+            de: {
+                name: "Nationalfeiertag Spaniens (ES)",
+                description: "Gedenken an historische Verbindungen und das kulturelle Erbe am 12. Oktober"
+            },
+            pl: {
+                name: "Święto Narodowe Hiszpanii (ES)",
+                description: "Upamiętnienie historycznych powiązań i dziedzictwa kulturowego 12 października"
+            }
+        },
         light: {
             primary: '#C60B1E', // Flag Red
             primaryHover: '#9E0918',
@@ -298,7 +387,7 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     la_tomatina: {
         id: 'la_tomatina',
         name: "La Tomatina (ES)",
-        description: "Splat: Tomato red and rustic olive green",
+        description: "A giant food fight festival where participants throw tomatoes for fun on the last Wednesday of August",
         isHoliday: true,
         country: 'ES',
         specialDate: { month: 8, day: 26 },
@@ -325,7 +414,7 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     cinco_de_mayo: {
         id: 'cinco_de_mayo',
         name: "Cinco de Mayo (MX)",
-        description: "Fiesta! Forest green, bright red, and gold accents",
+        description: "Celebrating the Mexican Army's victory over French forces at the Battle of Puebla on May 5th",
         isHoliday: true,
         country: 'MX',
         specialDate: { month: 5, day: 5 },
@@ -354,7 +443,7 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     day_of_dead: {
         id: 'day_of_dead',
         name: "Day of the Dead (MX)",
-        description: "Día de los Muertos: Marigold yellow and neon pink",
+        description: "A Mexican celebration dedicated to remembering and honoring family members who have passed away on November 2nd",
         isHoliday: true,
         country: 'MX',
         specialDate: { month: 11, day: 2 },
@@ -383,7 +472,7 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     st_patricks: {
         id: 'st_patricks',
         name: "St. Patrick's Day (IE)",
-        description: "Clover: Classic emerald green and golden accents",
+        description: "Celebrating Irish culture and the patron saint of Ireland with parades and green themes on March 17th",
         isHoliday: true,
         country: 'IE',
         specialDate: { month: 3, day: 17 },
@@ -412,7 +501,7 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     chinese_new_year: {
         id: 'chinese_new_year',
         name: "Chinese New Year (CN)",
-        description: "Lunar: Celebratory red and high-contrast gold",
+        description: "Welcoming the new lunisolar year with family reunions, dragon dances, and red envelopes",
         isHoliday: true,
         country: 'CN',
         specialDate: { month: 2, day: 10 },
@@ -441,7 +530,7 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     christmas: {
         id: 'christmas',
         name: "Christmas (Global)",
-        description: "Pine green, traditional holiday crimson, and snowy white",
+        description: "Celebrating the birth of Jesus Christ and sharing warmth with family and friends on December 25th",
         isHoliday: true,
         specialDate: { month: 12, day: 25 },
         light: {
@@ -469,7 +558,7 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     valentine: {
         id: 'valentine',
         name: "Valentine's Day (Global)",
-        description: "Romantic pink, rose red, and sweet lavender blush",
+        description: "A celebration of love, affection, and friendship on February 14th",
         isHoliday: true,
         specialDate: { month: 2, day: 14 },
         light: {
@@ -497,7 +586,7 @@ export const HOLIDAY_THEMES: Record<string, ThemeConfig> = {
     new_year: {
         id: 'new_year',
         name: "New Year's Eve/Day",
-        description: "Midnight navy, luxury gold, and platinum silver",
+        description: "Welcoming the start of the next calendar year with countdowns and fireworks",
         isHoliday: true,
         specialDate: { month: 12, day: 31 },
         light: {

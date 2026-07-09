@@ -1,6 +1,8 @@
 import { Prisma } from '@prisma/client';
 import { tourRepository } from '../repositories/tourRepository';
 import { achievementService } from './achievementService';
+import { emailService } from './emailService';
+import { prisma } from '../../src/lib/prisma';
 
 import { TourFilters } from '../../src/types/filters';
 
@@ -15,9 +17,22 @@ export const tourService = {
 
     async createTour(data: Prisma.TourCreateInput) {
         const tour = await tourRepository.createTour(data);
-        // data.author.connect.id is how author is linked usually
         if (data.author && data.author.connect && data.author.connect.id) {
             await achievementService.checkCreatedToursCount(data.author.connect.id);
+        }
+        // Send email alert to admin
+        try {
+            const authorId = data.author?.connect?.id || tour.authorId;
+            const author = authorId ? await prisma.user.findUnique({ where: { id: authorId } }) : null;
+            emailService.sendAdminReviewAlert({
+                id: tour.id,
+                title: tour.title,
+                location: tour.location,
+                description: tour.description || '',
+                authorName: author?.name || 'Anonymous'
+            }).catch(err => console.error('Failed to trigger email alert:', err));
+        } catch (emailErr) {
+            console.error('Failed to prepare email alert details:', emailErr);
         }
         return tour;
     },
@@ -87,7 +102,20 @@ export const tourService = {
             }
         };
 
-        return await tourRepository.createTourByJson(tourInput);
+        const createdTour = await tourRepository.createTourByJson(tourInput);
+        try {
+            const author = await prisma.user.findUnique({ where: { id: userId } });
+            emailService.sendAdminReviewAlert({
+                id: createdTour.id,
+                title: createdTour.title,
+                location: createdTour.location,
+                description: createdTour.description || '',
+                authorName: author?.name || 'Anonymous'
+            }).catch(err => console.error('Failed to trigger email alert:', err));
+        } catch (emailErr) {
+            console.error('Failed to prepare email alert details:', emailErr);
+        }
+        return createdTour;
     },
     async updateTour(id: number, data: any) {
         const tourInput: Prisma.TourUpdateInput = {

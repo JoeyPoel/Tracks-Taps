@@ -8,6 +8,25 @@ export const tourRepository = {
     async getAllTours(filters: TourFilters = {}) {
         const where: Prisma.TourWhereInput = {};
 
+        // Fetch global settings to determine if we show unmoderated (pending review) tours
+        const settings = await prisma.appSettings.findUnique({
+            where: { id: 'global' }
+        });
+        const showUnmoderated = settings?.showUnmoderatedTours ?? false;
+        const allowedStatuses = showUnmoderated
+            ? ['PUBLISHED', 'PENDING_REVIEW']
+            : ['PUBLISHED'];
+
+        if (filters.status) {
+            if (filters.status === 'PUBLISHED') {
+                where.status = { in: allowedStatuses as any };
+            } else {
+                where.status = filters.status as any;
+            }
+        } else {
+            where.status = { in: allowedStatuses as any };
+        }
+
         if (filters.searchQuery) {
             const terms = filters.searchQuery.trim().split(/\s+/);
             if (terms.length > 0) {

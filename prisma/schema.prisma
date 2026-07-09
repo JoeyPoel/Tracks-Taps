@@ -357,6 +357,7 @@ model AppSettings {
   freeToursUntil      DateTime?
   globalThemeOverride String?
   autoThemeEnabled    Boolean  @default(true)
+  showUnmoderatedTours Boolean  @default(false)
   updatedAt           DateTime @updatedAt
 }
 

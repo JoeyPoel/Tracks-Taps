@@ -30,6 +30,7 @@ import { reviewService } from '../services/reviewService';
 import { authEvents } from '../utils/authEvents';
 import { getOptimizedImageUrl } from '../utils/imageUtils';
 import { useSafeNavigation } from '../hooks/useSafeNavigation';
+import { useTutorial } from '../context/TutorialContext';
 
 export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
@@ -39,6 +40,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { translateText, requireTranslation, isAutoTranslateEnabled, setIsAutoTranslateEnabled, isTargetLanguageSet } = useTranslation();
   const router = useRouter();
   const { goBack } = useSafeNavigation();
+  const { isActive: isTutorialActive, nextStep: tutorialNextStep } = useTutorial();
   const [showSavedTripModal, setShowSavedTripModal] = useState(false);
   const [showBuyTokens, setShowBuyTokens] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -381,6 +383,11 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           <AnimatedButton
             title={t('solo')}
             onPress={() => {
+              // During tutorial, tapping Solo should advance to the sign-up step
+              if (isTutorialActive) {
+                tutorialNextStep();
+                return;
+              }
               if (!user) {
                 authEvents.emit();
                 return;
@@ -414,6 +421,11 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           <AnimatedButton
             title={t('withFriends')}
             onPress={() => {
+              // During tutorial, tapping With Friends should advance to the sign-up step
+              if (isTutorialActive) {
+                tutorialNextStep();
+                return;
+              }
               if (!user) {
                 authEvents.emit();
                 return;

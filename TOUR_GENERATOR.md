@@ -49,7 +49,8 @@ The JSON contains two completely separate arrays for challenges. Do NOT duplicat
 - **Points per stop**: Points should always be 50 to 200.
 - **Points per bonus challenge**: Points should always be 50 to 200.
 - **Points per bingo challenge**: Points should always be 50 to 200.
-- **Total amount of points**: Total amount of points should alsways be all challenge points added up + 200 for every pubgolf stop.
+- **Points can never be below 50**: Never go below 50 points per challenge, and keep it close to the 50-200 range.
+- **Total amount of points**: Total amount of points should always be all challenge points added up + 200 for every pubgolf stop.
 - **Challenges**: Should always be written in a fun language and should be engaging and interesting. No words as must, should be encouraging and fun to read.
 - **Bingo Challenges**: Should always be written in a fun language and should be engaging and interesting. No words as must, should be encouraging and fun to read.
 - **Bonus Challenges**: Should always be written in a fun language and should be engaging and interesting. No words as must, should be encouraging and fun to read.

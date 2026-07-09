@@ -96,10 +96,15 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
 
     // Login effect when user changes
     useEffect(() => {
+        const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+        if (isExpoGo || Platform.OS === 'web') return;
+
         if (user?.id) {
             Purchases.logIn(String(user.id)).then(({ customerInfo }) => {
                 setCustomerInfo(customerInfo);
                 checkEntitlements(customerInfo);
+            }).catch(err => {
+                console.error("Error logging into RevenueCat:", err);
             });
         }
     }, [user?.id]);
@@ -124,6 +129,12 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
     };
 
     const purchasePackage = async (pkg: PurchasesPackage): Promise<PurchasesStoreTransaction | null> => {
+        const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+        if (isExpoGo || Platform.OS === 'web') {
+            Alert.alert("Development Build Required", "In-app purchases are not available in Expo Go or Web.");
+            return null;
+        }
+
         try {
             const { transaction } = await Purchases.purchasePackage(pkg);
             return transaction;
@@ -136,6 +147,12 @@ export const RevenueCatProvider = ({ children }: { children: React.ReactNode }) 
     };
 
     const restorePurchases = async () => {
+        const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+        if (isExpoGo || Platform.OS === 'web') {
+            Alert.alert("Development Build Required", "In-app purchases are not available in Expo Go or Web.");
+            return;
+        }
+
         try {
             const info = await Purchases.restorePurchases();
             setCustomerInfo(info);

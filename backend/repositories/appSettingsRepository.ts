@@ -12,6 +12,7 @@ export const appSettingsRepository = {
     freeToursUntil?: Date | null;
     globalThemeOverride?: string | null;
     autoThemeEnabled?: boolean;
+    showUnmoderatedTours?: boolean;
   }) {
     return await prisma.appSettings.update({
       where: { id: 'global' },

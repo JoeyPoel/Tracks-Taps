@@ -10,8 +10,11 @@ import {
   QuestionMarkCircleIcon,
   ShieldCheckIcon,
   TicketIcon,
-  UserIcon
+  UserIcon,
+  ChevronRightIcon
 } from 'react-native-heroicons/outline';
+import client from '../api/apiClient';
+import { TextComponent } from '../components/common/TextComponent';
 import Animated from 'react-native-reanimated';
 import { AnimatedButton } from '../components/common/AnimatedButton';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
@@ -43,6 +46,19 @@ export default function ProfileScreen() {
   const { loadFriends, friends } = useFriends();
   const { isPro } = useRevenueCat();
   const { startTutorial } = useTutorial();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    if (user?.isAdmin) {
+      client.get(`/admin?action=stats&userId=${user.id}`)
+        .then(res => {
+          if (res.data?.tourStatusCounts?.PENDING_REVIEW !== undefined) {
+            setPendingCount(res.data.tourStatusCounts.PENDING_REVIEW);
+          }
+        })
+        .catch(err => console.error('Failed to load admin stats for badge:', err));
+    }
+  }, [user?.isAdmin, user?.id]);
 
   // Load achievements once when profile loads (if not already loaded)
   useEffect(() => {
@@ -162,6 +178,18 @@ export default function ProfileScreen() {
                     icon={<ShieldCheckIcon size={22} color={theme.accent} />}
                     title="Admin Panel"
                     onPress={() => router.push('/profile/admin-panel')}
+                    rightElement={
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        {pendingCount > 0 && (
+                          <View style={{ backgroundColor: theme.primary, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 }}>
+                            <TextComponent variant="caption" bold color="#FFF">
+                              {pendingCount}
+                            </TextComponent>
+                          </View>
+                        )}
+                        <ChevronRightIcon size={20} color={theme.textSecondary} />
+                      </View>
+                    }
                   />
                 )}
 

@@ -10,7 +10,8 @@ export const appSettingsController = {
         freeToursEnabled: false, 
         freeToursUntil: null,
         globalThemeOverride: null,
-        autoThemeEnabled: true
+        autoThemeEnabled: true,
+        showUnmoderatedTours: false
       });
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -21,7 +22,7 @@ export const appSettingsController = {
   async updateSettings(request: Request) {
     try {
       const body = await request.json();
-      const { freeToursEnabled, freeToursUntil, globalThemeOverride, autoThemeEnabled, userId } = body;
+      const { freeToursEnabled, freeToursUntil, globalThemeOverride, autoThemeEnabled, showUnmoderatedTours, userId } = body;
 
       if (!userId) {
         return Response.json({ error: 'Missing userId' }, { status: 400 });
@@ -37,7 +38,8 @@ export const appSettingsController = {
         freeToursEnabled,
         freeToursUntil: freeToursUntil ? new Date(freeToursUntil) : null,
         globalThemeOverride,
-        autoThemeEnabled
+        autoThemeEnabled,
+        showUnmoderatedTours
       });
 
       return Response.json(updatedSettings);

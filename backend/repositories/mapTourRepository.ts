@@ -29,14 +29,26 @@ export const mapTourRepository = {
             _count: { select: { stops: true } }
         };
 
+        const settings = await prisma.appSettings.findUnique({
+            where: { id: 'global' }
+        });
+        const showUnmoderated = settings?.showUnmoderatedTours ?? false;
+        const statusFilter = showUnmoderated
+            ? { in: ['PUBLISHED', 'PENDING_REVIEW'] as const }
+            : 'PUBLISHED';
+
         if (!bounds) {
             return await prisma.tour.findMany({
+                where: {
+                    status: statusFilter
+                },
                 select: selectQuery
             });
         }
 
         return await prisma.tour.findMany({
             where: {
+                status: statusFilter,
                 startLat: { gte: bounds.minLat, lte: bounds.maxLat },
                 startLng: { gte: bounds.minLng, lte: bounds.maxLng },
             },
