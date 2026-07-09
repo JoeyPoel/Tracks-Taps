@@ -7,7 +7,12 @@ export const appSettingsRepository = {
     });
   },
 
-  async updateSettings(data: { freeToursEnabled?: boolean; freeToursUntil?: Date | null }) {
+  async updateSettings(data: { 
+    freeToursEnabled?: boolean; 
+    freeToursUntil?: Date | null;
+    globalThemeOverride?: string | null;
+    autoThemeEnabled?: boolean;
+  }) {
     return await prisma.appSettings.update({
       where: { id: 'global' },
       data

@@ -151,7 +151,7 @@ export const userService = {
         return await userRepository.addTokens(userId, amount);
     },
 
-    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; referralCode?: string }) {
+    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; referralCode?: string; customTheme?: string | null }) {
         const user = await userRepository.updateUser(userId, data);
         return { ...user, level: LevelSystem.getLevel(user.xp) };
     },

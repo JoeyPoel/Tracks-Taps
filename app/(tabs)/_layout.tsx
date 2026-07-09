@@ -16,9 +16,11 @@ import {
 } from 'react-native-heroicons/solid';
 
 import { TabBar } from '@/src/components/navigation/TabBar';
+import { useTheme } from '@/src/context/ThemeContext';
 
 export default function TabLayout() {
     const { t } = useLanguage();
+    const { theme } = useTheme();
 
     return (
         <Tabs

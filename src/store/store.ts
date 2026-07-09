@@ -63,7 +63,7 @@ interface StoreState {
     fetchUser: (userId: number) => Promise<void>;
     fetchUserByAuth: (authId: string, email?: string) => Promise<void>;
     fetchUserByEmail: (email: string) => Promise<void>;
-    updateUser: (userId: number, data: { name?: string; avatarUrl?: string }) => Promise<void>;
+    updateUser: (userId: number, data: { name?: string; avatarUrl?: string; customTheme?: string | null; themePreference?: string }) => Promise<void>;
     deleteUser: (userId: number) => Promise<void>;
     addXp: (amount: number) => void; // Optimistic update
     clearUser: () => void;
@@ -466,13 +466,36 @@ export const useStore = create<StoreState>()(
                 }
             },
 
-            updateUser: async (userId: number, data: { name?: string; avatarUrl?: string }) => {
-                set({ loadingUser: true, errorUser: null });
+            updateUser: async (userId: number, data: { name?: string; avatarUrl?: string; customTheme?: string | null; themePreference?: string }) => {
+                const prevUser = get().user;
+                if (prevUser) {
+                    set({
+                        user: {
+                            ...prevUser,
+                            ...data,
+                            customTheme: data.hasOwnProperty('customTheme')
+                                ? (data.customTheme === null ? undefined : data.customTheme)
+                                : prevUser.customTheme,
+                            themePreference: data.hasOwnProperty('themePreference')
+                                ? (data.themePreference as "light" | "dark" | "system" | undefined)
+                                : prevUser.themePreference
+                        }
+                    });
+                }
+                const isPreferenceChange = data.hasOwnProperty('customTheme') || data.hasOwnProperty('themePreference');
+                if (!isPreferenceChange) {
+                    set({ loadingUser: true, errorUser: null });
+                }
                 try {
                     const user = await userService.updateUser(userId, data);
                     set({ user, loadingUser: false });
                 } catch (error: any) {
-                    set({ errorUser: error.message || 'Failed to update user', loadingUser: false });
+                    if (prevUser) {
+                        set({ user: prevUser });
+                    }
+                    if (!isPreferenceChange) {
+                        set({ errorUser: error.message || 'Failed to update user', loadingUser: false });
+                    }
                     throw error;
                 }
             },

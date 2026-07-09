@@ -38,6 +38,7 @@ model User {
   achievements         UserAchievement[]
   playedTours          UserPlayedTour[]
   isAdmin              Boolean           @default(false)
+  customTheme          String?
 
   @@index([email])
 }
@@ -351,10 +352,12 @@ model TourList {
 }
 
 model AppSettings {
-  id                String   @id @default("global")
-  freeToursEnabled  Boolean  @default(false)
-  freeToursUntil    DateTime?
-  updatedAt         DateTime @updatedAt
+  id                  String   @id @default("global")
+  freeToursEnabled    Boolean  @default(false)
+  freeToursUntil      DateTime?
+  globalThemeOverride String?
+  autoThemeEnabled    Boolean  @default(true)
+  updatedAt           DateTime @updatedAt
 }
 
 enum StopType {

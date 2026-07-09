@@ -36,14 +36,19 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
     user,
     onActiveTourPress,
 }) => {
-    const { theme, triggerOverlay } = useTheme();
+    const { theme, triggerOverlay, activeHoliday } = useTheme();
     const { t } = useLanguage();
+
+    const getCleanHolidayName = (name: string) => {
+        return name.replace(/\s*\(Global\)/gi, '');
+    };
 
     return (
         <View style={{ paddingHorizontal: 20, paddingBottom: 8, paddingTop: 10 }}>
             <ScreenHeader
-                title={t('explore') || 'Explore'}
-                subtitle={t('findYourNextAdventure')}
+                title={activeHoliday ? getCleanHolidayName(activeHoliday.name) : (t('explore') || 'Explore')}
+                titleColor={activeHoliday ? theme.primary : undefined}
+                subtitle={activeHoliday ? `Happy ${getCleanHolidayName(activeHoliday.name)}! ${activeHoliday.description}` : t('findYourNextAdventure')}
                 style={[styles.headerTop, { paddingHorizontal: 0, paddingTop: 0 }]}
             />
 

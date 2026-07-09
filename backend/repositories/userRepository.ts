@@ -25,6 +25,7 @@ export const userRepository = {
                 referralCode: true,
                 createdAt: true,
                 isAdmin: true,
+                customTheme: true,
                 _count: {
                     select: {
                         createdTours: true,
@@ -51,6 +52,7 @@ export const userRepository = {
                 referralCode: true,
                 createdAt: true,
                 isAdmin: true,
+                customTheme: true,
                 _count: {
                     select: {
                         createdTours: true,
@@ -77,6 +79,7 @@ export const userRepository = {
                 referralCode: true,
                 createdAt: true,
                 isAdmin: true,
+                customTheme: true,
                 _count: {
                     select: {
                         createdTours: true,
@@ -102,6 +105,7 @@ export const userRepository = {
                 referralCode: true,
                 createdAt: true,
                 isAdmin: true,
+                customTheme: true,
                 _count: {
                     select: {
                         createdTours: true,
@@ -127,7 +131,8 @@ export const userRepository = {
                 email: true,
                 avatarUrl: true,
                 level: true,
-                isAdmin: true
+                isAdmin: true,
+                customTheme: true
             },
             skip,
             take: limit
@@ -239,7 +244,7 @@ export const userRepository = {
         });
     },
 
-    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; referralCode?: string; authId?: string }) {
+    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; referralCode?: string; authId?: string; customTheme?: string | null }) {
         if (data.name && data.name.length > 25) {
             throw new Error('Name cannot exceed 25 characters');
         }

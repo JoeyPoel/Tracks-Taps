@@ -240,6 +240,7 @@ export const adminController = {
                     createdAt: true,
                     xp: true,
                     tokens: true,
+                    customTheme: true,
                     _count: {
                         select: {
                             createdTours: true,
@@ -425,7 +426,7 @@ export const adminController = {
      * Updates details of a user.
      */
     async updateUser(request: Request, body: any) {
-        const { userId, targetUserId, name, email, tokens, xp } = body;
+        const { userId, targetUserId, name, email, tokens, xp, customTheme } = body;
 
         if (!userId || !targetUserId) {
             return Response.json({ error: 'Missing userId or targetUserId' }, { status: 400 });
@@ -441,6 +442,7 @@ export const adminController = {
             if (name !== undefined) dataToUpdate.name = name;
             if (email !== undefined) dataToUpdate.email = email || null;
             if (tokens !== undefined) dataToUpdate.tokens = Number(tokens);
+            if (customTheme !== undefined) dataToUpdate.customTheme = customTheme || null;
             if (xp !== undefined) {
                 const newXp = Number(xp);
                 dataToUpdate.xp = newXp;
@@ -481,6 +483,7 @@ export const adminController = {
                     createdAt: true,
                     xp: true,
                     tokens: true,
+                    customTheme: true,
                     _count: {
                         select: {
                             createdTours: true,

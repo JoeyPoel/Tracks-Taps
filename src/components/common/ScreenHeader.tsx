@@ -17,6 +17,7 @@ interface ScreenHeaderProps {
     rightElement?: React.ReactNode;
     onBackPress?: () => void;
     blurBack?: boolean;
+    titleColor?: string;
 }
 
 export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
@@ -26,7 +27,8 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
     style,
     rightElement,
     onBackPress,
-    blurBack = false
+    blurBack = false,
+    titleColor
 }) => {
     const { theme } = useTheme();
     // router is not needed directly here if we switch to useSafeNavigation for back
@@ -70,7 +72,7 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
                     <Animated.View entering={FadeInRight.delay(200).springify()}>
                         <TextComponent
                             style={styles.headerTitle}
-                            color={theme.textPrimary}
+                            color={titleColor || theme.textPrimary}
                             bold
                             variant="h1" // Approx 34 is h1
                             numberOfLines={1}

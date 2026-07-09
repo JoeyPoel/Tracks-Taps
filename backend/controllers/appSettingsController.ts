@@ -5,7 +5,13 @@ export const appSettingsController = {
   async getSettings() {
     try {
       const settings = await appSettingsRepository.getSettings();
-      return Response.json(settings || { id: 'global', freeToursEnabled: false, freeToursUntil: null });
+      return Response.json(settings || { 
+        id: 'global', 
+        freeToursEnabled: false, 
+        freeToursUntil: null,
+        globalThemeOverride: null,
+        autoThemeEnabled: true
+      });
     } catch (error) {
       console.error('Error fetching settings:', error);
       return Response.json({ error: 'Failed to fetch settings' }, { status: 500 });
@@ -15,7 +21,7 @@ export const appSettingsController = {
   async updateSettings(request: Request) {
     try {
       const body = await request.json();
-      const { freeToursEnabled, freeToursUntil, userId } = body;
+      const { freeToursEnabled, freeToursUntil, globalThemeOverride, autoThemeEnabled, userId } = body;
 
       if (!userId) {
         return Response.json({ error: 'Missing userId' }, { status: 400 });
@@ -29,7 +35,9 @@ export const appSettingsController = {
 
       const updatedSettings = await appSettingsRepository.updateSettings({
         freeToursEnabled,
-        freeToursUntil: freeToursUntil ? new Date(freeToursUntil) : null
+        freeToursUntil: freeToursUntil ? new Date(freeToursUntil) : null,
+        globalThemeOverride,
+        autoThemeEnabled
       });
 
       return Response.json(updatedSettings);

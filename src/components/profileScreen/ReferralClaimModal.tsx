@@ -50,7 +50,6 @@ export default function ReferralClaimModal({ visible, onClose }: ReferralClaimMo
             title={t('claimReferral')}
             icon={<TicketIcon size={24} color={theme.accent} />}
             subtitle={t('enterReferralCode')}
-            height="60%"
         >
             <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
                 {success ? (
@@ -121,7 +120,7 @@ export default function ReferralClaimModal({ visible, onClose }: ReferralClaimMo
 
 const styles = StyleSheet.create({
     container: {
-        paddingBottom: 40,
+        paddingBottom: 20,
         gap: 20, // Add gap for general spacing
         flexGrow: 1,
     },
@@ -157,8 +156,8 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     dividerContainer: {
-        marginTop: 'auto', // Push to bottom
-        paddingTop: 32,
+        marginTop: 12,
+        paddingTop: 20,
         borderTopWidth: 1,
         alignItems: 'center',
         width: '100%',

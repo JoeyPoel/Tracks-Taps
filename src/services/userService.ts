@@ -43,7 +43,7 @@ export const userService = {
         return response.data;
     },
 
-    async updateUser(userId: number, data: { name?: string; avatarUrl?: string }) {
+    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; customTheme?: string | null; themePreference?: string }) {
         const response = await client.post('/user', { action: 'update-user', userId, ...data });
         return response.data;
     },

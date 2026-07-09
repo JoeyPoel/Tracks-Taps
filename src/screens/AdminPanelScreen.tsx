@@ -23,6 +23,8 @@ import { AnimatedPressable } from '../components/common/AnimatedPressable';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { TextComponent } from '../components/common/TextComponent';
+import { HOLIDAY_THEMES, COLOR_THEMES } from '../constants/themes';
+import { useStore } from '../store/store';
 
 interface ChallengeMetadata {
     id: number;
@@ -80,10 +82,10 @@ interface StatsData {
 }
 
 export default function AdminPanelScreen() {
-    const { theme } = useTheme();
+    const { theme, refreshThemeSettings } = useTheme();
     const { t } = useLanguage();
     const router = useRouter();
-    const { user } = useUserContext();
+    const { user, refreshUser } = useUserContext();
 
     const [activeTab, setActiveTab] = useState<'settings' | 'stats' | 'moderation' | 'users' | 'reviews'>('settings');
 
@@ -91,9 +93,19 @@ export default function AdminPanelScreen() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
+    // Tab-specific loading & loaded states
+    const [loadingStats, setLoadingStats] = useState(false);
+    const [loadingPending, setLoadingPending] = useState(false);
+    const [statsLoaded, setStatsLoaded] = useState(false);
+    const [pendingLoaded, setPendingLoaded] = useState(false);
+
     // Free Tours Settings
     const [freeEnabled, setFreeEnabled] = useState(false);
     const [untilDate, setUntilDate] = useState<Date | null>(null);
+
+    // Global Theme Settings
+    const [globalThemeOverride, setGlobalThemeOverride] = useState<string | null>(null);
+    const [autoThemeEnabled, setAutoThemeEnabled] = useState(true);
 
     // Custom Date calendar states
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
@@ -187,6 +199,7 @@ export default function AdminPanelScreen() {
     const [editEmail, setEditEmail] = useState('');
     const [editTokens, setEditTokens] = useState('0');
     const [editXp, setEditXp] = useState('0');
+    const [editCustomTheme, setEditCustomTheme] = useState<string | null>(null);
     const [savingUser, setSavingUser] = useState(false);
 
     // Reviews state
@@ -203,13 +216,17 @@ export default function AdminPanelScreen() {
 
     useEffect(() => {
         if (user) {
-            if (activeTab === 'users') {
+            if (activeTab === 'stats' && !statsLoaded) {
+                fetchStats();
+            } else if (activeTab === 'moderation' && !pendingLoaded) {
+                fetchPendingTours();
+            } else if (activeTab === 'users') {
                 fetchUsers();
             } else if (activeTab === 'reviews') {
                 fetchReviews();
             }
         }
-    }, [activeTab, user]);
+    }, [activeTab, user, statsLoaded, pendingLoaded]);
 
     const fetchInitialData = async () => {
         setLoading(true);
@@ -217,25 +234,57 @@ export default function AdminPanelScreen() {
             // Fetch free tours settings
             const settingsRes = await client.get('/app-settings');
             setFreeEnabled(settingsRes.data.freeToursEnabled);
+            setGlobalThemeOverride(settingsRes.data.globalThemeOverride || null);
+            setAutoThemeEnabled(settingsRes.data.autoThemeEnabled !== false);
             const dateVal = settingsRes.data.freeToursUntil ? new Date(settingsRes.data.freeToursUntil) : null;
             setUntilDate(dateVal);
             if (dateVal) {
                 setCurrentMonth(dateVal.getMonth());
                 setCurrentYear(dateVal.getFullYear());
             }
-
-            // Fetch Stats
-            const statsRes = await client.get(`/admin?action=stats&userId=${user?.id}`);
-            setStats(statsRes.data);
-
-            // Fetch Pending Tours
-            const pendingRes = await client.get(`/admin?action=pending-tours&userId=${user?.id}`);
-            setPendingTours(pendingRes.data);
         } catch (error) {
-            console.error('Failed to fetch admin panel data:', error);
-            Alert.alert(t('error') || 'Error', 'Failed to load panel data');
+            console.error('Failed to fetch admin panel settings:', error);
+            Alert.alert(t('error') || 'Error', 'Failed to load panel settings');
         } finally {
             setLoading(false);
+        }
+    };
+
+    /**
+     * Fetches general system statistics from the backend.
+     * Sets stats loading states and updates the stats global state.
+     */
+    const fetchStats = async () => {
+        if (!user) return;
+        setLoadingStats(true);
+        try {
+            const statsRes = await client.get(`/admin?action=stats&userId=${user.id}`);
+            setStats(statsRes.data);
+            setStatsLoaded(true);
+        } catch (error) {
+            console.error('Failed to fetch admin statistics:', error);
+            Alert.alert('Error', 'Failed to load statistics');
+        } finally {
+            setLoadingStats(false);
+        }
+    };
+
+    /**
+     * Fetches tours awaiting review from the backend.
+     * Sets moderation loading states and updates the pending tours global state.
+     */
+    const fetchPendingTours = async () => {
+        if (!user) return;
+        setLoadingPending(true);
+        try {
+            const pendingRes = await client.get(`/admin?action=pending-tours&userId=${user.id}`);
+            setPendingTours(pendingRes.data);
+            setPendingLoaded(true);
+        } catch (error) {
+            console.error('Failed to fetch pending tours:', error);
+            Alert.alert('Error', 'Failed to load pending tours');
+        } finally {
+            setLoadingPending(false);
         }
     };
 
@@ -325,6 +374,7 @@ export default function AdminPanelScreen() {
         setEditEmail(usr.email || '');
         setEditTokens(String(usr.tokens || 0));
         setEditXp(String(usr.xp || 0));
+        setEditCustomTheme(usr.customTheme || null);
     };
 
     const handleSaveUser = async () => {
@@ -338,11 +388,20 @@ export default function AdminPanelScreen() {
                 name: editName,
                 email: editEmail,
                 tokens: Number(editTokens),
-                xp: Number(editXp)
+                xp: Number(editXp),
+                customTheme: editCustomTheme
             });
             Alert.alert('Success', 'User updated successfully.');
             setUsersList(prev => prev.map(u => u.id === editingUserId ? res.data.user : u));
             setEditingUserId(null);
+            // Refresh theme if updating oneself
+            if (editingUserId === user.id) {
+                useStore.setState({ user: res.data.user });
+                if (refreshUser) {
+                    await refreshUser();
+                }
+                await refreshThemeSettings();
+            }
         } catch (error: any) {
             console.error('Failed to save user details:', error);
             Alert.alert('Error', error.response?.data?.error || 'Failed to save user details');
@@ -410,10 +469,14 @@ export default function AdminPanelScreen() {
                 userId: user.id,
                 freeToursEnabled: freeEnabled,
                 freeToursUntil: finalDateString,
+                globalThemeOverride,
+                autoThemeEnabled
             });
             Alert.alert(t('success') || 'Success', 'Admin settings updated successfully!');
+            await refreshThemeSettings();
             const statsRes = await client.get(`/admin?action=stats&userId=${user?.id}`);
             setStats(statsRes.data);
+            setStatsLoaded(true);
         } catch (error: any) {
             console.error('Failed to save settings:', error);
             Alert.alert(t('error') || 'Error', error.message || 'Failed to save settings');
@@ -436,6 +499,7 @@ export default function AdminPanelScreen() {
             setPendingTours(prev => prev.filter(t => t.id !== tourId));
             const statsRes = await client.get(`/admin?action=stats&userId=${user?.id}`);
             setStats(statsRes.data);
+            setStatsLoaded(true);
         } catch (error: any) {
             console.error('Failed to moderate tour:', error);
             Alert.alert('Error', error.message || 'Failed to update tour status');
@@ -518,24 +582,18 @@ export default function AdminPanelScreen() {
         return daysArray;
     };
 
-    if (loading) {
-        return (
-            <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={false} withBottomTabs={true}>
-                <Stack.Screen options={{ headerShown: false }} />
-                <ScreenHeader showBackButton title="Admin Panel" />
-                <View style={styles.centerContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                </View>
-            </ScreenWrapper>
-        );
-    }
-
     return (
         <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={false} withBottomTabs={true}>
             <Stack.Screen options={{ headerShown: false }} />
             <ScreenHeader showBackButton title="Admin Panel" />
 
-            {/* Scrollable Tab Controls */}
+            {loading ? (
+                <View style={styles.centerContainer}>
+                    <ActivityIndicator size="large" color={theme.primary} />
+                </View>
+            ) : (
+                <>
+                    {/* Scrollable Tab Controls */}
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -578,21 +636,91 @@ export default function AdminPanelScreen() {
                             {/* Enable Free Tours Card */}
                             <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
                                 <View style={styles.settingRow}>
-                                    <View style={styles.settingInfo}>
-                                        <TextComponent variant="body" bold color={theme.textPrimary}>
-                                            Enable Global Free Tours
+                                     <View style={styles.settingInfo}>
+                                         <TextComponent variant="body" bold color={theme.textPrimary}>
+                                             Enable Global Free Tours
+                                         </TextComponent>
+                                         <TextComponent variant="caption" color={theme.textSecondary} style={{ marginTop: 4 }}>
+                                             Allows all players to start any tours without spending tokens.
+                                         </TextComponent>
+                                     </View>
+                                     <Switch
+                                         value={freeEnabled}
+                                         onValueChange={setFreeEnabled}
+                                         trackColor={{ false: theme.bgInput, true: theme.primary }}
+                                         thumbColor={Platform.OS === 'ios' ? '#fff' : (freeEnabled ? theme.primary : '#f4f3f4')}
+                                     />
+                                 </View>
+                            </View>
+
+                            <TextComponent variant="h3" bold color={theme.textPrimary} style={styles.sectionHeading}>
+                                Global Theme Settings
+                            </TextComponent>
+
+                            {/* Automatic Holiday Theme Toggle */}
+                            <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
+                                <View style={styles.settingRow}>
+                                     <View style={styles.settingInfo}>
+                                         <TextComponent variant="body" bold color={theme.textPrimary}>
+                                             Automatic Holiday Themes
+                                         </TextComponent>
+                                         <TextComponent variant="caption" color={theme.textSecondary} style={{ marginTop: 4 }}>
+                                             Automatically updates the global app theme on calendar holidays.
+                                         </TextComponent>
+                                     </View>
+                                     <Switch
+                                         value={autoThemeEnabled}
+                                         onValueChange={setAutoThemeEnabled}
+                                         trackColor={{ false: theme.bgInput, true: theme.primary }}
+                                         thumbColor={Platform.OS === 'ios' ? '#fff' : (autoThemeEnabled ? theme.primary : '#f4f3f4')}
+                                     />
+                                 </View>
+                            </View>
+
+                            {/* Global Theme Override Selection */}
+                            <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
+                                <TextComponent variant="caption" bold color={theme.textSecondary} style={styles.cardLabel}>
+                                    GLOBAL HOLIDAY THEME OVERRIDE
+                                </TextComponent>
+                                <View style={{ height: 8 }} />
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.presetCard,
+                                            {
+                                                backgroundColor: globalThemeOverride === null ? theme.primary : theme.bgPrimary,
+                                                borderColor: globalThemeOverride === null ? 'transparent' : theme.borderPrimary,
+                                                borderWidth: 1.5
+                                            }
+                                        ]}
+                                        onPress={() => setGlobalThemeOverride(null)}
+                                    >
+                                        <TextComponent variant="caption" bold={globalThemeOverride === null} color={globalThemeOverride === null ? '#fff' : theme.textSecondary}>
+                                            None (Auto Only)
                                         </TextComponent>
-                                        <TextComponent variant="caption" color={theme.textSecondary} style={{ marginTop: 4 }}>
-                                            Allows all players to start any tours without spending tokens.
-                                        </TextComponent>
-                                    </View>
-                                    <Switch
-                                        value={freeEnabled}
-                                        onValueChange={setFreeEnabled}
-                                        trackColor={{ false: theme.bgInput, true: theme.primary }}
-                                        thumbColor={Platform.OS === 'ios' ? '#fff' : (freeEnabled ? theme.primary : '#f4f3f4')}
-                                    />
-                                </View>
+                                    </TouchableOpacity>
+                                    {Object.keys(HOLIDAY_THEMES).map((key) => {
+                                        const isActive = globalThemeOverride === key;
+                                        return (
+                                            <TouchableOpacity
+                                                key={key}
+                                                style={[
+                                                    styles.presetCard,
+                                                    {
+                                                        backgroundColor: isActive ? theme.primary : theme.bgPrimary,
+                                                        borderColor: isActive ? 'transparent' : theme.borderPrimary,
+                                                        borderWidth: 1.5
+                                                    }
+                                                ]}
+                                                onPress={() => setGlobalThemeOverride(key)}
+                                            >
+                                                <TextComponent variant="caption" bold={isActive} color={isActive ? '#fff' : theme.textSecondary}>
+                                                    {HOLIDAY_THEMES[key].name}
+                                                </TextComponent>
+                                            </TouchableOpacity>
+                                        );
+                                    })}
+                                </ScrollView>
                             </View>
 
                             {freeEnabled && (
@@ -724,7 +852,11 @@ export default function AdminPanelScreen() {
                                 System Statistics
                             </TextComponent>
 
-                            {stats ? (
+                            {loadingStats ? (
+                                <View style={styles.centerContainer}>
+                                    <ActivityIndicator size="large" color={theme.primary} />
+                                </View>
+                            ) : stats ? (
                                 <>
                                     {/* System Stats Cards Grid */}
                                     <View style={styles.statsGrid}>
@@ -866,7 +998,11 @@ export default function AdminPanelScreen() {
                                 </ScrollView>
                             </View>
 
-                            {filteredAndSortedTours.length > 0 ? (
+                            {loadingPending ? (
+                                <View style={styles.centerContainer}>
+                                    <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 24 }} />
+                                </View>
+                            ) : filteredAndSortedTours.length > 0 ? (
                                 filteredAndSortedTours.map((tour) => (
                                     <View key={tour.id} style={[styles.tourCard, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
                                         <View style={styles.tourHeader}>
@@ -1125,6 +1261,51 @@ export default function AdminPanelScreen() {
                                                     </View>
                                                 </View>
 
+                                                <View style={styles.inputGroup}>
+                                                    <TextComponent variant="caption" bold color={theme.textSecondary} style={styles.inputLabel}>
+                                                        CUSTOM COLOR THEME
+                                                    </TextComponent>
+                                                    <View style={{ height: 8 }} />
+                                                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
+                                                        <TouchableOpacity
+                                                            style={[
+                                                                styles.presetCard,
+                                                                {
+                                                                    backgroundColor: editCustomTheme === null ? theme.primary : theme.bgPrimary,
+                                                                    borderColor: editCustomTheme === null ? 'transparent' : theme.borderPrimary,
+                                                                    borderWidth: 1.5
+                                                                }
+                                                            ]}
+                                                            onPress={() => setEditCustomTheme(null)}
+                                                        >
+                                                            <TextComponent variant="caption" bold={editCustomTheme === null} color={editCustomTheme === null ? '#fff' : theme.textSecondary}>
+                                                                Default
+                                                            </TextComponent>
+                                                        </TouchableOpacity>
+                                                        {COLOR_THEMES.map((t) => {
+                                                            const isActive = editCustomTheme === t.id;
+                                                            return (
+                                                                <TouchableOpacity
+                                                                    key={t.id}
+                                                                    style={[
+                                                                        styles.presetCard,
+                                                                        {
+                                                                            backgroundColor: isActive ? theme.primary : theme.bgPrimary,
+                                                                            borderColor: isActive ? 'transparent' : theme.borderPrimary,
+                                                                            borderWidth: 1.5
+                                                                        }
+                                                                    ]}
+                                                                    onPress={() => setEditCustomTheme(t.id)}
+                                                                >
+                                                                    <TextComponent variant="caption" bold={isActive} color={isActive ? '#fff' : theme.textSecondary}>
+                                                                        {t.name}
+                                                                    </TextComponent>
+                                                                </TouchableOpacity>
+                                                            );
+                                                        })}
+                                                    </ScrollView>
+                                                </View>
+
                                                 <View style={styles.formActions}>
                                                     <TouchableOpacity
                                                         style={[styles.formActionBtn, { borderColor: theme.borderPrimary, borderWidth: 1 }]}
@@ -1299,6 +1480,8 @@ export default function AdminPanelScreen() {
 
                 </ScrollView>
             </KeyboardAvoidingView>
+            </>
+            )}
         </ScreenWrapper>
     );
 }

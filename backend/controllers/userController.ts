@@ -227,7 +227,7 @@ export const userController = {
     async updateUser(request: Request, parsedBody?: any) {
         try {
             const body = parsedBody || await request.json();
-            const { userId, name, avatarUrl } = body;
+            const { userId, name, avatarUrl, customTheme } = body;
 
             if (!userId) {
                 return Response.json({ error: 'Missing userId' }, { status: 400 });
@@ -235,7 +235,12 @@ export const userController = {
 
             if (name && name.length > 25) return Response.json({ error: 'Name exceeds 25 characters' }, { status: 400 });
 
-            const updatedUser = await userService.updateUser(Number(userId), { name, avatarUrl });
+            const dataToUpdate: any = {};
+            if (name !== undefined) dataToUpdate.name = name;
+            if (avatarUrl !== undefined) dataToUpdate.avatarUrl = avatarUrl;
+            if (customTheme !== undefined) dataToUpdate.customTheme = customTheme;
+
+            const updatedUser = await userService.updateUser(Number(userId), dataToUpdate);
             return Response.json(updatedUser);
         } catch (error: any) {
             console.error('Error updating user:', error);

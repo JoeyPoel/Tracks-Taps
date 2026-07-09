@@ -117,6 +117,7 @@ export interface User {
     isAdmin?: boolean;
     isNewUser?: boolean; // Flag populated by backend during creation
     themePreference?: 'light' | 'dark' | 'system';
+    customTheme?: string;
     createdAt: Date;
     updatedAt: Date;
     teams?: {

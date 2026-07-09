@@ -12,12 +12,26 @@ import { LanguagePickerModal } from '../components/common/LanguagePickerModal';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation, SUPPORTED_TRANSLATION_LANGUAGES } from '../context/TranslationContext';
+import { COLOR_THEMES } from '../constants/themes';
+import { useStore } from '../store/store';
 
 export default function AppPreferencesScreen() {
   const { theme, toggleTheme, mode } = useTheme();
   const { t, language, setLanguage } = useLanguage();
   const { isAutoTranslateEnabled, setIsAutoTranslateEnabled, targetLanguage, setTargetLanguage } = useTranslation();
   const [isLangModalVisible, setIsLangModalVisible] = React.useState(false);
+  
+  const user = useStore(state => state.user);
+  const updateUser = useStore(state => state.updateUser);
+
+  const handleThemeSelect = async (themeId: string | null) => {
+    if (!user?.id) return;
+    try {
+      await updateUser(user.id, { customTheme: themeId });
+    } catch (e) {
+      console.warn('Failed to update custom theme preference:', e);
+    }
+  };
 
   const languages = [
     { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -73,6 +87,117 @@ export default function AppPreferencesScreen() {
           </View>
         </View>
 
+        {/* Custom Theme Section */}
+        {renderSectionHeader(t('customThemes') || 'Custom Themes', 'brush-outline')}
+        {!user ? (
+          <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor, padding: 20, alignItems: 'center' }]}>
+            <Ionicons name="brush-outline" size={32} color={theme.textTertiary} style={{ marginBottom: 10 }} />
+            <TextComponent style={{ textAlign: 'center', marginBottom: 6 }} color={theme.textPrimary} bold variant="body">
+              Personalize Your Experience
+            </TextComponent>
+            <TextComponent style={{ textAlign: 'center', marginBottom: 16 }} color={theme.textSecondary} variant="caption">
+              Sign in to unlock 10 premium custom color themes and save your preferences.
+            </TextComponent>
+          </View>
+        ) : (
+          <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
+            <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 4 }}>
+              <TextComponent color={theme.textSecondary} variant="caption">
+                Select a custom color palette to skin the app.
+              </TextComponent>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.themeScrollContainer}
+            >
+              {/* Default Theme Card */}
+              {(() => {
+                const isActive = !user.customTheme;
+                const colors: [string, string] = mode === 'dark' 
+                  ? ['#1E293B', '#0F172A'] // Slate/Dark default representation
+                  : ['#FFFFFF', '#F8FAFC']; // White/Light default representation
+                
+                return (
+                  <AnimatedPressable
+                    onPress={() => handleThemeSelect(null)}
+                    style={[
+                      styles.themeOption,
+                      {
+                        backgroundColor: isActive ? theme.primary + '10' : 'transparent',
+                        borderColor: isActive ? theme.primary : theme.borderSecondary,
+                        borderWidth: isActive ? 1.5 : 1
+                      }
+                    ]}
+                  >
+                    <LinearGradient
+                      colors={colors}
+                      style={styles.themeColorCircle}
+                    />
+                    <TextComponent
+                      style={styles.themeLabel}
+                      color={isActive ? theme.primary : theme.textPrimary}
+                      bold={isActive}
+                      variant="caption"
+                      numberOfLines={1}
+                    >
+                      Default
+                    </TextComponent>
+                    {isActive && (
+                      <View style={[styles.activeBadge, { backgroundColor: theme.primary }]}>
+                        <Ionicons name="checkmark" size={10} color="#FFF" />
+                      </View>
+                    )}
+                  </AnimatedPressable>
+                );
+              })()}
+
+              {/* 10 Other Themes */}
+              {COLOR_THEMES.map((themeConfig) => {
+                const isActive = user.customTheme === themeConfig.id;
+                const config = mode === 'dark' ? themeConfig.dark : themeConfig.light;
+                const colors: [string, string] = [
+                  config.primary || theme.primary,
+                  config.secondary || config.primary || theme.secondary
+                ];
+
+                return (
+                  <AnimatedPressable
+                    key={themeConfig.id}
+                    onPress={() => handleThemeSelect(themeConfig.id)}
+                    style={[
+                      styles.themeOption,
+                      {
+                        backgroundColor: isActive ? theme.primary + '10' : 'transparent',
+                        borderColor: isActive ? theme.primary : theme.borderSecondary,
+                        borderWidth: isActive ? 1.5 : 1
+                      }
+                    ]}
+                  >
+                    <LinearGradient
+                      colors={colors}
+                      style={styles.themeColorCircle}
+                    />
+                    <TextComponent
+                      style={styles.themeLabel}
+                      color={isActive ? theme.primary : theme.textPrimary}
+                      bold={isActive}
+                      variant="caption"
+                      numberOfLines={1}
+                    >
+                      {themeConfig.name}
+                    </TextComponent>
+                    {isActive && (
+                      <View style={[styles.activeBadge, { backgroundColor: theme.primary }]}>
+                        <Ionicons name="checkmark" size={10} color="#FFF" />
+                      </View>
+                    )}
+                  </AnimatedPressable>
+                );
+              })}
+            </ScrollView>
+          </View>
+        )}
 
         {/* App Interface Language Section */}
         {renderSectionHeader(t('appInterfaceLanguage'), 'language-outline')}
@@ -332,5 +457,32 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderRadius: 12,
     marginBottom: 4,
+  },
+  themeScrollContainer: {
+    flexDirection: 'row',
+    padding: 16,
+    gap: 12,
+  },
+  themeOption: {
+    width: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 16,
+    position: 'relative',
+  },
+  themeColorCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.08)',
+  },
+  themeLabel: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 2,
   },
 });
