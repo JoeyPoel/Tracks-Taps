@@ -824,6 +824,69 @@ export const COLOR_THEMES: ThemeConfig[] = [
             bgPrimary: '#260410',
             bgSecondary: '#420B20',
         }
+    },
+    {
+        id: 'blue_yellow_accessibility',
+        name: "Blue & Yellow (Deuteranopia/Protanopia)",
+        description: "High-contrast blue and yellow color palette designed for red-green color blindness",
+        isHoliday: false,
+        light: {
+            primary: '#005AB5',
+            primaryHover: '#004494',
+            secondary: '#DC9700',
+            secondaryHover: '#B57C00',
+            bgPrimary: '#F4F9FF',
+        },
+        dark: {
+            primary: '#70B5FF',
+            primaryHover: '#99CAFF',
+            secondary: '#FFC44D',
+            secondaryHover: '#FFD580',
+            bgPrimary: '#001329',
+            bgSecondary: '#00244D',
+        }
+    },
+    {
+        id: 'red_teal_accessibility',
+        name: "Red & Teal (Tritanopia)",
+        description: "Optimized red and teal color palette designed for blue-yellow color blindness",
+        isHoliday: false,
+        light: {
+            primary: '#D13438',
+            primaryHover: '#A8282B',
+            secondary: '#008272',
+            secondaryHover: '#006659',
+            bgPrimary: '#F2FAF9',
+        },
+        dark: {
+            primary: '#FF6B6B',
+            primaryHover: '#FF9494',
+            secondary: '#26C6DA',
+            secondaryHover: '#80DEEA',
+            bgPrimary: '#0F1D1C',
+            bgSecondary: '#1C3B38',
+        }
+    },
+    {
+        id: 'high_contrast_accessibility',
+        name: "High Contrast Monochrome",
+        description: "A solid high contrast black and white color palette maximizing general accessibility",
+        isHoliday: false,
+        light: {
+            primary: '#000000',
+            primaryHover: '#222222',
+            secondary: '#004F9F',
+            secondaryHover: '#003366',
+            bgPrimary: '#FFFFFF',
+        },
+        dark: {
+            primary: '#FFFFFF',
+            primaryHover: '#E0E0E0',
+            secondary: '#38BDF8',
+            secondaryHover: '#0EA5E9',
+            bgPrimary: '#000000',
+            bgSecondary: '#1A1A1A',
+        }
     }
 ];
 
