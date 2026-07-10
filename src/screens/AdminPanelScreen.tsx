@@ -726,100 +726,11 @@ export default function AdminPanelScreen() {
                                  </View>
                             </View>
 
-                            {/* Show Unmoderated Tours Card */}
-                            <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor, marginTop: 12 }]}>
-                                <View style={styles.settingRow}>
-                                     <View style={styles.settingInfo}>
-                                         <TextComponent variant="body" bold color={theme.textPrimary}>
-                                             Show Unmoderated Tours
-                                         </TextComponent>
-                                         <TextComponent variant="caption" color={theme.textSecondary} style={{ marginTop: 4 }}>
-                                             Allows pending review tours to be visible on the Explore and Map screens.
-                                         </TextComponent>
-                                     </View>
-                                     <Switch
-                                         value={showUnmoderatedTours}
-                                         onValueChange={setShowUnmoderatedTours}
-                                         trackColor={{ false: theme.bgInput, true: theme.primary }}
-                                         thumbColor={Platform.OS === 'ios' ? '#fff' : (showUnmoderatedTours ? theme.primary : '#f4f3f4')}
-                                     />
-                                 </View>
-                            </View>
-
-                            <TextComponent variant="h3" bold color={theme.textPrimary} style={styles.sectionHeading}>
-                                Global Theme Settings
-                            </TextComponent>
-
-                            {/* Automatic Holiday Theme Toggle */}
-                            <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
-                                <View style={styles.settingRow}>
-                                     <View style={styles.settingInfo}>
-                                         <TextComponent variant="body" bold color={theme.textPrimary}>
-                                             Automatic Holiday Themes
-                                         </TextComponent>
-                                         <TextComponent variant="caption" color={theme.textSecondary} style={{ marginTop: 4 }}>
-                                             Automatically updates the global app theme on calendar holidays.
-                                         </TextComponent>
-                                     </View>
-                                     <Switch
-                                         value={autoThemeEnabled}
-                                         onValueChange={setAutoThemeEnabled}
-                                         trackColor={{ false: theme.bgInput, true: theme.primary }}
-                                         thumbColor={Platform.OS === 'ios' ? '#fff' : (autoThemeEnabled ? theme.primary : '#f4f3f4')}
-                                     />
-                                 </View>
-                            </View>
-
-                            {/* Global Theme Override Selection */}
-                            <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
-                                <TextComponent variant="caption" bold color={theme.textSecondary} style={styles.cardLabel}>
-                                    GLOBAL HOLIDAY THEME OVERRIDE
-                                </TextComponent>
-                                <View style={{ height: 8 }} />
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
-                                    <TouchableOpacity
-                                        style={[
-                                            styles.presetCard,
-                                            {
-                                                backgroundColor: globalThemeOverride === null ? theme.primary : theme.bgPrimary,
-                                                borderColor: globalThemeOverride === null ? 'transparent' : theme.borderPrimary,
-                                                borderWidth: 1.5
-                                            }
-                                        ]}
-                                        onPress={() => setGlobalThemeOverride(null)}
-                                    >
-                                        <TextComponent variant="caption" bold={globalThemeOverride === null} color={globalThemeOverride === null ? '#fff' : theme.textSecondary}>
-                                            None (Auto Only)
-                                        </TextComponent>
-                                    </TouchableOpacity>
-                                    {Object.keys(HOLIDAY_THEMES).map((key) => {
-                                        const isActive = globalThemeOverride === key;
-                                        return (
-                                            <TouchableOpacity
-                                                key={key}
-                                                style={[
-                                                    styles.presetCard,
-                                                    {
-                                                        backgroundColor: isActive ? theme.primary : theme.bgPrimary,
-                                                        borderColor: isActive ? 'transparent' : theme.borderPrimary,
-                                                        borderWidth: 1.5
-                                                    }
-                                                ]}
-                                                onPress={() => setGlobalThemeOverride(key)}
-                                            >
-                                                <TextComponent variant="caption" bold={isActive} color={isActive ? '#fff' : theme.textSecondary}>
-                                                    {HOLIDAY_THEMES[key].translations?.[language]?.name || HOLIDAY_THEMES[key].name}
-                                                </TextComponent>
-                                            </TouchableOpacity>
-                                        );
-                                    })}
-                                </ScrollView>
-                            </View>
-
+                            {/* Free Tours Duration & Expiration (immediately below toggle) */}
                             {freeEnabled && (
                                 <>
                                     <TextComponent variant="h3" bold color={theme.textPrimary} style={styles.sectionHeading}>
-                                        Duration & Expiration
+                                        Duration &amp; Expiration
                                     </TextComponent>
 
                                     {/* Presets Card */}
@@ -918,6 +829,98 @@ export default function AdminPanelScreen() {
                                     )}
                                 </>
                             )}
+
+                            {/* Show Unmoderated Tours Card */}
+                            <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor, marginTop: 12 }]}>
+                                <View style={styles.settingRow}>
+                                     <View style={styles.settingInfo}>
+                                         <TextComponent variant="body" bold color={theme.textPrimary}>
+                                             Show Unmoderated Tours
+                                         </TextComponent>
+                                         <TextComponent variant="caption" color={theme.textSecondary} style={{ marginTop: 4 }}>
+                                             Allows pending review tours to be visible on the Explore and Map screens.
+                                         </TextComponent>
+                                     </View>
+                                     <Switch
+                                         value={showUnmoderatedTours}
+                                         onValueChange={setShowUnmoderatedTours}
+                                         trackColor={{ false: theme.bgInput, true: theme.primary }}
+                                         thumbColor={Platform.OS === 'ios' ? '#fff' : (showUnmoderatedTours ? theme.primary : '#f4f3f4')}
+                                     />
+                                 </View>
+                            </View>
+
+                            <TextComponent variant="h3" bold color={theme.textPrimary} style={styles.sectionHeading}>
+                                Global Theme Settings
+                            </TextComponent>
+
+                            {/* Automatic Holiday Theme Toggle */}
+                            <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
+                                <View style={styles.settingRow}>
+                                     <View style={styles.settingInfo}>
+                                         <TextComponent variant="body" bold color={theme.textPrimary}>
+                                             Automatic Holiday Themes
+                                         </TextComponent>
+                                         <TextComponent variant="caption" color={theme.textSecondary} style={{ marginTop: 4 }}>
+                                             Automatically updates the global app theme on calendar holidays.
+                                         </TextComponent>
+                                     </View>
+                                     <Switch
+                                         value={autoThemeEnabled}
+                                         onValueChange={setAutoThemeEnabled}
+                                         trackColor={{ false: theme.bgInput, true: theme.primary }}
+                                         thumbColor={Platform.OS === 'ios' ? '#fff' : (autoThemeEnabled ? theme.primary : '#f4f3f4')}
+                                     />
+                                 </View>
+                            </View>
+
+                            {/* Global Theme Override Selection */}
+                            <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
+                                <TextComponent variant="caption" bold color={theme.textSecondary} style={styles.cardLabel}>
+                                    GLOBAL HOLIDAY THEME OVERRIDE
+                                </TextComponent>
+                                <View style={{ height: 8 }} />
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.presetCard,
+                                            {
+                                                backgroundColor: globalThemeOverride === null ? theme.primary : theme.bgPrimary,
+                                                borderColor: globalThemeOverride === null ? 'transparent' : theme.borderPrimary,
+                                                borderWidth: 1.5
+                                            }
+                                        ]}
+                                        onPress={() => setGlobalThemeOverride(null)}
+                                    >
+                                        <TextComponent variant="caption" bold={globalThemeOverride === null} color={globalThemeOverride === null ? '#fff' : theme.textSecondary}>
+                                            None (Auto Only)
+                                        </TextComponent>
+                                    </TouchableOpacity>
+                                    {Object.keys(HOLIDAY_THEMES).map((key) => {
+                                        const isActive = globalThemeOverride === key;
+                                        return (
+                                            <TouchableOpacity
+                                                key={key}
+                                                style={[
+                                                    styles.presetCard,
+                                                    {
+                                                        backgroundColor: isActive ? theme.primary : theme.bgPrimary,
+                                                        borderColor: isActive ? 'transparent' : theme.borderPrimary,
+                                                        borderWidth: 1.5
+                                                    }
+                                                ]}
+                                                onPress={() => setGlobalThemeOverride(key)}
+                                            >
+                                                <TextComponent variant="caption" bold={isActive} color={isActive ? '#fff' : theme.textSecondary}>
+                                                    {HOLIDAY_THEMES[key].translations?.[language]?.name || HOLIDAY_THEMES[key].name}
+                                                </TextComponent>
+                                            </TouchableOpacity>
+                                        );
+                                    })}
+                                </ScrollView>
+                            </View>
+
+
 
                             <AnimatedPressable
                                 style={[styles.saveButton, { backgroundColor: theme.primary }]}
