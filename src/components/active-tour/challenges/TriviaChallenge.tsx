@@ -88,7 +88,7 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
                                     isSelected && !isDone && { backgroundColor: theme.primary },
                                     isDone && { borderWidth: 0 } // Remove border to make room for full icon
                                 ]}>
-                                    {isSelected && !isDone && <View style={[styles.radioButtonInner, { backgroundColor: theme.fixedWhite }]} />}
+                                    {isSelected && !isDone && <View style={[styles.radioButtonInner, { backgroundColor: theme.textOnPrimary }]} />}
                                     {isDone && isCorrect && <Ionicons name="checkmark-circle" size={20} color={theme.success} />}
                                     {isDone && isSelected && isFailed && <Ionicons name="close-circle" size={20} color={theme.danger} />}
                                     {isDone && !isCorrect && !(isSelected && isFailed) && (

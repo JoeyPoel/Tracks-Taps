@@ -2,6 +2,7 @@ import { supabaseAdminRole, verifyAuth } from '@/backend/utils/auth';
 import { friendService } from '../services/friendService';
 import { userService } from '../services/userService';
 import { paymentService } from '../services/paymentService';
+import { prisma } from '@/src/lib/prisma';
 
 export const userController = {
     async getUser(request: Request) {
@@ -293,6 +294,35 @@ export const userController = {
         } catch (error: any) {
             console.error('Error deleting user:', error);
             return Response.json({ error: 'Failed to delete user' }, { status: 500 });
+        }
+    },
+
+    async registerPushToken(request: Request, parsedBody?: any) {
+        try {
+            const body = parsedBody || await request.json();
+            const { userId, pushToken, deviceType } = body;
+
+            if (!userId || !pushToken) {
+                return Response.json({ error: 'Missing userId or pushToken' }, { status: 400 });
+            }
+
+            const tokenResult = await prisma.userPushToken.upsert({
+                where: { pushToken },
+                update: {
+                    userId: Number(userId),
+                    deviceType: deviceType || null
+                },
+                create: {
+                    userId: Number(userId),
+                    pushToken,
+                    deviceType: deviceType || null
+                }
+            });
+
+            return Response.json({ success: true, token: tokenResult });
+        } catch (error: any) {
+            console.error('Error registering push token:', error);
+            return Response.json({ error: 'Failed to register push token' }, { status: 500 });
         }
     }
 };

@@ -50,6 +50,8 @@ export const AnimatedButton: React.FC<AnimatedButtonProps> = ({
 
     const getTextColor = () => {
         if (variant === 'outline') return theme.textPrimary;
+        if (variant === 'primary') return theme.textOnPrimary;
+        if (variant === 'secondary') return theme.textOnSecondary || theme.textOnPrimary;
         return theme.fixedWhite;
     };
 

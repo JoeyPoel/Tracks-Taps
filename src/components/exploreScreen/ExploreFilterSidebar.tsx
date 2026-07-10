@@ -56,7 +56,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                 <Text style={{
                     fontSize: 13,
                     fontWeight: '600',
-                    color: selected ? '#FFF' : theme.textPrimary,
+                    color: selected ? theme.textOnPrimary : theme.textPrimary,
                     textAlign: 'center'
                 }}>
                     {label}
@@ -83,7 +83,7 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                 <Text style={{
                     fontSize: 13,
                     fontWeight: '600',
-                    color: isSelected ? '#FFF' : theme.textPrimary,
+                    color: isSelected ? theme.textOnPrimary : theme.textPrimary,
                     textAlign: 'center'
                 }}>
                     {label}
@@ -241,11 +241,11 @@ export default function ExploreFilterSidebar({ visible, onClose }: FilterSidebar
                                             ]}
                                         >
                                             <View style={styles.chipContent}>
-                                                <Icon size={18} color={isSelected ? '#FFF' : theme.textPrimary} style={{ marginRight: 12 }} />
+                                                <Icon size={18} color={isSelected ? theme.textOnPrimary : theme.textPrimary} style={{ marginRight: 12 }} />
                                                 <Text style={{
                                                     fontSize: 15,
                                                     fontWeight: '600',
-                                                    color: isSelected ? '#FFF' : theme.textPrimary
+                                                    color: isSelected ? theme.textOnPrimary : theme.textPrimary
                                                 }}>
                                                     {t(genre.id.toLowerCase() as any)}
                                                 </Text>

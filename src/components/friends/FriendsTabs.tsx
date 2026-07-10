@@ -26,7 +26,7 @@ export function FriendsTabs({ activeTab, onTabChange, requestCount }: FriendsTab
             >
                 <TextComponent
                     style={styles.tabText}
-                    color={activeTab === 'friends' ? '#FFF' : theme.textSecondary}
+                    color={activeTab === 'friends' ? theme.textOnPrimary : theme.textSecondary}
                     bold
                     variant="body"
                 >
@@ -45,7 +45,7 @@ export function FriendsTabs({ activeTab, onTabChange, requestCount }: FriendsTab
                 <View style={styles.requestsContent}>
                     <TextComponent
                         style={styles.tabText}
-                        color={activeTab === 'requests' ? '#FFF' : theme.textSecondary}
+                        color={activeTab === 'requests' ? theme.textOnPrimary : theme.textSecondary}
                         bold
                         variant="body"
                     >
@@ -54,11 +54,11 @@ export function FriendsTabs({ activeTab, onTabChange, requestCount }: FriendsTab
                     {requestCount > 0 && (
                         <View style={[
                             styles.badge,
-                            { backgroundColor: activeTab === 'requests' ? '#FFF' : theme.primary }
+                            { backgroundColor: activeTab === 'requests' ? theme.textOnPrimary : theme.primary }
                         ]}>
                             <TextComponent
                                 style={styles.badgeText}
-                                color={activeTab === 'requests' ? theme.primary : '#FFF'}
+                                color={activeTab === 'requests' ? theme.primary : theme.textOnPrimary}
                                 bold
                                 variant="caption"
                             >

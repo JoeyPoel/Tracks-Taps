@@ -117,7 +117,7 @@ export default function FriendsScreen() {
                         onPress={() => setAddModalVisible(true)}
                         style={[styles.addButton, { backgroundColor: theme.primary }]}
                     >
-                        <Ionicons name="person-add" size={20} color="#FFF" />
+                        <Ionicons name="person-add" size={20} color={theme.textOnPrimary} />
                     </TouchableOpacity>
                 }
             />

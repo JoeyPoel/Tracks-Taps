@@ -76,7 +76,7 @@ export default function ChallengeCreationModal({ visible, onClose, onSave, initi
                     style={[styles.saveButton, { backgroundColor: theme.primary }]}
                     onPress={handleSave}
                 >
-                    <TextComponent style={styles.saveButtonText} color="white" bold variant="h3">
+                    <TextComponent style={styles.saveButtonText} color={theme.textOnPrimary} bold variant="h3">
                         {t('addChallengeButton')}
                     </TextComponent>
                 </AnimatedPressable>
@@ -122,7 +122,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     saveButtonText: {
-        color: 'white',
         fontWeight: 'bold',
         fontSize: 16,
     }

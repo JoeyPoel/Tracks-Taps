@@ -27,6 +27,27 @@ export default function AppPreferencesScreen() {
   const user = useStore(state => state.user);
   const updateUser = useStore(state => state.updateUser);
 
+  const switchRef = React.useRef<View>(null);
+  const [switchCoords, setSwitchCoords] = React.useState<{ cx: number; cy: number } | null>(null);
+  const [localDark, setLocalDark] = React.useState(mode === 'dark');
+
+  React.useEffect(() => {
+    setLocalDark(mode === 'dark');
+  }, [mode]);
+
+  const measureSwitch = () => {
+    if (switchRef.current) {
+      switchRef.current.measureInWindow((x, y, width, height) => {
+        if (width > 0 && height > 0) {
+          setSwitchCoords({
+            cx: x + width / 2,
+            cy: y + height / 2,
+          });
+        }
+      });
+    }
+  };
+
   const handleThemeSelect = async (themeId: string | null, event?: any) => {
     if (!user?.id) return;
 
@@ -100,13 +121,23 @@ export default function AppPreferencesScreen() {
                 {mode === 'dark' ? t('easyOnTheEyes') : t('brightAndClear')}
               </TextComponent>
             </View>
-            <Switch
-              value={mode === 'dark'}
-              onValueChange={() => toggleTheme({ cx: SCREEN_WIDTH - 45, cy: 145 })}
-              trackColor={{ false: theme.bgDisabled, true: theme.primary + '80' }}
-              thumbColor={mode === 'dark' ? theme.primary : '#f4f3f4'}
-              ios_backgroundColor={theme.bgDisabled}
-            />
+            <View
+              ref={switchRef}
+              onLayout={measureSwitch}
+              collapsable={false}
+            >
+              <Switch
+                value={localDark}
+                onValueChange={(val) => {
+                  setLocalDark(val);
+                  measureSwitch();
+                  toggleTheme(switchCoords || { cx: SCREEN_WIDTH - 45, cy: 145 });
+                }}
+                trackColor={{ false: theme.bgDisabled, true: theme.primary + '80' }}
+                thumbColor={mode === 'dark' ? theme.primary : '#f4f3f4'}
+                ios_backgroundColor={theme.bgDisabled}
+              />
+            </View>
           </View>
         </View>
 
@@ -168,7 +199,7 @@ export default function AppPreferencesScreen() {
                     </TextComponent>
                     {isActive && (
                       <View style={[styles.activeBadge, { backgroundColor: theme.primary }]}>
-                        <Ionicons name="checkmark" size={10} color="#FFF" />
+                        <Ionicons name="checkmark" size={10} color={theme.textOnPrimary} />
                       </View>
                     )}
                   </AnimatedPressable>
@@ -212,7 +243,7 @@ export default function AppPreferencesScreen() {
                     </TextComponent>
                     {isActive && (
                       <View style={[styles.activeBadge, { backgroundColor: theme.primary }]}>
-                        <Ionicons name="checkmark" size={10} color="#FFF" />
+                        <Ionicons name="checkmark" size={10} color={theme.textOnPrimary} />
                       </View>
                     )}
                   </AnimatedPressable>
@@ -261,7 +292,7 @@ export default function AppPreferencesScreen() {
                   </TextComponent>
                   {isActive && (
                     <View style={[styles.activeBadge, { backgroundColor: theme.primary }]}>
-                      <Ionicons name="checkmark" size={10} color="#FFF" />
+                      <Ionicons name="checkmark" size={10} color={theme.textOnPrimary} />
                     </View>
                   )}
                 </AnimatedPressable>

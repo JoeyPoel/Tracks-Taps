@@ -28,7 +28,7 @@ export function ToursDoneTabs({ activeTab, onTabChange, doneCount, reviewsCount 
                 <View style={styles.requestsContent}>
                     <TextComponent
                         style={styles.tabText}
-                        color={activeTab === 'done' ? '#FFF' : theme.textSecondary}
+                        color={activeTab === 'done' ? theme.textOnPrimary : theme.textSecondary}
                         bold
                         variant="body"
                     >
@@ -37,11 +37,11 @@ export function ToursDoneTabs({ activeTab, onTabChange, doneCount, reviewsCount 
                     {doneCount > 0 && (
                         <View style={[
                             styles.badge,
-                            { backgroundColor: activeTab === 'done' ? '#FFF' : theme.primary }
+                            { backgroundColor: activeTab === 'done' ? theme.textOnPrimary : theme.primary }
                         ]}>
                             <TextComponent
                                 style={styles.badgeText}
-                                color={activeTab === 'done' ? theme.primary : '#FFF'}
+                                color={activeTab === 'done' ? theme.primary : theme.textOnPrimary}
                                 bold
                                 variant="caption"
                             >
@@ -63,7 +63,7 @@ export function ToursDoneTabs({ activeTab, onTabChange, doneCount, reviewsCount 
                 <View style={styles.requestsContent}>
                     <TextComponent
                         style={styles.tabText}
-                        color={activeTab === 'reviews' ? '#FFF' : theme.textSecondary}
+                        color={activeTab === 'reviews' ? theme.textOnPrimary : theme.textSecondary}
                         bold
                         variant="body"
                     >
@@ -72,11 +72,11 @@ export function ToursDoneTabs({ activeTab, onTabChange, doneCount, reviewsCount 
                     {reviewsCount > 0 && (
                         <View style={[
                             styles.badge,
-                            { backgroundColor: activeTab === 'reviews' ? '#FFF' : theme.primary }
+                            { backgroundColor: activeTab === 'reviews' ? theme.textOnPrimary : theme.primary }
                         ]}>
                             <TextComponent
                                 style={styles.badgeText}
-                                color={activeTab === 'reviews' ? theme.primary : '#FFF'}
+                                color={activeTab === 'reviews' ? theme.primary : theme.textOnPrimary}
                                 bold
                                 variant="caption"
                             >

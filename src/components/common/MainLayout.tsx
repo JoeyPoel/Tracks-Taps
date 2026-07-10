@@ -11,6 +11,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, View } from 'react-native';
+import { usePushNotifications } from '@/src/hooks/usePushNotifications';
 import { useTheme } from '../../context/ThemeContext';
 import { useStore } from '../../store/store';
 import { Image } from 'expo-image';
@@ -31,6 +32,9 @@ export function MainLayout() {
 
     // Listen for level ups
     useLevelUpListener();
+
+    // Initialize push notifications for the logged in user
+    usePushNotifications(user?.id);
 
     useEffect(() => {
         const checkInitialState = async () => {

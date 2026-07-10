@@ -244,7 +244,7 @@ export const userRepository = {
         });
     },
 
-    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; referralCode?: string; authId?: string; customTheme?: string | null }) {
+    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; referralCode?: string; authId?: string; customTheme?: string | null; lastActiveAt?: Date | null }) {
         if (data.name && data.name.length > 25) {
             throw new Error('Name cannot exceed 25 characters');
         }

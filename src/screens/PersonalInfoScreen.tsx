@@ -262,9 +262,9 @@ export default function PersonalInfoScreen() {
                             disabled={loading}
                         >
                             {loading ? (
-                                <ActivityIndicator color="#fff" />
+                                <ActivityIndicator color={theme.textOnPrimary} />
                             ) : (
-                                <TextComponent style={styles.buttonText} color="#fff" bold variant="body">{t('saveChanges')}</TextComponent>
+                                <TextComponent style={styles.buttonText} color={theme.textOnPrimary} bold variant="body">{t('saveChanges')}</TextComponent>
                             )}
                         </AnimatedPressable>
 
@@ -390,7 +390,6 @@ const styles = StyleSheet.create({
         elevation: 4,
     },
     buttonText: {
-        color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
     },

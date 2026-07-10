@@ -187,5 +187,12 @@ export const userService = {
 
     async deleteUser(userId: number) {
         return await userRepository.deleteUser(userId);
+    },
+
+    async updateUserLastActive(authId: string) {
+        const dbUser = await userRepository.getUserByAuthId(authId);
+        if (dbUser) {
+            await userRepository.updateUser(dbUser.id, { lastActiveAt: new Date() });
+        }
     }
 };

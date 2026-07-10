@@ -86,33 +86,33 @@ export const AchievementProgressCard = ({ unlockedCount, totalCount, loading }: 
             >
                 <View style={styles.contentRow}>
                     <View style={styles.textColumn}>
-                        <TextComponent style={styles.progressLabel} color={theme.fixedWhite} bold variant="label">
+                        <TextComponent style={styles.progressLabel} color={theme.textOnPrimary} bold variant="label">
                             {t('totalProgress')}
                         </TextComponent>
 
                         <View style={styles.statsContainer}>
-                            <TextComponent style={styles.progressValue} color={theme.fixedWhite} bold variant="h1">
+                            <TextComponent style={styles.progressValue} color={theme.textOnPrimary} bold variant="h1">
                                 {displayCount}
                             </TextComponent>
-                            <TextComponent style={styles.totalValue} color={theme.fixedWhite} variant="h3">
+                            <TextComponent style={styles.totalValue} color={theme.textOnPrimary} variant="h3">
                                 / {totalCount}
                             </TextComponent>
                         </View>
 
-                        <TextComponent style={styles.subtext} color={theme.fixedWhite} variant="caption">
+                        <TextComponent style={styles.subtext} color={theme.textOnPrimary} variant="caption">
                             {unlockedCount === totalCount ? t('completed') : t('unlocked')}
                         </TextComponent>
                     </View>
 
                     <Animated.View style={[styles.iconWrapper, animatedIconStyle]}>
-                        <TrophyIcon size={56} color={theme.fixedWhite} style={styles.trophyIcon} />
+                        <TrophyIcon size={56} color={theme.textOnPrimary} style={styles.trophyIcon} />
                         {/* Glow behind trophy */}
                         <View style={styles.glow} />
                     </Animated.View>
                 </View>
 
                 <View style={styles.progressBarBg}>
-                    <Animated.View style={[styles.progressBarFill, animatedProgressStyle, { backgroundColor: theme.fixedWhite }]} />
+                    <Animated.View style={[styles.progressBarFill, animatedProgressStyle, { backgroundColor: theme.textOnPrimary }]} />
                 </View>
             </LinearGradient>
         </View>

@@ -88,7 +88,7 @@ export default function TourCard({
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: isGrid ? 'auto' : 0 }}>
           <View style={[styles.ratingBadge, styles.blurBadge]}>
             <StarIconSolid size={10} color={theme.gold} />
-            <TextComponent style={styles.ratingText} variant="caption" bold>{rating.toFixed(1)}</TextComponent>
+            <TextComponent style={styles.ratingText} color="#FFF" variant="caption" bold>{rating.toFixed(1)}</TextComponent>
           </View>
 
           {onEdit && (
@@ -99,8 +99,8 @@ export default function TourCard({
               }}
               style={[styles.ratingBadge, styles.blurBadge, { backgroundColor: theme.primary }]}
             >
-              <Ionicons name="pencil" size={12} color="#FFF" />
-              {!isGrid && <TextComponent style={styles.ratingText} variant="caption" bold>Edit</TextComponent>}
+              <Ionicons name="pencil" size={12} color={theme.textOnPrimary} />
+              {!isGrid && <TextComponent style={styles.ratingText} color={theme.textOnPrimary} variant="caption" bold>{t('edit')}</TextComponent>}
             </TouchableOpacity>
           )}
         </View>
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   ratingText: {
-    color: '#FFF',
+    // color overridden by props
   },
   bottomContent: {
     gap: 8,

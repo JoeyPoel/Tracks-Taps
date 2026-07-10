@@ -2,6 +2,8 @@ import { activeTourRepository } from '../repositories/activeTourRepository';
 import { gameInviteRepository } from '../repositories/gameInviteRepository';
 import { userRepository } from '../repositories/userRepository';
 import { activeTourService } from './activeTourService';
+import { prisma } from '../../src/lib/prisma';
+import { sendExpoPushNotifications } from '../utils/pushSender';
 
 export const gameInviteService = {
     async getInvites(userId: number) {
@@ -67,11 +69,26 @@ export const gameInviteService = {
         if (sender.id === target.id) throw new Error("Cannot invite yourself");
 
         // Create the invite
-        await gameInviteRepository.create({
+        const inviteResult = await gameInviteRepository.create({
             activeTourId: activeTourId,
             inviterId: senderId,
             inviteeId: target.id
         });
+
+        // Send push notification in background
+        prisma.userPushToken.findMany({
+            where: { userId: target.id }
+        }).then(async (tokens) => {
+            if (tokens.length > 0) {
+                const payload = tokens.map(t => ({
+                    to: [t.pushToken],
+                    title: 'Game Invite',
+                    body: `${sender.name || 'Someone'} invited you to a game challenge.`,
+                    data: { screen: 'game-invite', inviteId: activeTourId }
+                }));
+                await sendExpoPushNotifications(payload);
+            }
+        }).catch(err => console.error('[gameInviteService] Error sending game invite push:', err));
 
         return { success: true };
     },
@@ -94,17 +111,27 @@ export const gameInviteService = {
 
         // Process invites in parallel
         const results = await Promise.allSettled(validTargetIds.map(async (targetId) => {
-            // Check if user exists (optional optimization: findMany)
-            // For now, simpler to just create invite. Foreign key constraint will fail if user doesn't exist?
-            // Safer to check or rely on repository.
-            // Let's assume valid IDs for now or catch errors.
-
             await gameInviteRepository.create({
                 activeTourId: activeTourId,
                 inviterId: senderId,
                 inviteeId: targetId
             });
         }));
+
+        // Send push notifications in background for valid invitees
+        prisma.userPushToken.findMany({
+            where: { userId: { in: validTargetIds } }
+        }).then(async (tokens) => {
+            if (tokens.length > 0) {
+                const payload = tokens.map(t => ({
+                    to: [t.pushToken],
+                    title: 'Game Invite',
+                    body: `${sender.name || 'Someone'} invited you to a game challenge.`,
+                    data: { screen: 'game-invite', inviteId: activeTourId }
+                }));
+                await sendExpoPushNotifications(payload);
+            }
+        }).catch(err => console.error('[gameInviteService] Error sending batch game invite push:', err));
 
         const successCount = results.filter(r => r.status === 'fulfilled').length;
         return { success: true, count: successCount };

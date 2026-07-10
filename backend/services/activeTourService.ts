@@ -8,6 +8,7 @@ import { tourRepository } from '../repositories/tourRepository';
 import { userRepository } from '../repositories/userRepository';
 import { achievementService } from './achievementService';
 import { appSettingsRepository } from '../repositories/appSettingsRepository';
+import { sendExpoPushNotifications } from '../utils/pushSender';
 
 export const activeTourService = {
     async getActiveToursForUser(userId: number) {
@@ -273,7 +274,29 @@ export const activeTourService = {
             throw new Error("Only the host can start the tour");
         }
 
-        return await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.IN_PROGRESS);
+        const result = await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.IN_PROGRESS);
+
+        // Notify all other team members in this active tour session
+        const participantUserIds = activeTour.teams?.map(t => t.userId) || [];
+        const targetUserIds = participantUserIds.filter(id => id !== userId);
+
+        if (targetUserIds.length > 0) {
+            prisma.userPushToken.findMany({
+                where: { userId: { in: targetUserIds } }
+            }).then(async (tokens) => {
+                if (tokens.length > 0) {
+                    const payload = tokens.map(t => ({
+                        to: [t.pushToken],
+                        title: 'Tour Started!',
+                        body: `The tour '${activeTour.tour?.title || 'Tour'}' has started.`,
+                        data: { screen: 'active-tour', tourId: activeTourId }
+                    }));
+                    await sendExpoPushNotifications(payload);
+                }
+            }).catch(err => console.error('[activeTourService] Error sending tour started push:', err));
+        }
+
+        return result;
     },
 
     async checkBingo(userId: number, activeTourId: number) {

@@ -39,6 +39,8 @@ model User {
   playedTours          UserPlayedTour[]
   isAdmin              Boolean           @default(false)
   customTheme          String?
+  lastActiveAt         DateTime?         @default(now())
+  pushTokens           UserPushToken[]
 
   @@index([email])
 }
@@ -413,4 +415,16 @@ enum ChallengeType {
   TRUE_FALSE
   DARE
   RIDDLE
+}
+
+model UserPushToken {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  pushToken  String   @unique
+  deviceType String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

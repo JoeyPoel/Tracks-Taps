@@ -224,7 +224,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           />
           <Animated.View entering={FadeInUp.delay(200)} style={styles.heroContent}>
             <View style={[styles.tagContainer, { backgroundColor: theme.primary }]}>
-              <TextComponent style={styles.tagText} variant="caption" bold color="#FFF">
+              <TextComponent style={styles.tagText} variant="caption" bold color={theme.textOnPrimary}>
                 {t(tour.genre?.toLowerCase() as any) || tour.genre}
               </TextComponent>
             </View>

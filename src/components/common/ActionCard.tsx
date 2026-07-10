@@ -24,15 +24,15 @@ export function ActionCard({ title, subtitle, icon, onPress, rightAction, varian
 
     const isPrimary = variant === 'primary';
     const bg = isPrimary ? theme.primary : theme.bgSecondary;
-    const contentColor = isPrimary ? '#FFFFFF' : theme.textPrimary;
-    const subColor = isPrimary ? 'rgba(255,255,255,0.8)' : theme.textSecondary;
+    const contentColor = isPrimary ? theme.textOnPrimary : theme.textPrimary;
+    const subColor = isPrimary ? (theme.textOnPrimary + 'cc') : theme.textSecondary;
 
     return (
         <AnimatedPressable
             style={[styles.container, { backgroundColor: bg }, style]}
             onPress={onPress}
         >
-            <View style={[styles.iconContainer, { backgroundColor: isPrimary ? 'rgba(255,255,255,0.2)' : theme.bgTertiary }]}>
+            <View style={[styles.iconContainer, { backgroundColor: isPrimary ? theme.textOnPrimary + '22' : theme.bgTertiary }]}>
                 <Ionicons name={icon} size={24} color={contentColor} />
             </View>
 
@@ -49,7 +49,7 @@ export function ActionCard({ title, subtitle, icon, onPress, rightAction, varian
 
             {rightAction ? (
                 <AnimatedPressable
-                    style={[styles.actionButton, { backgroundColor: isPrimary ? 'rgba(255,255,255,0.2)' : theme.bgTertiary }]}
+                    style={[styles.actionButton, { backgroundColor: isPrimary ? theme.textOnPrimary + '22' : theme.bgTertiary }]}
                     onPress={rightAction.onPress}
                 >
                     <Ionicons name={rightAction.icon} size={20} color={rightAction.color || contentColor} />

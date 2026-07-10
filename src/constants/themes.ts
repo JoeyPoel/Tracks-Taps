@@ -752,6 +752,8 @@ export const COLOR_THEMES: ThemeConfig[] = [
             secondary: '#475569',
             secondaryHover: '#334155',
             bgPrimary: '#F1F5F9',
+            textOnPrimary: '#FFFFFF',
+            textOnSecondary: '#FFFFFF',
         },
         dark: {
             primary: '#F1F5F9',
@@ -760,6 +762,8 @@ export const COLOR_THEMES: ThemeConfig[] = [
             secondaryHover: '#94A3B8',
             bgPrimary: '#0F172A',
             bgSecondary: '#1E293B',
+            textOnPrimary: '#0F172A',
+            textOnSecondary: '#FFFFFF',
         }
     },
     {
@@ -836,6 +840,8 @@ export const COLOR_THEMES: ThemeConfig[] = [
             secondary: '#DC9700',
             secondaryHover: '#B57C00',
             bgPrimary: '#F4F9FF',
+            textOnPrimary: '#FFFFFF',
+            textOnSecondary: '#000000',
         },
         dark: {
             primary: '#70B5FF',
@@ -844,6 +850,8 @@ export const COLOR_THEMES: ThemeConfig[] = [
             secondaryHover: '#FFD580',
             bgPrimary: '#001329',
             bgSecondary: '#00244D',
+            textOnPrimary: '#000000',
+            textOnSecondary: '#000000',
         }
     },
     {
@@ -857,6 +865,8 @@ export const COLOR_THEMES: ThemeConfig[] = [
             secondary: '#008272',
             secondaryHover: '#006659',
             bgPrimary: '#F2FAF9',
+            textOnPrimary: '#FFFFFF',
+            textOnSecondary: '#FFFFFF',
         },
         dark: {
             primary: '#FF6B6B',
@@ -865,6 +875,8 @@ export const COLOR_THEMES: ThemeConfig[] = [
             secondaryHover: '#80DEEA',
             bgPrimary: '#0F1D1C',
             bgSecondary: '#1C3B38',
+            textOnPrimary: '#000000',
+            textOnSecondary: '#000000',
         }
     },
     {
@@ -878,6 +890,8 @@ export const COLOR_THEMES: ThemeConfig[] = [
             secondary: '#004F9F',
             secondaryHover: '#003366',
             bgPrimary: '#FFFFFF',
+            textOnPrimary: '#FFFFFF',
+            textOnSecondary: '#FFFFFF',
         },
         dark: {
             primary: '#FFFFFF',
@@ -886,6 +900,8 @@ export const COLOR_THEMES: ThemeConfig[] = [
             secondaryHover: '#0EA5E9',
             bgPrimary: '#000000',
             bgSecondary: '#1A1A1A',
+            textOnPrimary: '#000000',
+            textOnSecondary: '#000000',
         }
     }
 ];

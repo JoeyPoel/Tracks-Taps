@@ -82,7 +82,7 @@ export default function MapScreen() {
                       <View style={[styles.markerPlaceholder, { backgroundColor: theme.primary }]}>
                         {(() => {
                           const GenreIcon = getGenreIcon(tour.genre || 'Adventure');
-                          return <GenreIcon size={20} color="#FFF" />;
+                          return <GenreIcon size={20} color={theme.textOnPrimary} />;
                         })()}
                       </View>
                     )}
@@ -92,7 +92,7 @@ export default function MapScreen() {
                   <View style={[styles.markerBadge, { backgroundColor: theme.primary, borderColor: theme.fixedWhite || '#FFF' }]}>
                     {(() => {
                       const GenreIcon = getGenreIcon(tour.genre || 'Adventure');
-                      return <GenreIcon size={12} color="#FFF" />;
+                      return <GenreIcon size={12} color={theme.textOnPrimary} />;
                     })()}
                   </View>
 
@@ -119,7 +119,7 @@ export default function MapScreen() {
                   // START STOP: Solid Primary Pin
                   <View style={styles.markerShadowContainer}>
                     <View style={[styles.startMarker, { backgroundColor: theme.primary }]}>
-                      <FlagIcon size={20} color="#FFF" />
+                      <FlagIcon size={20} color={theme.textOnPrimary} />
                     </View>
                     <View style={[styles.markerTail, { borderTopColor: theme.primary }]} />
                   </View>
@@ -129,8 +129,8 @@ export default function MapScreen() {
                     <View style={[styles.stopIconContainer, { backgroundColor: 'transparent' }]}>
                       {getStopIcon(stop.type, 16, theme.textPrimary)}
                     </View>
-                    <View style={[styles.stopNumberBadge, { backgroundColor: theme.primary }]}>
-                      <Text style={styles.stopNumberText}>{stop.number}</Text>
+                    <View style={[styles.stopNumberBadge, { backgroundColor: theme.primary, borderColor: theme.textOnPrimary }]}>
+                      <Text style={[styles.stopNumberText, { color: theme.textOnPrimary }]}>{stop.number}</Text>
                     </View>
                   </View>
                 )}

@@ -1,6 +1,8 @@
 import { friendRepository } from '../repositories/friendRepository';
 import { userRepository } from '../repositories/userRepository';
 import { achievementService } from './achievementService';
+import { prisma } from '../../src/lib/prisma';
+import { sendExpoPushNotifications } from '../utils/pushSender';
 
 export const friendService = {
     async getFriends(email: string, page: number = 1, limit: number = 10, userId?: number) {
@@ -68,8 +70,24 @@ export const friendService = {
                 throw new Error('Request already pending');
             }
         }
+        const result = await friendRepository.createFriendship(requester.id, target.id);
 
-        return await friendRepository.createFriendship(requester.id, target.id);
+        // Send push notification in background
+        prisma.userPushToken.findMany({
+            where: { userId: target.id }
+        }).then(async (tokens) => {
+            if (tokens.length > 0) {
+                const payload = tokens.map(t => ({
+                    to: [t.pushToken],
+                    title: 'New Friend Request',
+                    body: `${requester.name || 'Someone'} sent you a friend request.`,
+                    data: { screen: 'friend-requests' }
+                }));
+                await sendExpoPushNotifications(payload);
+            }
+        }).catch(err => console.error('Error sending friend request push notification:', err));
+
+        return result;
     },
 
     async removeFriend(userEmail: string, friendId: number) {

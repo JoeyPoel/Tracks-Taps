@@ -90,7 +90,7 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
                         } else if (isSelected) {
                             borderColor = theme.primary;
                             backgroundColor = theme.primary;
-                            textColor = theme.fixedWhite;
+                            textColor = theme.textOnPrimary;
                         }
 
                         return (

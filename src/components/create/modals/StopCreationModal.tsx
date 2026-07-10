@@ -122,7 +122,7 @@ export default function StopCreationModal({
                             ]}
                             onPress={handleSave}
                         >
-                            <TextComponent style={styles.saveButtonText} color="white" bold variant="h3">
+                            <TextComponent style={styles.saveButtonText} color={theme.textOnPrimary} bold variant="h3">
                                 {t('confirmLocation')}
                             </TextComponent>
                         </TouchableOpacity>

@@ -295,8 +295,8 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                         style={[styles.externalNavButton, { backgroundColor: theme.primary, top: insets.top + 10 }]}
                         onPress={handleExternalNavigation}
                     >
-                        <Ionicons name="navigate" size={20} color="white" />
-                        <TextComponent style={styles.externalNavText} color="white" bold>{t('navigate')}</TextComponent>
+                        <Ionicons name="navigate" size={20} color={theme.textOnPrimary} />
+                        <TextComponent style={styles.externalNavText} color={theme.textOnPrimary} bold>{t('navigate')}</TextComponent>
                     </TouchableOpacity>
 
                 </View>

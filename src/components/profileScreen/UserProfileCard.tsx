@@ -49,7 +49,7 @@ export default function UserProfileCard({
                         onPress={onEditPress}
                         style={[styles.editButton, { backgroundColor: theme.primary, borderColor: theme.bgPrimary }]}
                     >
-                        <PencilIcon size={14} color="#FFF" />
+                        <PencilIcon size={14} color={theme.textOnPrimary} />
                     </AnimatedPressable>
                 )}
             </View>

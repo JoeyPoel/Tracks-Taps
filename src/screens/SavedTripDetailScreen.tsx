@@ -182,7 +182,7 @@ export default function SavedTripDetailScreen() {
                             onPress={() => isEditing ? handleSaveOrder() : setIsEditing(true)}
                             style={[styles.textButton, { backgroundColor: isEditing ? theme.primary : theme.bgTertiary }]}
                         >
-                            <TextComponent style={styles.textButtonLabel} color={isEditing ? '#FFF' : theme.textPrimary} bold variant="body">
+                            <TextComponent style={styles.textButtonLabel} color={isEditing ? theme.textOnPrimary : theme.textPrimary} bold variant="body">
                                 {isEditing ? t('done') : t('edit')}
                             </TextComponent>
                         </TouchableOpacity>

@@ -45,8 +45,8 @@ export default function TourHeader({ title, author, imageUrl, genre, onMapPress 
                     <View style={styles.content}>
                         {genre && GenreIcon && (
                             <View style={[styles.genreBadge, { backgroundColor: theme.bgSecondary }]}>
-                                <GenreIcon size={14} color={theme.fixedWhite} />
-                                <TextComponent style={styles.genreText} color="#FFF" bold variant="caption">{genre}</TextComponent>
+                                <GenreIcon size={14} color={theme.textPrimary} />
+                                <TextComponent style={styles.genreText} color={theme.textPrimary} bold variant="caption">{genre}</TextComponent>
                             </View>
                         )}
                         <TextComponent style={styles.title} color={theme.fixedWhite} bold variant="h1">{title}</TextComponent>

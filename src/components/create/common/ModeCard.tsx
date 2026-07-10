@@ -33,8 +33,8 @@ export function ModeCard({ mode, icon, label, description, colors, isSelected, o
             padding="large"
         >
             <View style={styles.cardHeader}>
-                <View style={[styles.iconContainer, { backgroundColor: isSelected ? 'white' : theme.bgTertiary }]}>
-                    <Ionicons name={icon} size={32} color={isSelected ? colors[0] : theme.textSecondary} />
+                <View style={[styles.iconContainer, { backgroundColor: isSelected ? theme.primary : theme.bgTertiary }]}>
+                    <Ionicons name={icon} size={32} color={isSelected ? theme.textOnPrimary : theme.textSecondary} />
                 </View>
                 {isSelected && (
                     <Ionicons name="checkmark-circle" size={28} color={theme.primary} />

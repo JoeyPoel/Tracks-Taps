@@ -50,7 +50,7 @@ const TourNavigation: React.FC<TourNavigationProps> = ({
                     interactionScale="medium"
                     haptic="medium"
                 >
-                    <TextComponent style={styles.navButtonText} color={theme.fixedWhite} bold variant="label">
+                    <TextComponent style={styles.navButtonText} color={theme.textOnPrimary} bold variant="label">
                         {t('next')}
                     </TextComponent>
                 </AnimatedPressable>

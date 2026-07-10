@@ -79,7 +79,7 @@ export default function MapScreen() {
                       <View style={[styles.markerPlaceholder, { backgroundColor: theme.primary }]}>
                         {(() => {
                           const GenreIcon = getGenreIcon(tour.genre || 'Adventure');
-                          return <GenreIcon size={20} color="#FFF" />;
+                          return <GenreIcon size={20} color={theme.textOnPrimary} />;
                         })()}
                       </View>
                     )}
@@ -89,7 +89,7 @@ export default function MapScreen() {
                   <View style={[styles.markerBadge, { backgroundColor: theme.primary, borderColor: theme.fixedWhite || '#FFF' }]}>
                     {(() => {
                       const GenreIcon = getGenreIcon(tour.genre || 'Adventure');
-                      return <GenreIcon size={12} color="#FFF" />;
+                      return <GenreIcon size={12} color={theme.textOnPrimary} />;
                     })()}
                   </View>
 
@@ -126,8 +126,8 @@ export default function MapScreen() {
                     <View style={[styles.stopIconContainer, { backgroundColor: theme.bgSecondary }]}>
                       {getStopIcon(stop.type, 16, theme.textPrimary)}
                     </View>
-                    <View style={[styles.stopNumberBadge, { backgroundColor: theme.primary }]}>
-                      <TextComponent style={styles.stopNumberText} color="white" bold variant="caption">
+                    <View style={[styles.stopNumberBadge, { backgroundColor: theme.primary, borderColor: theme.textOnPrimary }]}>
+                      <TextComponent style={styles.stopNumberText} color={theme.textOnPrimary} bold variant="caption">
                         {stop.number}
                       </TextComponent>
                     </View>

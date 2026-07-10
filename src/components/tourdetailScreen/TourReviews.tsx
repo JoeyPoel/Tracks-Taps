@@ -214,7 +214,7 @@ export default function TourReviews({
                 }
             ]}
         >
-            <TextComponent style={{ fontSize: 12, fontWeight: '600' }} color={active ? '#FFF' : theme.textSecondary} variant="label">
+            <TextComponent style={{ fontSize: 12, fontWeight: '600' }} color={active ? theme.textOnPrimary : theme.textSecondary} variant="label">
                 {label}
             </TextComponent>
         </TouchableOpacity>

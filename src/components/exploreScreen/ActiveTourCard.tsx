@@ -23,8 +23,8 @@ export default function ActiveTourCard({ title, imageUrl, progress, onResume }: 
       <View style={styles.content}>
         {/* Badge */}
         <View style={[styles.badge, { backgroundColor: theme.primary }]}>
-          <Ionicons name="play" size={12} color="#FFF" style={{ marginRight: 4 }} />
-          <TextComponent style={styles.badgeText} variant="caption" bold color="#FFF">
+          <Ionicons name="play" size={12} color={theme.textOnPrimary} style={{ marginRight: 4 }} />
+          <TextComponent style={styles.badgeText} variant="caption" bold color={theme.textOnPrimary}>
             {t('inProgressBadge')}
           </TextComponent>
         </View>

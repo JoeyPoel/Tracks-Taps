@@ -140,14 +140,14 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
                             >
                                 <GenreIcon
                                     size={16}
-                                    color={isSelected ? '#FFF' : theme.textPrimary}
+                                    color={isSelected ? theme.textOnPrimary : theme.textPrimary}
                                     style={{ marginRight: 8 }}
                                 />
                                 <TextComponent
                                     style={styles.categoryText}
                                     variant="label"
                                     bold
-                                    color={isSelected ? '#FFF' : theme.textPrimary}
+                                    color={isSelected ? theme.textOnPrimary : theme.textPrimary}
                                 >
                                     {t(cat.id.toLowerCase() as any)}
                                 </TextComponent>

@@ -97,7 +97,7 @@ export default function SavedTripsScreen() {
                             </View>
                         )}
                         <View style={[styles.badge, { backgroundColor: isFavourites ? theme.primary : 'rgba(0,0,0,0.6)' }]}>
-                            <TextComponent style={styles.badgeText} variant="caption" color="white" bold>
+                            <TextComponent style={styles.badgeText} variant="caption" color={isFavourites ? theme.textOnPrimary : 'white'} bold>
                                 {tourCount} {tourCount === 1 ? 'tour' : 'tours'}
                             </TextComponent>
                         </View>

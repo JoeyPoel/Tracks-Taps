@@ -216,8 +216,8 @@ export function StopMapPicker({
 
                 {marker && !selectedResult && (
                     <Marker key={`marker-${marker.latitude}-${marker.longitude}`} coordinate={marker} zIndex={100}>
-                        <View style={[styles.markerPip, { backgroundColor: theme.primary, borderColor: 'white', borderWidth: 2 }]}>
-                            {getStopIcon(currentStopType, 16, 'white')}
+                        <View style={[styles.markerPip, { backgroundColor: theme.primary, borderColor: theme.borderPrimary, borderWidth: 2 }]}>
+                            {getStopIcon(currentStopType, 16, theme.textOnPrimary)}
                         </View>
                     </Marker>
                 )}
@@ -235,7 +235,7 @@ export function StopMapPicker({
                             { backgroundColor: theme.secondary, borderColor: theme.bgSecondary },
                             selectedResult?.item.latitude === result.latitude && { transform: [{ scale: 1.2 }], borderWidth: 3, borderColor: theme.primary }
                         ]}>
-                            <TextComponent bold variant="caption" color="#FFF">{idx + 1}</TextComponent>
+                            <TextComponent bold variant="caption" color={theme.textOnSecondary}>{idx + 1}</TextComponent>
                         </View>
                     </Marker>
                 ))}
@@ -250,8 +250,8 @@ export function StopMapPicker({
                             setSelectedResult(selectedResult); // Trigger re-center/card if needed
                         }}
                     >
-                        <View style={[styles.markerPip, { backgroundColor: theme.primary, borderColor: 'white', borderWidth: 2 }]}>
-                            {getStopIcon(currentStopType, 16, 'white')}
+                        <View style={[styles.markerPip, { backgroundColor: theme.primary, borderColor: theme.borderPrimary, borderWidth: 2 }]}>
+                            {getStopIcon(currentStopType, 16, theme.textOnPrimary)}
                         </View>
                     </Marker>
                 )}
@@ -373,8 +373,8 @@ export function StopMapPicker({
                         style={[styles.confirmButton, { backgroundColor: theme.primary }]}
                         onPress={handleFinalizeResult}
                     >
-                        <TextComponent bold variant="body" color="white">{t('selectThisLocation') || 'Select This Location'}</TextComponent>
-                        <Ionicons name="checkmark-circle" size={18} color="white" />
+                        <TextComponent bold variant="body" color={theme.textOnPrimary}>{t('selectThisLocation') || 'Select This Location'}</TextComponent>
+                        <Ionicons name="checkmark-circle" size={18} color={theme.textOnPrimary} />
                     </TouchableOpacity>
                 </BlurView>
             )}

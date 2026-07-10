@@ -12,7 +12,7 @@ export function TimelineLeft({ index, isLast }: Props) {
     return (
         <View style={styles.timelineLeft}>
             <View style={[styles.timelineDot, { backgroundColor: theme.primary }]}>
-                <Text style={styles.timelineIndex}>{index + 1}</Text>
+                <Text style={[styles.timelineIndex, { color: theme.textOnPrimary }]}>{index + 1}</Text>
             </View>
             {!isLast && <View style={[styles.timelineLine, { backgroundColor: theme.borderPrimary }]} />}
         </View>
@@ -34,7 +34,6 @@ const styles = StyleSheet.create({
         zIndex: 2,
     },
     timelineIndex: {
-        color: 'white',
         fontSize: 12,
         fontWeight: 'bold',
     },

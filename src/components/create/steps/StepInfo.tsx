@@ -49,16 +49,16 @@ export default function StepInfo({ draft, updateDraft }: StepInfoProps) {
                                     style={[
                                         styles.genreChip,
                                         {
-                                            backgroundColor: isSelected ? genre.color : theme.bgTertiary,
-                                            borderColor: isSelected ? genre.color : theme.borderPrimary
+                                            backgroundColor: isSelected ? theme.primary : theme.bgTertiary,
+                                            borderColor: isSelected ? theme.primary : theme.borderPrimary
                                         }
                                     ]}
                                     onPress={() => updateDraft('genre', genre.id)}
                                 >
-                                    <Icon size={16} color={isSelected ? '#FFF' : theme.textSecondary} />
+                                    <Icon size={16} color={isSelected ? theme.textOnPrimary : theme.textSecondary} />
                                     <TextComponent
                                         style={styles.genreLabel}
-                                        color={isSelected ? '#FFF' : theme.textSecondary}
+                                        color={isSelected ? theme.textOnPrimary : theme.textSecondary}
                                         bold={false}
                                         variant="body"
                                     >
@@ -96,7 +96,7 @@ export default function StepInfo({ draft, updateDraft }: StepInfoProps) {
                                 >
                                     <TextComponent
                                         style={styles.genreLabel}
-                                        color={isSelected ? '#FFF' : theme.textSecondary}
+                                        color={isSelected ? theme.textOnPrimary : theme.textSecondary}
                                         bold={false}
                                         variant="body"
                                     >

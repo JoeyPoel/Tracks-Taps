@@ -214,20 +214,20 @@ export default function ActiveChallengeCard({
                                 {isLoading ? (
                                     <View style={{ marginRight: 8 }}>
                                         <Animated.View style={{ transform: [{ rotate: '0deg' }] }}>
-                                            <Ionicons name="sync" size={18} color={disabled ? theme.textTertiary : theme.fixedWhite} />
+                                            <Ionicons name="sync" size={18} color={disabled ? theme.textTertiary : theme.textOnPrimary} />
                                         </Animated.View>
                                     </View>
                                 ) : (
                                     <TextComponent 
                                         style={styles.buttonText} 
-                                        color={disabled ? theme.textTertiary : theme.fixedWhite} 
+                                        color={disabled ? theme.textTertiary : theme.textOnPrimary} 
                                         bold 
                                         variant="body"
                                     >
                                         {actionLabel}
                                     </TextComponent>
                                 )}
-                                {!disabled && !isLoading && <Ionicons name="arrow-forward" size={18} color={theme.fixedWhite} />}
+                                {!disabled && !isLoading && <Ionicons name="arrow-forward" size={18} color={theme.textOnPrimary} />}
                             </AnimatedPressable>
                     )}
                 </LinearGradient>

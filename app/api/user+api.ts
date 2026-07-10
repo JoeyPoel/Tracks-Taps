@@ -7,6 +7,9 @@ export async function GET(request: Request) {
     if (!user) {
         return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    // Update lastActiveAt field in the background
+    userService.updateUserLastActive(user.id).catch(err => console.error('[user+api] Error updating lastActive:', err));
+
     return await userController.getUser(request);
 }
 
@@ -55,6 +58,16 @@ export async function POST(request: Request) {
                 return Response.json({ error: 'Forbidden' }, { status: 403 });
             }
             return await userController.deleteUser(request, body);
+        } else if (body.action === 'register-push-token') {
+            // Check ownership
+            let dbUser = await userService.getUserByAuthId(user.id);
+            if (!dbUser && user.email) {
+                dbUser = await userService.getUserByEmail(user.email);
+            }
+            if (!dbUser || dbUser.id !== Number(body.userId)) {
+                return Response.json({ error: 'Forbidden' }, { status: 403 });
+            }
+            return await userController.registerPushToken(request, body);
         }
 
         return Response.json({ error: 'Invalid action' }, { status: 400 });
