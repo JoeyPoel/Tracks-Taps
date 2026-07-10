@@ -44,11 +44,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     // Handle inconsistent state: Session exists but backend User fetch failed
     useEffect(() => {
         if (authId && error && !user && !loading) {
-            // Check connectivity before forcing a sign-out
+            // Check connectivity
             NetInfo.fetch().then(state => {
                 if (state.isConnected) {
-                    console.warn("User fetch failed with active session. Signing out to force re-login.");
-                    supabase.auth.signOut();
+                    console.warn("User fetch failed with active session. Retaining session for retries.");
+                    // Removed aggressive auto-signOut to prevent login loops on transient network/token errors
                 } else {
                     console.warn("User fetch failed but device is offline. Retaining session.");
                 }

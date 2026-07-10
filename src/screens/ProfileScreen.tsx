@@ -31,6 +31,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useTutorial } from '../context/TutorialContext';
 import { useUserContext } from '../context/UserContext';
 import { useFriends } from '../hooks/useFriends';
+import { useInvites } from '../hooks/useInvites';
 import { useStore } from '../store/store';
 import { LevelSystem } from '../utils/levelUtils';
 import { Ionicons } from '@expo/vector-icons';
@@ -46,10 +47,12 @@ export default function ProfileScreen() {
   const { user, loading, refreshUser } = useUserContext();
   const { achievements, fetchAchievements, loadingAchievements } = useStore();
   const { loadFriends, friends } = useFriends();
+  const { invites } = useInvites();
   const { isPro } = useRevenueCat();
   const { startTutorial } = useTutorial();
   const [pendingCount, setPendingCount] = useState(0);
   const [rejectedCount, setRejectedCount] = useState(0);
+  const inviteCount = invites.length;
 
   // Load achievements once when profile loads (if not already loaded)
   useEffect(() => {
@@ -166,6 +169,21 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         )}
 
+        {user && inviteCount > 0 && (
+          <TouchableOpacity
+            style={[styles.notificationBanner, { backgroundColor: theme.primary + '18', borderColor: theme.primary }]}
+            onPress={() => router.push({ pathname: '/profile/friends', params: { initialTab: 'requests' } } as any)}
+          >
+            <Ionicons name="mail-unread" size={20} color={theme.primary} />
+            <TextComponent variant="caption" bold color={theme.textPrimary} style={{ marginLeft: 8, flex: 1 }}>
+              {inviteCount === 1
+                ? t('tourInviteBannerOne')
+                : (t('tourInviteBannerMany') || '').replace('{0}', String(inviteCount))}
+            </TextComponent>
+            <ChevronRightIcon size={16} color={theme.primary} />
+          </TouchableOpacity>
+        )}
+
         {user && (
           <Animated.View style={{ marginTop: 32 }}>
             <TokenCard
@@ -190,15 +208,7 @@ export default function ProfileScreen() {
         <Animated.View style={{ marginTop: 40 }}>
           <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('manageAccount')?.toUpperCase() || 'MANAGE ACCOUNT'}</Text>
 
-
           <View style={[styles.settingsGroup, { backgroundColor: theme.bgSecondary }]}>
-            {/* Subscription Logic Removed as per user request */}
-            {/* <SettingsItem
-              icon={<SparklesIcon size={22} color={theme.accent} />}
-              title={isPro ? ((t('manageSubscription') as string) || 'Manage Subscription') : ((t('becomePro') as string) || 'Become a Pro Member')}
-              onPress={() => router.push(isPro ? '/customer-center' : '/paywall' as any)}
-            /> */}
-
             {user && (
               <>
                 {user.isAdmin && (
@@ -292,7 +302,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 120, // Standardized
+    paddingBottom: 120,
   },
   headerContainer: {
     marginTop: 16,
@@ -313,13 +323,12 @@ const styles = StyleSheet.create({
   settingsGroup: {
     borderRadius: 16,
     overflow: 'hidden',
-    // Premium Shadow
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
-    marginTop: 4, // Spacing for shadow
+    marginTop: 4,
   },
   notificationBanner: {
     flexDirection: 'row',

@@ -510,7 +510,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
 interface TranslationButtonProps {
   theme: any;
-  t: (key: string) => string;
+  t: (key: any) => string;
   isTourDetailsStep: boolean;
   isAutoTranslateEnabled: boolean;
   setIsAutoTranslateEnabled: (enabled: boolean) => void;

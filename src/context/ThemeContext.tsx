@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import { ColorSchemeName, useColorScheme } from "react-native";
+import { ColorSchemeName, useColorScheme, Dimensions, View, StyleSheet } from "react-native";
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing, runOnJS } from 'react-native-reanimated';
+import Constants from 'expo-constants';
 import { darkTheme, lightTheme, romanticLightTheme, romanticDarkTheme } from './theme';
 import * as SystemUI from 'expo-system-ui';
 import { useStore } from '../store/store';
@@ -8,17 +10,20 @@ import { userService } from '../services/userService';
 import client from '../api/apiClient';
 import { HOLIDAY_THEMES, COLOR_THEMES, getOverriddenTheme } from '../constants/themes';
 
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
 type ThemeMode = "light" | "dark";
 
 interface ThemeContextProps {
     mode: ThemeMode;
     theme: typeof lightTheme;
-    toggleTheme: () => void;
+    toggleTheme: (startingPoint?: { cx: number; cy: number }) => void;
     triggerOverlay: (type: string | null) => void;
     overlayTrigger: number;
     overlayType: string | null;
     refreshThemeSettings: () => Promise<void>;
     activeHoliday: { id: string; name: string; description: string; translations?: any } | null;
+    performTransition: (updateFn: () => void, startingPoint?: { cx: number; cy: number }, targetBgColor?: string) => void;
 }
 
 const themes = {
@@ -38,7 +43,8 @@ const ThemeContext = createContext<ThemeContextProps>({
     overlayTrigger: 0,
     overlayType: null,
     refreshThemeSettings: async (): Promise<void> => { },
-    activeHoliday: null
+    activeHoliday: null,
+    performTransition: (): void => { }
 });
 
 export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode => {
@@ -106,16 +112,86 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
         }
     }, [user?.themePreference, isLoaded]);
 
-    const toggleTheme = React.useCallback((): void => {
-        setMode(prev => {
-            const next = prev === "light" ? "dark" : "light";
+    // Reanimated variables for JS fallback theme transition overlay
+    const [jsTransitionActive, setJsTransitionActive] = useState(false);
+    const [jsTransitionColor, setJsTransitionColor] = useState('transparent');
+    const [jsStartingPoint, setJsStartingPoint] = useState({ cx: 0, cy: 0 });
+    const jsScale = useSharedValue(0);
+    const jsOpacity = useSharedValue(1);
+
+    const performTransition = React.useCallback((updateFn: () => void, startingPoint?: { cx: number; cy: number }, targetBgColor?: string) => {
+        const isExpoGo = Constants.appOwnership === 'expo';
+        const coords = startingPoint || { cx: SCREEN_WIDTH / 2, cy: SCREEN_HEIGHT / 2 };
+
+        if (!isExpoGo) {
+            try {
+                // Dynamic require avoids loading the native module immediately on startup in Expo Go
+                const nativeSwitchTheme = require('react-native-theme-switch-animation').default;
+                if (nativeSwitchTheme) {
+                    nativeSwitchTheme({
+                        switchThemeFunction: updateFn,
+                        animationConfig: {
+                            type: 'circular',
+                            duration: 650,
+                            startingPoint: coords
+                        }
+                    });
+                    return;
+                }
+            } catch (e) {
+                console.warn('Native theme transition failed, falling back to JS transition', e);
+            }
+        }
+
+        // --- PURE JS REANIMATED TRANSITION FALLBACK (Expo Go) ---
+        let targetBg = targetBgColor;
+        if (!targetBg) {
+            targetBg = mode === 'light' ? darkTheme.bgPrimary : lightTheme.bgPrimary;
+        }
+
+        setJsStartingPoint(coords);
+        setJsTransitionColor(targetBg);
+        setJsTransitionActive(true);
+        jsOpacity.value = 1;
+        jsScale.value = 0;
+
+        jsScale.value = withTiming(25, { duration: 420, easing: Easing.out(Easing.ease) }, (finished) => {
+            if (finished) {
+                runOnJS(updateFn)();
+                jsOpacity.value = withTiming(0, { duration: 220 }, (fadeFinished) => {
+                    if (fadeFinished) {
+                        runOnJS(setJsTransitionActive)(false);
+                    }
+                });
+            }
+        });
+    }, [mode]);
+
+    const toggleTheme = React.useCallback((startingPoint?: { cx: number; cy: number }): void => {
+        const nextMode = mode === "light" ? "dark" : "light";
+        const updateFn = () => {
+            setMode(nextMode);
             // Persist to remote and update store
             if (userId) {
-                updateUser(userId, { themePreference: next }).catch(() => {});
+                updateUser(userId, { themePreference: nextMode }).catch(() => {});
             }
-            return next;
-        });
-    }, [userId, updateUser]);
+        };
+        performTransition(updateFn, startingPoint);
+    }, [mode, userId, updateUser, performTransition]);
+
+    const animatedOverlayStyle = useAnimatedStyle(() => {
+        return {
+            position: 'absolute',
+            left: jsStartingPoint.cx - 50,
+            top: jsStartingPoint.cy - 50,
+            width: 100,
+            height: 100,
+            borderRadius: 50,
+            backgroundColor: jsTransitionColor,
+            transform: [{ scale: jsScale.value }],
+            opacity: jsOpacity.value,
+        };
+    });
 
     // Persist theme changes
     useEffect(() => {
@@ -238,8 +314,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
         overlayTrigger,
         overlayType,
         refreshThemeSettings,
-        activeHoliday
-    }), [mode, theme, toggleTheme, triggerOverlay, overlayTrigger, overlayType, refreshThemeSettings, activeHoliday]);
+        activeHoliday,
+        performTransition
+    }), [mode, theme, toggleTheme, triggerOverlay, overlayTrigger, overlayType, refreshThemeSettings, activeHoliday, performTransition]);
 
     // Defer rendering until the first successful load from storage
     // to prevent "theme flash" where the app shows the OS theme for a split second.
@@ -248,6 +325,11 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
     return (
         <ThemeContext.Provider value={value}>
             {children}
+            {jsTransitionActive && (
+                <View style={[StyleSheet.absoluteFill, { zIndex: 999999 }]} pointerEvents="none">
+                    <Animated.View style={animatedOverlayStyle} />
+                </View>
+            )}
         </ThemeContext.Provider>
     );
 };

@@ -42,7 +42,20 @@ const client = axios.create({
 // Add a request interceptor to inject the auth token
 client.interceptors.request.use(
     async (config) => {
-        const { data: { session } } = await supabase.auth.getSession();
+        let { data: { session } } = await supabase.auth.getSession();
+
+        if (session) {
+            const expiresAt = session.expires_at;
+            const now = Math.floor(Date.now() / 1000);
+            // Proactively refresh if token expires in less than 60 seconds
+            if (expiresAt && (expiresAt - now < 60)) {
+                console.log('Session token is expiring soon, proactively refreshing...');
+                const { data: { session: refreshedSession }, error } = await supabase.auth.refreshSession();
+                if (!error && refreshedSession) {
+                    session = refreshedSession;
+                }
+            }
+        }
 
         if (session?.access_token) {
             config.headers.Authorization = `Bearer ${session.access_token}`;
@@ -59,17 +72,24 @@ client.interceptors.request.use(
 // Add a response interceptor to handle errors globally if needed
 client.interceptors.response.use(
     (response) => response,
-    (error) => {
-        // Handle global errors here (e.g., logging, redirecting on 401)
-        if (error.response?.status === 401) {
-            console.log("Unauthorized request:", error.config.url);
-            // Verify if we are not already on an auth screen to avoid loops or unnecessary modals
-            // But usually the modal handles its own visibility state
-            // Import moved to top-level to avoid require
-            // authEvents.emit(); // Removed global trigger for guest mode
+    async (error) => {
+        const originalRequest = error.config;
 
-            // For fetching data, we just return empty/null in the calling functions if 401
-            // For actions (POST/PUT), we should check auth before calling API
+        // If unauthorized and we haven't retried yet
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            console.log("Unauthorized request, attempting token refresh for:", originalRequest.url);
+
+            try {
+                const { data: { session }, error: refreshError } = await supabase.auth.refreshSession();
+                if (!refreshError && session?.access_token) {
+                    console.log("Token refreshed successfully, retrying request...");
+                    originalRequest.headers.Authorization = `Bearer ${session.access_token}`;
+                    return client(originalRequest);
+                }
+            } catch (refreshCatchError) {
+                console.error("Token refresh failed:", refreshCatchError);
+            }
         }
 
         if (error.response?.status >= 500) {

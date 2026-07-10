@@ -86,6 +86,15 @@ export default function FriendProfileScreen() {
         }
     };
 
+    const handleDecline = async () => {
+        if (!user) return;
+        const request = requests.find((r: any) => r.requesterId === Number(userId));
+        if (request) {
+            await respondToRequest(request.id, 'DECLINE');
+            loadUser();
+        }
+    };
+
     const handleAction = async () => {
         if (!user) return;
         
@@ -197,12 +206,22 @@ export default function FriendProfileScreen() {
                                 variant="outline"
                             />
                         ) : user.friendshipStatus === 'PENDING_INCOMING' ? (
-                            <AnimatedButton
-                                title={t('accept')}
-                                onPress={handleAction}
-                                loading={actionLoading}
-                                variant="primary"
-                            />
+                            <View style={{ flexDirection: 'row', gap: 12 }}>
+                                <AnimatedButton
+                                    title={t('accept')}
+                                    onPress={handleAction}
+                                    loading={actionLoading}
+                                    variant="primary"
+                                    style={{ flex: 1 }}
+                                />
+                                <AnimatedButton
+                                    title={t('decline') || 'Decline'}
+                                    onPress={handleDecline}
+                                    loading={actionLoading}
+                                    variant="outline"
+                                    style={{ flex: 1 }}
+                                />
+                            </View>
                         ) : (
                             <AnimatedButton
                                 title={user.friendshipStatus === 'ACCEPTED' ? t('removeFriendTitle') : t('addFriend')}

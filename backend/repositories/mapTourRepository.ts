@@ -1,4 +1,5 @@
 import { prisma } from '../../src/lib/prisma';
+import { TourStatus } from '@prisma/client';
 
 export const mapTourRepository = {
     async getTours(bounds?: { minLat: number; maxLat: number; minLng: number; maxLng: number }) {
@@ -34,8 +35,8 @@ export const mapTourRepository = {
         });
         const showUnmoderated = settings?.showUnmoderatedTours ?? false;
         const statusFilter = showUnmoderated
-            ? { in: ['PUBLISHED', 'PENDING_REVIEW'] as const }
-            : 'PUBLISHED';
+            ? { in: ['PUBLISHED', 'PENDING_REVIEW'] as TourStatus[] }
+            : 'PUBLISHED' as TourStatus;
 
         if (!bounds) {
             return await prisma.tour.findMany({

@@ -15,7 +15,7 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { useFriends } from '@/src/hooks/useFriends';
 import { useInvites } from '@/src/hooks/useInvites';
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 
@@ -23,7 +23,10 @@ export default function FriendsScreen() {
     const { theme } = useTheme();
     const router = useRouter();
     const { t } = useLanguage();
-    const [activeTab, setActiveTab] = useState<'friends' | 'requests'>('friends');
+    const { initialTab } = useLocalSearchParams<{ initialTab?: string }>();
+    const [activeTab, setActiveTab] = useState<'friends' | 'requests'>(
+        initialTab === 'requests' ? 'requests' : 'friends'
+    );
     const [addModalVisible, setAddModalVisible] = useState(false);
 
     const {

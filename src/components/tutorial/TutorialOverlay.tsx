@@ -6,7 +6,7 @@ import { useAppWidth } from '@/src/hooks/useAppWidth';
 import { useRouter } from 'expo-router';
 import { Wand2 } from 'lucide-react-native';
 import React, { useEffect } from 'react';
-import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Dimensions, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import Animated, { 
     FadeIn, 
     FadeOut, 
@@ -206,9 +206,9 @@ export const TutorialOverlay = () => {
                             const hasSingleButton = (step.id === 'tour_details') || (step.id === 'finish' && session);
                             const footerStyle = [
                                 styles.footer,
-                                (step.id === 'tour_select' || hasSingleButton) ? { justifyContent: 'center' } : { justifyContent: 'space-between' }
+                                (step.id === 'tour_select' || hasSingleButton) ? { justifyContent: 'center' as const } : { justifyContent: 'space-between' as const }
                             ];
-                            const buttonStyle = hasSingleButton ? { width: '100%' } : {};
+                            const buttonStyle: ViewStyle = hasSingleButton ? { width: '100%' } : {};
 
                             return (
                                 <View style={footerStyle}>

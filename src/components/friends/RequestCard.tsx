@@ -5,6 +5,7 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { getOptimizedImageUrl } from '@/src/utils/imageUtils';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
@@ -17,48 +18,66 @@ interface RequestCardProps {
 const RequestCardComponent = ({ request, onAccept, onDecline }: RequestCardProps) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
+    const router = useRouter();
+
+    console.log('[RequestCard] rendering request:', JSON.stringify(request));
+
+    const requester = request.fromUser || request.requester || request;
+    const avatarUri = requester?.avatarUrl || requester?.avatar;
+    const name = requester?.name || requester?.username || (requester?.email ? requester.email.split('@')[0] : null) || request.name || 'Unknown User';
+    const level = requester?.level || 1;
+
+    const navigateToProfile = () => {
+        if (requester?.id) {
+            router.push({
+                pathname: '/profile/friend-profile',
+                params: { userId: requester.id }
+            });
+        }
+    };
 
     return (
-        <GenericCard style={styles.container} padding="small">
-            <View style={styles.userInfo}>
-                <Image
-                    source={request.requester.avatarUrl ? { uri: getOptimizedImageUrl(request.requester.avatarUrl, 100) } : require('../../../assets/images/profilePictureFallback.png')}
-                    style={styles.avatar}
-                    contentFit="cover"
-                    cachePolicy="disk"
-                    transition={200}
-                    placeholder={require('../../../assets/images/profilePictureFallback.png')}
-                />
-                <View style={styles.textContainer}>
-                    <View style={styles.headerRow}>
-                        <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">
-                            {request.requester.name}
-                        </TextComponent>
-                        <View style={styles.actions}>
-                            <TouchableOpacity
-                                onPress={() => onAccept(request.id)}
-                                style={[styles.iconButton, { backgroundColor: theme.primary }]}
-                            >
-                                <Ionicons name="checkmark" size={16} color="#FFF" />
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => onDecline(request.id)}
-                                style={[styles.iconButton, { backgroundColor: 'transparent', borderWidth: 1, borderColor: theme.borderPrimary }]}
-                            >
-                                <Ionicons name="close" size={16} color={theme.textSecondary} />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>
-                        <View style={[styles.badge, { backgroundColor: theme.bgSecondary }]}>
-                            <TextComponent style={styles.badgeText} color={theme.primary} bold variant="caption">
-                                Lvl {request.requester.level || 1}
+        <GenericCard style={{ marginBottom: 8 }} padding="small">
+            <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%' }}>
+                <TouchableOpacity onPress={navigateToProfile} style={styles.userInfo} activeOpacity={0.7}>
+                    <Image
+                        source={avatarUri ? { uri: getOptimizedImageUrl(avatarUri, 100) } : require('../../../assets/images/profilePictureFallback.png')}
+                        style={styles.avatar}
+                        contentFit="cover"
+                        cachePolicy="disk"
+                        transition={200}
+                        placeholder={require('../../../assets/images/profilePictureFallback.png')}
+                    />
+                    <View style={styles.textContainer}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <TextComponent style={styles.name} color={theme.textPrimary} bold variant="body">
+                                {name}
                             </TextComponent>
+                            <View style={[styles.badge, { backgroundColor: theme.bgSecondary }]}>
+                                <TextComponent style={styles.badgeText} color={theme.primary} bold variant="caption">
+                                    Lvl {level}
+                                </TextComponent>
+                            </View>
                         </View>
-                        <TextComponent style={styles.subText} color={theme.textSecondary} variant="caption">
+                        <TextComponent style={[styles.subText, { marginTop: 2 }]} color={theme.textSecondary} variant="caption">
                             {t('wantsToBeFriend')}
                         </TextComponent>
                     </View>
+                </TouchableOpacity>
+
+                <View style={styles.actions}>
+                    <TouchableOpacity
+                        onPress={() => onAccept(request.id)}
+                        style={[styles.iconButton, { backgroundColor: theme.primary }]}
+                    >
+                        <Ionicons name="checkmark" size={16} color="#FFF" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => onDecline(request.id)}
+                        style={[styles.iconButton, { backgroundColor: 'transparent', borderWidth: 1, borderColor: theme.borderPrimary }]}
+                    >
+                        <Ionicons name="close" size={16} color={theme.textSecondary} />
+                    </TouchableOpacity>
                 </View>
             </View>
         </GenericCard>
@@ -69,11 +88,6 @@ export const RequestCard = React.memo(RequestCardComponent);
 
 // Fixed styling (using View instead of div, assuming React Native)
 const styles = StyleSheet.create({
-    container: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
     userInfo: {
         flexDirection: 'row',
         alignItems: 'center',

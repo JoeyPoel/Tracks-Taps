@@ -205,8 +205,8 @@ export const activeTourController = {
                 return Response.json({ error: 'Missing activeTourId or userId' }, { status: 400 });
             }
 
-            const updatedTour = await activeTourService.abandonTour(Number(activeTourId), Number(userId));
-            return Response.json(updatedTour);
+            await activeTourService.abandonTour(Number(activeTourId), Number(userId));
+            return Response.json({ success: true });
         } catch (error) {
             console.error('Error abandoning tour:', error);
             return Response.json({ error: 'Failed to abandon tour' }, { status: 500 });

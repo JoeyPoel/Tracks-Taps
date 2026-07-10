@@ -8,6 +8,7 @@ const friendshipWithUsersArgs = Prisma.validator<Prisma.FriendshipDefaultArgs>()
             select: {
                 id: true,
                 name: true,
+                email: true,
                 avatarUrl: true,
                 level: true,
                 xp: true,
@@ -18,6 +19,7 @@ const friendshipWithUsersArgs = Prisma.validator<Prisma.FriendshipDefaultArgs>()
             select: {
                 id: true,
                 name: true,
+                email: true,
                 avatarUrl: true,
                 level: true,
                 xp: true,
@@ -58,6 +60,7 @@ export const friendRepository = {
                     select: {
                         id: true,
                         name: true,
+                        email: true,
                         avatarUrl: true,
                         level: true,
                         isAdmin: true

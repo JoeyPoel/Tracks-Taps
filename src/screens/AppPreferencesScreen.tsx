@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, Switch, View, TextInput, FlatList, Pressable } from 'react-native';
+import { ScrollView, StyleSheet, Switch, View, TextInput, FlatList, Pressable, Dimensions } from 'react-native';
 import { AppModal } from '../components/common/AppModal';
 import { AnimatedPressable } from '../components/common/AnimatedPressable';
 import { ScreenHeader } from '../components/common/ScreenHeader';
@@ -14,9 +14,12 @@ import { useTheme } from '../context/ThemeContext';
 import { useTranslation, SUPPORTED_TRANSLATION_LANGUAGES } from '../context/TranslationContext';
 import { COLOR_THEMES } from '../constants/themes';
 import { useStore } from '../store/store';
+import { darkTheme, lightTheme } from '../context/theme';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function AppPreferencesScreen() {
-  const { theme, toggleTheme, mode } = useTheme();
+  const { theme, toggleTheme, mode, performTransition } = useTheme();
   const { t, language, setLanguage } = useLanguage();
   const { isAutoTranslateEnabled, setIsAutoTranslateEnabled, targetLanguage, setTargetLanguage } = useTranslation();
   const [isLangModalVisible, setIsLangModalVisible] = React.useState(false);
@@ -24,13 +27,33 @@ export default function AppPreferencesScreen() {
   const user = useStore(state => state.user);
   const updateUser = useStore(state => state.updateUser);
 
-  const handleThemeSelect = async (themeId: string | null) => {
+  const handleThemeSelect = async (themeId: string | null, event?: any) => {
     if (!user?.id) return;
-    try {
-      await updateUser(user.id, { customTheme: themeId });
-    } catch (e) {
-      console.warn('Failed to update custom theme preference:', e);
+
+    const startingPoint = event ? {
+      cx: event.nativeEvent.pageX,
+      cy: event.nativeEvent.pageY
+    } : undefined;
+
+    let targetBg = theme.bgPrimary;
+    if (themeId) {
+      const themeConfig = COLOR_THEMES.find(t => t.id === themeId);
+      if (themeConfig) {
+        const overrides = mode === 'dark' ? themeConfig.dark : themeConfig.light;
+        const base = mode === 'dark' ? darkTheme : lightTheme;
+        targetBg = overrides.bgPrimary || base.bgPrimary;
+      }
+    } else {
+      targetBg = mode === 'dark' ? darkTheme.bgPrimary : lightTheme.bgPrimary;
     }
+
+    performTransition(async () => {
+      try {
+        await updateUser(user.id!, { customTheme: themeId });
+      } catch (e) {
+        console.warn('Failed to update custom theme preference:', e);
+      }
+    }, startingPoint, targetBg);
   };
 
   const languages = [
@@ -79,7 +102,7 @@ export default function AppPreferencesScreen() {
             </View>
             <Switch
               value={mode === 'dark'}
-              onValueChange={toggleTheme}
+              onValueChange={() => toggleTheme({ cx: SCREEN_WIDTH - 45, cy: 145 })}
               trackColor={{ false: theme.bgDisabled, true: theme.primary + '80' }}
               thumbColor={mode === 'dark' ? theme.primary : '#f4f3f4'}
               ios_backgroundColor={theme.bgDisabled}
@@ -120,7 +143,7 @@ export default function AppPreferencesScreen() {
                 
                 return (
                   <AnimatedPressable
-                    onPress={() => handleThemeSelect(null)}
+                    onPress={(e) => handleThemeSelect(null, e)}
                     style={[
                       styles.themeOption,
                       {
@@ -164,7 +187,7 @@ export default function AppPreferencesScreen() {
                 return (
                   <AnimatedPressable
                     key={themeConfig.id}
-                    onPress={() => handleThemeSelect(themeConfig.id)}
+                    onPress={(e) => handleThemeSelect(themeConfig.id, e)}
                     style={[
                       styles.themeOption,
                       {

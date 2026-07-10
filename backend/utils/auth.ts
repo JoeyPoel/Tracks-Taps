@@ -30,6 +30,10 @@ export async function verifyAuth(request: Request) {
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
 
+    if (error) {
+        console.error('verifyAuth: supabaseAdmin.auth.getUser failed:', error.message, error.status);
+    }
+
     if (error || !user) return null;
     return user;
 }

@@ -1674,7 +1674,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingHorizontal: 20,
-        paddingBottom: 60,
+        paddingBottom: 160,
     },
     tabScrollView: {
         borderRadius: 14,
@@ -2035,10 +2035,5 @@ const styles = StyleSheet.create({
         marginBottom: 2,
         borderRadius: 12,
         borderWidth: 1,
-    },
-    scrollContent: {
-        paddingHorizontal: 16,
-        paddingTop: 16,
-        paddingBottom: 140,
     }
 });
