@@ -25,6 +25,12 @@ interface ModerationTabProps {
         rejectionReasonText: string;
         setRejectionReasonText: (val: string) => void;
         handleConfirmRejection: () => Promise<void>;
+        jsonText: string;
+        setJsonText: (val: string) => void;
+        savingJson: boolean;
+        copyingPrompt: boolean;
+        handleUploadTourJson: () => Promise<void>;
+        handleCopyPrompt: () => Promise<void>;
     };
 }
 
@@ -47,11 +53,94 @@ export function ModerationTab({ adminState }: ModerationTabProps) {
         setRejectionModalVisible,
         rejectionReasonText,
         setRejectionReasonText,
-        handleConfirmRejection
+        handleConfirmRejection,
+        jsonText,
+        setJsonText,
+        savingJson,
+        copyingPrompt,
+        handleUploadTourJson,
+        handleCopyPrompt
     } = adminState;
 
     return (
         <View style={styles.sectionContainer}>
+            {/* JSON Tour Creator & Prompt */}
+            <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
+                <TextComponent variant="body" bold color={theme.textPrimary} style={{ marginBottom: 4 }}>
+                    Tour AI Generator & Uploader
+                </TextComponent>
+                <TextComponent variant="caption" color={theme.textSecondary} style={{ marginBottom: 12 }}>
+                    Copy the system prompt to generate tours, then paste the output JSON here to publish directly.
+                </TextComponent>
+
+                <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
+                    <TouchableOpacity
+                        style={[styles.moderationBtn, { backgroundColor: theme.primary, flex: 1 }]}
+                        onPress={handleCopyPrompt}
+                        disabled={copyingPrompt}
+                    >
+                        {copyingPrompt ? (
+                            <ActivityIndicator size="small" color={theme.textOnPrimary} />
+                        ) : (
+                            <>
+                                <Ionicons name="copy-outline" size={16} color={theme.textOnPrimary} style={{ marginRight: 6 }} />
+                                <TextComponent variant="caption" bold color={theme.textOnPrimary}>
+                                    Copy Generator Prompt
+                                </TextComponent>
+                            </>
+                        )}
+                    </TouchableOpacity>
+                </View>
+
+                <TextInput
+                    style={[
+                        styles.formInput,
+                        {
+                            height: 100,
+                            color: theme.textPrimary,
+                            borderColor: theme.borderPrimary,
+                            borderWidth: 1,
+                            padding: 12,
+                            borderRadius: 12,
+                            textAlignVertical: 'top',
+                            backgroundColor: theme.bgPrimary,
+                            marginBottom: 12
+                        }
+                    ]}
+                    multiline
+                    placeholder="Paste generated tour JSON here..."
+                    placeholderTextColor={theme.textSecondary + '80'}
+                    value={jsonText}
+                    onChangeText={setJsonText}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                />
+
+                <TouchableOpacity
+                    style={[
+                        styles.saveButton,
+                        {
+                            backgroundColor: theme.accent || theme.primary,
+                            height: 44,
+                            marginTop: 0,
+                            borderRadius: 12
+                        }
+                    ]}
+                    onPress={handleUploadTourJson}
+                    disabled={savingJson}
+                >
+                    {savingJson ? (
+                        <ActivityIndicator color={theme.textOnPrimary} />
+                    ) : (
+                        <>
+                            <Ionicons name="cloud-upload-outline" size={18} color={theme.textOnPrimary} style={{ marginRight: 8 }} />
+                            <TextComponent variant="body" bold color={theme.textOnPrimary}>
+                                Upload JSON Tour
+                            </TextComponent>
+                        </>
+                    )}
+                </TouchableOpacity>
+            </View>
             <TextComponent variant="h3" bold color={theme.textPrimary} style={styles.sectionHeading}>
                 {t('toursAwaitingReview')}
             </TextComponent>

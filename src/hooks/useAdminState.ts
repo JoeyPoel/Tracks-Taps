@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import * as Clipboard from 'expo-clipboard';
 import client from '../api/apiClient';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -167,6 +168,11 @@ export function useAdminState() {
     const [reviewSearchQuery, setReviewSearchQuery] = useState('');
     const [loadingReviews, setLoadingReviews] = useState(false);
     const [deletingReviewId, setDeletingReviewId] = useState<number | null>(null);
+
+    // JSON Tour Uploader and Prompt Copier state
+    const [jsonText, setJsonText] = useState('');
+    const [savingJson, setSavingJson] = useState(false);
+    const [copyingPrompt, setCopyingPrompt] = useState(false);
 
     const fetchStats = useCallback(async () => {
         if (!user) return;
@@ -517,6 +523,56 @@ export function useAdminState() {
         return Math.abs(diffMs) < 600000;
     }, [untilDate]);
 
+    const handleUploadTourJson = async () => {
+        if (!jsonText.trim()) {
+            Alert.alert('Error', 'Please paste some JSON first.');
+            return;
+        }
+
+        let parsed;
+        try {
+            parsed = JSON.parse(jsonText.trim());
+        } catch (e: any) {
+            Alert.alert('Invalid JSON', 'Could not parse the pasted text as JSON: ' + e.message);
+            return;
+        }
+
+        setSavingJson(true);
+        try {
+            await client.post('/tours/json', parsed);
+            Alert.alert('Success', 'Tour added successfully!');
+            setJsonText('');
+            if (activeTab === 'moderation') {
+                fetchPendingTours();
+            }
+        } catch (error: any) {
+            console.error('Failed to upload tour JSON:', error);
+            Alert.alert('Error', error.response?.data?.details || error.response?.data?.error || 'Failed to upload tour');
+        } finally {
+            setSavingJson(false);
+        }
+    };
+
+    const handleCopyPrompt = async () => {
+        if (!user) return;
+        setCopyingPrompt(true);
+        try {
+            const res = await client.get(`/admin?action=prompt&userId=${user.id}`);
+            const promptText = res.data.prompt;
+            if (promptText) {
+                await Clipboard.setStringAsync(promptText);
+                Alert.alert('Copied', 'Tour Generator prompt has been copied to your clipboard!');
+            } else {
+                Alert.alert('Error', 'Prompt content was empty.');
+            }
+        } catch (error: any) {
+            console.error('Failed to copy prompt:', error);
+            Alert.alert('Error', 'Failed to retrieve prompt from server.');
+        } finally {
+            setCopyingPrompt(false);
+        }
+    };
+
     const toggleTourExpand = useCallback((tourId: number) => {
         setExpandedTours(prev => ({ ...prev, [tourId]: !prev[tourId] }));
     }, []);
@@ -627,6 +683,12 @@ export function useAdminState() {
         openRejectionPrompt,
         handleConfirmRejection,
         getFormattedPresetCheck,
-        toggleTourExpand
+        toggleTourExpand,
+        jsonText,
+        setJsonText,
+        savingJson,
+        copyingPrompt,
+        handleUploadTourJson,
+        handleCopyPrompt
     };
 }

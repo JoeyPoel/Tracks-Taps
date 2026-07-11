@@ -501,5 +501,37 @@ export const adminController = {
             console.error('Error updating user:', error);
             return Response.json({ error: 'Failed to update user', details: error.message }, { status: 500 });
         }
+    },
+
+    /**
+     * Reads and returns the contents of TOUR_GENERATOR.md.
+     */
+    async getPrompt(request: Request) {
+        const { searchParams } = new URL(request.url);
+        const userId = Number(searchParams.get('userId'));
+
+        if (!userId || isNaN(userId)) {
+            return Response.json({ error: 'Missing or invalid userId' }, { status: 400 });
+        }
+
+        const isAdmin = await this.isUserAdmin(userId);
+        if (!isAdmin) {
+            return Response.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const filePath = path.join(process.cwd(), 'TOUR_GENERATOR.md');
+            if (!fs.existsSync(filePath)) {
+                return Response.json({ error: 'Prompt file not found' }, { status: 404 });
+            }
+            const prompt = fs.readFileSync(filePath, 'utf8');
+            return Response.json({ prompt });
+        } catch (error: any) {
+            console.error('Error reading prompt file:', error);
+            return Response.json({ error: 'Failed to read prompt file', details: error.message }, { status: 500 });
+        }
     }
 };
+

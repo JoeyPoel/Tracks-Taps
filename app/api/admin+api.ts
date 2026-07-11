@@ -18,6 +18,8 @@ export async function GET(request: Request) {
         return await adminController.getUsers(request);
     } else if (action === 'reviews') {
         return await adminController.getReviews(request);
+    } else if (action === 'prompt') {
+        return await adminController.getPrompt(request);
     }
 
     return Response.json({ error: 'Invalid action' }, { status: 400 });
