@@ -2,19 +2,24 @@ import { useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import client from '@/src/api/apiClient';
 
 // Configure how notifications are presented when the app is in the foreground
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-        shouldShowBanner: true,
-        shouldShowList: true,
-    }),
-});
+try {
+    Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+            shouldShowAlert: true,
+            shouldPlaySound: true,
+            shouldSetBadge: false,
+            shouldShowBanner: true,
+            shouldShowList: true,
+        }),
+    });
+} catch (e) {
+    console.warn('[usePushNotifications] Failed to set notification handler:', e);
+}
 
 export function usePushNotifications(userId?: number | null) {
     const [expoPushToken, setExpoPushToken] = useState<string>('');
@@ -41,25 +46,39 @@ export function usePushNotifications(userId?: number | null) {
                     console.warn('[usePushNotifications] Failed to register push token with backend:', error);
                 }
             }
+        }).catch((err) => {
+            console.error('[usePushNotifications] registerForPushNotificationsAsync promise rejection:', err);
         });
 
         // Triggered when a notification is received in the foreground
-        notificationListener.current = Notifications.addNotificationReceivedListener((notificationItem) => {
-            setNotification(notificationItem);
-        });
+        try {
+            notificationListener.current = Notifications.addNotificationReceivedListener((notificationItem) => {
+                setNotification(notificationItem);
+            });
+        } catch (error) {
+            console.warn('[usePushNotifications] Failed to add notification received listener:', error);
+        }
 
         // Triggered when a user taps on a notification (foreground, background, or closed)
-        responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-            const data = response.notification.request.content.data;
-            handleNotificationNavigation(data);
-        });
+        try {
+            responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+                const data = response.notification.request.content.data;
+                handleNotificationNavigation(data);
+            });
+        } catch (error) {
+            console.warn('[usePushNotifications] Failed to add notification response listener:', error);
+        }
 
         return () => {
-            if (notificationListener.current) {
-                notificationListener.current.remove();
-            }
-            if (responseListener.current) {
-                responseListener.current.remove();
+            try {
+                if (notificationListener.current) {
+                    notificationListener.current.remove();
+                }
+                if (responseListener.current) {
+                    responseListener.current.remove();
+                }
+            } catch (e) {
+                // Ignore listener removal errors on clean up
             }
         };
     }, [userId]);
@@ -84,36 +103,47 @@ export function usePushNotifications(userId?: number | null) {
 }
 
 async function registerForPushNotificationsAsync(): Promise<string | undefined> {
-    if (!Device.isDevice) {
-        console.warn('[usePushNotifications] Must use physical device for Push Notifications');
-        return undefined;
-    }
+    try {
+        if (Platform.OS === 'web') {
+            return undefined;
+        }
 
-    const { status: existingStatus } = await Notifications.getPermissionsAsync() as any;
-    let finalStatus = existingStatus;
+        if (!Device.isDevice) {
+            console.warn('[usePushNotifications] Must use physical device for Push Notifications');
+            return undefined;
+        }
 
-    if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync() as any;
-        finalStatus = status;
-    }
+        const { status: existingStatus } = await Notifications.getPermissionsAsync() as any;
+        let finalStatus = existingStatus;
 
-    if (finalStatus !== 'granted') {
-        console.warn('[usePushNotifications] Failed to get push token permission!');
-        return undefined;
-    }
+        if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync() as any;
+            finalStatus = status;
+        }
 
-    const tokenData = await Notifications.getExpoPushTokenAsync({
-        projectId: '033de2f9-fb8a-489a-8360-f4fb5f48540e', // Tracks and Taps Project ID
-    });
+        if (finalStatus !== 'granted') {
+            console.warn('[usePushNotifications] Failed to get push token permission!');
+            return undefined;
+        }
 
-    if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
+        const projectId = Constants.expoConfig?.extra?.eas?.projectId || '033de2f9-fb8a-489a-8360-f4fb5f48540e';
+
+        const tokenData = await Notifications.getExpoPushTokenAsync({
+            projectId,
         });
-    }
 
-    return tokenData.data;
+        if (Platform.OS === 'android') {
+            await Notifications.setNotificationChannelAsync('default', {
+                name: 'default',
+                importance: Notifications.AndroidImportance.MAX,
+                vibrationPattern: [0, 250, 250, 250],
+                lightColor: '#FF231F7C',
+            });
+        }
+
+        return tokenData.data;
+    } catch (error) {
+        console.error('[usePushNotifications] Error in push notification registration:', error);
+        return undefined;
+    }
 }
