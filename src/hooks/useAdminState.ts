@@ -174,6 +174,10 @@ export function useAdminState() {
     const [savingJson, setSavingJson] = useState(false);
     const [copyingPrompt, setCopyingPrompt] = useState(false);
 
+    // Purchases state
+    const [purchasesList, setPurchasesList] = useState<any[]>([]);
+    const [loadingPurchases, setLoadingPurchases] = useState(false);
+
     const fetchStats = useCallback(async () => {
         if (!user) return;
         setLoadingStats(true);
@@ -232,6 +236,20 @@ export function useAdminState() {
         }
     }, [user, reviewSearchQuery]);
 
+    const fetchPurchases = useCallback(async () => {
+        if (!user) return;
+        setLoadingPurchases(true);
+        try {
+            const res = await client.get(`/admin?action=purchases&userId=${user.id}`);
+            setPurchasesList(res.data);
+        } catch (error) {
+            console.error('Failed to fetch purchases:', error);
+            Alert.alert('Error', 'Failed to load purchases');
+        } finally {
+            setLoadingPurchases(false);
+        }
+    }, [user]);
+
     const fetchInitialData = useCallback(async () => {
         setLoading(true);
         try {
@@ -270,8 +288,9 @@ export function useAdminState() {
 
     useEffect(() => {
         if (user) {
-            if (activeTab === 'stats' && !statsLoaded) {
-                fetchStats();
+            if (activeTab === 'stats') {
+                if (!statsLoaded) fetchStats();
+                fetchPurchases();
             } else if (activeTab === 'moderation' && !pendingLoaded) {
                 fetchPendingTours();
             } else if (activeTab === 'users') {
@@ -280,7 +299,7 @@ export function useAdminState() {
                 fetchReviews();
             }
         }
-    }, [activeTab, user, statsLoaded, pendingLoaded, fetchStats, fetchPendingTours, fetchUsers, fetchReviews]);
+    }, [activeTab, user, statsLoaded, pendingLoaded, fetchStats, fetchPendingTours, fetchUsers, fetchReviews, fetchPurchases]);
 
     const handleToggleUserAdmin = async (targetUserId: number, currentAdminStatus: boolean) => {
         if (!user) return;
@@ -689,6 +708,9 @@ export function useAdminState() {
         savingJson,
         copyingPrompt,
         handleUploadTourJson,
-        handleCopyPrompt
+        handleCopyPrompt,
+        purchasesList,
+        loadingPurchases,
+        fetchPurchases
     };
 }

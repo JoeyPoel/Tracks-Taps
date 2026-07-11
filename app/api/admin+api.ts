@@ -20,6 +20,8 @@ export async function GET(request: Request) {
         return await adminController.getReviews(request);
     } else if (action === 'prompt') {
         return await adminController.getPrompt(request);
+    } else if (action === 'purchases') {
+        return await adminController.getPurchases(request);
     }
 
     return Response.json({ error: 'Invalid action' }, { status: 400 });

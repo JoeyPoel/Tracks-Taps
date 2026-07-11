@@ -2,6 +2,16 @@ import { createClient } from "@supabase/supabase-js";
 import { AppState } from 'react-native';
 import 'react-native-url-polyfill/auto';
 
+// Polyfill DOMException for environments like React Native/Hermes that do not have it globally defined
+if (typeof global.DOMException === 'undefined') {
+    (global as any).DOMException = class DOMException extends Error {
+        constructor(message?: string, name?: string) {
+            super(message);
+            this.name = name || 'DOMException';
+        }
+    };
+}
+
 const rawSupabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || "";
 const rawSupabaseKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || "";
 

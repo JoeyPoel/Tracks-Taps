@@ -532,6 +532,45 @@ export const adminController = {
             console.error('Error reading prompt file:', error);
             return Response.json({ error: 'Failed to read prompt file', details: error.message }, { status: 500 });
         }
+    },
+
+    /**
+     * Retrieves the recent purchase records.
+     */
+    async getPurchases(request: Request) {
+        const { searchParams } = new URL(request.url);
+        const userId = Number(searchParams.get('userId'));
+
+        if (!userId || isNaN(userId)) {
+            return Response.json({ error: 'Missing or invalid userId' }, { status: 400 });
+        }
+
+        const isAdmin = await this.isUserAdmin(userId);
+        if (!isAdmin) {
+            return Response.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        try {
+            const purchases = await prisma.purchase.findMany({
+                orderBy: {
+                    purchasedAt: 'desc'
+                },
+                take: 100,
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true
+                        }
+                    }
+                }
+            });
+            return Response.json(purchases);
+        } catch (error: any) {
+            console.error('Error fetching purchases:', error);
+            return Response.json({ error: 'Failed to fetch purchases', details: error.message }, { status: 500 });
+        }
     }
 };
 

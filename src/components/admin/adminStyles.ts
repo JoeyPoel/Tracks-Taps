@@ -9,7 +9,7 @@ export const adminStyles = StyleSheet.create({
     },
     scrollContent: {
         paddingHorizontal: 20,
-        paddingBottom: 60,
+        paddingBottom: 120,
     },
     tabScrollView: {
         borderRadius: 14,

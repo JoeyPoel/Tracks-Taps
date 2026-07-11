@@ -11,11 +11,13 @@ interface StatsTabProps {
         theme: any;
         stats: StatsData | null;
         loadingStats: boolean;
+        purchasesList: any[];
+        loadingPurchases: boolean;
     };
 }
 
 export function StatsTab({ adminState }: StatsTabProps) {
-    const { theme, stats, loadingStats } = adminState;
+    const { theme, stats, loadingStats, purchasesList, loadingPurchases } = adminState;
     const { t } = useLanguage();
 
     return (
@@ -98,6 +100,74 @@ export function StatsTab({ adminState }: StatsTabProps) {
                             </View>
                         ))}
                     </View>
+
+                    {/* Recent Purchases List Section */}
+                    <TextComponent variant="h3" bold color={theme.textPrimary} style={[styles.sectionHeading, { marginTop: 24 }]}>
+                        Recent Purchases
+                    </TextComponent>
+
+                    {loadingPurchases ? (
+                        <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor, alignItems: 'center', padding: 24 }]}>
+                            <ActivityIndicator size="small" color={theme.primary} />
+                        </View>
+                    ) : purchasesList && purchasesList.length > 0 ? (
+                        <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor, paddingHorizontal: 0, paddingVertical: 8 }]}>
+                            {purchasesList.map((purchase, index) => {
+                                const dateStr = new Date(purchase.purchasedAt).toLocaleDateString();
+                                const userName = purchase.user?.name || 'Unknown User';
+                                const userEmail = purchase.user?.email || '';
+                                
+                                return (
+                                    <View 
+                                        key={purchase.id} 
+                                        style={[
+                                            {
+                                                flexDirection: 'row', 
+                                                justifyContent: 'space-between', 
+                                                alignItems: 'center', 
+                                                paddingVertical: 12, 
+                                                paddingHorizontal: 18,
+                                            },
+                                            index < purchasesList.length - 1 && { 
+                                                borderBottomColor: theme.borderPrimary, 
+                                                borderBottomWidth: 1 
+                                            }
+                                        ]}
+                                    >
+                                        <View style={{ flex: 1, marginRight: 12 }}>
+                                            <TextComponent variant="body" bold color={theme.textPrimary}>
+                                                {userName}
+                                            </TextComponent>
+                                            {userEmail ? (
+                                                <TextComponent variant="caption" color={theme.textSecondary} style={{ marginTop: 2 }}>
+                                                    {userEmail}
+                                                </TextComponent>
+                                            ) : null}
+                                            <TextComponent variant="caption" color={theme.textTertiary} style={{ marginTop: 4, fontSize: 10 }}>
+                                                TxID: {purchase.transactionId}
+                                            </TextComponent>
+                                        </View>
+                                        
+                                        <View style={{ alignItems: 'flex-end' }}>
+                                            <TextComponent variant="body" bold color="#10b981">
+                                                +{purchase.tokens} Tokens
+                                            </TextComponent>
+                                            <TextComponent variant="caption" color={theme.textSecondary} style={{ marginTop: 2 }}>
+                                                {purchase.price ? `${purchase.price} ${purchase.currency || 'USD'}` : 'In-App Purchase'}
+                                            </TextComponent>
+                                            <TextComponent variant="caption" color={theme.textTertiary} style={{ marginTop: 4, fontSize: 10 }}>
+                                                {dateStr}
+                                            </TextComponent>
+                                        </View>
+                                    </View>
+                                );
+                            })}
+                        </View>
+                    ) : (
+                        <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor, alignItems: 'center', padding: 24 }]}>
+                            <TextComponent variant="body" color={theme.textSecondary}>No recent purchases found</TextComponent>
+                        </View>
+                    )}
                 </>
             ) : (
                 <View style={styles.centerContainer}>
