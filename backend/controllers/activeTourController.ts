@@ -275,5 +275,22 @@ export const activeTourController = {
             console.error('Error updating team:', error);
             return Response.json({ error: 'Failed to update team' }, { status: 500 });
         }
+    },
+
+    async unlockTour(request: Request) {
+        try {
+            const body = await request.json();
+            const { activeTourId, userId } = body;
+
+            if (!activeTourId || !userId) {
+                return Response.json({ error: 'Missing required fields: activeTourId or userId' }, { status: 400 });
+            }
+
+            const updatedTour = await activeTourService.unlockActiveTour(Number(activeTourId), Number(userId));
+            return Response.json(updatedTour);
+        } catch (error: any) {
+            console.error('Error unlocking active tour:', error);
+            return Response.json({ error: error.message || 'Failed to unlock active tour' }, { status: 500 });
+        }
     }
 };

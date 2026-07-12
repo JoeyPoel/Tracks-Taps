@@ -100,62 +100,7 @@ export const useStartTour = (tourId: number, authorId?: number, onInsufficientTo
             authEvents.emit();
             return;
         }
-
-        // Check if author
-        let isAuthor = (authorId !== undefined && user && String(user.id) === String(authorId));
-
-        // Fallback: Check if tour is in user's created tours list
-        if (!isAuthor && user?.createdTours) {
-            isAuthor = user.createdTours.some(t => String(t.id) === String(tourId));
-        }
-
-        const isFreeMode = appSettings?.freeToursEnabled && 
-                          (!appSettings.freeToursUntil || new Date(appSettings.freeToursUntil) > new Date());
-
-        if (!isAuthor && !isFreeMode && user.tokens < 1) {
-            if (onInsufficientTokens) {
-                if (Platform.OS === 'web') {
-                    if (window.confirm(t('insufficientTokensMessage'))) {
-                        onInsufficientTokens();
-                    }
-                } else {
-                    Alert.alert(
-                        t('insufficientTokensTitle'),
-                        t('insufficientTokensMessage'),
-                        [
-                            { text: t('cancel') || 'Cancel', style: 'cancel' },
-                            { text: t('buyTokens') || 'Buy Tokens', onPress: onInsufficientTokens }
-                        ]
-                    );
-                }
-            } else {
-                if (Platform.OS === 'web') {
-                    alert(t('insufficientTokensMessage'));
-                } else {
-                    Alert.alert(t('insufficientTokensTitle'), t('insufficientTokensMessage'));
-                }
-            }
-            return;
-        }
-
-        if (!force && !isAuthor && !isFreeMode) {
-            if (Platform.OS === 'web') {
-                if (window.confirm(t('startTourCostMessage').replace('{0}', user.tokens.toString()))) {
-                    await executeStartTour(force, isLobbyMode);
-                }
-            } else {
-                Alert.alert(
-                    t('startTourCostTitle'),
-                    t('startTourCostMessage').replace('{0}', user.tokens.toString()),
-                    [
-                        { text: t('cancel'), style: 'cancel' },
-                        { text: t('proceed'), onPress: () => executeStartTour(force, isLobbyMode) }
-                    ]
-                );
-            }
-        } else {
-            await executeStartTour(force, isLobbyMode);
-        }
+        await executeStartTour(force, isLobbyMode);
     };
 
     return { startTour, loadingMode };

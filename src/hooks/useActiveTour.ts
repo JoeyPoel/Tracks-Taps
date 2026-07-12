@@ -9,6 +9,7 @@ import { ActiveChallenge, PubGolfStop, Stop, Team } from '../types/models';
 import { offlineStorage } from '../utils/offlineStorage';
 import { getScoreDetails } from '../utils/pubGolfUtils';
 import { triggerHaptic } from '../utils/haptics';
+import { supabase } from '@/utils/supabase';
 
 export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?: (amount: number) => void) => {
     // Global State
@@ -18,6 +19,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     const fetchActiveTourById = useStore((state) => state.fetchActiveTourById);
     const finishTour = useStore((state) => state.finishTour);
     const abandonTour = useStore((state) => state.abandonTour);
+    const fetchUser = useStore((state) => state.fetchUser);
 
     const updateActiveTourLocal = useStore((state) => state.updateActiveTourLocal);
     const triggerFloatingPoints = useStore((state) => state.triggerFloatingPoints);
@@ -93,6 +95,29 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
             unsubscribeNetInfo();
         };
     }, []);
+
+    // 4. Supabase Realtime: re-fetch instantly when the ActiveTour row changes (e.g. isPaid=true set by any group member)
+    useEffect(() => {
+        if (!activeTourId) return;
+
+        const channel = supabase
+            .channel(`active_tour_${activeTourId}`)
+            .on(
+                'postgres_changes',
+                { event: 'UPDATE', schema: 'public', table: 'ActiveTour', filter: `id=eq.${activeTourId}` },
+                (payload) => {
+                    console.log('[Realtime] ActiveTour updated:', payload);
+                    fetchActiveTourById(activeTourId, userId);
+                }
+            )
+            .subscribe((status, err) => {
+                if (err) console.error('[Realtime] ActiveTour subscription error:', err);
+            });
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [activeTourId, userId, fetchActiveTourById]);
 
     // Derived loading state
     const loading = !isDataLoaded && (storeLoading || !activeTour || !error);
@@ -424,6 +449,18 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         await abandonTour(activeTourId, userId);
     };
 
+    const handleUnlockTour = async () => {
+        if (!userId) return;
+        try {
+            const updatedTour = await activeTourService.unlockTour(activeTourId, userId);
+            updateActiveTourLocal(updatedTour);
+            await fetchUser(userId);
+        } catch (error: any) {
+            console.error('Failed to unlock tour:', error);
+            throw error;
+        }
+    };
+
     // Safeguard for deleted stops (Active Tour Persistence)
     const stops = activeTour?.tour?.stops || [];
     const stopCount = stops.length;
@@ -453,8 +490,10 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         handleChallengeFail,
         handlePrevStop,
         handleNextStop,
+        goToStop: performStopUpdate,
         handleFinishTour,
         handleAbandonTour,
+        handleUnlockTour,
         streak,
         points,
         updateActiveTourLocal,

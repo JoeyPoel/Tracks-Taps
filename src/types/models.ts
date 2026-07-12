@@ -167,6 +167,8 @@ export interface ActiveTour {
     status: SessionStatus;
     createdAt: Date;
     updatedAt: Date;
+    isPaid: boolean;
+    userId?: number | null;
     tour?: Tour;
     teams?: Team[];
     winnerTeamId?: number;

@@ -174,6 +174,7 @@ export const activeTourRepository = {
             select: {
                 id: true,
                 status: true,
+                isPaid: true,
                 userId: true, // Needed for host verification
                 createdAt: true, // Needed for history
                 tourId: true,
@@ -191,6 +192,7 @@ export const activeTourRepository = {
                         type: true,
                         author: {
                             select: {
+                                id: true,
                                 name: true,
                                 isAdmin: true
                             }
@@ -267,7 +269,7 @@ export const activeTourRepository = {
                     }
                 }
             }
-        });
+        }) as any;
 
         if (!activeTour || !activeTour.tour) return null;
 
@@ -290,7 +292,7 @@ export const activeTourRepository = {
 
         // Apply shuffle to stop challenges
         if (activeTour.tour.stops) {
-            activeTour.tour.stops = activeTour.tour.stops.map(stop => ({
+            activeTour.tour.stops = activeTour.tour.stops.map((stop: any) => ({
                 ...stop,
                 challenges: shuffleOptions(stop.challenges)
             }));
@@ -305,6 +307,7 @@ export const activeTourRepository = {
             select: {
                 id: true,
                 status: true,
+                isPaid: true,
                 winnerTeamId: true,
                 teams: {
                     where: userId ? { userId } : undefined,
@@ -337,7 +340,7 @@ export const activeTourRepository = {
                     }
                 }
             }
-        });
+        }) as any;
     },
 
     async findActiveTourLobby(id: number) {

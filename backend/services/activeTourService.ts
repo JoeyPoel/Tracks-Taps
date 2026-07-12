@@ -33,18 +33,6 @@ export const activeTourService = {
         const tour = await tourRepository.getTourById(tourId);
         if (!tour) throw new Error("Tour not found");
 
-        if (tour.author.id !== userId) {
-            // Check global free mode
-            const settings = await appSettingsRepository.getSettings();
-            const isCurrentlyFree = settings?.freeToursEnabled && 
-                                  (!settings.freeToursUntil || new Date(settings.freeToursUntil) > new Date());
-
-            if (!isCurrentlyFree) {
-                // Deduct 1 token for playing a tour IF not author and not globally free
-                await userRepository.deductTokens(userId, 1);
-            }
-        }
-
         return await activeTourRepository.createActiveTour(tourId, userId, teamName, teamColor, teamEmoji);
     },
 
@@ -191,7 +179,7 @@ export const activeTourService = {
         const updatedActiveTour = await activeTourRepository.findActiveTourById(activeTourId);
 
         if (updatedActiveTour) {
-            const allFinished = updatedActiveTour.teams.every(t => t.finishedAt !== null);
+            const allFinished = updatedActiveTour.teams.every((t: any) => t.finishedAt !== null);
             if (allFinished) {
                 const rankedTeams = [...updatedActiveTour.teams].sort((a, b) => b.score - a.score);
                 const winnerId = rankedTeams.length > 0 ? rankedTeams[0].id : undefined;
@@ -277,8 +265,8 @@ export const activeTourService = {
         const result = await activeTourRepository.updateActiveTourStatus(activeTourId, SessionStatus.IN_PROGRESS);
 
         // Notify all other team members in this active tour session
-        const participantUserIds = activeTour.teams?.map(t => t.userId) || [];
-        const targetUserIds = participantUserIds.filter(id => id !== userId);
+        const participantUserIds = activeTour.teams?.map((t: any) => t.userId) || [];
+        const targetUserIds = participantUserIds.filter((id: number) => id !== userId);
 
         if (targetUserIds.length > 0) {
             prisma.userPushToken.findMany({
@@ -345,5 +333,37 @@ export const activeTourService = {
             await Promise.all(queries);
             await achievementService.checkLevel(userId);
         }
+    },
+
+    async unlockActiveTour(activeTourId: number, userId: number) {
+        // Use a transaction with a re-check to prevent concurrent double-pays
+        return await prisma.$transaction(async (tx) => {
+            const activeTour = await tx.activeTour.findUnique({
+                where: { id: activeTourId },
+                select: { id: true, isPaid: true }
+            });
+
+            if (!activeTour) throw new Error("Active tour not found");
+
+            // Already paid — idempotent return, no token deducted
+            if (activeTour.isPaid) {
+                return await activeTourRepository.findActiveTourById(activeTourId, userId);
+            }
+
+            // Deduct 1 token from the payer
+            await tx.user.update({
+                where: { id: userId },
+                data: { tokens: { decrement: 1 } }
+            });
+
+            // Mark tour as paid
+            const updated = await tx.activeTour.update({
+                where: { id: activeTourId },
+                data: { isPaid: true },
+                select: { id: true, isPaid: true }
+            });
+
+            return updated;
+        }).then(() => activeTourRepository.findActiveTourById(activeTourId, userId));
     }
 };

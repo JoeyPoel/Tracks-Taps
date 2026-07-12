@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, ScrollView, StyleSheet, View } from 'react-native';
+import { Animated, Easing, ScrollView, StyleSheet, View, Modal, Pressable } from 'react-native';
 import ActiveTourHeader from '../components/active-tour/ActiveTourHeader';
 import ActiveTourMap from '../components/active-tour/ActiveTourMap';
 import Confetti from '../components/active-tour/animations/Confetti';
@@ -22,6 +22,11 @@ import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 import { useActiveTour } from '../hooks/useActiveTour';
 import { LevelSystem } from '../utils/levelUtils';
+import { AnimatedPressable } from '../components/common/AnimatedPressable';
+import { usePurchases } from '../hooks/usePurchases';
+import { CircleStackIcon } from 'react-native-heroicons/solid';
+import { LockClosedIcon } from 'react-native-heroicons/outline';
+import { PurchasesPackage } from 'react-native-purchases';
 
 // Wrapper for smooth tab transitions
 const TabContentWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -61,8 +66,16 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const router = useRouter();
     const [activeTab, setActiveTab] = useState(0);
     const [selectedBingoChallenge, setSelectedBingoChallenge] = useState<any>(null);
+    const [localModalClose, setLocalModalClose] = useState(false);
+
+    useEffect(() => {
+        setLocalModalClose(false);
+    }, [activeTourId]);
 
     const { updateUserXp, refreshUser } = useUserContext();
+
+    const [isUnlocking, setIsUnlocking] = useState(false);
+    const { purchasePackage, packages } = usePurchases();
 
     const {
         activeTour,
@@ -81,7 +94,9 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         handleChallengeFail,
         handlePrevStop,
         handleNextStop,
+        goToStop,
         handleFinishTour,
+        handleUnlockTour,
         streak,
         points,
         currentTeam,
@@ -280,6 +295,126 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         </AppModal>
     );
 
+    const isAuthor = activeTour?.tour?.author?.id === user.id;
+    const isHostAuthor = activeTour?.userId === activeTour?.tour?.author?.id;
+    // Check if any team member (player) in this session is the tour author
+    const anyTeamMemberIsAuthor = activeTour?.teams?.some(
+        (t: any) => t.userId === activeTour?.tour?.author?.id
+    ) ?? false;
+    const isLocked = currentStopIndex >= 5 && !activeTour?.isPaid && !isAuthor && !isHostAuthor && !anyTeamMemberIsAuthor;
+
+    const getRcPackage = (tokens: number): PurchasesPackage | undefined => {
+        return packages.find(p =>
+            p.identifier.includes(`tokens_${tokens}_`) || p.identifier === `tokens_${tokens}` || p.identifier.includes(`${tokens}_tokens`) || p.identifier.includes(`${tokens}_token`) ||
+            p.product.identifier.includes(`tokens_${tokens}_`) || p.product.identifier === `tokens_${tokens}` || p.product.identifier.includes(`${tokens}_tokens`) || p.product.identifier.includes(`${tokens}_token`)
+        );
+    };
+    const oneTokenPkg = getRcPackage(1);
+    const oneTokenPrice = oneTokenPkg?.product.priceString || "-";
+
+    const handleUnlockWithToken = async () => {
+        setIsUnlocking(true);
+        try {
+            await handleUnlockTour();
+            alert("Tour successfully unlocked for the group!");
+        } catch (err: any) {
+            alert(err.message || "Failed to unlock tour.");
+        } finally {
+            setIsUnlocking(false);
+        }
+    };
+
+    const handleUnlockWithCash = async () => {
+        if (!oneTokenPkg) {
+            alert("Store packaging config not found. Please try again.");
+            return;
+        }
+        setIsUnlocking(true);
+        try {
+            const success = await purchasePackage(oneTokenPkg, 1);
+            if (success) {
+                await handleUnlockTour();
+                alert("Tour successfully unlocked for the group!");
+            }
+        } catch (err: any) {
+            alert(err.message || "Failed to complete purchase.");
+        } finally {
+            setIsUnlocking(false);
+        }
+    };
+
+    const lockedModal = (
+        <Modal
+            visible={isLocked && !localModalClose}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={() => goToStop(5)}
+        >
+            <View style={[styles.lockedModalContainer, { backgroundColor: theme.overlay }]}>
+                <Pressable
+                    style={StyleSheet.absoluteFill}
+                    onPress={() => goToStop(5)}
+                />
+                
+                <View style={[styles.lockedCard, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
+                    <View style={[styles.lockIconContainer, { backgroundColor: theme.accent + '15' }]}>
+                        <LockClosedIcon size={44} color={theme.accent} />
+                    </View>
+                    
+                    <TextComponent style={styles.lockedTitle} color={theme.textPrimary} bold variant="h2">
+                        {"Tour Locked"}
+                    </TextComponent>
+                    
+                    <TextComponent style={styles.lockedDescription} color={theme.textSecondary} variant="body">
+                        {"You've played 5 stops of this tour for free! The host or any other team member must pay to unlock the remaining stops for the entire group to proceed."}
+                    </TextComponent>
+
+                    <View style={[styles.statsContainer, { backgroundColor: theme.bgTertiary }]}>
+                        <TextComponent color={theme.textSecondary} variant="caption">
+                            {t('yourTokens') || "Your Token Balance"}
+                        </TextComponent>
+                        <View style={styles.tokenCountRow}>
+                            <CircleStackIcon size={18} color={theme.accent} />
+                            <TextComponent color={theme.textPrimary} bold variant="h3">
+                                {user.tokens || 0}
+                            </TextComponent>
+                        </View>
+                    </View>
+
+                    <View style={styles.lockActionButtons}>
+                        <AnimatedPressable
+                            style={[
+                                styles.unlockButton,
+                                { backgroundColor: theme.accent },
+                                (user.tokens || 0) < 1 && { opacity: 0.5 }
+                            ]}
+                            disabled={isUnlocking || (user.tokens || 0) < 1}
+                            onPress={handleUnlockWithToken}
+                            interactionScale="medium"
+                            haptic="success"
+                        >
+                            <CircleStackIcon size={20} color={theme.fixedWhite} />
+                            <TextComponent color={theme.fixedWhite} bold>
+                                {"Unlock (1 Token)"}
+                            </TextComponent>
+                        </AnimatedPressable>
+
+                        <AnimatedPressable
+                            style={[styles.unlockButtonCash, { borderColor: theme.accent, borderWidth: 1 }]}
+                            disabled={isUnlocking}
+                            onPress={handleUnlockWithCash}
+                            interactionScale="medium"
+                            haptic="success"
+                        >
+                            <TextComponent color={theme.accent} bold>
+                                {`Unlock for Group (${oneTokenPrice})`}
+                            </TextComponent>
+                        </AnimatedPressable>
+                    </View>
+                </View>
+            </View>
+        </Modal>
+    );
 
     return (
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
@@ -337,6 +472,9 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
             {/* Render Modal Overlay */}
             {activeBingoChallengeItem}
 
+            {/* Render lock overlay modal */}
+            {lockedModal}
+
             {/* Render floating points overlay at the root level */}
             {floatingPointsOverlay}
         </View>
@@ -393,5 +531,76 @@ const styles = StyleSheet.create({
     tabContentContainer: {
         minHeight: 200, // Prevent layout jumping
         marginTop: 16,
-    }
+    },
+    lockedModalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 24,
+    },
+    lockedCard: {
+        width: '100%',
+        borderRadius: 24,
+        borderWidth: 1,
+        padding: 24,
+        alignItems: 'center',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.1,
+        shadowRadius: 24,
+        elevation: 8,
+    },
+    lockIconContainer: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    lockedTitle: {
+        textAlign: 'center',
+        marginBottom: 12,
+    },
+    lockedDescription: {
+        textAlign: 'center',
+        lineHeight: 22,
+        marginBottom: 24,
+    },
+    statsContainer: {
+        width: '100%',
+        borderRadius: 16,
+        padding: 16,
+        alignItems: 'center',
+        marginBottom: 24,
+    },
+    tokenCountRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginTop: 4,
+    },
+    lockActionButtons: {
+        width: '100%',
+        gap: 12,
+    },
+    unlockButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 16,
+        borderRadius: 16,
+        gap: 8,
+    },
+    unlockButtonCash: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 16,
+        borderRadius: 16,
+    },
+    backButton: {
+        marginTop: 24,
+        padding: 12,
+    },
 });

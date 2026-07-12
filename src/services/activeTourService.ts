@@ -70,4 +70,9 @@ export const activeTourService = {
         const response = await client.post('/active-tour/team', { activeTourId, userId, name, color, emoji });
         return response.data;
     },
+
+    async unlockTour(activeTourId: number, userId: number) {
+        const response = await client.post('/active-tour/unlock', { activeTourId, userId });
+        return response.data;
+    },
 };
