@@ -308,6 +308,12 @@ export const activeTourRepository = {
                 id: true,
                 status: true,
                 isPaid: true,
+                userId: true,
+                tour: {
+                    select: {
+                        authorId: true
+                    }
+                },
                 winnerTeamId: true,
                 teams: {
                     where: userId ? { userId } : undefined,

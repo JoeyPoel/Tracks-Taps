@@ -56,7 +56,34 @@ export const activeTourService = {
     },
 
     async getActiveTourProgress(id: number, userId?: number) {
-        return await activeTourRepository.findActiveTourProgress(id, userId);
+        const activeTour = await activeTourRepository.findActiveTourProgress(id, userId);
+        if (!activeTour) return null;
+
+        const tourAuthorId = activeTour.tour?.authorId;
+        const isAuthor = tourAuthorId === userId;
+        const isHostAuthor = activeTour.userId === tourAuthorId;
+        
+        // Find if any team member in this active tour is the tour author
+        const teamsWithAuthor = tourAuthorId ? await prisma.team.findFirst({
+            where: {
+                activeTourId: id,
+                userId: tourAuthorId
+            }
+        }) : null;
+        const anyTeamMemberIsAuthor = !!teamsWithAuthor;
+
+        const isLocked = !activeTour.isPaid && !isAuthor && !isHostAuthor && !anyTeamMemberIsAuthor;
+
+        if (isLocked && activeTour.teams) {
+            for (const team of activeTour.teams) {
+                if (team.currentStop >= 6) {
+                    await activeTourRepository.updateCurrentStop(team.id, 5);
+                    team.currentStop = 5;
+                }
+            }
+        }
+
+        return activeTour;
     },
 
     async getActiveTourLobby(id: number) {
@@ -123,6 +150,29 @@ export const activeTourService = {
     async updateCurrentStop(activeTourId: number, currentStop: number, userId: number) {
         const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
         if (!team) throw new Error("Team not found");
+
+        if (currentStop >= 6) {
+            const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
+            if (activeTour) {
+                const tourAuthorId = activeTour.tour?.authorId;
+                const isAuthor = tourAuthorId === userId;
+                const isHostAuthor = activeTour.userId === tourAuthorId;
+                
+                // Find if any team member in this active tour is the tour author
+                const teamsWithAuthor = tourAuthorId ? await prisma.team.findFirst({
+                    where: {
+                        activeTourId: activeTourId,
+                        userId: tourAuthorId
+                    }
+                }) : null;
+                const anyTeamMemberIsAuthor = !!teamsWithAuthor;
+
+                const isLocked = !activeTour.isPaid && !isAuthor && !isHostAuthor && !anyTeamMemberIsAuthor;
+                if (isLocked) {
+                    currentStop = 5;
+                }
+            }
+        }
 
         await activeTourRepository.updateCurrentStop(team.id, currentStop);
 
