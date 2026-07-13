@@ -123,15 +123,17 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     const loading = !isDataLoaded && (storeLoading || !activeTour || !error);
 
     // Resolve Team
-    const currentTeam = useMemo(() =>
-        activeTour?.teams?.find((t: Team) => userId ? t.userId === userId : true)
-        || activeTour?.teams?.[0],
-        [activeTour, userId]);
+    const currentTeam = useMemo(() => {
+        if (activeTour?.id !== activeTourId) return undefined;
+        return activeTour?.teams?.find((t: Team) => userId ? t.userId === userId : true)
+            || activeTour?.teams?.[0];
+    }, [activeTour, activeTourId, userId]);
 
     const currentStop = pendingStop ?? currentTeam?.currentStop ?? 1;
     const streak = pendingStreak ?? currentTeam?.streak ?? 0;
 
     const pubGolfXP = useMemo(() => {
+        if (activeTour?.id !== activeTourId) return 0;
         const stops = activeTour?.tour?.stops as Stop[] | undefined;
         const pgStops = currentTeam?.pubGolfStops as PubGolfStop[] | undefined;
 
@@ -149,7 +151,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
             const details = getScoreDetails(stop.pubgolfPar, sips);
             return total + (details?.recommendedXP || 0);
         }, 0);
-    }, [currentTeam, activeTour, pendingPubGolfSips]);
+    }, [currentTeam, activeTour, activeTourId, pendingPubGolfSips]);
 
     const points = (currentTeam?.score || 0) + pubGolfXP + pendingScoreOffset;
 
@@ -157,6 +159,10 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
     const { completedChallenges, failedChallenges } = useMemo(() => {
         const completed = new Set<number>();
         const failed = new Set<number>();
+
+        if (activeTour?.id !== activeTourId) {
+            return { completedChallenges: completed, failedChallenges: failed };
+        }
 
         // 1. Start with data from Global Store (may be reverted by background fetches)
         if (currentTeam?.activeChallenges) {
@@ -171,7 +177,7 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         pendingFailIds.forEach(id => failed.add(id));
 
         return { completedChallenges: completed, failedChallenges: failed };
-    }, [currentTeam, pendingCompleteIds, pendingFailIds]);
+    }, [currentTeam, activeTour, activeTourId, pendingCompleteIds, pendingFailIds]);
 
 
     // Local UI State (Visuals only)

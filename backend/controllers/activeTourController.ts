@@ -177,9 +177,10 @@ export const activeTourController = {
 
             const result = await activeTourService.completeChallenge(Number(activeTourId), Number(challengeId), Number(userId));
             return Response.json(result);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error completing challenge:', error);
-            return Response.json({ error: 'Failed to complete challenge' }, { status: 500 });
+            const status = (error.message?.includes('not found') || error.message?.includes('Not found')) ? 404 : 500;
+            return Response.json({ error: 'Failed to complete challenge', details: error.message }, { status });
         }
     },
 
@@ -190,9 +191,10 @@ export const activeTourController = {
 
             const result = await activeTourService.failChallenge(Number(activeTourId), Number(challengeId), Number(userId));
             return Response.json(result);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error failing challenge:', error);
-            return Response.json({ error: 'Failed to update challenge status' }, { status: 500 });
+            const status = (error.message?.includes('not found') || error.message?.includes('Not found')) ? 404 : 500;
+            return Response.json({ error: 'Failed to update challenge status', details: error.message }, { status });
         }
     },
 
@@ -207,9 +209,10 @@ export const activeTourController = {
 
             await activeTourService.abandonTour(Number(activeTourId), Number(userId));
             return Response.json({ success: true });
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error abandoning tour:', error);
-            return Response.json({ error: 'Failed to abandon tour' }, { status: 500 });
+            const status = (error.message?.includes('not found') || error.message?.includes('Not found')) ? 404 : 500;
+            return Response.json({ error: 'Failed to abandon tour', details: error.message }, { status });
         }
     },
 
@@ -220,9 +223,10 @@ export const activeTourController = {
 
             const updatedTour = await activeTourService.finishTour(Number(activeTourId), Number(userId));
             return Response.json(updatedTour);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error finishing tour:', error);
-            return Response.json({ error: 'Failed to finish tour' }, { status: 500 });
+            const status = (error.message?.includes('not found') || error.message?.includes('Not found')) ? 404 : 500;
+            return Response.json({ error: 'Failed to finish tour', details: error.message }, { status });
         }
     },
 
@@ -237,9 +241,10 @@ export const activeTourController = {
 
             const updatedStop = await activeTourService.updatePubGolfScore(Number(activeTourId), Number(stopId), Number(sips), Number(userId));
             return Response.json(updatedStop);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error updating pub golf score:', error);
-            return Response.json({ error: 'Failed to update pub golf score' }, { status: 500 });
+            const status = (error.message?.includes('not found') || error.message?.includes('Not found')) ? 404 : 500;
+            return Response.json({ error: 'Failed to update pub golf score', details: error.message }, { status });
         }
     },
 
@@ -256,7 +261,8 @@ export const activeTourController = {
             return Response.json(updatedTour);
         } catch (error: any) {
             console.error('Error updating current stop:', error);
-            return Response.json({ error: 'Failed to update current stop', details: error.message }, { status: 500 });
+            const status = (error.message?.includes('not found') || error.message?.includes('Not found')) ? 404 : 500;
+            return Response.json({ error: 'Failed to update current stop', details: error.message }, { status });
         }
     },
 

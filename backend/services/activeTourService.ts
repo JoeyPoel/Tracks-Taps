@@ -148,8 +148,15 @@ export const activeTourService = {
     },
 
     async updateCurrentStop(activeTourId: number, currentStop: number, userId: number) {
+        console.log('[activeTourService.updateCurrentStop] Received parameters:', { activeTourId, currentStop, userId });
+        const teamsInTour = await prisma.team.findMany({ where: { activeTourId } });
+        console.log('[activeTourService.updateCurrentStop] Teams in this activeTour:', teamsInTour.map(t => ({ id: t.id, userId: t.userId })));
+        
         const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
-        if (!team) throw new Error("Team not found");
+        if (!team) {
+            console.error(`[activeTourService.updateCurrentStop] Team lookup failed for userId=${userId}, activeTourId=${activeTourId}`);
+            throw new Error(`Team not found`);
+        }
 
         if (currentStop >= 6) {
             const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
