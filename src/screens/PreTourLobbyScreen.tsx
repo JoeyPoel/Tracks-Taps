@@ -136,8 +136,12 @@ export default function PreTourLobbyScreen() {
 
             <InviteFriendsModal
                 visible={showInviteModal}
-                onClose={() => setShowInviteModal(false)}
+                onClose={() => {
+                    setShowInviteModal(false);
+                    loadLobbyDetails(true);
+                }}
                 activeTourId={activeTourId}
+                initialInvitedIds={activeTour?.gameInvites?.map((i: any) => i.inviteeId) || []}
             />
         </ScreenWrapper>
     );

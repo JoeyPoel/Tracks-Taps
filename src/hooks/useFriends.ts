@@ -100,6 +100,24 @@ export function useFriends() {
         }
     };
 
+    /**
+     * Cancels an active tour lobby invite.
+     * @param inviteeId ID of the friend
+     * @param tourId ID of the active tour session
+     */
+    const cancelLobbyInvite = async (inviteeId: number, tourId: number) => {
+        setActionLoading(true);
+        try {
+            await friendService.cancelLobbyInvite(inviteeId, tourId);
+            return true;
+        } catch (error: any) {
+            Alert.alert('Error', error.response?.data?.error || 'Failed to cancel invite');
+            return false;
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     return {
         friends,
         requests,
@@ -112,6 +130,7 @@ export function useFriends() {
         sendFriendRequest,
         removeFriend,
         respondToRequest,
-        inviteFriendsToLobby
+        inviteFriendsToLobby,
+        cancelLobbyInvite
     };
 }

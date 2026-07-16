@@ -100,7 +100,7 @@ export default function FriendProfileScreen() {
         
         const status = user.friendshipStatus;
 
-        if (status === 'ACCEPTED') {
+        if (status === 'ACCEPTED' || status === 'PENDING_OUTGOING' || status === 'PENDING') {
             const success = await removeFriend(user.id);
             if (success) loadUser();
         } else if (status === 'PENDING_INCOMING') {
@@ -200,9 +200,9 @@ export default function FriendProfileScreen() {
                     <View style={styles.actionButtonContainer}>
                         {user.friendshipStatus === 'PENDING_OUTGOING' || user.friendshipStatus === 'PENDING' ? (
                             <AnimatedButton
-                                title={t('requested')}
-                                onPress={() => { }}
-                                disabled
+                                title={t('cancelRequest') || 'Cancel Request'}
+                                onPress={handleAction}
+                                loading={actionLoading}
                                 variant="outline"
                             />
                         ) : user.friendshipStatus === 'PENDING_INCOMING' ? (

@@ -63,5 +63,24 @@ export const gameInviteController = {
             console.error('Controller Error (inviteFriends):', error);
             return errorResponse(error.message || 'Failed to invite friends');
         }
+    },
+
+    /**
+     * Cancels a pending game invite from the controller.
+     * @param userEmail Email of the user performing the cancelation (must be the inviter)
+     * @param inviteeId ID of the invited friend
+     * @param activeTourId ID of the active tour session
+     */
+    async cancelInvite(userEmail: string, inviteeId: number, activeTourId: number) {
+        try {
+            const dbUser = await userService.getUserByEmail(userEmail);
+            if (!dbUser) return errorResponse('User not found', 404);
+
+            const result = await gameInviteService.cancelInvite(dbUser.id, inviteeId, activeTourId);
+            return jsonResponse(result);
+        } catch (error: any) {
+            console.error('Controller Error (cancelInvite):', error);
+            return errorResponse(error.message || 'Failed to cancel invite');
+        }
     }
 };

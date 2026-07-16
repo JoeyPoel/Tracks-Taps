@@ -22,6 +22,10 @@ export async function POST(request: Request) {
         } else if (action === 'accept' || action === 'decline') {
             if (!inviteId) return Response.json({ error: 'Missing inviteId' }, { status: 400 });
             return await gameInviteController.handleResponse(user.email, action, Number(inviteId));
+        } else if (action === 'cancel') {
+            const { inviteeId, activeTourId } = body;
+            if (!inviteeId || !activeTourId) return Response.json({ error: 'Missing inviteeId or activeTourId' }, { status: 400 });
+            return await gameInviteController.cancelInvite(user.email, Number(inviteeId), Number(activeTourId));
         } else {
             return Response.json({ error: 'Invalid action' }, { status: 400 });
         }

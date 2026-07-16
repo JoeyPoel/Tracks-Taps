@@ -13,19 +13,20 @@ interface InviteFriendsModalProps {
     visible: boolean;
     onClose: () => void;
     activeTourId: number;
+    initialInvitedIds?: number[];
 }
 
-export default function InviteFriendsModal({ visible, onClose, activeTourId }: InviteFriendsModalProps) {
+export default function InviteFriendsModal({ visible, onClose, activeTourId, initialInvitedIds = [] }: InviteFriendsModalProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
-    const { friends, loadFriends, inviteFriendsToLobby, loading, actionLoading } = useFriends();
+    const { friends, loadFriends, inviteFriendsToLobby, cancelLobbyInvite, loading, actionLoading } = useFriends();
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
     useEffect(() => {
         if (visible) {
-            setSelectedIds([]);
+            setSelectedIds(initialInvitedIds);
         }
-    }, [visible]);
+    }, [visible, initialInvitedIds]);
 
     const toggleSelection = (id: number) => {
         if (selectedIds.includes(id)) {
@@ -36,7 +37,22 @@ export default function InviteFriendsModal({ visible, onClose, activeTourId }: I
     };
 
     const handleInvite = async () => {
-        const success = await inviteFriendsToLobby(selectedIds, activeTourId);
+        const newlySelected = selectedIds.filter(id => !initialInvitedIds.includes(id));
+        const unselected = initialInvitedIds.filter(id => !selectedIds.includes(id));
+
+        let success = true;
+
+        if (unselected.length > 0) {
+            const cancelPromises = unselected.map(id => cancelLobbyInvite(id, activeTourId));
+            const results = await Promise.all(cancelPromises);
+            if (results.some(r => !r)) success = false;
+        }
+
+        if (newlySelected.length > 0) {
+            const inviteSuccess = await inviteFriendsToLobby(newlySelected, activeTourId);
+            if (!inviteSuccess) success = false;
+        }
+
         if (success) {
             onClose();
         }
@@ -49,6 +65,16 @@ export default function InviteFriendsModal({ visible, onClose, activeTourId }: I
             onToggle={toggleSelection}
         />
     );
+
+    const hasChanges = 
+        selectedIds.length !== initialInvitedIds.length ||
+        selectedIds.some(id => !initialInvitedIds.includes(id));
+
+    const buttonTitle = actionLoading
+        ? t('sendingInvites') || 'Sending Invites...'
+        : hasChanges
+            ? t('saveChanges') || 'Save Changes'
+            : t('inviteSelected') || 'Invite Selected';
 
     return (
         <AppModal
@@ -82,9 +108,9 @@ export default function InviteFriendsModal({ visible, onClose, activeTourId }: I
 
                 <View style={[styles.footer, { borderTopColor: theme.bgSecondary, backgroundColor: theme.bgPrimary }]}>
                     <AnimatedButton
-                        title={actionLoading ? t('sendingInvites') : `${t('inviteSelected')} (${selectedIds.length})`}
+                        title={buttonTitle}
                         onPress={handleInvite}
-                        disabled={selectedIds.length === 0 || actionLoading}
+                        disabled={!hasChanges || actionLoading}
                         variant="primary"
                         style={{ width: '100%' }}
                     />

@@ -374,6 +374,14 @@ export const activeTourRepository = {
                             select: { stops: true }
                         }
                     }
+                },
+                gameInvites: {
+                    where: {
+                        status: 'PENDING'
+                    },
+                    select: {
+                        inviteeId: true
+                    }
                 }
             }
         });

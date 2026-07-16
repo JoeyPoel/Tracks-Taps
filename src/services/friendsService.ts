@@ -44,5 +44,15 @@ export const friendService = {
     async sendLobbyInvite(friendIds: number[], activeTourId: number): Promise<{ message: string }> {
         const response = await client.post('/lobby/invite', { friendIds, activeTourId });
         return response.data;
+    },
+
+    /**
+     * Cancels an active tour lobby game invite.
+     * @param inviteeId ID of the friend whose invite is being cancelled
+     * @param activeTourId ID of the active tour session
+     */
+    async cancelLobbyInvite(inviteeId: number, activeTourId: number): Promise<{ success: boolean }> {
+        const response = await client.post('/invites', { action: 'cancel', inviteeId, activeTourId });
+        return response.data;
     }
 };

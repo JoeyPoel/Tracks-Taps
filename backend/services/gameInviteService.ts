@@ -135,5 +135,31 @@ export const gameInviteService = {
 
         const successCount = results.filter(r => r.status === 'fulfilled').length;
         return { success: true, count: successCount };
+    },
+
+    /**
+     * Cancels a pending game invite by deleting it.
+     * @param senderId The user ID of the host/sender who invited
+     * @param inviteeId The user ID of the friend who was invited
+     * @param activeTourId The ID of the active tour session
+     * @returns Object indicating success status
+     */
+    async cancelInvite(senderId: number, inviteeId: number, activeTourId: number) {
+        const invite = await prisma.gameInvite.findFirst({
+            where: {
+                activeTourId,
+                inviterId: senderId,
+                inviteeId,
+                status: 'PENDING'
+            }
+        });
+
+        if (!invite) throw new Error('Invite not found');
+
+        await prisma.gameInvite.delete({
+            where: { id: invite.id }
+        });
+
+        return { success: true };
     }
 };
