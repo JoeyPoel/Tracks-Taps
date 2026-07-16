@@ -104,7 +104,7 @@ export const usePurchases = () => {
         }
     };
 
-    const purchasePackage = async (pack: PurchasesPackage, tokenCount: number) => {
+    const purchasePackage = async (pack: PurchasesPackage, tokenCount: number, skipSuccessAlert: boolean = false) => {
         if (isExpoGo) {
             Alert.alert("Development Build Required", "In-app purchases are not available in Expo Go. You must create a development build to test this feature.");
             return false;
@@ -132,27 +132,38 @@ export const usePurchases = () => {
             const transactionId = transaction.transactionIdentifier;
 
             // 2. Manual Verification (Immediate Token Award)
-            try {
-                const result = await userService.verifyPurchase(user.id, user.id.toString(), transactionId);
+            const verifyPromise = (async () => {
+                try {
+                    const result = await userService.verifyPurchase(user.id, user.id.toString(), transactionId);
 
-                // Always show the standardized message with the token count we know was bought
-                Alert.alert(
-                    t('purchaseSuccessTitle'),
-                    t('tokensPurchasedMessage').replace('{0}', (result.newTokens || tokenCount).toString())
-                );
-                await fetchUser(user.id);
+                    if (!skipSuccessAlert) {
+                        // Always show the standardized message with the token count we know was bought
+                        Alert.alert(
+                            t('purchaseSuccessTitle'),
+                            t('tokensPurchasedMessage').replace('{0}', (result.newTokens || tokenCount).toString())
+                        );
+                    }
+                    await fetchUser(user.id);
+                } catch (verifyError) {
+                    console.warn("Manual verification failed, but purchase was successful. Webhook will handle delivery.", verifyError);
+                    if (!skipSuccessAlert) {
+                        // Standardized message even on failure (fallback to expected token count)
+                        Alert.alert(
+                            t('purchaseSuccessTitle'),
+                            t('tokensPurchasedMessage').replace('{0}', tokenCount.toString())
+                        );
+                    }
+                    // Background refresh after a short delay as a fallback
+                    setTimeout(() => fetchUser(user.id), 3000);
+                }
+            })();
 
-            } catch (verifyError) {
-                console.warn("Manual verification failed, but purchase was successful. Webhook will handle delivery.", verifyError);
-                // Standardized message even on failure (fallback to expected token count)
-                Alert.alert(
-                    t('purchaseSuccessTitle'),
-                    t('tokensPurchasedMessage').replace('{0}', tokenCount.toString())
-                );
-                // Background refresh after a short delay as a fallback
-                setTimeout(() => fetchUser(user.id), 3000);
+            if (skipSuccessAlert) {
+                // Return immediately without waiting for verification to finish
+                return true;
             }
 
+            await verifyPromise;
             return true;
         } catch (e: any) {
             if (!e.userCancelled) {

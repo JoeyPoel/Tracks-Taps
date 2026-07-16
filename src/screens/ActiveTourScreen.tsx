@@ -26,6 +26,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 import { useActiveTour } from '../hooks/useActiveTour';
 import { usePurchases } from '../hooks/usePurchases';
+import BuyTokensModal from '../components/profileScreen/BuyTokensModal';
 import { LevelSystem } from '../utils/levelUtils';
 
 // Wrapper for smooth tab transitions
@@ -67,6 +68,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const [activeTab, setActiveTab] = useState(0);
     const [selectedBingoChallenge, setSelectedBingoChallenge] = useState<any>(null);
     const [localModalClose, setLocalModalClose] = useState(false);
+    const [buyTokensModalVisible, setBuyTokensModalVisible] = useState(false);
 
     useEffect(() => {
         setLocalModalClose(false);
@@ -78,37 +80,6 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const { purchasePackage, packages } = usePurchases();
 
     const pulseAnim = useRef(new Animated.Value(1)).current;
-
-    useEffect(() => {
-        let animation: Animated.CompositeAnimation | null = null;
-        const isLocked = currentStopIndex >= 5 && !activeTour?.isPaid && !isAuthor && !isHostAuthor && !anyTeamMemberIsAuthor;
-        if (isLocked && !localModalClose) {
-            animation = Animated.loop(
-                Animated.sequence([
-                    Animated.timing(pulseAnim, {
-                        toValue: 1.08,
-                        duration: 1200,
-                        easing: Easing.inOut(Easing.ease),
-                        useNativeDriver: true,
-                    }),
-                    Animated.timing(pulseAnim, {
-                        toValue: 1,
-                        duration: 1200,
-                        easing: Easing.inOut(Easing.ease),
-                        useNativeDriver: true,
-                    }),
-                ])
-            );
-            animation.start();
-        } else {
-            pulseAnim.setValue(1);
-        }
-        return () => {
-            if (animation) {
-                animation.stop();
-            }
-        };
-    }, [currentStopIndex, activeTour?.isPaid, isAuthor, isHostAuthor, anyTeamMemberIsAuthor, localModalClose]);
 
     const {
         activeTour,
@@ -336,6 +307,36 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     ) ?? false;
     const isLocked = currentStopIndex >= 5 && !activeTour?.isPaid && !isAuthor && !isHostAuthor && !anyTeamMemberIsAuthor;
 
+    useEffect(() => {
+        let animation: Animated.CompositeAnimation | null = null;
+        if (isLocked && !localModalClose) {
+            animation = Animated.loop(
+                Animated.sequence([
+                    Animated.timing(pulseAnim, {
+                        toValue: 1.08,
+                        duration: 1200,
+                        easing: Easing.inOut(Easing.ease),
+                        useNativeDriver: true,
+                    }),
+                    Animated.timing(pulseAnim, {
+                        toValue: 1,
+                        duration: 1200,
+                        easing: Easing.inOut(Easing.ease),
+                        useNativeDriver: true,
+                    }),
+                ])
+            );
+            animation.start();
+        } else {
+            pulseAnim.setValue(1);
+        }
+        return () => {
+            if (animation) {
+                animation.stop();
+            }
+        };
+    }, [isLocked, localModalClose]);
+
     const getRcPackage = (tokens: number): PurchasesPackage | undefined => {
         return packages.find(p =>
             p.identifier.includes(`tokens_${tokens}_`) || p.identifier === `tokens_${tokens}` || p.identifier.includes(`${tokens}_tokens`) || p.identifier.includes(`${tokens}_token`) ||
@@ -365,7 +366,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         }
         setIsUnlocking(true);
         try {
-            const success = await purchasePackage(oneTokenPkg, 1);
+            const success = await purchasePackage(oneTokenPkg, 1, true); // skipSuccessAlert = true
             if (success) {
                 await handleUnlockTour();
                 alert("Tour successfully unlocked for the group!");
@@ -451,10 +452,16 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                 <AnimatedPressable
                     style={[
                         styles.primaryHeroButton,
-                        (isUnlocking || (user.tokens || 0) < 1) && { opacity: 0.5 },
+                        isUnlocking && { opacity: 0.5 },
                     ]}
-                    disabled={isUnlocking || (user.tokens || 0) < 1}
-                    onPress={handleUnlockWithToken}
+                    disabled={isUnlocking}
+                    onPress={() => {
+                        if ((user.tokens || 0) < 1) {
+                            setBuyTokensModalVisible(true);
+                        } else {
+                            handleUnlockWithToken();
+                        }
+                    }}
                     interactionScale="medium"
                     haptic="success"
                 >
@@ -546,6 +553,12 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
 
             {/* Render lock overlay modal */}
             {lockedModal}
+
+            {/* Render buy tokens modal */}
+            <BuyTokensModal
+                visible={buyTokensModalVisible}
+                onClose={() => setBuyTokensModalVisible(false)}
+            />
 
             {/* Render floating points overlay at the root level */}
             {floatingPointsOverlay}
