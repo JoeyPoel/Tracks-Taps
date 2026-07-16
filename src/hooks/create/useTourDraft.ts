@@ -49,6 +49,9 @@ export function useTourDraft(persistenceId?: number | null) {
     const [tourDraft, setTourDraft] = useState<TourDraft>(INITIAL_DRAFT);
     const [isRestored, setIsRestored] = useState(false);
     const saveTimeoutRef = useRef<any>(null);
+    const prevStopsRef = useRef(tourDraft.stops);
+    const prevChallengesRef = useRef(tourDraft.challenges);
+    const prevBingoRef = useRef(tourDraft.bingoChallenges);
 
     // 1. Load from storage on mount
     useEffect(() => {
@@ -59,6 +62,9 @@ export function useTourDraft(persistenceId?: number | null) {
                 if (saved) {
                     const parsed = JSON.parse(saved);
                     setTourDraft(parsed);
+                    prevStopsRef.current = parsed.stops;
+                    prevChallengesRef.current = parsed.challenges;
+                    prevBingoRef.current = parsed.bingoChallenges;
                 }
             } catch (error) {
                 console.error('Failed to load tour draft from storage:', error);
@@ -69,20 +75,41 @@ export function useTourDraft(persistenceId?: number | null) {
         loadDraft();
     }, [persistenceId]);
 
-    // 2. Save to storage on changes (debounced)
+    // 2. Save to storage on changes (immediate for structural, debounced for text)
     useEffect(() => {
         if (!isRestored) return; // Don't save default state over a saved draft before loading
 
+        const isStructuralChange = 
+            prevStopsRef.current !== tourDraft.stops ||
+            prevChallengesRef.current !== tourDraft.challenges ||
+            prevBingoRef.current !== tourDraft.bingoChallenges;
+
+        prevStopsRef.current = tourDraft.stops;
+        prevChallengesRef.current = tourDraft.challenges;
+        prevBingoRef.current = tourDraft.bingoChallenges;
+
         if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
 
-        saveTimeoutRef.current = setTimeout(async () => {
-            try {
-                const key = getStorageKey(persistenceId);
-                await AsyncStorage.setItem(key, JSON.stringify(tourDraft));
-            } catch (error) {
-                console.error('Failed to save tour draft to storage:', error);
-            }
-        }, 1000); // 1s debounce
+        if (isStructuralChange) {
+            const save = async () => {
+                try {
+                    const key = getStorageKey(persistenceId);
+                    await AsyncStorage.setItem(key, JSON.stringify(tourDraft));
+                } catch (error) {
+                    console.error('Failed to save tour draft to storage (structural):', error);
+                }
+            };
+            save();
+        } else {
+            saveTimeoutRef.current = setTimeout(async () => {
+                try {
+                    const key = getStorageKey(persistenceId);
+                    await AsyncStorage.setItem(key, JSON.stringify(tourDraft));
+                } catch (error) {
+                    console.error('Failed to save tour draft to storage (debounced):', error);
+                }
+            }, 300); // 300ms debounce for typing
+        }
 
         return () => {
             if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
