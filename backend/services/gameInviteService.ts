@@ -1,9 +1,9 @@
+import { prisma } from '../../src/lib/prisma';
 import { activeTourRepository } from '../repositories/activeTourRepository';
 import { gameInviteRepository } from '../repositories/gameInviteRepository';
 import { userRepository } from '../repositories/userRepository';
-import { activeTourService } from './activeTourService';
-import { prisma } from '../../src/lib/prisma';
 import { sendExpoPushNotifications } from '../utils/pushSender';
+import { activeTourService } from './activeTourService';
 
 export const gameInviteService = {
     async getInvites(userId: number) {
@@ -82,8 +82,8 @@ export const gameInviteService = {
             if (tokens.length > 0) {
                 const payload = tokens.map(t => ({
                     to: [t.pushToken],
-                    title: 'Game Invite',
-                    body: `${sender.name || 'Someone'} invited you to a game challenge.`,
+                    title: 'New Tour Invite! 🍻',
+                    body: `${sender.name || 'Someone'} wants you to join the tour: '${activeTour.tour?.title || 'Tour'}'. Tap to accept!`,
                     data: { screen: 'game-invite', inviteId: activeTourId }
                 }));
                 await sendExpoPushNotifications(payload);
@@ -125,8 +125,8 @@ export const gameInviteService = {
             if (tokens.length > 0) {
                 const payload = tokens.map(t => ({
                     to: [t.pushToken],
-                    title: 'Game Invite',
-                    body: `${sender.name || 'Someone'} invited you to a game challenge.`,
+                    title: 'New Tour Invite! 🍻',
+                    body: `${sender.name || 'Someone'} wants you to join the tour: '${activeTour.tour?.title || 'Tour'}'. Tap to accept!`,
                     data: { screen: 'game-invite', inviteId: activeTourId }
                 }));
                 await sendExpoPushNotifications(payload);

@@ -1,13 +1,13 @@
+import * as dotenv from 'dotenv';
 import { prisma } from '../../src/lib/prisma';
 import { sendExpoPushNotifications } from '../utils/pushSender';
-import * as dotenv from 'dotenv';
 
 dotenv.config();
 
 const ENGAGEMENT_MESSAGES = [
-    "Discover new tours available in the app.",
-    "Check out the latest tracks added this week.",
-    "Open Tracks and Taps to view your profile updates."
+    "Thirsty for adventure? Check out the new local tours waiting for you! 🗺️🍻",
+    "It's been a minute! We miss you. Tap to explore new routes! 🏆🚶",
+    "Your squad is waiting! Open Tracks & Taps and get ready for your next adventure. 🎉✨"
 ];
 
 async function main() {
@@ -41,7 +41,7 @@ async function main() {
         user.pushTokens.forEach(t => {
             messagesToSend.push({
                 to: [t.pushToken],
-                title: 'Tracks & Taps',
+                title: 'Adventure is calling! 📞',
                 body: randomBody,
                 data: { screen: 'explore' }
             });

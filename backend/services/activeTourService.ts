@@ -332,8 +332,8 @@ export const activeTourService = {
                 if (tokens.length > 0) {
                     const payload = tokens.map(t => ({
                         to: [t.pushToken],
-                        title: 'Tour Started!',
-                        body: `The tour '${activeTour.tour?.title || 'Tour'}' has started.`,
+                        title: 'Adventure Awaits! 🚀',
+                        body: `Game on! '${activeTour.tour?.title || 'Tour'}' has officially started. Catch up with your team now! 🏃💨`,
                         data: { screen: 'active-tour', tourId: activeTourId }
                     }));
                     await sendExpoPushNotifications(payload);

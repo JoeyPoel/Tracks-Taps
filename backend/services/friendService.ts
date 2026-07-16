@@ -1,8 +1,8 @@
+import { prisma } from '../../src/lib/prisma';
 import { friendRepository } from '../repositories/friendRepository';
 import { userRepository } from '../repositories/userRepository';
-import { achievementService } from './achievementService';
-import { prisma } from '../../src/lib/prisma';
 import { sendExpoPushNotifications } from '../utils/pushSender';
+import { achievementService } from './achievementService';
 
 export const friendService = {
     async getFriends(email: string, page: number = 1, limit: number = 10, userId?: number) {
@@ -79,8 +79,8 @@ export const friendService = {
             if (tokens.length > 0) {
                 const payload = tokens.map(t => ({
                     to: [t.pushToken],
-                    title: 'New Friend Request',
-                    body: `${requester.name || 'Someone'} sent you a friend request.`,
+                    title: 'New Friend Request! 🤝',
+                    body: `${requester.name || 'Someone'} wants to be your tracks & taps buddy! Tap to accept request.`,
                     data: { screen: 'friend-requests' }
                 }));
                 await sendExpoPushNotifications(payload);
