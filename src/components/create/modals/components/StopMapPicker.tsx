@@ -66,31 +66,53 @@ export function StopMapPicker({
             return;
         }
 
+        if (!region || typeof region.latitude !== 'number' || typeof region.longitude !== 'number') {
+            setResults([]);
+            return;
+        }
+
         setIsLoading(true);
         try {
+            const latDelta = typeof region.latitudeDelta === 'number' ? region.latitudeDelta : 0.05;
+            const lonDelta = typeof region.longitudeDelta === 'number' ? region.longitudeDelta : 0.05;
+
             // Calculate bounding box from current region to prioritize local results
             // minLon, minLat, maxLon, maxLat
-            const minLon = region.longitude - region.longitudeDelta / 2;
-            const minLat = region.latitude - region.latitudeDelta / 2;
-            const maxLon = region.longitude + region.longitudeDelta / 2;
-            const maxLat = region.latitude + region.latitudeDelta / 2;
+            const minLon = region.longitude - lonDelta / 2;
+            const minLat = region.latitude - latDelta / 2;
+            const maxLon = region.longitude + lonDelta / 2;
+            const maxLat = region.latitude + latDelta / 2;
             const bbox = `${minLon},${minLat},${maxLon},${maxLat}`;
 
             const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&bbox=${bbox}&limit=10`;
             const response = await fetch(url);
             const data = await response.json();
 
-            const mappedResults = data.features.map((f: any) => ({
-                name: f.properties.name,
-                description: [f.properties.city, f.properties.district, f.properties.state, f.properties.country].filter(Boolean).join(', '),
-                latitude: f.geometry.coordinates[1],
-                longitude: f.geometry.coordinates[0],
-            }));
+            if (!data || !Array.isArray(data.features)) {
+                setResults([]);
+                setIsResultsVisible(false);
+                return;
+            }
+
+            const mappedResults = data.features.map((f: any) => {
+                const props = f?.properties || {};
+                const geometry = f?.geometry || {};
+                const coords = Array.isArray(geometry.coordinates) ? geometry.coordinates : [0, 0];
+                
+                return {
+                    name: props.name || props.city || props.street || 'Unknown Place',
+                    description: [props.city, props.district, props.state, props.country].filter(Boolean).join(', '),
+                    latitude: typeof coords[1] === 'number' ? coords[1] : region.latitude,
+                    longitude: typeof coords[0] === 'number' ? coords[0] : region.longitude,
+                };
+            });
 
             setResults(mappedResults);
             setIsResultsVisible(true);
         } catch (error) {
             console.error('Failed to fetch search results:', error);
+            setResults([]);
+            setIsResultsVisible(false);
         } finally {
             setIsLoading(false);
         }
