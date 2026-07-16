@@ -8,7 +8,12 @@ import { Stop } from '../../types/models';
 import { GenericCard } from '../common/GenericCard';
 import { TextComponent } from '../common/TextComponent';
 
-export default function StopCard({ stop }: { stop: Stop }) {
+interface StopCardProps {
+    stop: Stop;
+    pubNumber?: number;
+}
+
+export default function StopCard({ stop, pubNumber }: StopCardProps) {
     const { theme } = useTheme();
     const { t, language } = useLanguage();
     const { translateText, isAutoTranslateEnabled } = useTranslation();
@@ -16,16 +21,25 @@ export default function StopCard({ stop }: { stop: Stop }) {
     const originalDescription = stop.description || t('completeAllChallengesToContinue') || '';
     const displayedDescription = translateText(originalDescription);
 
+    const isPubGolf = pubNumber !== undefined;
+    const gradientColors = (isPubGolf
+        ? [`${theme.warning}22`, `${theme.warning}11`]
+        : [`${theme.fixedGradientFrom}22`, `${theme.fixedGradientTo}22`]) as [string, string];
+
+    const borderColor = isPubGolf ? theme.warning : theme.secondary;
+
     return (
         <GenericCard
             variant="gradient"
-            gradientColors={[`${theme.fixedGradientFrom}22`, `${theme.fixedGradientTo}22`]}
-            style={[styles.container, { borderColor: theme.secondary, borderWidth: 1 }]}
+            gradientColors={gradientColors}
+            style={[styles.container, { borderColor: borderColor, borderWidth: 1 }]}
         >
             <View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <TextComponent style={[styles.headerTitle, { flex: 1, marginRight: 8 }]} color={theme.textPrimary} bold variant="h3">
-                        {`${t('Stop')} ${stop.number}: ${stop.name}`}
+                        {isPubGolf
+                            ? `${t('Stop')} ${stop.number} (Pub ${pubNumber}): ${stop.name}`
+                            : `${t('Stop')} ${stop.number}: ${stop.name}`}
                     </TextComponent>
 
                 </View>

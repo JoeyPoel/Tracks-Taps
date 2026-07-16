@@ -175,21 +175,30 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         {
             key: 'challenges',
             label: t('challenges'),
-            render: () => (
-                <TabContentWrapper key="challenges">
-                    <ChallengeSection
-                        currentStop={currentStop}
-                        stopChallenges={stopChallenges}
-                        completedChallenges={completedChallenges}
-                        failedChallenges={failedChallenges}
-                        triviaSelected={triviaSelected}
-                        setTriviaSelected={setTriviaSelected}
-                        handleChallengeComplete={handleChallengeComplete}
-                        handleChallengeFail={handleChallengeFail}
-                        handleSubmitTrivia={handleSubmitTrivia}
-                    />
-                </TabContentWrapper>
-            )
+            render: () => {
+                const stops = activeTour.tour?.stops || [];
+                const pubGolfStops = stops.filter((s: any) => s.pubgolfPar != null && s.pubgolfPar > 0);
+                const isPubGolf = currentStop?.pubgolfPar != null && currentStop?.pubgolfPar > 0;
+                const pubIndex = isPubGolf ? pubGolfStops.findIndex((s: any) => s.id === currentStop?.id) : -1;
+                const pubNumber = pubIndex !== -1 ? pubIndex + 1 : undefined;
+
+                return (
+                    <TabContentWrapper key="challenges">
+                        <ChallengeSection
+                            currentStop={currentStop}
+                            pubNumber={pubNumber}
+                            stopChallenges={stopChallenges}
+                            completedChallenges={completedChallenges}
+                            failedChallenges={failedChallenges}
+                            triviaSelected={triviaSelected}
+                            setTriviaSelected={setTriviaSelected}
+                            handleChallengeComplete={handleChallengeComplete}
+                            handleChallengeFail={handleChallengeFail}
+                            handleSubmitTrivia={handleSubmitTrivia}
+                        />
+                    </TabContentWrapper>
+                );
+            }
         }
     ];
 

@@ -8,6 +8,7 @@ import StopCard from './StopCard';
 
 interface ChallengeSectionProps {
     currentStop: any;
+    pubNumber?: number;
     stopChallenges: any[];
     completedChallenges: Set<number>;
     failedChallenges: Set<number>;
@@ -20,6 +21,7 @@ interface ChallengeSectionProps {
 
 const ChallengeSection: React.FC<ChallengeSectionProps> = ({
     currentStop,
+    pubNumber,
     stopChallenges,
     completedChallenges,
     failedChallenges,
@@ -34,7 +36,7 @@ const ChallengeSection: React.FC<ChallengeSectionProps> = ({
 
     return (
         <>
-            {currentStop && <StopCard stop={currentStop} />}
+            {currentStop && <StopCard stop={currentStop} pubNumber={pubNumber} />}
 
             {stopChallenges.length === 0 ? (
                 <View style={[styles.noChallengesContainer, { backgroundColor: theme.bgTertiary }]}>
