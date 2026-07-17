@@ -8,6 +8,7 @@ import { useLanguage } from '../../../context/LanguageContext';
 import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
 import { ScoreDetails } from '../../../utils/pubGolfUtils';
+import { useTextToSpeech } from '../../../hooks/useTextToSpeech';
 
 interface PubGolfStopHeaderProps {
     stopNumber: number;
@@ -35,6 +36,8 @@ export default function PubGolfStopHeader({
     const { theme, mode } = useTheme();
     const { t, language } = useLanguage();
     const { translateText, isAutoTranslateEnabled } = useTranslation();
+
+    const { speak, stop } = useTextToSpeech();
 
     const displayedStopName = translateText(stopName);
     const displayedDrinkName = translateText(drinkName);
@@ -93,10 +96,21 @@ export default function PubGolfStopHeader({
 
             {/* Middle: Info */}
             <View style={styles.info}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6, flexWrap: 'wrap' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6, flexWrap: 'wrap', gap: 6 }}>
                     <Text style={[styles.stopName, { color: textColor, marginBottom: 0, flexShrink: 1 }]}>{displayedStopName}</Text>
-
+                    <TouchableOpacity
+                        onPress={() => {
+                            const speechText = `Hole number ${stopNumber}: ${displayedStopName}. Par target is ${par} sips. Required drink: ${displayedDrinkName}.`;
+                            speak(speechText, true);
+                        }}
+                        style={{ padding: 2 }}
+                        accessibilityLabel={`Read hole details aloud`}
+                        accessibilityRole="button"
+                    >
+                        <Ionicons name="volume-medium-outline" size={16} color={theme.primary} />
+                    </TouchableOpacity>
                 </View>
+
                 <View style={[styles.drinkBadge, { backgroundColor: drinkBadgeBg }]}>
                     <Text style={[styles.drinkName, { color: drinkBadgeText }]}>
                         {displayedDrinkName}

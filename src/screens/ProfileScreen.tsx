@@ -36,6 +36,8 @@ import { useStore } from '../store/store';
 import { LevelSystem } from '../utils/levelUtils';
 import { Ionicons } from '@expo/vector-icons';
 import { userService } from '../services/userService';
+import { useIsFocused } from '@react-navigation/native';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
 
 export default function ProfileScreen() {
   const { theme } = useTheme();
@@ -43,6 +45,9 @@ export default function ProfileScreen() {
   const { t } = useLanguage();
   const [showBuyTokens, setShowBuyTokens] = useState(false);
   const [showReferralModal, setShowReferralModal] = useState(false);
+  const isFocused = useIsFocused();
+  const { speak, stop } = useTextToSpeech();
+  const narrationMode = useStore(state => state.narrationMode);
 
   const { user, loading, refreshUser } = useUserContext();
   const { achievements, fetchAchievements, loadingAchievements } = useStore();
@@ -101,6 +106,31 @@ export default function ProfileScreen() {
   }
 
   const progress = LevelSystem.getProgress(user?.xp || 0);
+
+  React.useEffect(() => {
+    if (isFocused && narrationMode === 'full') {
+      const formatString = require('../utils/stringUtils').formatString;
+      let speechText = t('narrationProfileScreenIntro') + ' ';
+      if (!user) {
+        speechText += t('narrationProfileNotLoggedIn');
+      } else {
+        speechText += formatString(t('narrationProfileUserInfo'), user.name || 'Guest', progress.level, progress.currentLevelXp, progress.nextLevelXpStart) + ' ';
+        speechText += formatString(t('narrationProfileStats'), user?.stats?.toursDone || 0, user?.stats?.toursCreated || 0, friends.length, user?.stats?.reviews || 0, user?.tokens || 0) + ' ';
+        if (rejectedCount > 0) speechText += formatString(t('narrationProfileAttentionWarning'), rejectedCount) + ' ';
+        if (inviteCount > 0) speechText += formatString(t('narrationProfilePendingInvites'), inviteCount) + ' ';
+        if (achievements && achievements.length > 0) {
+          const achNames = achievements.slice(0, 3).map((a: any) => a.name).join(', ');
+          speechText += formatString(t('narrationProfileRecentAchievements'), achNames) + ' ';
+        }
+        speechText += t('narrationProfileManageAccountOptions');
+      }
+      speak(speechText);
+    }
+    return () => {
+      stop();
+    };
+    // Only re-fire when the screen is focused or narration mode changes — not on every data refresh
+  }, [isFocused, narrationMode, user?.id]);
 
   return (
     <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} includeBottom={false} animateEntry={false}>
@@ -220,7 +250,7 @@ export default function ProfileScreen() {
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                         {pendingCount > 0 && (
                           <View style={{ backgroundColor: theme.primary, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 }}>
-                            <TextComponent variant="caption" bold color="#FFF">
+                            <TextComponent variant="caption" bold color={theme.textOnPrimary}>
                               {pendingCount}
                             </TextComponent>
                           </View>

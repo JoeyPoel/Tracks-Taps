@@ -1,12 +1,15 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { ChevronDownIcon, ChevronUpIcon, ExclamationCircleIcon, FireIcon, FlagIcon, TrophyIcon } from 'react-native-heroicons/outline';
 import { BoltIcon } from 'react-native-heroicons/solid';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
 import { PUB_GOLF_LEGEND_DATA } from '../../../utils/pubGolfUtils';
 import { AnimatedPressable } from '../../common/AnimatedPressable';
+import { useTextToSpeech } from '../../../hooks/useTextToSpeech';
+import { useStore } from '../../../store/store';
+import { Ionicons } from '@expo/vector-icons';
 
 interface PubGolfScoreCardProps {
     totalSips: number;
@@ -18,6 +21,9 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
     const { theme, mode } = useTheme();
     const { t } = useLanguage();
     const [isRulesOpen, setIsRulesOpen] = useState(false);
+    const { speak, stop, isSpeaking } = useTextToSpeech();
+    const user = useStore(state => state.user);
+    const showSpeakButtons = useStore(state => state.showSpeakButtons);
 
     const isUnderPar = currentScore < 0;
     const isOverPar = currentScore > 0;
@@ -35,27 +41,76 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
     }
 
     const isLight = mode === 'light';
-    const gradientColors = isLight
-        ? [theme.bgSecondary, theme.bgTertiary] as [string, string]
-        : [theme.accent, theme.primary] as [string, string];
+    const isAccessibilityTheme = user?.customTheme === 'high_contrast_accessibility' || user?.customTheme === 'monochrome_premium';
 
-    const cardTextColor = isLight ? theme.textPrimary : theme.fixedWhite;
-    const cardSubTextColor = isLight ? theme.textSecondary : 'rgba(255,255,255,0.9)';
-    const overlayColor = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.2)';
+    const gradientColors = isAccessibilityTheme
+        ? [theme.bgSecondary, theme.bgPrimary] as [string, string]
+        : isLight
+            ? [theme.bgSecondary, theme.bgTertiary] as [string, string]
+            : [theme.accent, theme.primary] as [string, string];
+
+    const cardTextColor = isAccessibilityTheme
+        ? '#FFFFFF'
+        : isLight
+            ? theme.textPrimary
+            : theme.fixedWhite;
+
+    const cardSubTextColor = isAccessibilityTheme
+        ? '#CCCCCC'
+        : isLight
+            ? theme.textSecondary
+            : 'rgba(255,255,255,0.9)';
+
+    const overlayColor = isAccessibilityTheme
+        ? 'rgba(255,255,255,0.1)'
+        : isLight
+            ? 'rgba(0,0,0,0.05)'
+            : 'rgba(255,255,255,0.2)';
+
+    const handleSpeakScorecard = () => {
+        if (isSpeaking) {
+            stop();
+        } else {
+            if (isRulesOpen) {
+                // Speak the rules
+                const legendDetails = PUB_GOLF_LEGEND_DATA.map(item => 
+                    `${t(item.nameKey as any)} is ${item.emoji}, worth ${item.xp} points`
+                ).join('. ');
+                const speechText = `Pub Golf instructions: ${t('pubGolfInstructions') || ''}. Scoring and XP: ${legendDetails}.`;
+                speak(speechText, true);
+            } else {
+                // Speak the score
+                const speechText = `Pub Golf total score is ${totalSips} out of ${totalPar}. Status: ${statusText}.`;
+                speak(speechText, true);
+            }
+        }
+    };
 
     return (
         <LinearGradient
             colors={gradientColors}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={[styles.container, isLight && { borderWidth: 1, borderColor: theme.borderPrimary }]}
+            style={[styles.container, isLight && !isAccessibilityTheme && { borderWidth: 1, borderColor: theme.borderPrimary }]}
         >
             <View style={styles.header}>
-                <View style={[styles.iconContainer, { backgroundColor: isLight ? theme.primary : 'rgba(255,255,255,0.3)' }]}>
-                    <TrophyIcon size={32} color={theme.fixedWhite} />
+                <View style={[styles.iconContainer, { backgroundColor: (isLight && !isAccessibilityTheme) ? theme.primary : (isAccessibilityTheme ? '#444444' : '#1A1A1A') }]}>
+                    <TrophyIcon size={32} color="#FFFFFF" />
                 </View>
-                <View>
-                    <Text style={[styles.title, { color: cardTextColor }]}>{t('pubgolf')}</Text>
+                <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <Text style={[styles.title, { color: cardTextColor }]}>{t('pubgolf')}</Text>
+                        {showSpeakButtons && (
+                            <TouchableOpacity
+                                onPress={handleSpeakScorecard}
+                                style={{ padding: 4 }}
+                                accessibilityLabel="Read scoreboard details aloud"
+                                accessibilityRole="button"
+                            >
+                                <Ionicons name={isSpeaking ? "volume-mute" : "volume-medium"} size={18} color={cardTextColor} />
+                            </TouchableOpacity>
+                        )}
+                    </View>
                     <Text style={[styles.subtitle, { color: cardSubTextColor }]}>{t('officialScorecard')}</Text>
                 </View>
             </View>
@@ -64,8 +119,8 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
                 <Text style={[styles.scoreLabel, { color: cardSubTextColor }]}>{t('totalScore')}</Text>
                 <Text style={[styles.scoreValue, { color: cardTextColor }]}>{totalSips} / {totalPar}</Text>
                 <View style={styles.statusContainer}>
-                    <StatusIcon size={16} color={isLight ? theme.primary : theme.fixedWhite} style={{ marginRight: 4 }} />
-                    <Text style={[styles.statusText, { color: isLight ? theme.primary : theme.fixedWhite }]}>{statusText}</Text>
+                    <StatusIcon size={16} color={(isLight && !isAccessibilityTheme) ? theme.primary : '#FFFFFF'} style={{ marginRight: 4 }} />
+                    <Text style={[styles.statusText, { color: (isLight && !isAccessibilityTheme) ? theme.primary : '#FFFFFF' }]}>{statusText}</Text>
                 </View>
             </View>
 
@@ -86,7 +141,7 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
             </AnimatedPressable>
 
             {isRulesOpen && (
-                <View style={[styles.infoContainer, { backgroundColor: isLight ? theme.bgPrimary : 'rgba(255,255,255,0.1)' }]}>
+                <View style={[styles.infoContainer, { backgroundColor: (isLight && !isAccessibilityTheme) ? theme.bgPrimary : 'rgba(255,255,255,0.1)' }]}>
                     <View style={[styles.infoRow, { borderBottomColor: isLight ? theme.borderPrimary : 'rgba(255,255,255,0.1)' }]}>
                         <Text style={[styles.infoText, { color: cardTextColor }]}>
                             {t('pubGolfInstructions')}

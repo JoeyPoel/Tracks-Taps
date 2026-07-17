@@ -93,9 +93,9 @@ export function StopForm({
                                 }
                             ]}
                         >
-                            {getStopIcon(stopType, 20, type === stopType ? 'white' : theme.textSecondary)}
+                            {getStopIcon(stopType, 20, type === stopType ? theme.textOnPrimary : theme.textSecondary)}
                             {type === stopType && (
-                                <Text style={[styles.typeLabel, { color: 'white' }]} numberOfLines={1}>{stopType.replace('_', ' ')}</Text>
+                                <Text style={[styles.typeLabel, { color: theme.textOnPrimary }]} numberOfLines={1}>{stopType.replace('_', ' ')}</Text>
                             )}
                         </TouchableOpacity>
                     ))}

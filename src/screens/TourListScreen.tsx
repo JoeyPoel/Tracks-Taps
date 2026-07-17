@@ -8,6 +8,9 @@ import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import TourCard from '../components/exploreScreen/TourCard';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useIsFocused } from '@react-navigation/native';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useStore } from '../store/store';
 import { useUserContext } from '../context/UserContext';
 import { userService } from '../services/userService';
 import { reviewService } from '../services/reviewService';
@@ -48,6 +51,40 @@ export default function TourListScreen() {
 
     // Loading state: Only start with loading=true if we expect data to avoid flash of empty state
     const [loading, setLoading] = useState(hasExpectedData);
+    const isFocused = useIsFocused();
+    const { speak, stop } = useTextToSpeech();
+    const narrationMode = useStore(state => state.narrationMode);
+
+    useEffect(() => {
+        if (isFocused && narrationMode === 'full' && !loading) {
+            const formatString = require('../utils/stringUtils').formatString;
+            let speechText = formatString(t('narrationTourListScreen'), title) + ' ';
+            if (tours.length === 0) {
+                speechText += type === 'created' 
+                    ? t('narrationNoCreatedTours') 
+                    : type === 'reviews' 
+                        ? t('narrationNoReviews') 
+                        : t('narrationNoPlayedTours');
+            } else {
+                speechText += formatString(t('narrationListingItems'), tours.length) + ' ';
+                if (type === 'reviews') {
+                    const firstFew = tours.slice(0, 3).map((r, i) => 
+                        formatString(t('narrationReviewOnTour'), i + 1, r.tour?.title || t('tour'), r.content || '')
+                    ).join('. ');
+                    speechText += firstFew;
+                } else {
+                    const firstFew = tours.slice(0, 3).map((tVal, i) => 
+                        formatString(t('narrationTourItemInfo'), i + 1, tVal.title, tVal.author?.name || t('unknown'))
+                    ).join('. ');
+                    speechText += firstFew;
+                }
+            }
+            speak(speechText);
+        }
+        return () => {
+            stop();
+        };
+    }, [isFocused, type, title, tours, loading, narrationMode]);
 
     useEffect(() => {
         loadTours();

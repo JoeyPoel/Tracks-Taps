@@ -29,6 +29,9 @@ import { usePurchases } from '../hooks/usePurchases';
 import BuyTokensModal from '../components/profileScreen/BuyTokensModal';
 import { LevelSystem } from '../utils/levelUtils';
 
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useIsFocused } from '@react-navigation/native';
+
 // Wrapper for smooth tab transitions
 const TabContentWrapper = ({ children }: { children: React.ReactNode }) => {
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -65,7 +68,9 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const { theme } = useTheme();
     const { t } = useLanguage();
     const router = useRouter();
+    const isFocused = useIsFocused();
     const [activeTab, setActiveTab] = useState(0);
+    const [activeTabKey, setActiveTabKey] = useState<string>('info');
     const [selectedBingoChallenge, setSelectedBingoChallenge] = useState<any>(null);
     const [localModalClose, setLocalModalClose] = useState(false);
     const [buyTokensModalVisible, setBuyTokensModalVisible] = useState(false);
@@ -73,6 +78,8 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     useEffect(() => {
         setLocalModalClose(false);
     }, [activeTourId]);
+
+    const { speak, stop, narrationMode } = useTextToSpeech();
 
     const { updateUserXp, refreshUser } = useUserContext();
 
@@ -107,6 +114,8 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         handleSaveSips
     } = useActiveTour(activeTourId, user.id, updateUserXp);
 
+    // Auto-read stop directions and descriptions upon stop transitions
+
     React.useEffect(() => {
         if (!loading && activeTour) {
             if (activeTour.status === 'PRE_TOUR_LOBBY') {
@@ -133,6 +142,83 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         });
     }
 
+    const currentStop = activeTour?.tour?.stops?.[currentStopIndex];
+
+    const isAuthor = activeTour?.tour?.author?.id === user.id;
+    const isHostAuthor = activeTour?.userId === activeTour?.tour?.author?.id;
+    // Check if any team member (player) in this session is the tour author
+    const anyTeamMemberIsAuthor = activeTour?.teams?.some(
+        (t: any) => t.userId === activeTour?.tour?.author?.id
+    ) ?? false;
+    const isLocked = currentStopIndex >= 5 && !activeTour?.isPaid && !isAuthor && !isHostAuthor && !anyTeamMemberIsAuthor;
+
+    React.useEffect(() => {
+        if (isFocused && !loading && currentStop && (narrationMode === 'tour-only' || narrationMode === 'full')) {
+            const formatString = require('../utils/stringUtils').formatString;
+            const stopNum = currentStopIndex + 1;
+            const stopNameVal = currentStop.name || `${t('Stop')} ${stopNum}`;
+            const stopDesc = currentStop.description || t('noStopDescription');
+            const speechText = formatString(t('narrationArrivedAtStop'), stopNum, stopNameVal, stopDesc);
+            speak(speechText);
+        }
+        return () => {
+            stop();
+        };
+    }, [isFocused, currentStopIndex, currentStop?.id, loading, narrationMode, speak, stop]);
+
+    // Bingo tab narration — must live ABOVE early returns to keep hook order stable
+    React.useEffect(() => {
+        if (!isFocused || narrationMode !== 'full' || !activeTour) return;
+        if (activeTabKey === 'bingo') {
+            const formatString = require('../utils/stringUtils').formatString;
+            const tourChallenges = activeTour.tour?.challenges || [];
+            const stopChallenges = activeTour.tour?.stops?.flatMap((s: any) => s.challenges || []) || [];
+            const allChallenges = [...tourChallenges, ...stopChallenges];
+            const bingoChallenges = allChallenges.filter((c: any) => typeof c.bingoRow === 'number' && typeof c.bingoCol === 'number');
+            let speechText = t('narrationBingoGridChallenges') + ' ';
+            for (let r = 0; r < 3; r++) {
+                for (let c = 0; c < 3; c++) {
+                    const challenge = bingoChallenges.find((ch: any) => ch.bingoRow === r && ch.bingoCol === c);
+                    const rowName = r === 0 ? t('rowTop') : r === 1 ? t('rowMiddle') : t('rowBottom');
+                    const colName = c === 0 ? t('colLeft') : c === 1 ? t('colCenter') : t('colRight');
+                    const challengeDesc = challenge ? challenge.title || challenge.description : t('emptySpace');
+                    speechText += formatString(t('narrationBingoCell'), rowName, colName, challengeDesc) + ' ';
+                }
+            }
+            speak(speechText);
+        }
+    }, [isFocused, activeTabKey, narrationMode, activeTour]);
+
+    useEffect(() => {
+        let animation: Animated.CompositeAnimation | null = null;
+        if (isFocused && isLocked && !localModalClose) {
+            animation = Animated.loop(
+                Animated.sequence([
+                    Animated.timing(pulseAnim, {
+                        toValue: 1.08,
+                        duration: 1200,
+                        easing: Easing.inOut(Easing.ease),
+                        useNativeDriver: true,
+                    }),
+                    Animated.timing(pulseAnim, {
+                        toValue: 1,
+                        duration: 1200,
+                        easing: Easing.inOut(Easing.ease),
+                        useNativeDriver: true,
+                    }),
+                ])
+            );
+            animation.start();
+        } else {
+            pulseAnim.setValue(1);
+        }
+        return () => {
+            if (animation) {
+                animation.stop();
+            }
+        };
+    }, [isFocused, isLocked, localModalClose]);
+
     if (loading) {
         return (
             <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} animateEntry={false}>
@@ -142,8 +228,6 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     }
     if (error) return <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}><TextComponent color={theme.danger}>{error}</TextComponent></View>;
     if (!activeTour) return <View style={[styles.centerContainer, { backgroundColor: theme.bgPrimary }]}><TextComponent>{t('tourNotFound')}</TextComponent></View>;
-
-    const currentStop = activeTour.tour?.stops?.[currentStopIndex];
     const stopChallenges = currentStop?.challenges || [];
     const isLastStop = currentStopIndex === (activeTour.tour?.stops?.length || 0) - 1;
 
@@ -308,43 +392,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         </AppModal>
     );
 
-    const isAuthor = activeTour?.tour?.author?.id === user.id;
-    const isHostAuthor = activeTour?.userId === activeTour?.tour?.author?.id;
-    // Check if any team member (player) in this session is the tour author
-    const anyTeamMemberIsAuthor = activeTour?.teams?.some(
-        (t: any) => t.userId === activeTour?.tour?.author?.id
-    ) ?? false;
-    const isLocked = currentStopIndex >= 5 && !activeTour?.isPaid && !isAuthor && !isHostAuthor && !anyTeamMemberIsAuthor;
 
-    useEffect(() => {
-        let animation: Animated.CompositeAnimation | null = null;
-        if (isLocked && !localModalClose) {
-            animation = Animated.loop(
-                Animated.sequence([
-                    Animated.timing(pulseAnim, {
-                        toValue: 1.08,
-                        duration: 1200,
-                        easing: Easing.inOut(Easing.ease),
-                        useNativeDriver: true,
-                    }),
-                    Animated.timing(pulseAnim, {
-                        toValue: 1,
-                        duration: 1200,
-                        easing: Easing.inOut(Easing.ease),
-                        useNativeDriver: true,
-                    }),
-                ])
-            );
-            animation.start();
-        } else {
-            pulseAnim.setValue(1);
-        }
-        return () => {
-            if (animation) {
-                animation.stop();
-            }
-        };
-    }, [isLocked, localModalClose]);
 
     const getRcPackage = (tokens: number): PurchasesPackage | undefined => {
         return packages.find(p =>
@@ -532,7 +580,10 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                 <CustomTabBar
                     tabs={tabs}
                     activeIndex={activeTab}
-                    onTabPress={setActiveTab}
+                    onTabPress={(index) => {
+                        setActiveTab(index);
+                        setActiveTabKey(tabItems[index]?.key || 'info');
+                    }}
                 />
 
                 <View style={styles.tabContentContainer}>

@@ -18,6 +18,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useStore } from '../store/store';
 
 export default function FriendsScreen() {
     const { theme } = useTheme();
@@ -28,6 +31,9 @@ export default function FriendsScreen() {
         initialTab === 'requests' ? 'requests' : 'friends'
     );
     const [addModalVisible, setAddModalVisible] = useState(false);
+    const isFocused = useIsFocused();
+    const { speak, stop } = useTextToSpeech();
+    const narrationMode = useStore(state => state.narrationMode);
 
     const {
         friends,
@@ -49,6 +55,45 @@ export default function FriendsScreen() {
         expiredModalVisible,
         setExpiredModalVisible
     } = useInvites();
+
+    React.useEffect(() => {
+        if (isFocused && narrationMode === 'full') {
+            const formatString = require('../utils/stringUtils').formatString;
+            const tabLabel = activeTab === 'friends' ? t('narrationMyFriendsTab') : t('narrationRequestsInvitesTab');
+            let speechText = formatString(t('narrationFriendsScreen'), tabLabel) + ' ';
+            if (activeTab === 'friends') {
+                if (friends.length === 0) {
+                    speechText += t('narrationNoFriendsAdded');
+                } else {
+                    const firstFew = friends.slice(0, 3).map((f: any) => f.name || f.username).join(', ');
+                    speechText += formatString(t('narrationFriendsListCount'), friends.length, firstFew);
+                }
+            } else {
+                const totalReq = (requests?.length || 0) + (invites?.length || 0);
+                if (totalReq === 0) {
+                    speechText += t('narrationNoRequestsOrInvites');
+                } else {
+                    speechText += formatString(t('narrationRequestsAndInvitesCount'), invites?.length || 0, requests?.length || 0) + ' ';
+                    if (invites && invites.length > 0) {
+                        const firstInv = invites.slice(0, 3).map((inv: any, idx: number) => 
+                            formatString(t('narrationInviteFrom'), idx + 1, inv.sender?.name || t('unknown'))
+                        ).join('. ');
+                        speechText += formatString(t('narrationGameInvitesList'), firstInv) + ' ';
+                    }
+                    if (requests && requests.length > 0) {
+                        const firstReq = requests.slice(0, 3).map((req: any, idx: number) => 
+                            formatString(t('narrationRequestFrom'), idx + 1, req.sender?.name || t('unknown'))
+                        ).join('. ');
+                        speechText += formatString(t('narrationFriendRequestsList'), firstReq) + ' ';
+                    }
+                }
+            }
+            speak(speechText);
+        }
+        return () => {
+            stop();
+        };
+    }, [isFocused, activeTab, friends, requests, invites, narrationMode]);
 
     useEffect(() => {
         if (activeTab === 'friends') {

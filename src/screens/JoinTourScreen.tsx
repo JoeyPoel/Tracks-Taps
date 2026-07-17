@@ -15,6 +15,9 @@ import { useTheme } from '../context/ThemeContext';
 import { useInvites } from '../hooks/useInvites';
 import { useJoinTour } from '../hooks/useJoinTour';
 import { authEvents } from '../utils/authEvents';
+import { useIsFocused } from '@react-navigation/native';
+import { useStore } from '../store/store';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
 
 export default function JoinTourScreen() {
     const { theme } = useTheme();
@@ -39,6 +42,27 @@ export default function JoinTourScreen() {
     };
 
     const { invites, loading: loadingInvites, acceptInvite, declineInvite, processingId, expiredModalVisible, setExpiredModalVisible } = useInvites();
+    
+    const isFocused = useIsFocused();
+    const { speak, stop } = useTextToSpeech();
+    const narrationMode = useStore((state) => state.narrationMode);
+
+    React.useEffect(() => {
+        if (isFocused && narrationMode === 'full') {
+            const formatString = require('../utils/stringUtils').formatString;
+            let speakText = t('narrationJoinTourScreen');
+            if (invites && invites.length > 0) {
+                const inviteDetails = invites.map((invite: any, idx: number) => 
+                    formatString(t('narrationInviteIndexFromJoin'), idx + 1, invite.sender?.name || t('unknown'), invite.tour?.title || t('tour'))
+                ).join('. ');
+                speakText += ' ' + formatString(t('narrationOutstandingInvites'), inviteDetails);
+            }
+            speak(speakText);
+        }
+        return () => {
+            stop();
+        };
+    }, [isFocused, narrationMode, invites]);
 
     // Animation shared values for floating effect
     const floatY = useSharedValue(0);

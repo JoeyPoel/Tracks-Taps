@@ -1,6 +1,6 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useCallback, useState } from 'react';
-import { Alert, ScrollView, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, ScrollView, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import InviteFriendsModal from '../components/common/InviteFriendsModal';
@@ -12,6 +12,10 @@ import { useTheme } from '../context/ThemeContext';
 import { useUserContext } from '../context/UserContext';
 import { useFriends } from '../hooks/useFriends';
 import { usePreTourLobby } from '../hooks/usePreTourLobby';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useStore } from '../store/store';
+import { useIsFocused } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 // New Components
 import { LobbyFooter } from '../components/preTourLobby/LobbyFooter';
@@ -32,6 +36,30 @@ export default function PreTourLobbyScreen() {
     const { loadFriends } = useFriends();
 
     const { activeTour, userTeam, loading, isStarting, loadLobbyDetails, startTour } = usePreTourLobby(activeTourId, user);
+    const { speak, stop, isSpeaking } = useTextToSpeech();
+    const narrationMode = useStore(state => state.narrationMode);
+    const showSpeakButtons = useStore(state => state.showSpeakButtons);
+    const isFocused = useIsFocused();
+
+    const buildNarration = () => {
+        if (!activeTour) return t('narrationLoadingTourInfo');
+        const tourTitle = activeTour.tour?.title || t('tour');
+        const allPlayers = activeTour.teams?.length ?? 0;
+        const inTeam = userTeam
+            ? `${t('narrationInTeam')}: ${userTeam.name || t('yourTeam')}.`
+            : t('narrationNotInTeamYet');
+        const modes = activeTour.tour?.modes?.join(', ') || t('unknown');
+        return `${t('narrationPreTourLobby')} ${tourTitle}. ${t('narrationJoinCode')}: ${activeTourId}. ${allPlayers} ${t('narrationPlayersInLobby')}. ${inTeam} ${t('narrationGameModes')}: ${modes}. ${t('narrationTapInviteFriends')} ${t('narrationTapStartTourReady')}`;
+    };
+
+    // Auto-narrate when focused and data is loaded
+    useEffect(() => {
+        if (isFocused && narrationMode === 'full' && !loading && activeTour) {
+            speak(buildNarration());
+        }
+        return () => { stop(); };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isFocused, narrationMode, loading, activeTour?.id]);
 
     const handleInvitePress = async () => {
         setIsInviteLoading(true);
@@ -80,11 +108,34 @@ export default function PreTourLobbyScreen() {
     return (
         <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} animateEntry={false} includeTop>
 
-            <LobbyHeader onInvitePress={handleInvitePress} isInviteLoading={isInviteLoading} />
+            <LobbyHeader
+                onInvitePress={handleInvitePress}
+                isInviteLoading={isInviteLoading}
+            />
 
             <ScrollView contentContainerStyle={{ padding: 20 }} showsVerticalScrollIndicator={false}>
 
-                <LobbyTourInfo activeTour={activeTour} />
+                {/* Tour card with optional speak button overlay */}
+                <View style={{ position: 'relative' }}>
+                    <LobbyTourInfo activeTour={activeTour} />
+                    {showSpeakButtons && (
+                        <TouchableOpacity
+                            onPress={() => isSpeaking ? stop() : speak(buildNarration())}
+                            style={{
+                                position: 'absolute',
+                                top: 10,
+                                right: 10,
+                                zIndex: 10,
+                                padding: 8,
+                                backgroundColor: 'rgba(0,0,0,0.45)',
+                                borderRadius: 20,
+                            }}
+                            accessibilityLabel={t('lobby')}
+                        >
+                            <Ionicons name={isSpeaking ? 'volume-mute' : 'volume-medium'} size={20} color="#FFF" />
+                        </TouchableOpacity>
+                    )}
+                </View>
 
                 {/* Game Code Section */}
                 <Animated.View entering={FadeInUp.delay(200).springify()} style={{ marginBottom: 16 }}>

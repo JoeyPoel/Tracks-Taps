@@ -9,6 +9,9 @@ import { Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { FadeInItem } from '@/src/components/common/FadeInList';
+import { useIsFocused } from '@react-navigation/native';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useStore } from '../store/store';
 
 export default function AchievementsScreen() {
     const { theme } = useTheme();
@@ -31,6 +34,28 @@ export default function AchievementsScreen() {
 
     const unlockedCount = allAchievements.filter(a => a.unlocked).length;
     const totalCount = allAchievements.length > 0 ? allAchievements.length : 12;
+
+    const isFocused = useIsFocused();
+    const { speak, stop } = useTextToSpeech();
+    const narrationMode = useStore(state => state.narrationMode);
+
+    useEffect(() => {
+        if (isFocused && narrationMode === 'full' && !loading) {
+            const formatString = require('../utils/stringUtils').formatString;
+            let speechText = formatString(t('narrationAchievementsScreen'), unlockedCount, totalCount) + ' ';
+            const unlockedAchievements = allAchievements.filter(a => a.unlocked);
+            if (unlockedAchievements.length > 0) {
+                const allNames = unlockedAchievements.map(a => a.name).join(', ');
+                speechText += formatString(t('narrationUnlockedAchievementsAre'), allNames);
+            } else {
+                speechText += t('narrationNoAchievementsUnlockedYet');
+            }
+            speak(speechText);
+        }
+        return () => {
+            stop();
+        };
+    }, [isFocused, allAchievements, loading, narrationMode]);
 
     return (
         <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={false}>

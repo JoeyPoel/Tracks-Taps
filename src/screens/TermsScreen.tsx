@@ -8,13 +8,29 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from '../context/TranslationContext';
 import { Ionicons } from '@expo/vector-icons';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useStore } from '../store/store';
+import { useIsFocused } from '@react-navigation/native';
 
 export default function TermsScreen() {
     const { theme } = useTheme();
     const { t, language } = useLanguage();
     const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
+    const { speak, stop, isSpeaking } = useTextToSpeech();
+    const showSpeakButtons = useStore(state => state.showSpeakButtons);
 
     const showTranslateButton = !isAutoTranslateEnabled && language !== 'en';
+    const isFocused = useIsFocused();
+    const narrationMode = useStore(state => state.narrationMode);
+
+    React.useEffect(() => {
+        if (isFocused && narrationMode === 'full') {
+            speak(t('narrationTermsScreen'), true);
+        }
+        return () => {
+            stop();
+        };
+    }, [isFocused, narrationMode]);
 
     const sections = [
         {
@@ -167,12 +183,20 @@ export default function TermsScreen() {
     ];
 
     const handleTranslateAll = () => {
-        // Concatenate all titles and contents into one large string
         const fullText = sections.map(s => {
             return `${s.title}\n${s.content.join('\n')}`;
         }).join('\n\n');
 
         requireTranslation(fullText);
+    };
+
+    const handleSpeakToggle = () => {
+        if (isSpeaking) {
+            stop();
+        } else {
+            const speechText = sections.map(s => `${translateText(s.title, true)}. ${s.content.map(p => translateText(p, true)).join(' ')}`).join(' ');
+            speak(speechText, true);
+        }
     };
 
     return (
@@ -182,14 +206,26 @@ export default function TermsScreen() {
                 showBackButton
                 title={t('terms') || 'Terms & Conditions'}
                 rightElement={
-                    showTranslateButton && (
-                        <TouchableOpacity
-                            onPress={handleTranslateAll}
-                            style={{ padding: 6, backgroundColor: theme.primary + '15', borderRadius: 8 }}
-                        >
-                            <Ionicons name="language" size={18} color={theme.primary} />
-                        </TouchableOpacity>
-                    )
+                    <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+                        {showSpeakButtons && (
+                            <TouchableOpacity
+                                onPress={handleSpeakToggle}
+                                style={{ padding: 6, backgroundColor: theme.primary + '15', borderRadius: 8 }}
+                                accessibilityLabel="Read all terms aloud"
+                                accessibilityRole="button"
+                            >
+                                <Ionicons name={isSpeaking ? "volume-mute" : "volume-medium"} size={18} color={theme.primary} />
+                            </TouchableOpacity>
+                        )}
+                        {showTranslateButton && (
+                            <TouchableOpacity
+                                onPress={handleTranslateAll}
+                                style={{ padding: 6, backgroundColor: theme.primary + '15', borderRadius: 8 }}
+                            >
+                                <Ionicons name="language" size={18} color={theme.primary} />
+                            </TouchableOpacity>
+                        )}
+                    </View>
                 }
             />
 

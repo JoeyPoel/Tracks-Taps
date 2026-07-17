@@ -62,3 +62,14 @@ export function isFlexibleMatch(input: string, target: string): boolean {
     
     return distance <= threshold;
 }
+
+/**
+ * Simple formatter to replace {0}, {1}, etc in template strings
+ */
+export function formatString(template: string, ...args: any[]): string {
+    let result = template;
+    for (let i = 0; i < args.length; i++) {
+        result = result.replace(new RegExp(`\\{${i}\\}`, 'g'), String(args[i]));
+    }
+    return result;
+}

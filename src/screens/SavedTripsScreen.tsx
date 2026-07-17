@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React, { useCallback } from 'react';
@@ -14,6 +14,8 @@ import { useTheme } from '../context/ThemeContext';
 import { useSavedTrips } from '../hooks/useSavedTrips';
 import { SavedTrip } from '../services/savedTripsService';
 import { FadeInItem } from '../components/common/FadeInList';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useStore } from '../store/store';
 
 export default function SavedTripsScreen() {
     const { theme } = useTheme();
@@ -39,6 +41,31 @@ export default function SavedTripsScreen() {
             return () => clearTimeout(timer);
         }
     }, [loading]);
+
+    const isFocused = useIsFocused();
+    const { speak, stop } = useTextToSpeech();
+    const narrationMode = useStore(state => state.narrationMode);
+
+    React.useEffect(() => {
+        if (isFocused && narrationMode === 'full' && !loading) {
+            const formatString = require('../utils/stringUtils').formatString;
+            let speechText = t('narrationSavedTripsScreen') + ' ';
+            if (lists.length === 0) {
+                speechText += t('narrationNoSavedCollections');
+            } else {
+                const listNames = lists.map(l => {
+                    const colName = l.name === 'Favourites' ? t('favourites') : l.name;
+                    const tourCount = l._count?.tours ?? l.tours?.length ?? 0;
+                    return formatString(t('narrationCollectionCountTours'), colName, tourCount);
+                }).join('. ');
+                speechText += formatString(t('narrationYourCollectionsAre'), listNames);
+            }
+            speak(speechText);
+        }
+        return () => {
+            stop();
+        };
+    }, [isFocused, lists, loading, narrationMode]);
 
     const renderItem = ({ item, index }: { item: SavedTrip; index: number }) => {
         // Get up to 3 thumbnails for a gallery collage effect

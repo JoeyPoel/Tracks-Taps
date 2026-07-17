@@ -23,6 +23,9 @@ import {
 import { AnimatedPressable } from '../components/common/AnimatedPressable';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
+import { useIsFocused } from '@react-navigation/native';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useStore } from '../store/store';
 
 export default function PersonalInfoScreen() {
     const { theme } = useTheme();
@@ -30,6 +33,9 @@ export default function PersonalInfoScreen() {
     const router = useRouter();
     const { signOut, user: authUser } = useAuth();
     const { user: dbUser, updateUser, deleteUser } = useUserContext();
+    const isFocused = useIsFocused();
+    const { speak, stop } = useTextToSpeech();
+    const narrationMode = useStore(state => state.narrationMode);
 
     const [name, setName] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
@@ -48,6 +54,26 @@ export default function PersonalInfoScreen() {
         }
     }, [dbUser, authUser]);
 
+    // Track whether we have loaded user data at least once
+    const [userDataLoaded, setUserDataLoaded] = React.useState(false);
+    useEffect(() => {
+        if (dbUser || authUser) {
+            setUserDataLoaded(true);
+        }
+    }, [dbUser, authUser]);
+
+    React.useEffect(() => {
+        if (isFocused && narrationMode === 'full' && userDataLoaded) {
+            const formatString = require('../utils/stringUtils').formatString;
+            const currentName = name || t('narrationNotSet');
+            const currentEmail = email || t('narrationNotSet');
+            const speechText = formatString(t('narrationPersonalInfoScreen'), currentName, currentEmail);
+            speak(speechText);
+        }
+        return () => {
+            stop();
+        };
+    }, [isFocused, userDataLoaded, narrationMode]);
 
     const handleSave = async () => {
         setLoading(true);

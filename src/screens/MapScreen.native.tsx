@@ -15,11 +15,13 @@ import { useMapScreenLogic } from '../hooks/useMapScreenLogic';
 import { Stop } from '../types/models';
 import { getGenreIcon } from '../utils/genres';
 import { getStopIcon } from '../utils/stopIcons';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
 
 export default function MapScreen() {
   const { theme, mode } = useTheme();
   const { t } = useLanguage();
   const insets = useSafeAreaInsets();
+  const { speak } = useTextToSpeech();
 
   const {
     mapRef,
@@ -114,6 +116,7 @@ export default function MapScreen() {
                 title={`${stop.number}. ${stop.name}`}
                 description={stop.description}
                 tracksViewChanges={false}
+                onPress={() => speak(`${stop.number}. ${stop.name}. ${stop.description || ''}`, true)}
               >
                 {stop.number === 1 ? (
                   // START STOP: Solid Primary Pin

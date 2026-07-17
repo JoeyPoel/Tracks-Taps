@@ -77,6 +77,14 @@ interface StoreState {
     lastFetchedRequests: number;
     fetchFriends: (force?: boolean) => Promise<void>;
     fetchRequests: (force?: boolean) => Promise<void>;
+
+    // Accessibility Narration Settings
+    narrationMode: 'off' | 'tour-only' | 'full';
+    setNarrationMode: (mode: 'off' | 'tour-only' | 'full') => void;
+    speechRate: number;
+    setSpeechRate: (rate: number) => void;
+    showSpeakButtons: boolean;
+    setShowSpeakButtons: (show: boolean) => void;
 }
 
 export const useStore = create<StoreState>()(
@@ -89,6 +97,14 @@ export const useStore = create<StoreState>()(
             isTabBarVisible: true,
             setTabBarVisible: (visible: boolean) => set({ isTabBarVisible: visible }),
             floatingPointsQueue: [],
+
+            // --- Accessibility Narration Settings ---
+            narrationMode: 'off',
+            setNarrationMode: (mode) => set({ narrationMode: mode }),
+            speechRate: 1.0,
+            setSpeechRate: (rate) => set({ speechRate: rate }),
+            showSpeakButtons: true,
+            setShowSpeakButtons: (show) => set({ showSpeakButtons: show }),
             triggerFloatingPoints: (amount: number, label?: string) => {
                 const id = Math.random().toString(36).substring(7);
                 set((state) => ({ 
@@ -638,6 +654,9 @@ export const useStore = create<StoreState>()(
                     maxDuration: state.tourFilters.maxDuration,
                     minRating: state.tourFilters.minRating
                 },
+                narrationMode: state.narrationMode,
+                speechRate: state.speechRate,
+                showSpeakButtons: state.showSpeakButtons,
             }),
         }
     )

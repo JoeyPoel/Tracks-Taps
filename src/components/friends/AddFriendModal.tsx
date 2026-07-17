@@ -3,12 +3,14 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { useFriends } from '@/src/hooks/useFriends';
 import { userService } from '@/src/services/userService';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TextComponent } from '../common/TextComponent';
 import { FriendCard } from './FriendCard';
 import { FriendSearchInput } from './FriendSearchInput';
+import { useTextToSpeech } from '../../hooks/useTextToSpeech';
+import { useStore } from '../../store/store';
 
 import { useRouter } from 'expo-router';
 
@@ -28,6 +30,28 @@ export function AddFriendModal({ visible, onClose }: AddFriendModalProps) {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(false);
     const { sendFriendRequest } = useFriends();
+    const { speak } = useTextToSpeech();
+    const narrationMode = useStore(state => state.narrationMode);
+
+    // Narrate when modal opens
+    useEffect(() => {
+        if (visible && narrationMode === 'full') {
+            speak('Add Friend screen. Type a username or name to search for users. Results will be announced as they appear.');
+        }
+    }, [visible, narrationMode]);
+
+    // Narrate search results as they arrive
+    const prevResultCount = useRef<number>(-1);
+    useEffect(() => {
+        if (!visible || narrationMode !== 'full' || loading) return;
+        if (results.length === 0 && searchQuery.length >= 2) {
+            speak('No users found. Try a different search term.');
+        } else if (results.length > 0 && results.length !== prevResultCount.current) {
+            const names = results.slice(0, 5).map((u: any) => u.name || u.username).join(', ');
+            speak(`Found ${results.length} user${results.length > 1 ? 's' : ''}: ${names}.`);
+        }
+        prevResultCount.current = results.length;
+    }, [results, loading, searchQuery, visible, narrationMode]);
 
     const fetchUsers = async (text: string, pageNum: number, append: boolean = false) => {
         if (!text || text.length < 2) return;

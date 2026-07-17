@@ -19,6 +19,8 @@ import { useUserContext } from '../context/UserContext';
 import { useStore } from '../store/store';
 import { FadeInItem } from '../components/common/FadeInList';
 import { Tour } from '../types/models';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useIsFocused } from '@react-navigation/native';
 
 export default function ExploreScreen() {
   const router = useRouter();
@@ -41,6 +43,9 @@ export default function ExploreScreen() {
   const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const { speak, stop } = useTextToSpeech();
+  const isFocused = useIsFocused();
+  const narrationMode = useStore((state) => state.narrationMode);
 
   // Tracking first load to prevent flash of empty state
   const [hasInitialized, setHasInitialized] = useState(false);
@@ -82,6 +87,25 @@ export default function ExploreScreen() {
       init();
     }, [user?.id, fetchAllData, fetchTours])
   );
+
+  useEffect(() => {
+    if (isFocused && narrationMode === 'full' && hasInitialized && !loading) {
+      const formatString = require('../utils/stringUtils').formatString;
+      let activeTourText = activeTour
+        ? formatString(t('narrationActiveTourText'), activeTour.tour?.title || t('unknown'))
+        : t('narrationNoActiveTour');
+
+      const tourTitles = tours.slice(0, 5).map((tourItem, idx) => 
+        formatString(t('narrationTourIndexBy'), idx + 1, tourItem.title, tourItem.author?.name || t('unknown'))
+      ).join('. ');
+      const toursText = tours.length > 0 ? formatString(t('narrationAvailableTours'), tourTitles) : t('narrationNoToursAvailable');
+
+      speak(formatString(t('narrationExploreScreen'), activeTourText, toursText));
+    }
+    return () => {
+      stop();
+    };
+  }, [isFocused, narrationMode, hasInitialized, loading, tours, activeTour]);
 
   const onRefresh = useCallback(async () => {
     setIsRefreshing(true);

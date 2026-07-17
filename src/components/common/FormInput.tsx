@@ -24,6 +24,7 @@ interface FormInputProps {
     showPasswordToggle?: boolean;
     textContentType?: string;
     autoComplete?: any;
+    autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
 }
 
 export function FormInput({
@@ -45,7 +46,8 @@ export function FormInput({
     secureTextEntry,
     showPasswordToggle,
     textContentType,
-    autoComplete
+    autoComplete,
+    autoCapitalize = 'sentences'
 }: FormInputProps) {
     const { theme } = useTheme();
     const [isPasswordVisible, setIsPasswordVisible] = React.useState(!secureTextEntry);
@@ -90,26 +92,26 @@ export function FormInput({
                     onChangeText={onChange}
                     multiline={multiline}
                     numberOfLines={multiline ? 4 : 1}
-                    maxLength={maxLength}
                     keyboardType={keyboardType}
                     editable={editable}
                     autoFocus={autoFocus}
                     secureTextEntry={secureTextEntry && !isPasswordVisible}
                     textContentType={textContentType as any}
                     autoComplete={autoComplete}
+                    autoCapitalize={autoCapitalize}
                 />
                 {showPasswordToggle ? (
                     <View style={styles.iconRight}>
                         <React.Suspense fallback={null}>
                             {/* We'll use Ionicons directly logic or pass through iconRight */}
-                            <TextComponent 
+                            <TextComponent
                                 onPress={() => setIsPasswordVisible(!isPasswordVisible)}
                                 style={{ padding: 4 }}
                             >
-                                <Ionicons 
-                                    name={isPasswordVisible ? "eye-off-outline" : "eye-outline"} 
-                                    size={20} 
-                                    color={theme.textTertiary} 
+                                <Ionicons
+                                    name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}
+                                    size={20}
+                                    color={theme.textTertiary}
                                 />
                             </TextComponent>
                         </React.Suspense>

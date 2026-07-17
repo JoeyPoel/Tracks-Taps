@@ -5,6 +5,8 @@ import { getScoreDetails } from '../../../utils/pubGolfUtils';
 import PubGolfInputGrid from './PubGolfInputGrid';
 import PubGolfResultFooter from './PubGolfResultFooter';
 import PubGolfStopHeader from './PubGolfStopHeader';
+import { useTextToSpeech } from '../../../hooks/useTextToSpeech';
+import { useStore } from '../../../store/store';
 
 interface PubGolfStopCardProps {
     stopNumber: number;
@@ -31,6 +33,15 @@ export default function PubGolfStopCard({
 
     const isCompleted = sips !== undefined;
     const scoreDetails = getScoreDetails(par, sips);
+    const { speak } = useTextToSpeech();
+    const narrationMode = useStore(state => state.narrationMode);
+
+    React.useEffect(() => {
+        if (isActive && !isCompleted && narrationMode === 'full') {
+            const speechText = `Active Pub Golf Stop ${stopNumber}: ${stopName}. Drink target: ${drinkName}. Par is ${par}. Select your sips from 1 to 9 sips to complete the hole.`;
+            speak(speechText);
+        }
+    }, [isActive, isCompleted, narrationMode]);
 
     // Calculate display text for the difference
     const diff = isCompleted ? (sips! - par) : 0;

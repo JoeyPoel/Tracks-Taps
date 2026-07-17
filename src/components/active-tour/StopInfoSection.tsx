@@ -10,6 +10,8 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from '../../context/TranslationContext';
 import { useTheme } from '../../context/ThemeContext';
 import { TextComponent } from '../common/TextComponent';
+import { useTextToSpeech } from '../../hooks/useTextToSpeech';
+import { useStore } from '../../store/store';
 
 interface StopInfoSectionProps {
     stop: any;
@@ -19,6 +21,8 @@ export default function StopInfoSection({ stop }: StopInfoSectionProps) {
     const { theme } = useTheme();
     const { t, language } = useLanguage();
     const { translateText, isAutoTranslateEnabled } = useTranslation();
+    const { speak, stop: stopSpeech, isSpeaking } = useTextToSpeech();
+    const showSpeakButtons = useStore(state => state.showSpeakButtons);
 
     if (!stop) return null;
 
@@ -28,6 +32,15 @@ export default function StopInfoSection({ stop }: StopInfoSectionProps) {
     const camelCaseKey = stopTypeKey.charAt(0).toLowerCase() + stopTypeKey.slice(1);
     const label = t(camelCaseKey) || stop.type?.replace('_', ' ') || 'Stop';
     const icon = getStopIcon(stop.type || 'viewpoint', 16, theme.primary);
+
+    const handleSpeakToggle = () => {
+        if (isSpeaking) {
+            stopSpeech();
+        } else {
+            const speechText = `${stop.name}. ${displayedDescription}`;
+            speak(speechText, true);
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -69,7 +82,16 @@ export default function StopInfoSection({ stop }: StopInfoSectionProps) {
             ]}>
                 <View style={[styles.headerRow, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
                     <TextComponent style={[styles.title, { flex: 1, marginRight: 8 }]} color={theme.textPrimary} bold variant="h2">{stop.name}</TextComponent>
-
+                    {showSpeakButtons && (
+                        <TouchableOpacity
+                            onPress={handleSpeakToggle}
+                            style={{ padding: 6, backgroundColor: theme.primary + '15', borderRadius: 8 }}
+                            accessibilityLabel="Read stop details aloud"
+                            accessibilityRole="button"
+                        >
+                            <Ionicons name={isSpeaking ? "volume-mute" : "volume-medium"} size={18} color={theme.primary} />
+                        </TouchableOpacity>
+                    )}
                 </View>
 
                 <View style={[styles.divider, { backgroundColor: theme.borderSecondary }]} />

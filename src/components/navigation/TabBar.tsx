@@ -13,11 +13,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
 import { getAppMaxWidth } from '../../hooks/useAppWidth';
 import { useStore } from '../../store/store';
+import { useTextToSpeech } from '../../hooks/useTextToSpeech';
 
 export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     const { theme, mode } = useTheme();
     const insets = useSafeAreaInsets();
     const { isTabBarVisible: isGlobalVisible } = useStore();
+    const { speak } = useTextToSpeech();
 
     // Correctly filter out hidden tabs based on options.href or tabBarStyle display
     const visibleRoutes = state.routes.filter(route => {
@@ -76,6 +78,9 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                                 target: route.key,
                                 canPreventDefault: true,
                             });
+
+                            const tabLabel = options.tabBarLabel || options.title || route.name;
+                            speak(`Tab: ${tabLabel}`, true);
 
                             if (!isFocused && !event.defaultPrevented) {
                                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

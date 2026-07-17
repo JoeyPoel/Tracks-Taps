@@ -8,6 +8,8 @@ import { useReferral } from '../../hooks/useReferral';
 import { AnimatedButton } from '../common/AnimatedButton';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 import { AppModal } from '../common/AppModal';
+import { useTextToSpeech } from '../../hooks/useTextToSpeech';
+import { useStore } from '../../store/store';
 
 interface ReferralClaimModalProps {
     visible: boolean;
@@ -31,6 +33,25 @@ export default function ReferralClaimModal({ visible, onClose }: ReferralClaimMo
         copied,
         userReferralCode
     } = useReferral();
+
+    const { speak } = useTextToSpeech();
+    const narrationMode = useStore(state => state.narrationMode);
+
+    React.useEffect(() => {
+        if (visible && narrationMode === 'full') {
+            if (success) {
+                speak("Referral code successfully claimed!");
+            } else if (error) {
+                speak(`Error: ${error}`);
+            } else {
+                let speechText = "Modal: Claim Referral. Enter a referral code to get bonus tokens. ";
+                if (userReferralCode) {
+                    speechText += `Or share your referral code: ${userReferralCode}.`;
+                }
+                speak(speechText);
+            }
+        }
+    }, [visible, success, error, narrationMode]);
 
     const handleClaim = async () => {
         const isSuccess = await claimReferral(code);

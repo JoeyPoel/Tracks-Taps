@@ -60,11 +60,11 @@ export function SelectionModal({
                         >
                             <View style={styles.optionLeft}>
                                 {Icon && (
-                                    <Icon size={20} color={isSelected ? '#FFF' : (option.color || theme.textSecondary)} />
+                                    <Icon size={20} color={isSelected ? theme.textOnPrimary : (option.color || theme.textSecondary)} />
                                 )}
                                 <TextComponent
                                     style={styles.optionLabel}
-                                    color={isSelected ? '#FFF' : theme.textPrimary}
+                                    color={isSelected ? theme.textOnPrimary : theme.textPrimary}
                                     bold
                                     variant="body"
                                 >
@@ -72,7 +72,7 @@ export function SelectionModal({
                                 </TextComponent>
                             </View>
 
-                            {isSelected && <Ionicons name="checkmark" size={20} color="#FFF" />}
+                            {isSelected && <Ionicons name="checkmark" size={20} color={theme.textOnPrimary} />}
                         </AnimatedPressable>
                     );
                 })}

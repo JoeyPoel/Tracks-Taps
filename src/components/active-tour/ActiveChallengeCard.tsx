@@ -14,6 +14,10 @@ import { useTheme } from '../../context/ThemeContext';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 import { TextComponent } from '../common/TextComponent';
 
+import { useSafeNavigation } from '@/src/hooks/useSafeNavigation';
+import { useTextToSpeech } from '../../hooks/useTextToSpeech';
+import { useStore } from '../../store/store';
+
 export type ChallengeType = 'location' | 'trivia' | 'camera' | 'picture' | 'true_false' | 'dare' | 'riddle' | 'check_in';
 
 interface ActiveChallengeCardProps {
@@ -50,6 +54,9 @@ export default function ActiveChallengeCard({
     const { theme } = useTheme();
     const { t, language } = useLanguage();
     const { translateText, isAutoTranslateEnabled } = useTranslation();
+
+    const { speak, stop } = useTextToSpeech();
+    const showSpeakButtons = useStore(state => state.showSpeakButtons);
 
     const displayedTranslateText = translateText(translateTextProp || '');
 
@@ -169,7 +176,22 @@ export default function ActiveChallengeCard({
                                     <Ionicons name={getIconName()} size={22} color={getIconColor()} />
                                 )}
                             </View>
-                            <TextComponent style={styles.cardTitle} color={theme.textPrimary} bold variant="body">{title}</TextComponent>
+                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <TextComponent style={styles.cardTitle} color={theme.textPrimary} bold variant="body">{title}</TextComponent>
+                                {showSpeakButtons && (
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            const speechText = `Challenge: ${title}. ${displayedTranslateText ? `Instructions: ${displayedTranslateText}` : ''}`;
+                                            speak(speechText, true);
+                                        }}
+                                        style={{ padding: 4 }}
+                                        accessibilityLabel="Read challenge details aloud"
+                                        accessibilityRole="button"
+                                    >
+                                        <Ionicons name="volume-medium-outline" size={18} color={theme.primary} />
+                                    </TouchableOpacity>
+                                )}
+                            </View>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
 

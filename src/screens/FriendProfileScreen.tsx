@@ -23,6 +23,9 @@ import TourCard from '../components/exploreScreen/TourCard';
 import ProfileStats from '../components/profileScreen/ProfileStats';
 import RecentAchievements from '../components/profileScreen/RecentAchievements';
 import { achievementService } from '../services/achievementService';
+import { useIsFocused } from '@react-navigation/native';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useStore } from '../store/store';
 export default function FriendProfileScreen() {
     const { theme } = useTheme();
     const router = useRouter();
@@ -37,6 +40,30 @@ export default function FriendProfileScreen() {
     const [loading, setLoading] = useState(true);
     const insets = useSafeAreaInsets();
     const { sendFriendRequest, removeFriend, respondToRequest, requests, actionLoading } = useFriends();
+    const isFocused = useIsFocused();
+    const { speak, stop, isSpeaking } = useTextToSpeech();
+    const narrationMode = useStore(state => state.narrationMode);
+    const showSpeakButtons = useStore(state => state.showSpeakButtons);
+
+    /** Builds the narration text for this friend's profile */
+    const buildNarration = () => {
+        if (!user) return t('loading');
+        const progress = LevelSystem.getProgress(user.xp || 0);
+        let text = `${t('narrationFriendProfile')}: ${user.name || t('unknown')}. ${t('level')} ${progress.level}. `;
+        text += `${t('toursDone')}: ${user?.stats?.toursDone || 0}. ${t('toursCreated')}: ${user?.stats?.toursCreated || 0}. ${t('friends')}: ${user?.stats?.friends || 0}. `;
+        const status = user.friendshipStatus;
+        if (status === 'ACCEPTED') text += t('narrationAlreadyFriends') + ' ';
+        else if (status === 'PENDING_OUTGOING' || status === 'PENDING') text += t('narrationFriendRequestSent') + ' ';
+        else if (status === 'PENDING_INCOMING') text += t('narrationFriendRequestReceived') + ' ';
+        else text += t('narrationNotFriendsYet') + ' ';
+        if (latestCreated) text += `${t('latestCreated')}: ${latestCreated.title}. `;
+        if (latestPlayed?.tour) text += `${t('latestPlayed')}: ${latestPlayed.tour.title}. `;
+        if (achievements.length > 0) {
+            const names = achievements.filter((a: any) => a.unlocked).slice(0, 3).map((a: any) => a.name).join(', ');
+            if (names) text += `${t('recentAchievements')}: ${names}.`;
+        }
+        return text;
+    };
 
     useEffect(() => {
         if (userId && userId !== 'unknown' && !isNaN(Number(userId))) {
@@ -48,6 +75,15 @@ export default function FriendProfileScreen() {
             setUser(null);
         }
     }, [userId]);
+
+    // Auto-narrate when screen is focused and data has loaded
+    useEffect(() => {
+        if (isFocused && narrationMode === 'full' && !loading && user) {
+            speak(buildNarration());
+        }
+        return () => { stop(); };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isFocused, narrationMode, loading, user?.id]);
 
     const loadUserTours = async () => {
         try {
@@ -187,6 +223,16 @@ export default function FriendProfileScreen() {
                 showsVerticalScrollIndicator={false}
                 style={styles.scrollView}
             >
+                {/* Manual speak button */}
+                {showSpeakButtons && user && (
+                    <TouchableOpacity
+                        onPress={() => isSpeaking ? stop() : speak(buildNarration())}
+                        style={{ alignSelf: 'flex-end', padding: 10, marginBottom: 4 }}
+                        accessibilityLabel="Read profile aloud"
+                    >
+                        <Ionicons name={isSpeaking ? 'volume-mute' : 'volume-medium'} size={22} color={user ? '#FFF' : '#FFF'} />
+                    </TouchableOpacity>
+                )}
                 <View style={styles.profileSection}>
                     <UserProfileCard
                         name={user.name || t('unknown')}

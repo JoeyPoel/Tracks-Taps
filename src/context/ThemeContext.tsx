@@ -219,7 +219,17 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
             return themes[romanticKey] || themes[mode];
         }
 
-        // 2. Holiday Global Override or Auto Theme has second priority
+        // 2. User accessibility theme override has second priority (overwrites holiday themes)
+        if (user?.customTheme && user.customTheme.endsWith('_accessibility')) {
+            const customThemeConfig = COLOR_THEMES.find(t => t.id === user.customTheme);
+            if (customThemeConfig) {
+                const overrides = mode === 'light' ? customThemeConfig.light : customThemeConfig.dark;
+                const base = mode === 'light' ? lightTheme : darkTheme;
+                return getOverriddenTheme(base, overrides);
+            }
+        }
+
+        // 3. Holiday Global Override or Auto Theme has third priority
         let activeOverrideThemeId: string | null = globalThemeOverride || null;
 
         if (!activeOverrideThemeId && autoThemeEnabled) {
@@ -244,7 +254,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
             }
         }
 
-        // 3. User custom theme (restricted to admin for now, check user customTheme) has third priority
+        // 4. User custom theme (standard themes) has fourth priority
         if (user?.customTheme) {
             const customThemeConfig = COLOR_THEMES.find(t => t.id === user.customTheme);
             if (customThemeConfig) {
@@ -265,6 +275,11 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
                 name: "Laura ❤️ Joey",
                 description: "Infinite Love is in the air!"
             };
+        }
+
+        // Hide holiday decorations when accessibility themes are active
+        if (user?.customTheme && user.customTheme.endsWith('_accessibility')) {
+            return null;
         }
 
         let activeOverrideThemeId: string | null = globalThemeOverride || null;
@@ -295,7 +310,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
         }
 
         return null;
-    }, [overlayType, autoThemeEnabled, globalThemeOverride]);
+    }, [overlayType, autoThemeEnabled, globalThemeOverride, user?.customTheme]);
 
     // Sync native background color with the current theme
     useEffect(() => {

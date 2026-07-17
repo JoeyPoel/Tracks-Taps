@@ -19,6 +19,8 @@ import { useToast } from '../context/ToastContext';
 import { useAchievements } from '../hooks/useAchievements';
 import { useTourCompleted } from '../hooks/useTourCompleted';
 import { getPubGolfStats } from '../utils/pubGolfUtils';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useStore } from '../store/store';
 
 type RevealState = 'CALCULATING' | 'REVEAL_3' | 'REVEAL_2' | 'REVEAL_1' | 'CELEBRATE';
 
@@ -50,6 +52,39 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
     const [showFeedbackInput, setShowFeedbackInput] = useState(false);
     const [feedbackText, setFeedbackText] = useState('');
     const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+
+    const { speak, stop, isSpeaking } = useTextToSpeech();
+    const narrationMode = useStore(state => state.narrationMode);
+    const showSpeakButtons = useStore(state => state.showSpeakButtons);
+
+    const buildNarration = () => {
+        if (!activeTour?.tour) return t('narrationLoadingResults');
+        const tourTitle = activeTour.tour.title || t('tour');
+        const winnerName = winner?.name || winner?.user?.name || t('yourTeam');
+        let text = `${t('tourCompleted').replace('🎉', '')} ${tourTitle}. ${t('narrationCongratulations')} `;
+        if (activeTeams.length > 1) {
+            text += `${t('winner')} ${winnerName} ${t('narrationWithPoints')} ${winner?.score || 0} ${t('points')}. `;
+            const top3 = activeTeams.slice(0, 3);
+            text += `${t('narrationPodiumLabel')}: `;
+            top3.forEach((team: any, i: number) => {
+                text += `${i + 1}: ${team.name || team.user?.name || t('yourTeam')} ${t('narrationWithPoints')} ${team.score || 0} ${t('points')}. `;
+            });
+        } else if (activeTeams.length === 1) {
+            text += `${t('narrationYouScored')} ${activeTeams[0]?.score || 0} ${t('points')}. `;
+        }
+        text += t('narrationTourCompletedActions');
+        return text;
+    };
+
+    // Auto-narrate when the celebration reveal is complete
+    useEffect(() => {
+        if (revealState === 'CELEBRATE' && (narrationMode === 'full' || narrationMode === 'tour-only')) {
+            // Small delay so confetti fires first
+            const timer = setTimeout(() => speak(buildNarration()), 800);
+            return () => clearTimeout(timer);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [revealState, narrationMode]);
 
     const sequenceHasRun = React.useRef(false);
 
@@ -180,6 +215,17 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
             {/* Confetti floats on top */}
             {revealState === 'CELEBRATE' && <Confetti />}
+
+            {/* Manual speak button (floating, top-right) */}
+            {showSpeakButtons && revealState === 'CELEBRATE' && (
+                <TouchableOpacity
+                    onPress={() => isSpeaking ? stop() : speak(buildNarration())}
+                    style={{ position: 'absolute', top: top + 12, right: 16, zIndex: 30, padding: 8, backgroundColor: theme.bgSecondary + 'CC', borderRadius: 20 }}
+                    accessibilityLabel="Read results aloud"
+                >
+                    <Ionicons name={isSpeaking ? 'volume-mute' : 'volume-medium'} size={22} color={theme.textPrimary} />
+                </TouchableOpacity>
+            )}
 
             <ScrollView
                 contentContainerStyle={styles.scrollContent}

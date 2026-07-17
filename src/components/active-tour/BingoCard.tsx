@@ -155,6 +155,9 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
                             key={challenge.id}
                             activeOpacity={0.8}
                             onPress={() => onChallengePress(challenge)}
+                            accessible={true}
+                            accessibilityLabel={`Row ${row + 1}, Column ${col + 1}: ${translateText(challenge.title)}. Status: ${completed ? 'Completed' : failed ? 'Failed' : 'Incomplete'}.`}
+                            accessibilityRole="button"
                         >
                             <Animated.View
                                 entering={FadeIn.delay(index * 50)}

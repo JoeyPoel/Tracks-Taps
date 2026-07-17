@@ -9,6 +9,8 @@ import { useUserContext } from '../../context/UserContext';
 import { authEvents } from '../../utils/authEvents';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 import { AppModal } from '../common/AppModal';
+import { useTextToSpeech } from '../../hooks/useTextToSpeech';
+import { useStore } from '../../store/store';
 
 interface BuyTokensModalProps {
     visible: boolean;
@@ -36,6 +38,8 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
     const { purchasePackage, packages } = usePurchases(); // Use hook directly
     const [isLoading, setIsLoading] = React.useState(false);
     const [copied, setCopied] = React.useState(false);
+    const { speak } = useTextToSpeech();
+    const narrationMode = useStore(state => state.narrationMode);
 
     // Map local definitions to RevenueCat packages
     // We assume package identifiers contain '1_token', '2_tokens', etc. or match by price/metadata
@@ -58,6 +62,18 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
             priceString: rcPkg?.product.priceString || '-',
         };
     });
+
+    React.useEffect(() => {
+        if (visible && narrationMode === 'full') {
+            let speechText = `Modal: Token Shop. Choose a token package. Options are: `;
+            const optionsText = displayPackages.map(pkg => `${pkg.tokens} tokens for ${pkg.priceString}`).join(', ');
+            speechText += `${optionsText}. `;
+            if (user?.referralCode) {
+                speechText += `Your referral code to earn free tokens is: ${user.referralCode}.`;
+            }
+            speak(speechText, true);
+        }
+    }, [visible, narrationMode]);
 
     const handleCopy = async () => {
         if (user?.referralCode) {

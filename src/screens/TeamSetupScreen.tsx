@@ -1,7 +1,7 @@
 import { TextComponent } from '@/src/components/common/TextComponent'; // Added import
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { AnimatedButton } from '../components/common/AnimatedButton';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
@@ -12,6 +12,10 @@ import { TeamNameInput } from '../components/teamSetup/TeamNameInput';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useTeamSetup } from '../hooks/useTeamSetup';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useStore } from '../store/store';
+import { useIsFocused } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 
 export default function TeamSetupScreen() {
@@ -30,12 +34,41 @@ export default function TeamSetupScreen() {
         handleCreateTeam
     } = useTeamSetup();
 
+    const { speak, stop, isSpeaking } = useTextToSpeech();
+    const narrationMode = useStore(state => state.narrationMode);
+    const showSpeakButtons = useStore(state => state.showSpeakButtons);
+    const isFocused = useIsFocused();
+
+    const buildNarration = () =>
+        `${t('teamSetup')}. ${t('narrationTeamSetupDesc')} ` +
+        `${t('teamName')} — ${t('narrationCurrentName')}: ${teamName || t('narrationNotSet')}. ` +
+        `${t('teamColor')} — ${t('narrationCurrentColor')}: ${selectedColor || t('narrationNotSelected')}. ` +
+        `${t('teamEmoji')} — ${t('narrationCurrentEmoji')}: ${selectedEmoji || t('narrationNotSelected')}. ` +
+        `${t('narrationTapSaveTeamToJoin')}`;
+
+    useEffect(() => {
+        if (isFocused && narrationMode === 'full') {
+            speak(buildNarration());
+        }
+        return () => { stop(); };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isFocused, narrationMode]);
+
     return (
         <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} animateEntry={false}>
             <ScreenHeader
                 title={t('teamSetup')}
                 showBackButton={true}
                 style={{ paddingBottom: 16, marginBottom: 0 }}
+                rightElement={showSpeakButtons ? (
+                    <TouchableOpacity
+                        onPress={() => isSpeaking ? stop() : speak(buildNarration())}
+                        style={{ padding: 8 }}
+                        accessibilityLabel="Read team setup aloud"
+                    >
+                        <Ionicons name={isSpeaking ? 'volume-mute' : 'volume-medium'} size={22} color={theme.textPrimary} />
+                    </TouchableOpacity>
+                ) : undefined}
             />
 
             <ScrollView contentContainerStyle={styles.content}>

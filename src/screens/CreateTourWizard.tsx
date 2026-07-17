@@ -18,13 +18,15 @@ import StepReview from '@/src/components/create/steps/StepReview';
 import StepStops from '@/src/components/create/steps/StepStops';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useCreateTour } from '@/src/hooks/useCreateTour';
+import { useTextToSpeech } from '@/src/hooks/useTextToSpeech';
+import { useStore } from '@/src/store/store';
 
 export default function CreateTourWizard() {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const {
         currentStep,
-        totalSteps, // Added
+        totalSteps,
         stepName,
         tourDraft,
         isSubmitting,
@@ -33,6 +35,51 @@ export default function CreateTourWizard() {
         handleBack,
         actions
     } = useCreateTour();
+
+    const { speak, stop } = useTextToSpeech();
+    const narrationMode = useStore((state) => state.narrationMode);
+
+    React.useEffect(() => {
+        if (narrationMode !== 'full') return;
+
+        const formatString = require('../utils/stringUtils').formatString;
+        let speechText = formatString(t('narrationWizardStepInfo'), currentStep + 1, totalSteps) + ' ';
+
+        if (stepName === 'Info') {
+            speechText += t('narrationWizardStepInfoTitle') + ' ';
+            if (tourDraft.title) {
+                speechText += formatString(t('narrationWizardStepInfoCurrentTitle'), tourDraft.title) + ' ';
+            }
+            speechText += t('narrationWizardStepInfoDesc');
+        } else if (stepName === 'Gamemodes') {
+            speechText += t('narrationWizardStepGamemodesTitle') + ' ';
+            const modes = tourDraft.modes && tourDraft.modes.length > 0 ? tourDraft.modes.join(', ') : t('narrationNotSelected');
+            speechText += formatString(t('narrationWizardStepGamemodesDesc'), modes);
+        } else if (stepName === 'Stops') {
+            const stopCount = tourDraft.stops?.length ?? 0;
+            speechText += formatString(t('narrationWizardStepStopsTitle'), stopCount) + ' ';
+            speechText += t('narrationWizardStepStopsDesc');
+        } else if (stepName === 'Bingo') {
+            speechText += t('narrationWizardStepBingoTitle') + ' ';
+            speechText += t('narrationWizardStepBingoDesc');
+        } else if (stepName === 'Challenges') {
+            const challengeCount = tourDraft.challenges?.length ?? 0;
+            speechText += formatString(t('narrationWizardStepChallengesTitle'), challengeCount) + ' ';
+            speechText += t('narrationWizardStepChallengesDesc');
+        } else if (stepName === 'Review') {
+            speechText += t('narrationWizardStepReviewTitle') + ' ';
+            if (tourDraft.title) speechText += formatString(t('narrationWizardStepReviewCurrentTitle'), tourDraft.title) + ' ';
+            if (tourDraft.location) speechText += formatString(t('narrationWizardStepReviewLocation'), tourDraft.location) + ' ';
+            const stopCount = tourDraft.stops?.length ?? 0;
+            speechText += formatString(t('narrationWizardStepReviewStopsCount'), stopCount) + ' ';
+            speechText += t('narrationWizardStepReviewDesc');
+        }
+
+        speak(speechText);
+        return () => {
+            stop();
+        };
+    }, [currentStep, stepName, narrationMode]);
 
     const renderStep = (options?: { footer?: React.ReactNode }) => {
         // ... (unchanged)

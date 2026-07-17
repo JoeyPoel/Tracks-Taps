@@ -12,6 +12,9 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useSafeNavigation } from '../hooks/useSafeNavigation';
 import { SavedTrip, savedTripsService } from '../services/savedTripsService';
+import { useIsFocused } from '@react-navigation/native';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useStore } from '../store/store';
 
 export default function SavedTripDetailScreen() {
     const { id } = useLocalSearchParams();
@@ -23,6 +26,9 @@ export default function SavedTripDetailScreen() {
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [localTours, setLocalTours] = useState<any[]>([]);
+    const isFocused = useIsFocused();
+    const { speak, stop } = useTextToSpeech();
+    const narrationMode = useStore(state => state.narrationMode);
 
     useEffect(() => {
         if (id) loadList();
@@ -33,6 +39,21 @@ export default function SavedTripDetailScreen() {
             setLocalTours(list.tours);
         }
     }, [list]);
+
+    // Narrate collection contents when focused and loaded
+    useEffect(() => {
+        if (isFocused && narrationMode === 'full' && !loading && list) {
+            const formatString = require('../utils/stringUtils').formatString;
+            const collectionName = list.name === 'Favourites' ? t('favourites') : (list.name || t('savedTrips') || 'Collection');
+            if (localTours.length === 0) {
+                speak(formatString(t('narrationCollectionEmpty'), collectionName));
+            } else {
+                const tourNames = localTours.map((t: any) => t.title || t('unknown')).join(', ');
+                speak(formatString(t('narrationCollectionWithTours'), collectionName, localTours.length, tourNames));
+            }
+        }
+        return () => { stop(); };
+    }, [isFocused, narrationMode, loading, list]);
 
     const loadList = async () => {
         try {

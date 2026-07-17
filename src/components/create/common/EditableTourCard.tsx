@@ -141,7 +141,7 @@ export function EditableTourCard({
                             placeholder={t('tourTitle')}
                             placeholderTextColor="rgba(255,255,255,0.5)"
                             multiline
-                            maxLength={60}
+                            autoCapitalize="sentences"
                         />
                         <TextComponent style={styles.author} color="rgba(255, 255, 255, 0.9)" variant="caption">
                             {t('by')} {t('you')}
