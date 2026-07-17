@@ -1,12 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
 import ActiveChallengeCard from '../ActiveChallengeCard';
 import { isFlexibleMatch } from '../../../utils/stringUtils';
 import { AnimatedPressable } from '../../common/AnimatedPressable';
+import { TextComponent } from '../../common/TextComponent';
+import { ScaledTextInput } from '../../common/ScaledTextInput';
 
 import { Challenge } from '../../../types/models';
 
@@ -98,9 +100,9 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
             isBonus={isBonus}
             translateText={challenge.content + (challenge.hint ? '\n\nHint: ' + challenge.hint : '')}
         >
-            <Text style={[styles.description, { color: theme.textPrimary }]}>
+            <TextComponent style={[styles.description, { color: theme.textPrimary }]}>
                 {translateText(challenge.content)}
-            </Text>
+            </TextComponent>
             <View style={styles.content}>
 
                 {challenge.hint && (
@@ -111,22 +113,22 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
                         haptic="selection"
                     >
                         <Ionicons name={showHint ? "eye-off-outline" : "bulb-outline"} size={20} color={theme.accent} />
-                        <Text style={{ color: theme.accent, marginLeft: 4 }}>
+                        <TextComponent style={{ color: theme.accent, marginLeft: 4 }}>
                             {showHint ? t('hideHint') : t('showHint')}
-                        </Text>
+                        </TextComponent>
                     </AnimatedPressable>
                 )}
 
                 {showHint && challenge.hint && (
                     <View style={[styles.hintBox, { backgroundColor: theme.bgTertiary }]}>
-                        <Text style={[styles.hintText, { color: theme.textSecondary }]}>
+                        <TextComponent style={[styles.hintText, { color: theme.textSecondary }]}>
                             {translateText(challenge.hint)}
-                        </Text>
+                        </TextComponent>
                     </View>
                 )}
 
                 {!isDone && (
-                    <TextInput
+                    <ScaledTextInput
                         style={[styles.input, { color: theme.textPrimary, borderColor: theme.borderPrimary, backgroundColor: theme.bgTertiary }]}
                         placeholder={t('enterAnswer')}
                         placeholderTextColor={theme.textSecondary}
@@ -138,9 +140,9 @@ const RiddleChallenge: React.FC<RiddleChallengeProps> = ({
 
                 {isFailed && (
                     <View style={styles.feedbackContainer}>
-                        <Text style={[styles.feedback, { color: theme.danger }]}>
+                        <TextComponent style={[styles.feedback, { color: theme.danger }]}>
                             {t('wrongAnswerCorrectWas')} {challenge.answer}
-                        </Text>
+                        </TextComponent>
                     </View>
                 )}
             </View>

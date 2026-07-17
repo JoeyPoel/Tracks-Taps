@@ -80,7 +80,7 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                             });
 
                             const tabLabel = options.tabBarLabel || options.title || route.name;
-                            speak(`Tab: ${tabLabel}`, true);
+                            speak(`Tab: ${tabLabel}`);
 
                             if (!isFocused && !event.defaultPrevented) {
                                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

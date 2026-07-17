@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { Alert, StyleSheet, View, TouchableOpacity } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
@@ -131,9 +131,9 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
             isBonus={isBonus}
             translateText={challenge.content}
         >
-            <Text style={[styles.description, { color: theme.textPrimary }]}>
+            <TextComponent style={[styles.description, { color: theme.textPrimary }]}>
                 {translateText(challenge.content)}
-            </Text>
+            </TextComponent>
 
             <View style={styles.content}>
                 {(imageUri || isCompleted) && (
@@ -148,7 +148,7 @@ const PictureChallenge: React.FC<PictureChallengeProps> = ({
                         ) : (
                             <View style={{ alignItems: 'center' }}>
                                 <Ionicons name="checkmark-circle" size={40} color={theme.success} />
-                                <Text style={{ color: theme.textSecondary, marginTop: 4 }}>{t('photoUploaded')}</Text>
+                                <TextComponent style={{ color: theme.textSecondary, marginTop: 4 }}>{t('photoUploaded')}</TextComponent>
                             </View>
                         )}
                     </View>

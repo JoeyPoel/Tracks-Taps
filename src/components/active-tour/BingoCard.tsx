@@ -1,8 +1,9 @@
-
 import { TextComponent } from '@/src/components/common/TextComponent';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useAppWidth } from '@/src/hooks/useAppWidth';
+import { useTextToSpeech } from '@/src/hooks/useTextToSpeech';
+import { useStore } from '@/src/store/store';
 import { Challenge, ChallengeType, Team } from '@/src/types/models';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
@@ -25,9 +26,62 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
     const CELL_SIZE = Math.floor((appWidth - SCREEN_PADDING - (GAP * 2)) / 3);
 
     const { theme } = useTheme();
-    const { t, language } = useLanguage();
-    const { translateText, isAutoTranslateEnabled } = useTranslation();
+    const { t } = useLanguage();
+    const { translateText, isAutoTranslateEnabled, forceTranslate } = useTranslation();
+    const showSpeakButtons = useStore(state => state.showSpeakButtons);
+    const { speak, stop, isSpeaking } = useTextToSpeech();
     const bingoCard = team.bingoCard;
+
+    // Helper to check if a cell is completed
+    const isCompleted = (challengeId: number) => {
+        return team.activeChallenges?.some(ac => ac.challengeId === challengeId && ac.completed) || false;
+    };
+
+    const isFailed = (challengeId: number) => {
+        return team.activeChallenges?.some(ac => ac.challengeId === challengeId && ac.failed) || false;
+    };
+
+    const handleSpeakBingo = async () => {
+        if (isSpeaking) {
+            stop();
+            return;
+        }
+        let speechText = (t('narrationBingoGridChallenges') || 'Bingo card challenges:') + ' ';
+
+        for (let r = 0; r < 3; r++) {
+            for (let c = 0; c < 3; c++) {
+                const challenge = challenges.find(ch => ch.bingoRow === r && ch.bingoCol === c);
+                const rowName = r === 0 ? t('rowTop') : r === 1 ? t('rowMiddle') : t('rowBottom');
+                const colName = c === 0 ? t('colLeft') : c === 1 ? t('colCenter') : t('colRight');
+
+                let challengeDesc = t('emptySpace') || 'Empty space';
+                let statusText = '';
+
+                if (challenge) {
+                    let textToTranslate = challenge.title || challenge.description || '';
+                    if (isAutoTranslateEnabled && textToTranslate) {
+                        if (translateText(textToTranslate) === textToTranslate) {
+                            await forceTranslate(textToTranslate);
+                        }
+                        challengeDesc = translateText(textToTranslate);
+                    } else {
+                        challengeDesc = textToTranslate;
+                    }
+
+                    const completed = isCompleted(challenge.id);
+                    const failed = isFailed(challenge.id);
+                    statusText = completed
+                        ? `, ${t('completed') || 'Completed'}`
+                        : failed
+                            ? `, ${t('failed') || 'Failed'}`
+                            : `, ${t('incomplete') || 'Incomplete'}`;
+                }
+
+                speechText += `${rowName} ${colName}: ${challengeDesc}${statusText}. `;
+            }
+        }
+        speak(speechText, true);
+    };
 
     if (!bingoCard) {
         return (
@@ -36,27 +90,6 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
             </View>
         );
     }
-
-    // Prepare grid challenges for mass translation
-    const gridChallenges = Array.from({ length: 9 }).map((_, index) => {
-        const row = Math.floor(index / 3);
-        const col = index % 3;
-        return challenges.find(c => c.bingoRow === row && c.bingoCol === col);
-    }).filter(Boolean) as Challenge[];
-
-
-
-    // Helper to get challenge details
-    const getChallenge = (id: number) => challenges.find(c => c.id === id);
-
-    // Helper to check if a cell is completed
-    const isCompleted = (challengeId: number) => {
-        return team.activeChallenges?.some(ac => ac.challengeId === challengeId && ac.completed);
-    };
-
-    const isFailed = (challengeId: number) => {
-        return team.activeChallenges?.some(ac => ac.challengeId === challengeId && ac.failed);
-    };
 
     const getColor = (type: ChallengeType) => {
         switch (type) {
@@ -86,9 +119,21 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TextComponent variant="h3" bold>{t('bingoCardTitle')}</TextComponent>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View style={styles.titleContainer}>
+                    <TextComponent variant="h3" bold>{t('bingoCardTitle')}</TextComponent>
+                    {showSpeakButtons && (
+                        <TouchableOpacity
+                            onPress={handleSpeakBingo}
+                            style={{ padding: 4 }}
+                            accessibilityLabel={isSpeaking ? 'Stop reading bingo grid' : 'Read bingo grid aloud'}
+                            accessibilityRole="button"
+                        >
+                            <Ionicons name={isSpeaking ? "volume-mute-outline" : "volume-medium-outline"} size={24} color={theme.primary} />
+                        </TouchableOpacity>
+                    )}
+                </View>
 
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <View style={[styles.badge, { backgroundColor: theme.accent }]}>
                         <TextComponent variant="caption" color="#FFF" bold>
                             {team.bingoCard?.fullHouseAwarded ? t('fullHouse') : `${team.bingoCard?.awardedLines.length || 0} ${t('lines')}`}
@@ -130,10 +175,10 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
 
                     // Default Style (Active/Unfinished)
                     let bgColor = theme.bgSecondary;
-                    let borderColor = theme.borderPrimary; // Clean app theme border
+                    let borderColor = theme.borderPrimary;
                     let iconColor = typeColor;
                     let textColor = theme.textPrimary;
-                    let borderWidth = 1; // Cleaner look
+                    let borderWidth = 1;
 
                     // Overrides for Completed/Failed
                     if (completed) {
@@ -141,7 +186,7 @@ export function BingoCard({ team, challenges, onChallengePress }: BingoCardProps
                         borderColor = theme.success;
                         iconColor = theme.success;
                         textColor = theme.success;
-                        borderWidth = 2; // Keep thick for consistent look
+                        borderWidth = 2;
                     } else if (failed) {
                         bgColor = theme.challengeFailedBackground;
                         borderColor = theme.danger;
@@ -211,6 +256,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 16,
     },
+    titleContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
     badge: {
         paddingHorizontal: 12,
         paddingVertical: 4,
@@ -227,11 +277,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 4,
-    },
-    check: {
-        position: 'absolute',
-        top: 4,
-        right: 4,
     },
     emptyContainer: {
         padding: 20,

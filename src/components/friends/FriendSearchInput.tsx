@@ -2,7 +2,8 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScaledTextInput } from '../common/ScaledTextInput';
 
 interface FriendSearchInputProps {
     value: string;
@@ -17,7 +18,7 @@ export function FriendSearchInput({ value, onChangeText, onSend }: FriendSearchI
     return (
         <View style={[styles.container, { backgroundColor: theme.bgSecondary }]}>
             <Ionicons name="search" size={18} color={theme.textTertiary} />
-            <TextInput
+            <ScaledTextInput
                 style={[styles.input, { color: theme.textPrimary }]}
                 placeholder={t('addFriendPlaceholder')}
                 placeholderTextColor={theme.textTertiary}

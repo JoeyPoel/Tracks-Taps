@@ -1,6 +1,16 @@
 import { useCallback, useState, useEffect, useRef } from 'react';
 import * as Speech from 'expo-speech';
 import { useStore } from '../store/store';
+import { useLanguage } from '../context/LanguageContext';
+
+const LANGUAGE_VOICE_MAP: Record<string, string> = {
+    en: 'en-US',
+    es: 'es-ES',
+    nl: 'nl-NL',
+    fr: 'fr-FR',
+    de: 'de-DE',
+    pl: 'pl-PL'
+};
 
 // Global counter to track the active speech session across all hook instances.
 // Helps resolve race conditions during React Navigation transitions.
@@ -13,6 +23,7 @@ let globalSpeechSessionId = 0;
 export function useTextToSpeech() {
     const narrationMode = useStore((state) => state.narrationMode);
     const speechRate = useStore((state) => state.speechRate);
+    const { language } = useLanguage();
     const [isSpeaking, setIsSpeaking] = useState(false);
     
     // Tracks the last session ID initiated by this specific hook instance
@@ -62,7 +73,9 @@ export function useTextToSpeech() {
             await Speech.stop();
             setIsSpeaking(true);
             
+            const voiceLang = LANGUAGE_VOICE_MAP[language] || 'en-US';
             Speech.speak(text, {
+                language: voiceLang,
                 rate: speechRate,
                 onDone: () => {
                     if (globalSpeechSessionId === sessionId) {
@@ -85,7 +98,7 @@ export function useTextToSpeech() {
             console.error('[useTextToSpeech] Error starting speech:', error);
             setIsSpeaking(false);
         }
-    }, [narrationMode, speechRate]);
+    }, [narrationMode, speechRate, language]);
 
     /**
      * Read aloud entering screen announcement (useful for visually impaired users).

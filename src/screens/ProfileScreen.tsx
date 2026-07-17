@@ -1,6 +1,6 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Linking, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { Linking, ScrollView, StyleSheet, View, TouchableOpacity } from 'react-native';
 import {
   AcademicCapIcon,
   Cog6ToothIcon,
@@ -100,7 +100,7 @@ export default function ProfileScreen() {
   if (loading && !user) {
     return (
       <ScreenWrapper style={{ backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ color: theme.textPrimary }}>Loading profile...</Text>
+        <TextComponent style={{ color: theme.textPrimary }}>Loading profile...</TextComponent>
       </ScreenWrapper>
     );
   }
@@ -157,10 +157,10 @@ export default function ProfileScreen() {
 
         {!user && (
           <Animated.View style={{ marginTop: 24, padding: 20, backgroundColor: theme.bgSecondary, borderRadius: 16, alignItems: 'center' }}>
-            <Text style={{ color: theme.textPrimary, fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>{t('createAccount') || 'Create Account'}</Text>
-            <Text style={{ color: theme.textSecondary, marginBottom: 16, textAlign: 'center' }}>
+            <TextComponent style={{ color: theme.textPrimary, fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>{t('createAccount') || 'Create Account'}</TextComponent>
+            <TextComponent style={{ color: theme.textSecondary, marginBottom: 16, textAlign: 'center' }}>
               Join to track your progress, save tours, and compete with friends!
-            </Text>
+            </TextComponent>
             <View style={{ flexDirection: 'row', gap: 12, width: '100%' }}>
               <AnimatedButton title={t('login') || "Log In"} onPress={() => router.push('/auth/login')} style={{ flex: 1 }} variant="primary" />
               <AnimatedButton title="Sign Up" onPress={() => router.push('/auth/register')} style={{ flex: 1 }} variant="outline" />
@@ -236,7 +236,7 @@ export default function ProfileScreen() {
 
         {/* Grouped Settings Section */}
         <Animated.View style={{ marginTop: 40 }}>
-          <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('manageAccount')?.toUpperCase() || 'MANAGE ACCOUNT'}</Text>
+          <TextComponent style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('manageAccount')?.toUpperCase() || 'MANAGE ACCOUNT'}</TextComponent>
 
           <View style={[styles.settingsGroup, { backgroundColor: theme.bgSecondary }]}>
             {user && (

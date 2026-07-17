@@ -1,8 +1,9 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
+import { useIsFocused } from '@react-navigation/native';
 import InviteFriendsModal from '../components/common/InviteFriendsModal';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { TourLoadingScreen } from '../components/common/TourLoadingScreen';
@@ -14,8 +15,6 @@ import { useFriends } from '../hooks/useFriends';
 import { usePreTourLobby } from '../hooks/usePreTourLobby';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
 import { useStore } from '../store/store';
-import { useIsFocused } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
 
 // New Components
 import { LobbyFooter } from '../components/preTourLobby/LobbyFooter';
@@ -115,27 +114,7 @@ export default function PreTourLobbyScreen() {
 
             <ScrollView contentContainerStyle={{ padding: 20 }} showsVerticalScrollIndicator={false}>
 
-                {/* Tour card with optional speak button overlay */}
-                <View style={{ position: 'relative' }}>
-                    <LobbyTourInfo activeTour={activeTour} />
-                    {showSpeakButtons && (
-                        <TouchableOpacity
-                            onPress={() => isSpeaking ? stop() : speak(buildNarration())}
-                            style={{
-                                position: 'absolute',
-                                top: 10,
-                                right: 10,
-                                zIndex: 10,
-                                padding: 8,
-                                backgroundColor: 'rgba(0,0,0,0.45)',
-                                borderRadius: 20,
-                            }}
-                            accessibilityLabel={t('lobby')}
-                        >
-                            <Ionicons name={isSpeaking ? 'volume-mute' : 'volume-medium'} size={20} color="#FFF" />
-                        </TouchableOpacity>
-                    )}
-                </View>
+                <LobbyTourInfo activeTour={activeTour} />
 
                 {/* Game Code Section */}
                 <Animated.View entering={FadeInUp.delay(200).springify()} style={{ marginBottom: 16 }}>

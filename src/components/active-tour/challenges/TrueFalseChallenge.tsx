@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
 import { AnimatedPressable } from '../../common/AnimatedPressable';
 import ActiveChallengeCard from '../ActiveChallengeCard';
+import { TextComponent } from '../../common/TextComponent';
 
 import { Challenge } from '../../../types/models';
 
@@ -64,9 +65,9 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
             isBonus={isBonus}
             translateText={challenge.content || undefined}
         >
-            <Text style={[styles.description, { color: theme.textPrimary }]}>
+            <TextComponent style={[styles.description, { color: theme.textPrimary }]}>
                 {translateText(challenge.content)}
-            </Text>
+            </TextComponent>
             <View style={styles.content}>
 
                 <View style={styles.optionsRow}>
@@ -112,9 +113,9 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
                                     {isDone && isSelected && isFailed && (
                                         <Ionicons name="close-circle" size={20} color={theme.danger} />
                                     )}
-                                    <Text style={[styles.optionText, { color: textColor }]}>
+                                    <TextComponent style={[styles.optionText, { color: textColor }]}>
                                         {option === 'true' ? t('true') : t('false')}
-                                    </Text>
+                                    </TextComponent>
                                 </View>
                             </AnimatedPressable>
                         );
@@ -122,9 +123,9 @@ const TrueFalseChallenge: React.FC<TrueFalseChallengeProps> = ({
                 </View>
 
                 {isFailed && (
-                    <Text style={[styles.feedback, { color: theme.danger }]}>
+                    <TextComponent style={[styles.feedback, { color: theme.danger }]}>
                         {t('wrongAnswer')}
-                    </Text>
+                    </TextComponent>
                 )}
             </View>
         </ActiveChallengeCard>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { AdjustmentsHorizontalIcon, ListBulletIcon, MagnifyingGlassIcon, Squares2X2Icon } from 'react-native-heroicons/outline';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useLanguage } from '../../context/LanguageContext';
@@ -7,6 +7,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { GENRES } from '../../utils/genres';
 import { ScreenHeader } from '../common/ScreenHeader';
 import { TextComponent } from '../common/TextComponent';
+import { ScaledTextInput } from '../common/ScaledTextInput';
 import ActiveTourCard from './ActiveTourCard';
 
 interface ExploreHeaderProps {
@@ -77,7 +78,7 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
                 ]}
             >
                 <MagnifyingGlassIcon size={20} color={theme.textSecondary} style={{ marginRight: 12 }} />
-                <TextInput
+                <ScaledTextInput
                     style={[styles.searchInput, { color: theme.textPrimary }]}
                     placeholder={t('whereToNext')}
                     placeholderTextColor={theme.textSecondary + '80'}
@@ -91,7 +92,6 @@ export const ExploreHeader: React.FC<ExploreHeaderProps> = ({
                     }}
                     returnKeyType="search"
                     onSubmitEditing={onSearchSubmit}
-                    maxFontSizeMultiplier={1.5}
                 />
                 <TouchableOpacity
                     style={[styles.iconButton, { backgroundColor: theme.bgPrimary }]}

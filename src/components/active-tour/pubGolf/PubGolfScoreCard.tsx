@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { ChevronDownIcon, ChevronUpIcon, ExclamationCircleIcon, FireIcon, FlagIcon, TrophyIcon } from 'react-native-heroicons/outline';
 import { BoltIcon } from 'react-native-heroicons/solid';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -10,6 +10,7 @@ import { AnimatedPressable } from '../../common/AnimatedPressable';
 import { useTextToSpeech } from '../../../hooks/useTextToSpeech';
 import { useStore } from '../../../store/store';
 import { Ionicons } from '@expo/vector-icons';
+import { TextComponent } from '../../common/TextComponent';
 
 interface PubGolfScoreCardProps {
     totalSips: number;
@@ -94,12 +95,12 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
             style={[styles.container, isLight && !isAccessibilityTheme && { borderWidth: 1, borderColor: theme.borderPrimary }]}
         >
             <View style={styles.header}>
-                <View style={[styles.iconContainer, { backgroundColor: (isLight && !isAccessibilityTheme) ? theme.primary : (isAccessibilityTheme ? '#444444' : '#1A1A1A') }]}>
+                <View style={[styles.iconContainer, { backgroundColor: (isLight && !isAccessibilityTheme) ? theme.primary : overlayColor }]}>
                     <TrophyIcon size={32} color="#FFFFFF" />
                 </View>
                 <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        <Text style={[styles.title, { color: cardTextColor }]}>{t('pubgolf')}</Text>
+                        <TextComponent style={[styles.title, { color: cardTextColor }]}>{t('pubgolf')}</TextComponent>
                         {showSpeakButtons && (
                             <TouchableOpacity
                                 onPress={handleSpeakScorecard}
@@ -111,16 +112,16 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
                             </TouchableOpacity>
                         )}
                     </View>
-                    <Text style={[styles.subtitle, { color: cardSubTextColor }]}>{t('officialScorecard')}</Text>
+                    <TextComponent style={[styles.subtitle, { color: cardSubTextColor }]}>{t('officialScorecard')}</TextComponent>
                 </View>
             </View>
 
             <View style={[styles.scoreContainer, { backgroundColor: overlayColor }]}>
-                <Text style={[styles.scoreLabel, { color: cardSubTextColor }]}>{t('totalScore')}</Text>
-                <Text style={[styles.scoreValue, { color: cardTextColor }]}>{totalSips} / {totalPar}</Text>
+                <TextComponent style={[styles.scoreLabel, { color: cardSubTextColor }]}>{t('totalScore')}</TextComponent>
+                <TextComponent style={[styles.scoreValue, { color: cardTextColor }]}>{totalSips} / {totalPar}</TextComponent>
                 <View style={styles.statusContainer}>
                     <StatusIcon size={16} color={(isLight && !isAccessibilityTheme) ? theme.primary : '#FFFFFF'} style={{ marginRight: 4 }} />
-                    <Text style={[styles.statusText, { color: (isLight && !isAccessibilityTheme) ? theme.primary : '#FFFFFF' }]}>{statusText}</Text>
+                    <TextComponent style={[styles.statusText, { color: (isLight && !isAccessibilityTheme) ? theme.primary : '#FFFFFF' }]}>{statusText}</TextComponent>
                 </View>
             </View>
 
@@ -130,9 +131,9 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
                 interactionScale="subtle"
                 haptic="light"
             >
-                <Text style={[styles.toggleButtonText, { color: cardTextColor }]}>
+                <TextComponent style={[styles.toggleButtonText, { color: cardTextColor }]}>
                     {t('viewRulesAndScoring')}
-                </Text>
+                </TextComponent>
                 {isRulesOpen ? (
                     <ChevronUpIcon size={20} color={cardTextColor} />
                 ) : (
@@ -143,28 +144,28 @@ export default function PubGolfScoreCard({ totalSips, totalPar, currentScore }: 
             {isRulesOpen && (
                 <View style={[styles.infoContainer, { backgroundColor: (isLight && !isAccessibilityTheme) ? theme.bgPrimary : 'rgba(255,255,255,0.1)' }]}>
                     <View style={[styles.infoRow, { borderBottomColor: isLight ? theme.borderPrimary : 'rgba(255,255,255,0.1)' }]}>
-                        <Text style={[styles.infoText, { color: cardTextColor }]}>
+                        <TextComponent style={[styles.infoText, { color: cardTextColor }]}>
                             {t('pubGolfInstructions')}
-                        </Text>
+                        </TextComponent>
                     </View>
-
+ 
                     <View>
-                        <Text style={[styles.legendTitle, { color: cardSubTextColor }]}>
+                        <TextComponent style={[styles.legendTitle, { color: cardSubTextColor }]}>
                             {t('scoring')} & {t('xp')}
-                        </Text>
+                        </TextComponent>
                         {PUB_GOLF_LEGEND_DATA.map((item) => (
                             <View key={item.nameKey} style={styles.legendRow}>
                                 <View style={styles.legendItemLeft}>
-                                    <Text style={styles.legendEmoji}>{item.emoji}</Text>
-                                    <Text style={[styles.legendName, { color: cardTextColor }]}>
+                                    <TextComponent style={styles.legendEmoji}>{item.emoji}</TextComponent>
+                                    <TextComponent style={[styles.legendName, { color: cardTextColor }]}>
                                         {t(item.nameKey as any)}
-                                    </Text>
+                                    </TextComponent>
                                 </View>
                                 <View style={styles.legendXp}>
                                     <BoltIcon size={12} color={theme.gold} />
-                                    <Text style={[styles.legendXpText, { color: theme.gold }]}>
+                                    <TextComponent style={[styles.legendXpText, { color: theme.gold }]}>
                                         {item.xp} {t('xp')}
-                                    </Text>
+                                    </TextComponent>
                                 </View>
                             </View>
                         ))}

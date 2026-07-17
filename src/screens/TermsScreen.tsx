@@ -15,7 +15,7 @@ import { useIsFocused } from '@react-navigation/native';
 export default function TermsScreen() {
     const { theme } = useTheme();
     const { t, language } = useLanguage();
-    const { translateText, requireTranslation, isAutoTranslateEnabled } = useTranslation();
+    const { translateText, requireTranslation, isAutoTranslateEnabled, forceTranslate } = useTranslation();
     const { speak, stop, isSpeaking } = useTextToSpeech();
     const showSpeakButtons = useStore(state => state.showSpeakButtons);
 
@@ -23,14 +23,26 @@ export default function TermsScreen() {
     const isFocused = useIsFocused();
     const narrationMode = useStore(state => state.narrationMode);
 
-    React.useEffect(() => {
-        if (isFocused && narrationMode === 'full') {
-            speak(t('narrationTermsScreen'), true);
+    const getTranslatedText = async (text: string | null | undefined): Promise<string> => {
+        if (!text) return '';
+        if (isAutoTranslateEnabled && translateText(text) === text) {
+            await forceTranslate(text);
         }
+        return translateText(text);
+    };
+
+    React.useEffect(() => {
+        const playNarration = async () => {
+            if (isFocused && narrationMode === 'full') {
+                const welcomedText = await getTranslatedText(t('narrationTermsScreen'));
+                speak(welcomedText, true);
+            }
+        };
+        playNarration();
         return () => {
             stop();
         };
-    }, [isFocused, narrationMode]);
+    }, [isFocused, narrationMode, isAutoTranslateEnabled]);
 
     const sections = [
         {
@@ -190,11 +202,20 @@ export default function TermsScreen() {
         requireTranslation(fullText);
     };
 
-    const handleSpeakToggle = () => {
+    const handleSpeakToggle = async () => {
         if (isSpeaking) {
             stop();
         } else {
-            const speechText = sections.map(s => `${translateText(s.title, true)}. ${s.content.map(p => translateText(p, true)).join(' ')}`).join(' ');
+            const translatedSections = await Promise.all(
+                sections.map(async s => {
+                    const titleText = await getTranslatedText(s.title);
+                    const paragraphs = await Promise.all(
+                        s.content.map(p => getTranslatedText(p))
+                    );
+                    return `${titleText}. ${paragraphs.join(' ')}`;
+                })
+            );
+            const speechText = translatedSections.join(' ');
             speak(speechText, true);
         }
     };

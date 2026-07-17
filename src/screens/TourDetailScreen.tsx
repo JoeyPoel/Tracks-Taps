@@ -41,13 +41,14 @@ import { useSafeNavigation } from '../hooks/useSafeNavigation';
 import { useTutorial } from '../context/TutorialContext';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
 import { useIsFocused } from '@react-navigation/native';
+import { useStore } from '../store/store';
 
 export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const { theme } = useTheme();
   const { user } = useAuth();
   const { user: profileUser } = useUserContext();
   const { t, language } = useLanguage();
-  const { translateText, requireTranslation, isAutoTranslateEnabled, setIsAutoTranslateEnabled, isTargetLanguageSet } = useTranslation();
+  const { translateText, requireTranslation, isAutoTranslateEnabled, setIsAutoTranslateEnabled, isTargetLanguageSet, forceTranslate } = useTranslation();
   const router = useRouter();
   const { goBack } = useSafeNavigation();
   const { isActive: isTutorialActive, nextStep: tutorialNextStep, currentStepIndex, steps } = useTutorial();
@@ -60,6 +61,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const [editingReview, setEditingReview] = useState<any>(null);
 
   const { speak, stop, narrationMode } = useTextToSpeech();
+  const showSpeakButtons = useStore(state => state.showSpeakButtons);
   const isFocused = useIsFocused();
 
   const {
@@ -155,26 +157,44 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
   // Read aloud tour details on mount / focus
   React.useEffect(() => {
-    if (isFocused && tour && (narrationMode === 'full')) {
-      const formatString = require('../utils/stringUtils').formatString;
-      const stopsCount = tour.stops?.length || 0;
-      const desc = translateText(tour.description) || t('noStopDescription');
-      const speechText = formatString(
-        t('narrationTourDetailOverview'),
-        tour.title,
-        tour.author?.name || t('unknown'),
-        tour.genre || t('unknown'),
-        tour.duration,
-        tour.distance,
-        stopsCount,
-        desc
-      );
-      speak(speechText);
-    }
+    const playNarration = async () => {
+      if (isFocused && tour) {
+        let desc = tour.description || t('noStopDescription');
+        if (isAutoTranslateEnabled && tour.description) {
+          if (translateText(tour.description) === tour.description) {
+            await forceTranslate(tour.description);
+          }
+          desc = translateText(tour.description);
+        }
+
+        const formatString = require('../utils/stringUtils').formatString;
+        const stopsCount = tour.stops?.length || 0;
+        const screenSpeechText = formatString(
+          t('narrationTourDetailOverview'),
+          tour.title,
+          tour.author?.name || t('unknown'),
+          tour.genre || t('unknown'),
+          tour.duration,
+          tour.distance,
+          stopsCount,
+          desc
+        );
+
+        if (isTutorialActive) {
+          const step = steps?.[currentStepIndex];
+          if (step && step.id === 'tour_details' && narrationMode === 'full') {
+            speak(`${step.title}. ${step.description}. ${screenSpeechText}`, true);
+          }
+        } else if (narrationMode === 'full') {
+          speak(screenSpeechText);
+        }
+      }
+    };
+    playNarration();
     return () => {
       stop();
     };
-  }, [isFocused, tour, narrationMode, translateText, speak, stop]);
+  }, [isFocused, tour, narrationMode, translateText, speak, stop, isTutorialActive, currentStepIndex, language, isAutoTranslateEnabled]);
 
   React.useEffect(() => {
     const isTourDetailsStep = isTutorialActive && steps?.[currentStepIndex]?.id === 'tour_details';
@@ -360,29 +380,31 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <TextComponent style={[styles.sectionTitle, { marginBottom: 0 }]} variant="h2" bold color={theme.textPrimary}>{t('aboutThisTour')}</TextComponent>
-              <TouchableOpacity
-                onPress={() => {
-                  const formatString = require('../utils/stringUtils').formatString;
-                  const stopsCount = tour.stops?.length || 0;
-                  const desc = translateText(tour.description) || t('noStopDescription');
-                  const speechText = formatString(
-                    t('narrationTourDetailOverview'),
-                    tour.title,
-                    tour.author?.name || t('unknown'),
-                    tour.genre || t('unknown'),
-                    tour.duration,
-                    tour.distance,
-                    stopsCount,
-                    desc
-                  );
-                  speak(speechText, true); // force=true to read aloud even if narration mode is off
-                }}
-                style={{ padding: 4 }}
-                accessibilityLabel="Read tour description aloud"
-                accessibilityRole="button"
-              >
-                <Ionicons name="volume-medium-outline" size={20} color={theme.primary} />
-              </TouchableOpacity>
+              {showSpeakButtons && (
+                <TouchableOpacity
+                  onPress={() => {
+                    const formatString = require('../utils/stringUtils').formatString;
+                    const stopsCount = tour.stops?.length || 0;
+                    const desc = translateText(tour.description) || t('noStopDescription');
+                    const speechText = formatString(
+                      t('narrationTourDetailOverview'),
+                      tour.title,
+                      tour.author?.name || t('unknown'),
+                      tour.genre || t('unknown'),
+                      tour.duration,
+                      tour.distance,
+                      stopsCount,
+                      desc
+                    );
+                    speak(speechText, true); // force=true to read aloud even if narration mode is off
+                  }}
+                  style={{ padding: 4 }}
+                  accessibilityLabel="Read tour description aloud"
+                  accessibilityRole="button"
+                >
+                  <Ionicons name="volume-medium-outline" size={20} color={theme.primary} />
+                </TouchableOpacity>
+              )}
             </View>
             {tour.description && (
               <TranslationButton

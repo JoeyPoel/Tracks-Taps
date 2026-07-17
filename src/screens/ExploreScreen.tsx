@@ -21,13 +21,15 @@ import { FadeInItem } from '../components/common/FadeInList';
 import { Tour } from '../types/models';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
 import { useIsFocused } from '@react-navigation/native';
+import { useTutorial } from '../context/TutorialContext';
 
 export default function ExploreScreen() {
   const router = useRouter();
   const { theme } = useTheme();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useUserContext();
   const tours = useStore((state) => state.tours);
+  const { isActive: isTutorialActive, currentStepIndex, steps } = useTutorial();
   const activeTours = useStore((state) => state.activeTours);
   const loading = useStore((state) => state.loadingTours || state.loadingActiveTours);
   const fetchAllData = useStore((state) => state.fetchAllData);
@@ -89,23 +91,34 @@ export default function ExploreScreen() {
   );
 
   useEffect(() => {
-    if (isFocused && narrationMode === 'full' && hasInitialized && !loading) {
-      const formatString = require('../utils/stringUtils').formatString;
-      let activeTourText = activeTour
-        ? formatString(t('narrationActiveTourText'), activeTour.tour?.title || t('unknown'))
-        : t('narrationNoActiveTour');
+    if (isFocused && hasInitialized && !loading) {
+      if (isTutorialActive) {
+        const step = steps?.[currentStepIndex];
+        if (step && step.id === 'tour_select' && narrationMode === 'full') {
+          const firstTour = tours[0];
+          const firstTourText = firstTour
+            ? `. ${t('firstTourIs') || 'First tour is'} ${firstTour.title} ${t('by') || 'by'} ${firstTour.author?.name || t('unknown')}`
+            : '';
+          speak(`${step.title}. ${step.description}${firstTourText}`, true);
+        }
+      } else if (narrationMode === 'full') {
+        const formatString = require('../utils/stringUtils').formatString;
+        let activeTourText = activeTour
+          ? formatString(t('narrationActiveTourText'), activeTour.tour?.title || t('unknown'))
+          : t('narrationNoActiveTour');
 
-      const tourTitles = tours.slice(0, 5).map((tourItem, idx) => 
-        formatString(t('narrationTourIndexBy'), idx + 1, tourItem.title, tourItem.author?.name || t('unknown'))
-      ).join('. ');
-      const toursText = tours.length > 0 ? formatString(t('narrationAvailableTours'), tourTitles) : t('narrationNoToursAvailable');
+        const tourTitles = tours.slice(0, 5).map((tourItem, idx) => 
+          formatString(t('narrationTourIndexBy'), idx + 1, tourItem.title, tourItem.author?.name || t('unknown'))
+        ).join('. ');
+        const toursText = tours.length > 0 ? formatString(t('narrationAvailableTours'), tourTitles) : t('narrationNoToursAvailable');
 
-      speak(formatString(t('narrationExploreScreen'), activeTourText, toursText));
+        speak(formatString(t('narrationExploreScreen'), activeTourText, toursText));
+      }
     }
     return () => {
       stop();
     };
-  }, [isFocused, narrationMode, hasInitialized, loading, tours, activeTour]);
+  }, [isFocused, narrationMode, hasInitialized, loading, tours, activeTour, isTutorialActive, currentStepIndex, language]);
 
   const onRefresh = useCallback(async () => {
     setIsRefreshing(true);

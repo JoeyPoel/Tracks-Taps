@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
 import { AnimatedPressable } from '../../common/AnimatedPressable';
 import ActiveChallengeCard from '../ActiveChallengeCard';
+import { TextComponent } from '../../common/TextComponent';
 
 interface TriviaChallengeProps {
     challenge: any;
@@ -47,9 +48,9 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
             isBonus={isBonus}
             translateText={[challenge.content, ...(challenge.options || [])].filter(Boolean).join('\n')}
         >
-            <Text style={[styles.description, { color: theme.textPrimary }]}>
+            <TextComponent style={[styles.description, { color: theme.textPrimary }]}>
                 {translateText(challenge.content)}
-            </Text>
+            </TextComponent>
             <View>
                 {/* Content moved to card header */}
                 <View style={styles.optionsContainer}>
@@ -95,21 +96,21 @@ const TriviaChallenge: React.FC<TriviaChallengeProps> = ({
                                         <View style={{ width: 14, height: 14, borderRadius: 7, borderWidth: 2, borderColor: theme.borderPrimary }} />
                                     )}
                                 </View>
-                                <Text style={[
+                                <TextComponent style={[
                                     styles.optionText,
                                     { color: theme.textPrimary },
                                     isDone && isCorrect && { color: theme.success, fontWeight: 'bold' },
                                     isDone && isSelected && isFailed && { color: theme.danger, fontWeight: 'bold' }
-                                ]}>{translateText(option)}</Text>
+                                ]}>{translateText(option)}</TextComponent>
                             </AnimatedPressable>
                         )
                     })}
                 </View>
                 {isFailed && (
                     <View style={styles.feedbackContainer}>
-                        <Text style={[styles.feedback, { color: theme.danger }]}>
+                        <TextComponent style={[styles.feedback, { color: theme.danger }]}>
                             {t('wrongAnswerCorrectWas')} {challenge.answer}
-                        </Text>
+                        </TextComponent>
                     </View>
                 )}
             </View>

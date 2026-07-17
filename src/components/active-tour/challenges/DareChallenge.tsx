@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
 import ActiveChallengeCard from '../ActiveChallengeCard';
+import { TextComponent } from '../../common/TextComponent';
 
 interface DareChallengeProps {
     challenge: any;
@@ -42,9 +43,9 @@ const DareChallenge: React.FC<DareChallengeProps> = ({
             translateText={challenge.content}
         >
             <View style={styles.content}>
-                <Text style={[styles.dareText, { color: theme.textPrimary }]}>
+                <TextComponent style={[styles.dareText, { color: theme.textPrimary }]}>
                     {translateText(challenge.content)}
-                </Text>
+                </TextComponent>
             </View>
         </ActiveChallengeCard>
     );

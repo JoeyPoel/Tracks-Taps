@@ -1,8 +1,9 @@
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { TextComponent } from './TextComponent';
+import { ScaledTextInput } from './ScaledTextInput';
 
 interface FormInputProps {
     label?: string;
@@ -79,11 +80,11 @@ export function FormInput({
                 }
             ]}>
                 {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
-                <TextInput
+                <ScaledTextInput
                     style={[
                         styles.input,
                         {
-                            color: theme.textPrimary
+                            color: theme.textPrimary,
                         }
                     ]}
                     placeholder={placeholder}

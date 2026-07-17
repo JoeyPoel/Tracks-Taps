@@ -7,6 +7,8 @@ import { useTranslation } from '../../context/TranslationContext';
 import { Stop } from '../../types/models';
 import { GenericCard } from '../common/GenericCard';
 import { TextComponent } from '../common/TextComponent';
+import { useStore } from '../../store/store';
+import { useTextToSpeech } from '../../hooks/useTextToSpeech';
 
 interface StopCardProps {
     stop: Stop;
@@ -16,7 +18,9 @@ interface StopCardProps {
 export default function StopCard({ stop, pubNumber }: StopCardProps) {
     const { theme } = useTheme();
     const { t, language } = useLanguage();
-    const { translateText, isAutoTranslateEnabled } = useTranslation();
+    const { translateText, isAutoTranslateEnabled, forceTranslate } = useTranslation();
+    const showSpeakButtons = useStore(state => state.showSpeakButtons);
+    const { speak } = useTextToSpeech();
 
     const originalDescription = stop.description || t('completeAllChallengesToContinue') || '';
     const displayedDescription = translateText(originalDescription);
@@ -27,6 +31,25 @@ export default function StopCard({ stop, pubNumber }: StopCardProps) {
         : [`${theme.fixedGradientFrom}22`, `${theme.fixedGradientTo}22`]) as [string, string];
 
     const borderColor = isPubGolf ? theme.warning : theme.secondary;
+
+    const handleSpeak = async () => {
+        let nameVal = stop.name;
+        let descVal = originalDescription;
+        if (isAutoTranslateEnabled) {
+            if (nameVal && translateText(nameVal) === nameVal) {
+                await forceTranslate(nameVal);
+            }
+            if (descVal && translateText(descVal) === descVal) {
+                await forceTranslate(descVal);
+            }
+            nameVal = translateText(nameVal);
+            descVal = translateText(descVal);
+        }
+        const speechText = isPubGolf
+            ? `${t('Stop')} ${stop.number}, Pub ${pubNumber}: ${nameVal}. ${descVal}`
+            : `${t('Stop')} ${stop.number}: ${nameVal}. ${descVal}`;
+        speak(speechText, true);
+    };
 
     return (
         <GenericCard
@@ -41,7 +64,16 @@ export default function StopCard({ stop, pubNumber }: StopCardProps) {
                             ? `${t('Stop')} ${stop.number} (Pub ${pubNumber}): ${stop.name}`
                             : `${t('Stop')} ${stop.number}: ${stop.name}`}
                     </TextComponent>
-
+                    {showSpeakButtons && (
+                        <TouchableOpacity
+                            onPress={handleSpeak}
+                            style={{ padding: 4 }}
+                            accessibilityLabel="Read stop details aloud"
+                            accessibilityRole="button"
+                        >
+                            <Ionicons name="volume-medium-outline" size={20} color={theme.primary} />
+                        </TouchableOpacity>
+                    )}
                 </View>
                 <TextComponent style={styles.subtitle} color={theme.textSecondary} variant="body">
                     {displayedDescription}

@@ -4,7 +4,8 @@ import { GENRES, getGenreIcon } from '@/src/utils/genres';
 import { getTourTypeLabel } from '@/src/utils/tourUtils';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScaledTextInput } from '../../common/ScaledTextInput';
 import { ClockIcon, MapIcon } from 'react-native-heroicons/solid';
 import { TourDraft } from '../../../hooks/useCreateTour';
 import { TourType } from '../../../types/models';
@@ -134,7 +135,7 @@ export function EditableTourCard({
                 {/* Bottom Section */}
                 <View style={styles.bottomContent}>
                     <View style={styles.titleContainer}>
-                        <TextInput
+                        <ScaledTextInput
                             style={styles.titleInput}
                             value={draft.title}
                             onChangeText={(text) => updateDraft('title', text)}
@@ -156,7 +157,7 @@ export function EditableTourCard({
                         <View style={styles.inputsRow}>
                             <View style={styles.inputGroup}>
                                 <MapIcon size={16} color="#E0E0E0" />
-                                <TextInput
+                                <ScaledTextInput
                                     style={styles.inlineInput}
                                     value={draft.distance?.toString()}
                                     onChangeText={handleDistanceChange}
@@ -173,7 +174,7 @@ export function EditableTourCard({
 
                             <View style={styles.inputGroup}>
                                 <ClockIcon size={16} color="#E0E0E0" />
-                                <TextInput
+                                <ScaledTextInput
                                     style={styles.inlineInput}
                                     value={draft.duration?.toString()}
                                     onChangeText={handleDurationChange}

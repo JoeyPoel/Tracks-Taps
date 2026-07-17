@@ -17,9 +17,9 @@ import {
     Platform,
     ScrollView,
     StyleSheet,
-    TextInput,
     View
 } from 'react-native';
+import { ScaledTextInput } from '../components/common/ScaledTextInput';
 import { AnimatedPressable } from '../components/common/AnimatedPressable';
 import { ScreenHeader } from '../components/common/ScreenHeader';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
@@ -264,7 +264,7 @@ export default function PersonalInfoScreen() {
                             <TextComponent style={styles.label} color={theme.textSecondary} bold variant="caption">{t('password')}</TextComponent>
                             <View style={[styles.inputWrapper, { backgroundColor: theme.bgInput, borderColor: theme.borderPrimary }]}>
                                 <Ionicons name="key-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
-                                <TextInput
+                                <ScaledTextInput
                                     style={[styles.input, { color: theme.textPrimary }]}
                                     value={password}
                                     onChangeText={setPassword}

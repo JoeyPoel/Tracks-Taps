@@ -85,6 +85,9 @@ interface StoreState {
     setSpeechRate: (rate: number) => void;
     showSpeakButtons: boolean;
     setShowSpeakButtons: (show: boolean) => void;
+    // Text Size
+    fontScale: 'smallest' | 'small' | 'normal' | 'large' | 'largest';
+    setFontScale: (scale: 'smallest' | 'small' | 'normal' | 'large' | 'largest') => void;
 }
 
 export const useStore = create<StoreState>()(
@@ -105,6 +108,8 @@ export const useStore = create<StoreState>()(
             setSpeechRate: (rate) => set({ speechRate: rate }),
             showSpeakButtons: true,
             setShowSpeakButtons: (show) => set({ showSpeakButtons: show }),
+            fontScale: 'normal',
+            setFontScale: (scale) => set({ fontScale: scale }),
             triggerFloatingPoints: (amount: number, label?: string) => {
                 const id = Math.random().toString(36).substring(7);
                 set((state) => ({ 
@@ -657,6 +662,7 @@ export const useStore = create<StoreState>()(
                 narrationMode: state.narrationMode,
                 speechRate: state.speechRate,
                 showSpeakButtons: state.showSpeakButtons,
+                fontScale: state.fontScale,
             }),
         }
     )

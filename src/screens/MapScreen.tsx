@@ -14,12 +14,14 @@ import { Stop } from '../types/models';
 import { getGenreIcon } from '../utils/genres';
 import { getStopIcon } from '../utils/stopIcons';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useTranslation } from '../context/TranslationContext';
 
 export default function MapScreen() {
   const { theme, mode } = useTheme();
   const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const { speak } = useTextToSpeech();
+  const { translateText, isAutoTranslateEnabled, forceTranslate } = useTranslation();
 
   const {
     mapRef,
@@ -113,7 +115,21 @@ export default function MapScreen() {
                 title={`${stop.number}. ${stop.name}`}
                 description={stop.description}
                 tracksViewChanges={false}
-                onPress={() => speak(`${stop.number}. ${stop.name}. ${stop.description || ''}`, true)}
+                onPress={async () => {
+                  let nameVal = stop.name;
+                  let descVal = stop.description || '';
+                  if (isAutoTranslateEnabled) {
+                    if (nameVal && translateText(nameVal) === nameVal) {
+                      await forceTranslate(nameVal);
+                    }
+                    if (descVal && translateText(descVal) === descVal) {
+                      await forceTranslate(descVal);
+                    }
+                    nameVal = translateText(nameVal);
+                    descVal = translateText(descVal);
+                  }
+                  speak(`${stop.number}. ${nameVal}. ${descVal}`, true);
+                }}
               >
                 {stop.number === 1 ? (
                   // START STOP: Solid Primary Pin

@@ -17,6 +17,7 @@ import { useStore } from '../store/store';
 import { darkTheme, lightTheme } from '../context/theme';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
 import { useIsFocused } from '@react-navigation/native';
+import { useTutorial } from '../context/TutorialContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -35,14 +36,28 @@ export default function AppPreferencesScreen() {
   const setSpeechRate = useStore(state => state.setSpeechRate);
   const showSpeakButtons = useStore(state => state.showSpeakButtons);
   const setShowSpeakButtons = useStore(state => state.setShowSpeakButtons);
+  const fontScale = useStore(state => state.fontScale);
+  const setFontScale = useStore(state => state.setFontScale);
   const isFocused = useIsFocused();
+  const { isActive: isTutorialActive, steps, currentStepIndex } = useTutorial();
+  const scrollViewRef = React.useRef<ScrollView>(null);
+
+  // Scroll to Accessibility section during tutorial onboarding
+  React.useEffect(() => {
+    if (isTutorialActive && steps[currentStepIndex]?.id === 'accessibility_settings') {
+      const timer = setTimeout(() => {
+        scrollViewRef.current?.scrollTo({ y: 440, animated: true });
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isTutorialActive, currentStepIndex]);
 
   // Auto-narrate the screen on focus
   React.useEffect(() => {
     if (isFocused && narrationMode === 'full') {
       speak(t('narrationAppPreferencesScreen'));
     }
-  }, [isFocused, narrationMode]);
+  }, [isFocused, narrationMode, language]);
 
   const switchRef = React.useRef<View>(null);
   const [switchCoords, setSwitchCoords] = React.useState<{ cx: number; cy: number } | null>(null);
@@ -124,6 +139,7 @@ export default function AppPreferencesScreen() {
       />
 
       <ScrollView
+        ref={scrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -520,6 +536,62 @@ export default function AppPreferencesScreen() {
               trackColor={{ false: theme.bgDisabled, true: theme.primary + '80' }}
               thumbColor={showSpeakButtons ? theme.primary : '#f4f3f4'}
             />
+          </View>
+        </View>
+
+        {/* Text Size Section */}
+        {renderSectionHeader(t('textSize' as any) || 'Text Size', 'text-outline')}
+        <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor, padding: 16 }]}>
+          <TextComponent color={theme.textSecondary} variant="caption" style={{ marginBottom: 12 }}>
+            Adjust the size of all text in the app
+          </TextComponent>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {[
+              { id: 'smallest' as const, label: 'Smallest' },
+              { id: 'small' as const, label: 'Small' },
+              { id: 'normal' as const, label: 'Normal' },
+              { id: 'large' as const, label: 'Large' },
+              { id: 'largest' as const, label: 'Largest' },
+            ].map((opt) => {
+              const isActive = fontScale === opt.id;
+              const previewSize = 
+                opt.id === 'smallest' ? 10 :
+                opt.id === 'small' ? 12 :
+                opt.id === 'normal' ? 14 :
+                opt.id === 'large' ? 17 : 21;
+              return (
+                <Pressable
+                  key={opt.id}
+                  onPress={() => setFontScale(opt.id)}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 10,
+                    paddingHorizontal: 4,
+                    borderRadius: 10,
+                    backgroundColor: isActive ? theme.primary + '15' : theme.bgPrimary,
+                    alignItems: 'center',
+                    borderWidth: isActive ? 1.5 : 1,
+                    borderColor: isActive ? theme.primary : theme.borderSecondary,
+                    gap: 2,
+                  }}
+                >
+                  <TextComponent
+                    color={isActive ? theme.primary : theme.textSecondary}
+                    bold={isActive}
+                    size={previewSize}
+                  >
+                    Aa
+                  </TextComponent>
+                  <TextComponent 
+                    color={isActive ? theme.primary : theme.textPrimary} 
+                    bold={isActive} 
+                    style={{ fontSize: 9 }}
+                  >
+                    {opt.label}
+                  </TextComponent>
+                </Pressable>
+              );
+            })}
           </View>
         </View>
 

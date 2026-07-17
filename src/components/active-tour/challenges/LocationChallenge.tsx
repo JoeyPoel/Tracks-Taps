@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useTranslation } from '../../../context/TranslationContext';
 import { useTheme } from '../../../context/ThemeContext';
 import ActiveChallengeCard from '../ActiveChallengeCard';
+import { TextComponent } from '../../common/TextComponent';
 
 interface LocationChallengeProps {
     challenge: any;
@@ -45,9 +46,9 @@ const LocationChallenge: React.FC<LocationChallengeProps> = ({
             isBonus={isBonus}
             translateText={challenge.content}
         >
-            <Text style={[styles.description, { color: theme.textPrimary }]}>
+            <TextComponent style={[styles.description, { color: theme.textPrimary }]}>
                 {translateText(challenge.content)}
-            </Text>
+            </TextComponent>
         </ActiveChallengeCard>
     );
 };

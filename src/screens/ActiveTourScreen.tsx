@@ -29,6 +29,7 @@ import { usePurchases } from '../hooks/usePurchases';
 import BuyTokensModal from '../components/profileScreen/BuyTokensModal';
 import { LevelSystem } from '../utils/levelUtils';
 
+import { useTranslation } from '../context/TranslationContext';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
 import { useIsFocused } from '@react-navigation/native';
 
@@ -66,7 +67,7 @@ const TabContentWrapper = ({ children }: { children: React.ReactNode }) => {
 
 function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user: any }) {
     const { theme } = useTheme();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const router = useRouter();
     const isFocused = useIsFocused();
     const [activeTab, setActiveTab] = useState(0);
@@ -80,6 +81,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     }, [activeTourId]);
 
     const { speak, stop, narrationMode } = useTextToSpeech();
+    const { translateText, isAutoTranslateEnabled, forceTranslate } = useTranslation();
 
     const { updateUserXp, refreshUser } = useUserContext();
 
@@ -153,41 +155,78 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const isLocked = currentStopIndex >= 5 && !activeTour?.isPaid && !isAuthor && !isHostAuthor && !anyTeamMemberIsAuthor;
 
     React.useEffect(() => {
-        if (isFocused && !loading && currentStop && (narrationMode === 'tour-only' || narrationMode === 'full')) {
-            const formatString = require('../utils/stringUtils').formatString;
-            const stopNum = currentStopIndex + 1;
-            const stopNameVal = currentStop.name || `${t('Stop')} ${stopNum}`;
-            const stopDesc = currentStop.description || t('noStopDescription');
-            const speechText = formatString(t('narrationArrivedAtStop'), stopNum, stopNameVal, stopDesc);
-            speak(speechText);
-        }
+        const playNarration = async () => {
+            if (isFocused && !loading && currentStop && (narrationMode === 'tour-only' || narrationMode === 'full')) {
+                let nameVal = currentStop.name;
+                let descVal = currentStop.description;
+
+                if (isAutoTranslateEnabled) {
+                    if (nameVal) {
+                        if (translateText(nameVal) === nameVal) {
+                            await forceTranslate(nameVal);
+                        }
+                        nameVal = translateText(nameVal);
+                    }
+                    if (descVal) {
+                        if (translateText(descVal) === descVal) {
+                            await forceTranslate(descVal);
+                        }
+                        descVal = translateText(descVal);
+                    }
+                }
+
+                const formatString = require('../utils/stringUtils').formatString;
+                const stopNum = currentStopIndex + 1;
+                const stopNameVal = nameVal || `${t('Stop')} ${stopNum}`;
+                const stopDesc = descVal || t('noStopDescription');
+                const speechText = formatString(t('narrationArrivedAtStop'), stopNum, stopNameVal, stopDesc);
+                speak(speechText);
+            }
+        };
+        playNarration();
         return () => {
             stop();
         };
-    }, [isFocused, currentStopIndex, currentStop?.id, loading, narrationMode, speak, stop]);
+    }, [isFocused, currentStopIndex, currentStop?.id, loading, narrationMode, speak, stop, isAutoTranslateEnabled, language]);
 
     // Bingo tab narration — must live ABOVE early returns to keep hook order stable
     React.useEffect(() => {
-        if (!isFocused || narrationMode !== 'full' || !activeTour) return;
-        if (activeTabKey === 'bingo') {
-            const formatString = require('../utils/stringUtils').formatString;
-            const tourChallenges = activeTour.tour?.challenges || [];
-            const stopChallenges = activeTour.tour?.stops?.flatMap((s: any) => s.challenges || []) || [];
-            const allChallenges = [...tourChallenges, ...stopChallenges];
-            const bingoChallenges = allChallenges.filter((c: any) => typeof c.bingoRow === 'number' && typeof c.bingoCol === 'number');
-            let speechText = t('narrationBingoGridChallenges') + ' ';
-            for (let r = 0; r < 3; r++) {
-                for (let c = 0; c < 3; c++) {
-                    const challenge = bingoChallenges.find((ch: any) => ch.bingoRow === r && ch.bingoCol === c);
-                    const rowName = r === 0 ? t('rowTop') : r === 1 ? t('rowMiddle') : t('rowBottom');
-                    const colName = c === 0 ? t('colLeft') : c === 1 ? t('colCenter') : t('colRight');
-                    const challengeDesc = challenge ? challenge.title || challenge.description : t('emptySpace');
-                    speechText += formatString(t('narrationBingoCell'), rowName, colName, challengeDesc) + ' ';
+        const playBingoNarration = async () => {
+            if (!isFocused || narrationMode !== 'full' || !activeTour) return;
+            if (activeTabKey === 'bingo') {
+                const formatString = require('../utils/stringUtils').formatString;
+                const tourChallenges = activeTour.tour?.challenges || [];
+                const stopChallenges = activeTour.tour?.stops?.flatMap((s: any) => s.challenges || []) || [];
+                const allChallenges = [...tourChallenges, ...stopChallenges];
+                const bingoChallenges = allChallenges.filter((c: any) => typeof c.bingoRow === 'number' && typeof c.bingoCol === 'number');
+                let speechText = t('narrationBingoGridChallenges') + ' ';
+                for (let r = 0; r < 3; r++) {
+                    for (let c = 0; c < 3; c++) {
+                        const challenge = bingoChallenges.find((ch: any) => ch.bingoRow === r && ch.bingoCol === c);
+                        const rowName = r === 0 ? t('rowTop') : r === 1 ? t('rowMiddle') : t('rowBottom');
+                        const colName = c === 0 ? t('colLeft') : c === 1 ? t('colCenter') : t('colRight');
+                        
+                        let challengeDesc = t('emptySpace');
+                        if (challenge) {
+                            let textToTranslate = challenge.title || challenge.description || '';
+                            if (isAutoTranslateEnabled && textToTranslate) {
+                                if (translateText(textToTranslate) === textToTranslate) {
+                                    await forceTranslate(textToTranslate);
+                                }
+                                challengeDesc = translateText(textToTranslate);
+                            } else {
+                                challengeDesc = textToTranslate;
+                            }
+                        }
+                        
+                        speechText += formatString(t('narrationBingoCell'), rowName, colName, challengeDesc) + ' ';
+                    }
                 }
+                speak(speechText);
             }
-            speak(speechText);
-        }
-    }, [isFocused, activeTabKey, narrationMode, activeTour]);
+        };
+        playBingoNarration();
+    }, [isFocused, activeTabKey, narrationMode, activeTour, isAutoTranslateEnabled, language]);
 
     useEffect(() => {
         let animation: Animated.CompositeAnimation | null = null;

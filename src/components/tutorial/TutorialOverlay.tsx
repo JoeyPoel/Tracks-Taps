@@ -1,6 +1,6 @@
 import { useAuth } from '@/src/context/AuthContext';
 import { useTheme } from '@/src/context/ThemeContext';
-import { useTutorial } from '@/src/context/TutorialContext';
+import { useTutorial, TUTORIAL_STRINGS } from '@/src/context/TutorialContext';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { useAppWidth } from '@/src/hooks/useAppWidth';
 import { useRouter } from 'expo-router';
@@ -21,45 +21,74 @@ import Animated, {
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { TextComponent } from '../common/TextComponent';
+import { useTextToSpeech } from '@/src/hooks/useTextToSpeech';
+import { useStore } from '@/src/store/store';
 
 const { height } = Dimensions.get('window');
 
 export const TutorialOverlay = () => {
     const appWidth = useAppWidth();
-    const { isActive, currentStepIndex, steps, nextStep, skipTutorial } = useTutorial();
+    const { isActive, currentStepIndex, steps, nextStep, jumpToStep, skipTutorial } = useTutorial();
     const { theme } = useTheme();
     const router = useRouter();
     const { session } = useAuth();
-    const { setLanguage } = useLanguage();
+    const { setLanguage, language } = useLanguage();
+    const { speak, stop } = useTextToSpeech();
+    const narrationMode = useStore(state => state.narrationMode);
 
     const bobOffset = useSharedValue(0);
     const pulseScale = useSharedValue(1);
 
+    const step = steps[currentStepIndex];
+
     useEffect(() => {
         if (isActive) {
-            // Bobbing animation for the pointer (slowed down from 600 to 1200)
-            bobOffset.value = withRepeat(
-                withSequence(
-                    withTiming(-8, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
-                    withTiming(0, { duration: 1200, easing: Easing.inOut(Easing.ease) })
-                ),
-                -1,
-                true
-            );
+            if (step?.id === 'accessibility_prompt') {
+                bobOffset.value = 0;
+                pulseScale.value = 1.0;
+            } else {
+                // Bobbing animation for the pointer (slowed down from 600 to 1200)
+                bobOffset.value = withRepeat(
+                    withSequence(
+                        withTiming(-8, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
+                        withTiming(0, { duration: 1200, easing: Easing.inOut(Easing.ease) })
+                    ),
+                    -1,
+                    true
+                );
 
-            // Pulsing animation for the top icon (slowed down from 800 to 1600)
-            pulseScale.value = withRepeat(
-                withSequence(
-                    withTiming(1.15, { duration: 1600, easing: Easing.inOut(Easing.ease) }),
-                    withTiming(1.0, { duration: 1600, easing: Easing.inOut(Easing.ease) })
-                ),
-                -1,
-                true
-            );
+                // Pulsing animation for the top icon (slowed down from 800 to 1600)
+                pulseScale.value = withRepeat(
+                    withSequence(
+                        withTiming(1.15, { duration: 1600, easing: Easing.inOut(Easing.ease) }),
+                        withTiming(1.0, { duration: 1600, easing: Easing.inOut(Easing.ease) })
+                    ),
+                    -1,
+                    true
+                );
+            }
         }
     }, [isActive, currentStepIndex]);
 
-    const step = steps[currentStepIndex];
+    // Automate TTS narration when step changes
+    useEffect(() => {
+        if (isActive && step) {
+            stop();
+            if (step.id === 'tour_select' || step.id === 'tour_details') {
+                return;
+            }
+            const isAccessibilityStep = step.id === 'accessibility_prompt' || step.id === 'accessibility_settings';
+            if (isAccessibilityStep || narrationMode === 'full') {
+                const textToSpeak = `${step.title}. ${step.description}`;
+                speak(textToSpeak, true); // Force speak for accessibility
+            }
+        }
+        return () => {
+            stop();
+        };
+    }, [isActive, currentStepIndex, language]);
+
+
 
     const getPositionStyle = () => {
         // Per-step overrides take priority so each card sits in the ideal spot
@@ -114,7 +143,7 @@ export const TutorialOverlay = () => {
 
     if (!isActive) return null;
 
-    const isInteractiveStep = step.id === 'tour_select' || step.id === 'tour_details';
+    const isInteractiveStep = step.id === 'tour_select' || step.id === 'tour_details' || step.id === 'accessibility_settings';
     // Fully transparent backdrop for interactive steps so the user can see and
     // interact with the screen content behind the guide card without distraction.
     const backdropColor = isInteractiveStep ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,0.55)';
@@ -141,7 +170,7 @@ export const TutorialOverlay = () => {
                 ]}
             >
                  {step.position === 'top' && (
-                    <Animated.View style={[styles.pointer, styles.pointerTop, { backgroundColor: theme.bgSecondary, borderColor: '#EA580C' }, animatedPointerStyle]} />
+                    <Animated.View style={[styles.pointer, styles.pointerTop, { backgroundColor: theme.bgSecondary, borderColor: theme.primary }, animatedPointerStyle]} />
                 )}
 
                 <Animated.View style={[styles.iconContainer, { backgroundColor: theme.primary, borderColor: theme.bgSecondary }, animatedIconStyle]}>
@@ -200,10 +229,51 @@ export const TutorialOverlay = () => {
                                     ))}
                                 </View>
                             )}
+
+                            {step.id === 'accessibility_prompt' && (() => {
+                                const yesText = TUTORIAL_STRINGS[language || 'en']?.yesSetup || TUTORIAL_STRINGS['en'].yesSetup;
+                                const noText = TUTORIAL_STRINGS[language || 'en']?.noContinue || TUTORIAL_STRINGS['en'].noContinue;
+                                return (
+                                    <View style={styles.languageContainer}>
+                                        <Animated.View entering={FadeInDown.delay(100).duration(400).springify().damping(28)}>
+                                            <TouchableOpacity
+                                                style={[
+                                                    styles.languageBtn,
+                                                    { 
+                                                        borderColor: theme.primary, 
+                                                        backgroundColor: theme.primary + '15' 
+                                                    }
+                                                ]}
+                                                onPress={() => {
+                                                    jumpToStep('accessibility_settings');
+                                                }}
+                                            >
+                                                <TextComponent variant="body" bold color={theme.primary} center>{yesText}</TextComponent>
+                                            </TouchableOpacity>
+                                        </Animated.View>
+                                        <Animated.View entering={FadeInDown.delay(200).duration(400).springify().damping(28)}>
+                                            <TouchableOpacity
+                                                style={[
+                                                    styles.languageBtn,
+                                                    { 
+                                                        borderColor: theme.borderPrimary, 
+                                                        backgroundColor: theme.bgPrimary 
+                                                    }
+                                                ]}
+                                                onPress={() => {
+                                                    jumpToStep('welcome');
+                                                }}
+                                            >
+                                                <TextComponent variant="body" color={theme.textSecondary} center>{noText}</TextComponent>
+                                            </TouchableOpacity>
+                                        </Animated.View>
+                                    </View>
+                                );
+                            })()}
                         </View>
 
-                        {step.id !== 'language_select' && (() => {
-                            const hasSingleButton = (step.id === 'tour_details') || (step.id === 'finish' && session);
+                        {step.id !== 'language_select' && step.id !== 'accessibility_prompt' && (() => {
+                            const hasSingleButton = (step.id === 'tour_details') || (step.id === 'accessibility_settings') || (step.id === 'finish' && session);
                             const footerStyle = [
                                 styles.footer,
                                 (step.id === 'tour_select' || hasSingleButton) ? { justifyContent: 'center' as const } : { justifyContent: 'space-between' as const }
@@ -313,14 +383,8 @@ export const TutorialOverlay = () => {
                     </View>
                 </LinearGradient>
 
-                {(step.position === 'bottom' || step.position === 'top-down') && (
-                    // tour_select: static pointer — no bobbing so the UI feels calmer
-                    // while the user is looking for the first tour card to tap.
-                    step.id === 'tour_select' ? (
-                        <View style={[styles.pointer, styles.pointerBottom, { backgroundColor: theme.bgSecondary, borderColor: '#EA580C', transform: [{ rotate: '45deg' }] }]} />
-                    ) : (
-                        <Animated.View style={[styles.pointer, styles.pointerBottom, { backgroundColor: theme.bgSecondary, borderColor: '#EA580C' }, animatedPointerStyle]} />
-                    )
+                {(step.position === 'bottom' || step.position === 'top-down') && step.id !== 'tour_select' && (
+                    <Animated.View style={[styles.pointer, styles.pointerBottom, { backgroundColor: theme.bgSecondary, borderColor: theme.primary }, animatedPointerStyle]} />
                 )}
             </Animated.View>
         </View>
