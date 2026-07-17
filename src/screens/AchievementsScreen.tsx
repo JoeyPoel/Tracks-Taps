@@ -42,11 +42,19 @@ export default function AchievementsScreen() {
     useEffect(() => {
         if (isFocused && narrationMode === 'full' && !loading) {
             const formatString = require('../utils/stringUtils').formatString;
-            let speechText = formatString(t('narrationAchievementsScreen'), unlockedCount, totalCount) + ' ';
-            const unlockedAchievements = allAchievements.filter(a => a.unlocked);
-            if (unlockedAchievements.length > 0) {
-                const allNames = unlockedAchievements.map(a => a.name).join(', ');
-                speechText += formatString(t('narrationUnlockedAchievementsAre'), allNames);
+            let speechText = formatString(t('narrationAchievementsScreen'), unlockedCount, totalCount) + '. ';
+            if (allAchievements.length > 0) {
+                const achievementStatusList = allAchievements.map(a => {
+                    const title = a.title || a.name || '';
+                    const isUnlocked = a.unlocked;
+                    const progress = a.progress || (isUnlocked ? 1 : 0);
+                    const target = a.target || 1;
+                    const scoreText = (isUnlocked || progress >= target)
+                        ? (t('completed') || 'Completed')
+                        : `${progress} ${t('of') || 'of'} ${target}`;
+                    return `${title}: ${scoreText}`;
+                }).join('. ');
+                speechText += achievementStatusList;
             } else {
                 speechText += t('narrationNoAchievementsUnlockedYet');
             }

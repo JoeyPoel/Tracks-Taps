@@ -45,11 +45,12 @@ export default function SavedTripDetailScreen() {
         if (isFocused && narrationMode === 'full' && !loading && list) {
             const formatString = require('../utils/stringUtils').formatString;
             const collectionName = list.name === 'Favourites' ? t('favourites') : (list.name || t('savedTrips') || 'Collection');
-            if (localTours.length === 0) {
+            const toursToUse = list.tours || [];
+            if (toursToUse.length === 0) {
                 speak(formatString(t('narrationCollectionEmpty'), collectionName));
             } else {
-                const tourNames = localTours.map((t: any) => t.title || t('unknown')).join(', ');
-                speak(formatString(t('narrationCollectionWithTours'), collectionName, localTours.length, tourNames));
+                const tourNames = toursToUse.map((t: any) => t.title || t('unknown')).join(', ');
+                speak(formatString(t('narrationCollectionWithTours'), collectionName, toursToUse.length, tourNames));
             }
         }
         return () => { stop(); };

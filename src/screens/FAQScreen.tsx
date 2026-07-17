@@ -82,12 +82,19 @@ export default function FAQScreen() {
     React.useEffect(() => {
         if (isFocused && narrationMode === 'full') {
             const formatString = require('../utils/stringUtils').formatString;
-            speak(formatString(t('narrationFAQScreen'), faqs.length), true);
+            let speechText = formatString(t('narrationFAQScreen'), faqs.length) + '. ';
+            if (!showSpeakButtons) {
+                const allFaqsText = faqs.map((faq, index) => 
+                    `${formatString(t('narrationQuestionIndex'), index + 1)}: ${faq.q}. ${t('narrationAnswerLabel')}: ${faq.a}`
+                ).join('. ');
+                speechText += allFaqsText;
+            }
+            speak(speechText, true);
         }
         return () => {
             stop();
         };
-    }, [isFocused, narrationMode]);
+    }, [isFocused, narrationMode, showSpeakButtons]);
 
     const handleSpeakToggle = () => {
         if (isSpeaking) {

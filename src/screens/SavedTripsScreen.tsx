@@ -53,7 +53,12 @@ export default function SavedTripsScreen() {
             if (lists.length === 0) {
                 speechText += t('narrationNoSavedCollections');
             } else {
-                const listNames = lists.map(l => {
+                const sortedLists = [...lists].sort((a, b) => {
+                    if (a.name === 'Favourites') return -1;
+                    if (b.name === 'Favourites') return 1;
+                    return 0;
+                });
+                const listNames = sortedLists.map(l => {
                     const colName = l.name === 'Favourites' ? t('favourites') : l.name;
                     const tourCount = l._count?.tours ?? l.tours?.length ?? 0;
                     return formatString(t('narrationCollectionCountTours'), colName, tourCount);

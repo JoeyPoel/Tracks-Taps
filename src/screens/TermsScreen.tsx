@@ -35,14 +35,28 @@ export default function TermsScreen() {
         const playNarration = async () => {
             if (isFocused && narrationMode === 'full') {
                 const welcomedText = await getTranslatedText(t('narrationTermsScreen'));
-                speak(welcomedText, true);
+                if (!showSpeakButtons) {
+                    const translatedSections = await Promise.all(
+                        sections.map(async s => {
+                            const titleText = await getTranslatedText(s.title);
+                            const paragraphs = await Promise.all(
+                                s.content.map(p => getTranslatedText(p))
+                            );
+                            return `${titleText}. ${paragraphs.join(' ')}`;
+                        })
+                    );
+                    const speechText = `${welcomedText}. ${translatedSections.join(' ')}`;
+                    speak(speechText, true);
+                } else {
+                    speak(welcomedText, true);
+                }
             }
         };
         playNarration();
         return () => {
             stop();
         };
-    }, [isFocused, narrationMode, isAutoTranslateEnabled]);
+    }, [isFocused, narrationMode, isAutoTranslateEnabled, showSpeakButtons]);
 
     const sections = [
         {
