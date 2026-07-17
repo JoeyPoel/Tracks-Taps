@@ -431,14 +431,14 @@ export default function AppPreferencesScreen() {
         <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
           <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
             <TextComponent color={theme.textSecondary} variant="caption">
-              Choose how the voice narrator reads aloud text and controls.
+              {t('accessibilityNarrationDesc')}
             </TextComponent>
           </View>
           <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingBottom: 16, gap: 8 }}>
             {[
-              { id: 'off', label: 'Off', desc: 'No narration' },
-              { id: 'tour-only', label: 'Tour-Only', desc: 'During tours' },
-              { id: 'full', label: 'Full App', desc: 'Narrate all screens' },
+              { id: 'off', label: t('off'), desc: t('noNarration') },
+              { id: 'tour-only', label: t('tourOnly'), desc: t('duringTours') },
+              { id: 'full', label: t('fullApp'), desc: t('narrateAllScreens') },
             ].map((modeOpt) => {
               const isActive = narrationMode === modeOpt.id;
               return (
@@ -486,14 +486,14 @@ export default function AppPreferencesScreen() {
           {/* Speech Rate Control */}
           <View style={{ borderTopWidth: 1, borderTopColor: theme.borderSecondary, padding: 16 }}>
             <TextComponent color={theme.textPrimary} bold variant="body" style={{ marginBottom: 12 }}>
-              Voice Narration Speed
+              {t('voiceNarrationSpeed')}
             </TextComponent>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               {[
-                { rate: 0.75, label: 'Slower' },
-                { rate: 1.0, label: 'Normal' },
-                { rate: 1.25, label: 'Faster' },
-                { rate: 1.5, label: 'Fast' },
+                { rate: 0.75, label: t('slower') },
+                { rate: 1.0, label: t('normal') },
+                { rate: 1.25, label: t('faster') },
+                { rate: 1.5, label: t('fast') },
               ].map((rateOpt) => {
                 const isActive = speechRate === rateOpt.rate;
                 return (
@@ -524,10 +524,10 @@ export default function AppPreferencesScreen() {
           <View style={[styles.row, { borderTopWidth: 1, borderTopColor: theme.borderSecondary, borderBottomWidth: 0, paddingHorizontal: 16, paddingVertical: 14 }]}>
             <View style={styles.rowInfo}>
               <TextComponent color={theme.textPrimary} bold variant="body">
-                Show Speaker Icons
+                {t('showSpeakerIcons')}
               </TextComponent>
               <TextComponent color={theme.textSecondary} variant="caption">
-                Show speaker button on items to play speech manually
+                {t('showSpeakerIconsDesc')}
               </TextComponent>
             </View>
             <Switch
@@ -543,15 +543,15 @@ export default function AppPreferencesScreen() {
         {renderSectionHeader(t('textSize' as any) || 'Text Size', 'text-outline')}
         <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor, padding: 16 }]}>
           <TextComponent color={theme.textSecondary} variant="caption" style={{ marginBottom: 12 }}>
-            Adjust the size of all text in the app
+            {t('textSizeDesc')}
           </TextComponent>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {[
-              { id: 'smallest' as const, label: 'Smallest' },
-              { id: 'small' as const, label: 'Small' },
-              { id: 'normal' as const, label: 'Normal' },
-              { id: 'large' as const, label: 'Large' },
-              { id: 'largest' as const, label: 'Largest' },
+              { id: 'smallest' as const, label: t('smallest') },
+              { id: 'small' as const, label: t('small') },
+              { id: 'normal' as const, label: t('normal') },
+              { id: 'large' as const, label: t('large') },
+              { id: 'largest' as const, label: t('largest') },
             ].map((opt) => {
               const isActive = fontScale === opt.id;
               const previewSize = 
