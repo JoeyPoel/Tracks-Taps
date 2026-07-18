@@ -255,6 +255,8 @@ export const LeafletMap = forwardRef<LeafletMapRef, LeafletMapProps>(({
                 source={{ html: LEAFLET_HTML }}
                 style={styles.webView}
                 onMessage={handleMessage}
+                javaScriptEnabled={true}
+                domStorageEnabled={true}
                 onLoadEnd={() => {
                     webViewRef.current?.postMessage(JSON.stringify({
                         type: 'init',
@@ -270,6 +272,7 @@ export const LeafletMap = forwardRef<LeafletMapRef, LeafletMapProps>(({
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
         overflow: 'hidden',
     },
     webView: {
