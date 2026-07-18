@@ -161,7 +161,6 @@ export default function MapScreen() {
                 coordinates={segment.coords}
                 strokeColor={theme.primary}
                 strokeWidth={4} // Thicker line
-                lineDashPattern={Platform.OS === 'android' && segment.type === 'DIRECT' ? [8, 8] : undefined}
               />
             ))}
           </>
