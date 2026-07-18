@@ -187,6 +187,7 @@ export interface Team {
     finishedAt: Date | null;
     activeChallenges?: ActiveChallenge[];
     pubGolfStops?: PubGolfStop[];
+    pubGolfPenalties?: PubGolfPenalty[];
     bingoCard?: BingoCard;
     user?: User;
 }
@@ -198,6 +199,14 @@ export interface PubGolfStop {
     sips: number;
     createdAt: Date;
     updatedAt: Date;
+}
+
+export interface PubGolfPenalty {
+    id: number;
+    teamId: number;
+    description: string;
+    sips: number;
+    createdAt: Date;
 }
 
 export interface BingoCard {

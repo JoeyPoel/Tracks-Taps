@@ -75,4 +75,12 @@ export const activeTourService = {
         const response = await client.post('/active-tour/unlock', { activeTourId, userId });
         return response.data;
     },
+    async addPubGolfPenalty(activeTourId: number, userId: number, description: string, sips: number) {
+        const response = await client.post('/active-tour/penalty', { activeTourId, userId, description, sips });
+        return response.data;
+    },
+    async deletePubGolfPenalty(activeTourId: number, userId: number, penaltyId: number) {
+        const response = await client.delete('/active-tour/penalty', { data: { activeTourId, userId, penaltyId } });
+        return response.data;
+    },
 };

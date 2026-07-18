@@ -217,6 +217,7 @@ model Team {
   activeChallenges ActiveChallenge[]
   bingoCard        BingoCard?
   pubGolfStops     PubGolfStop[]
+  pubGolfPenalties PubGolfPenalty[]
   activeTour       ActiveTour        @relation(fields: [activeTourId], references: [id], onDelete: Cascade)
   user             User              @relation(fields: [userId], references: [id])
 
@@ -250,6 +251,17 @@ model PubGolfStop {
   team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@unique([teamId, stopId])
+  @@index([teamId])
+}
+
+model PubGolfPenalty {
+  id          Int      @id @default(autoincrement())
+  teamId      Int
+  description String
+  sips        Int      @default(1)
+  createdAt   DateTime @default(now())
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
   @@index([teamId])
 }
 

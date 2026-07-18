@@ -93,6 +93,11 @@ export default function PubGolfStopCard({
                     scoreDetails={scoreDetails}
                     diffText={diffText}
                     isNewlySaved={isNewlySaved}
+                    onReset={() => {
+                        setSelectedSips(null);
+                        setIsNewlySaved(false);
+                        onSave(0);
+                    }}
                 />
             )}
         </View>

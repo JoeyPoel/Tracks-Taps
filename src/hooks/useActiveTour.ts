@@ -467,6 +467,61 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         }
     };
 
+    const handleAddPubGolfPenalty = async (description: string, sips: number) => {
+        if (!userId || !activeTourId || !currentTeam) return;
+
+        const optimisticPenalty = {
+            id: -Date.now(),
+            teamId: currentTeam.id,
+            description,
+            sips,
+            createdAt: new Date()
+        };
+
+        const updatedTeam = {
+            ...currentTeam,
+            pubGolfPenalties: [...(currentTeam.pubGolfPenalties || []), optimisticPenalty]
+        };
+        updateActiveTourLocal({ teams: [updatedTeam] });
+
+        try {
+            const updatedProgress = await activeTourService.addPubGolfPenalty(activeTourId, userId, description, sips);
+            updateActiveTourLocal(updatedProgress);
+        } catch (error) {
+            console.error('Failed to add pub golf penalty:', error);
+            alert('Failed to add penalty');
+            const revertedTeam = {
+                ...currentTeam,
+                pubGolfPenalties: (currentTeam.pubGolfPenalties || []).filter(p => p.id !== optimisticPenalty.id)
+            };
+            updateActiveTourLocal({ teams: [revertedTeam] });
+        }
+    };
+
+    const handleDeletePubGolfPenalty = async (penaltyId: number) => {
+        if (!userId || !activeTourId || !currentTeam) return;
+
+        const originalPenalties = currentTeam.pubGolfPenalties || [];
+        const updatedTeam = {
+            ...currentTeam,
+            pubGolfPenalties: originalPenalties.filter(p => p.id !== penaltyId)
+        };
+        updateActiveTourLocal({ teams: [updatedTeam] });
+
+        try {
+            const updatedProgress = await activeTourService.deletePubGolfPenalty(activeTourId, userId, penaltyId);
+            updateActiveTourLocal(updatedProgress);
+        } catch (error) {
+            console.error('Failed to delete pub golf penalty:', error);
+            alert('Failed to delete penalty');
+            const revertedTeam = {
+                ...currentTeam,
+                pubGolfPenalties: originalPenalties
+            };
+            updateActiveTourLocal({ teams: [revertedTeam] });
+        }
+    };
+
     // Safeguard for deleted stops (Active Tour Persistence)
     const stops = activeTour?.tour?.stops || [];
     const stopCount = stops.length;
@@ -504,7 +559,9 @@ export const useActiveTour = (activeTourId: number, userId: number, onXpEarned?:
         points,
         updateActiveTourLocal,
         currentTeam,
-        handleSaveSips
+        handleSaveSips,
+        handleAddPubGolfPenalty,
+        handleDeletePubGolfPenalty
     };
 
 };

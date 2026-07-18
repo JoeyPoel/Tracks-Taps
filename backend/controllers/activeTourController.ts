@@ -298,5 +298,37 @@ export const activeTourController = {
             console.error('Error unlocking active tour:', error);
             return Response.json({ error: error.message || 'Failed to unlock active tour' }, { status: 500 });
         }
+    },
+    async addPubGolfPenalty(request: Request) {
+        try {
+            const body = await request.json();
+            const { activeTourId, userId, description, sips } = body;
+
+            if (!activeTourId || !userId || !description || sips === undefined) {
+                return Response.json({ error: 'Missing required fields' }, { status: 400 });
+            }
+
+            const updatedProgress = await activeTourService.addPubGolfPenalty(Number(activeTourId), Number(userId), description, Number(sips));
+            return Response.json(updatedProgress);
+        } catch (error: any) {
+            console.error('Error adding pub golf penalty:', error);
+            return Response.json({ error: error.message || 'Failed to add penalty' }, { status: 500 });
+        }
+    },
+    async deletePubGolfPenalty(request: Request) {
+        try {
+            const body = await request.json();
+            const { activeTourId, userId, penaltyId } = body;
+
+            if (!activeTourId || !userId || !penaltyId) {
+                return Response.json({ error: 'Missing required fields' }, { status: 400 });
+            }
+
+            const updatedProgress = await activeTourService.deletePubGolfPenalty(Number(activeTourId), Number(userId), Number(penaltyId));
+            return Response.json(updatedProgress);
+        } catch (error: any) {
+            console.error('Error deleting pub golf penalty:', error);
+            return Response.json({ error: error.message || 'Failed to delete penalty' }, { status: 500 });
+        }
     }
 };

@@ -113,7 +113,9 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         streak,
         points,
         currentTeam,
-        handleSaveSips
+        handleSaveSips,
+        handleAddPubGolfPenalty,
+        handleDeletePubGolfPenalty
     } = useActiveTour(activeTourId, user.id, updateUserXp);
 
     // Auto-read stop directions and descriptions upon stop transitions
@@ -357,9 +359,12 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                 <TabContentWrapper key="pubgolf">
                     <PubGolfSection
                         activeTour={activeTour}
+                        currentTeam={currentTeam}
                         pubGolfScores={pubGolfScores}
                         currentStopId={currentStop?.id}
                         handleSaveSips={handleSaveSips}
+                        onAddPenalty={handleAddPubGolfPenalty}
+                        onDeletePenalty={handleDeletePubGolfPenalty}
                     />
                 </TabContentWrapper>
             )

@@ -251,6 +251,7 @@ export const activeTourRepository = {
                     include: {
                         activeChallenges: true,
                         pubGolfStops: true,
+                        pubGolfPenalties: true,
                         bingoCard: {
                             select: {
                                 id: true,
@@ -333,6 +334,13 @@ export const activeTourRepository = {
                         pubGolfStops: {
                             select: {
                                 stopId: true,
+                                sips: true
+                            }
+                        },
+                        pubGolfPenalties: {
+                            select: {
+                                id: true,
+                                description: true,
                                 sips: true
                             }
                         },
@@ -589,6 +597,26 @@ export const activeTourRepository = {
             col: ac.challenge.bingoCol as number,
             completed: true
         }));
+    },
+    async addPubGolfPenalty(teamId: number, description: string, sips: number) {
+        return await prisma.pubGolfPenalty.create({
+            data: {
+                teamId,
+                description,
+                sips
+            }
+        });
+    },
+    async deletePubGolfPenalty(penaltyId: number) {
+        return await prisma.pubGolfPenalty.delete({
+            where: { id: penaltyId }
+        });
+    },
+    async getPubGolfPenalties(teamId: number) {
+        return await prisma.pubGolfPenalty.findMany({
+            where: { teamId },
+            orderBy: { createdAt: 'asc' }
+        });
     }
 };
 

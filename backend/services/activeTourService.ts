@@ -422,5 +422,16 @@ export const activeTourService = {
 
             return updated;
         }).then(() => activeTourRepository.findActiveTourById(activeTourId, userId));
+    },
+    async addPubGolfPenalty(activeTourId: number, userId: number, description: string, sips: number) {
+        const team = await activeTourRepository.findTeamByUserIdAndTourId(userId, activeTourId);
+        if (!team) throw new Error("Team not found");
+
+        await activeTourRepository.addPubGolfPenalty(team.id, description, sips);
+        return await activeTourService.getActiveTourProgress(activeTourId, userId);
+    },
+    async deletePubGolfPenalty(activeTourId: number, userId: number, penaltyId: number) {
+        await activeTourRepository.deletePubGolfPenalty(penaltyId);
+        return await activeTourService.getActiveTourProgress(activeTourId, userId);
     }
 };
