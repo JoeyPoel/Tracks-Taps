@@ -71,9 +71,13 @@ export const AuthService = {
                 throw new Error('No ID token present in Google Sign-In response!');
             }
         } catch (error: any) {
-            if (error.code === statusCodes?.SIGN_IN_CANCELLED) {
-                // user cancelled the login flow
-                console.log('Google Sign-In cancelled by user');
+            const isCancel = error.code === statusCodes?.SIGN_IN_CANCELLED || 
+                             error.message?.includes('cancelled') || 
+                             error.message?.includes('No ID token present');
+                             
+            if (isCancel) {
+                // user cancelled the login flow or cancelled during/after selecting account
+                console.log('Google Sign-In cancelled by user or returned empty token:', error.message);
             } else if (error.code === statusCodes?.IN_PROGRESS) {
                 // operation (e.g. sign in) is in progress already
                 console.log('Google Sign-In already in progress');

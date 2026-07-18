@@ -65,18 +65,18 @@ export default function RegisterScreen() {
                 }),
             }
         });
-        setLoadingType(null);
 
         if (error) {
+            setLoadingType(null);
             Alert.alert(t('failedToRegister'), error.message);
         } else if (!data.session) {
             // Session is null -> Email verification is enabled and required
+            setLoadingType(null);
             Alert.alert(t('checkEmailToVerify'));
             router.replace('/auth/login');
         }
         // If data.session exists, the user is logged in automatically. 
-        // The AuthContext listener will detect the session change and redirect to the main app,
-        // and its global store logic automatically fires fetchUserByAuth which handles creation if needed.
+        // The AuthContext listener will detect the session change and redirect to the main app.
     };
 
     const handleGoogleLogin = async () => {
@@ -87,9 +87,8 @@ export default function RegisterScreen() {
 
         setLoadingType('google');
         const data = await AuthService.signInWithGoogle();
-        setLoadingType(null);
-        if (data?.session) {
-            // Logged in
+        if (!data?.session) {
+            setLoadingType(null);
         }
     };
 
@@ -101,9 +100,8 @@ export default function RegisterScreen() {
 
         setLoadingType('apple');
         const data = await AuthService.signInWithApple();
-        setLoadingType(null);
-        if (data?.session) {
-            // Logged in
+        if (!data?.session) {
+            setLoadingType(null);
         }
     };
 

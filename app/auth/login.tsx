@@ -41,32 +41,31 @@ export default function LoginScreen() {
             return;
         }
         setLoadingType('email');
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
-        setLoadingType(null);
 
         if (error) {
+            setLoadingType(null);
             Alert.alert(t('failedToLogin'), error.message);
         }
+        // If data?.session exists, AuthContext session listener will handle redirect
     };
 
     const handleGoogleLogin = async () => {
         setLoadingType('google');
         const data = await AuthService.signInWithGoogle();
-        setLoadingType(null);
-        if (data?.session) {
-            // Logged in
+        if (!data?.session) {
+            setLoadingType(null);
         }
     };
 
     const handleAppleLogin = async () => {
         setLoadingType('apple');
         const data = await AuthService.signInWithApple();
-        setLoadingType(null);
-        if (data?.session) {
-            // Logged in
+        if (!data?.session) {
+            setLoadingType(null);
         }
     };
 
