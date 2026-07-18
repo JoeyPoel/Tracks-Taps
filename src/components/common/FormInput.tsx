@@ -103,19 +103,16 @@ export function FormInput({
                 />
                 {showPasswordToggle ? (
                     <View style={styles.iconRight}>
-                        <React.Suspense fallback={null}>
-                            {/* We'll use Ionicons directly logic or pass through iconRight */}
-                            <TextComponent
-                                onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-                                style={{ padding: 4 }}
-                            >
-                                <Ionicons
-                                    name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}
-                                    size={20}
-                                    color={theme.textTertiary}
-                                />
-                            </TextComponent>
-                        </React.Suspense>
+                        <TextComponent
+                            onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+                            style={{ padding: 4 }}
+                        >
+                            <Ionicons
+                                name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}
+                                size={20}
+                                color={theme.textTertiary}
+                            />
+                        </TextComponent>
                     </View>
                 ) : rightIcon ? (
                     <View style={styles.iconRight}>{rightIcon}</View>
