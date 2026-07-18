@@ -252,7 +252,7 @@ export const LeafletMap = forwardRef<LeafletMapRef, LeafletMapProps>(({
             <WebView
                 ref={webViewRef}
                 originWhitelist={['*']}
-                source={{ html: LEAFLET_HTML }}
+                source={{ html: LEAFLET_HTML, baseUrl: 'https://unpkg.com' }}
                 style={styles.webView}
                 onMessage={handleMessage}
                 javaScriptEnabled={true}
