@@ -152,6 +152,7 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
   const [isTargetLanguageSet, setIsTargetLanguageSet] = useState(false);
   const [cache, setCache] = useState<TranslationCache>({});
   const [isLoaded, setIsLoaded] = useState(false);
+  const prevLanguageRef = useRef<string | null>(null);
   
   // Modal State
   const [pendingTextToTranslate, setPendingTextToTranslate] = useState<string | null>(null);
@@ -168,6 +169,11 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
           setTargetLanguageState(storedTargetLang);
           setIsTargetLanguageSet(true);
         }
+
+        const storedAutoTranslate = await AsyncStorage.getItem(TRANSLATION_CONFIG_KEY);
+        if (storedAutoTranslate !== null) {
+          setIsAutoTranslateEnabledState(storedAutoTranslate === 'true');
+        }
       } catch (e) {
         console.error('Failed to init translation config', e);
       } finally {
@@ -176,6 +182,25 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
     };
     init();
   }, []);
+
+  // Synchronize target translation language when app language is changed to one of the 6 integrated languages
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    if (prevLanguageRef.current === null) {
+      prevLanguageRef.current = language;
+      return;
+    }
+
+    if (prevLanguageRef.current !== language) {
+      prevLanguageRef.current = language;
+      const integratedLanguages = ['en', 'es', 'nl', 'pl', 'fr', 'de'];
+      if (integratedLanguages.includes(language)) {
+        setTargetLanguage(language);
+        setIsAutoTranslateEnabled(true);
+      }
+    }
+  }, [language, isLoaded]);
 
   // Cache Loading Effect - Runs whenever language/target changes
   useEffect(() => {
@@ -208,6 +233,11 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
 
   const setIsAutoTranslateEnabled = async (enabled: boolean) => {
     setIsAutoTranslateEnabledState(enabled);
+    try {
+      await AsyncStorage.setItem(TRANSLATION_CONFIG_KEY, enabled ? 'true' : 'false');
+    } catch (e) {
+      console.error('Failed to save auto translate setting', e);
+    }
   };
 
   const setTargetLanguage = async (lang: string | null) => {
