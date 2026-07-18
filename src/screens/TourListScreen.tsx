@@ -153,6 +153,31 @@ export default function TourListScreen() {
         );
     };
 
+    const handleDeleteTour = async (tourId: number) => {
+        Alert.alert(
+            t('deleteTour') || 'Delete Tour',
+            'Are you absolutely sure you want to delete this tour? This will delete all stops, challenges, active sessions, and reviews. This action cannot be undone.',
+            [
+                { text: t('cancel'), style: 'cancel' },
+                {
+                    text: t('delete'),
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            const client = require('../api/apiClient').default;
+                            await client.delete(`/tours/${tourId}`);
+                            loadTours();
+                            Alert.alert(t('success'), 'Tour deleted successfully.');
+                        } catch (error: any) {
+                            console.error('Error deleting tour:', error);
+                            Alert.alert(t('error'), error.response?.data?.error || 'Failed to delete tour');
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     const handleUpdateReview = async (rating: number, content: string, photos: string[]) => {
         if (!editingReview) return;
         setSubmittingReview(true);
@@ -342,6 +367,24 @@ export default function TourListScreen() {
                                                 Reason: {item.rejectionReason}
                                             </TextComponent>
                                         )}
+                                    </View>
+                                )}
+                                {type === 'created' && (
+                                    <View style={{ flexDirection: 'row', gap: 12, marginTop: 8, justifyContent: 'flex-end', paddingHorizontal: 4 }}>
+                                        <TouchableOpacity
+                                            onPress={() => router.push({ pathname: '/(tabs)/create', params: { tourId: item.id } })}
+                                            style={[styles.actionButton, { backgroundColor: theme.primary + '15' }]}
+                                        >
+                                            <Ionicons name="pencil" size={16} color={theme.primary} />
+                                            <TextComponent variant="label" color={theme.primary} style={{ marginLeft: 4 }}>{t('edit')}</TextComponent>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            onPress={() => handleDeleteTour(item.id)}
+                                            style={[styles.actionButton, { backgroundColor: theme.danger + '15' }]}
+                                        >
+                                            <Ionicons name="trash-outline" size={16} color={theme.danger} />
+                                            <TextComponent variant="label" color={theme.danger} style={{ marginLeft: 4 }}>{t('delete')}</TextComponent>
+                                        </TouchableOpacity>
                                     </View>
                                 )}
                             </View>

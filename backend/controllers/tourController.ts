@@ -1,5 +1,6 @@
 import { ChallengeType, Difficulty, Prisma, StopType } from '@prisma/client';
 import { tourService } from '../services/tourService';
+import { prisma } from '../../src/lib/prisma';
 
 // Helper to map string to StopType safe enum
 const mapStopType = (type: string): StopType => {
@@ -269,6 +270,40 @@ export const tourController = {
         } catch (error: any) {
             console.error('Error updating tour:', error);
             return Response.json({ error: 'Failed to update tour', details: error.message }, { status: 500 });
+        }
+    },
+    async deleteTour(request: Request, userId: number, params?: { id: string }) {
+        let id = params?.id;
+
+        if (!id) {
+            const url = new URL(request.url);
+            const segments = url.pathname.split('/');
+            id = segments[segments.length - 1];
+        }
+
+        const tourId = Number(id);
+        if (isNaN(tourId)) {
+            return Response.json({ error: 'Invalid tourId' }, { status: 400 });
+        }
+
+        try {
+            const tour = await tourService.getTourById(tourId, undefined, true);
+            if (!tour) {
+                return Response.json({ error: 'Tour not found' }, { status: 404 });
+            }
+
+            const user = await prisma.user.findUnique({ where: { id: userId } });
+            const isAdmin = user?.isAdmin || false;
+
+            if (tour.author.id !== userId && !isAdmin) {
+                return Response.json({ error: 'Forbidden: You do not own this tour' }, { status: 403 });
+            }
+
+            await tourService.deleteTour(tourId);
+            return Response.json({ success: true, message: 'Tour deleted successfully' });
+        } catch (error: any) {
+            console.error('Error deleting tour:', error);
+            return Response.json({ error: 'Failed to delete tour', details: error.message }, { status: 500 });
         }
     }
 };

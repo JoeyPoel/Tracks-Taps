@@ -95,7 +95,9 @@ export const adminController = {
         try {
             const pendingTours = await prisma.tour.findMany({
                 where: {
-                    status: 'PENDING_REVIEW'
+                    status: {
+                        in: ['PENDING_REVIEW', 'REJECTED']
+                    }
                 },
                 select: {
                     id: true,
@@ -106,6 +108,7 @@ export const adminController = {
                     distance: true,
                     duration: true,
                     points: true,
+                    status: true,
                     createdAt: true,
                     author: {
                         select: {
@@ -570,6 +573,27 @@ export const adminController = {
         } catch (error: any) {
             console.error('Error fetching purchases:', error);
             return Response.json({ error: 'Failed to fetch purchases', details: error.message }, { status: 500 });
+        }
+    },
+    async deleteTour(request: Request, body: any) {
+        const { userId, tourId } = body;
+
+        if (!userId || !tourId) {
+            return Response.json({ error: 'Missing required fields: userId or tourId' }, { status: 400 });
+        }
+
+        const actingUserIsAdmin = await this.isUserAdmin(Number(userId));
+        if (!actingUserIsAdmin) {
+            return Response.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        try {
+            const { tourService } = require('../services/tourService');
+            await tourService.deleteTour(Number(tourId));
+            return Response.json({ success: true, message: 'Tour deleted successfully' });
+        } catch (error: any) {
+            console.error('Error deleting tour:', error);
+            return Response.json({ error: 'Failed to delete tour', details: error.message }, { status: 500 });
         }
     }
 };

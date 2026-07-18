@@ -39,6 +39,7 @@ export interface TourMetadata {
     distance: number;
     duration: number;
     points: number;
+    status?: string;
     createdAt: string;
     author: {
         id: number;
@@ -533,6 +534,41 @@ export function useAdminState() {
         }
     };
 
+    const handleDeleteTour = async (tourId: number) => {
+        if (!user) return;
+        Alert.alert(
+            'Confirm Tour Deletion',
+            'Are you absolutely sure you want to delete this tour entirely? This action cannot be undone.',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete Entirely',
+                    style: 'destructive',
+                    onPress: async () => {
+                        setModeratingAction({ id: tourId, action: 'reject' });
+                        try {
+                            await client.post('/admin', {
+                                action: 'delete-tour',
+                                userId: user.id,
+                                tourId
+                            });
+                            Alert.alert('Success', 'Tour deleted entirely.');
+                            setPendingTours(prev => prev.filter(t => t.id !== tourId));
+                            const statsRes = await client.get(`/admin?action=stats&userId=${user?.id}`);
+                            setStats(statsRes.data);
+                            setStatsLoaded(true);
+                        } catch (error: any) {
+                            console.error('Failed to delete tour:', error);
+                            Alert.alert('Error', error.response?.data?.error || error.message || 'Failed to delete tour');
+                        } finally {
+                            setModeratingAction(null);
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     const getFormattedPresetCheck = useCallback((value: number | null) => {
         if (value === null) {
             return untilDate === null;
@@ -701,6 +737,7 @@ export function useAdminState() {
         handleModerateTour,
         openRejectionPrompt,
         handleConfirmRejection,
+        handleDeleteTour,
         getFormattedPresetCheck,
         toggleTourExpand,
         jsonText,

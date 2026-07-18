@@ -374,7 +374,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                             <AnimatedButton
                                 title={t('backToHome')}
                                 onPress={handleBackToHome}
-                                variant="outline"
+                                variant={feedbackSubmitted ? 'primary' : 'outline'}
                                 style={{ marginTop: 8 }}
                             />
                         </Animated.View>

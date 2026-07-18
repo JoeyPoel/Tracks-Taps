@@ -217,4 +217,7 @@ export const tourService = {
 
         return updatedTour;
     },
+    async deleteTour(id: number) {
+        return await tourRepository.deleteTour(id);
+    }
 };

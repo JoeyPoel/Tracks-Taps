@@ -422,4 +422,17 @@ export const tourRepository = {
             }
         });
     },
+    async deleteTour(id: number) {
+        return await prisma.$transaction(async (tx) => {
+            await tx.gameInvite.deleteMany({
+                where: { tourId: id }
+            });
+            await tx.userPlayedTour.deleteMany({
+                where: { tourId: id }
+            });
+            return await tx.tour.delete({
+                where: { id }
+            });
+        });
+    }
 };

@@ -45,6 +45,8 @@ export async function POST(request: Request) {
             return await adminController.deleteUser(request, body);
         } else if (action === 'delete-review') {
             return await adminController.deleteReview(request, body);
+        } else if (action === 'delete-tour') {
+            return await adminController.deleteTour(request, body);
         } else if (action === 'update-user') {
             return await adminController.updateUser(request, body);
         }

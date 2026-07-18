@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TextInput, ScrollView, TouchableOpacity, ActivityIndicator, Modal, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { TextComponent } from '../common/TextComponent';
 import { adminStyles as styles } from './adminStyles';
 import { TourMetadata, ChallengeMetadata, StopMetadata } from '../../hooks/useAdminState';
@@ -20,6 +21,7 @@ interface ModerationTabProps {
         moderatingAction: { id: number; action: 'approve' | 'reject' } | null;
         openRejectionPrompt: (id: number) => void;
         handleModerateTour: (id: number, status: 'PUBLISHED' | 'REJECTED') => Promise<void>;
+        handleDeleteTour: (id: number) => Promise<void>;
         rejectionModalVisible: boolean;
         setRejectionModalVisible: (val: boolean) => void;
         rejectionReasonText: string;
@@ -49,6 +51,7 @@ export function ModerationTab({ adminState }: ModerationTabProps) {
         moderatingAction,
         openRejectionPrompt,
         handleModerateTour,
+        handleDeleteTour,
         rejectionModalVisible,
         setRejectionModalVisible,
         rejectionReasonText,
@@ -210,9 +213,18 @@ export function ModerationTab({ adminState }: ModerationTabProps) {
                     <View key={tour.id} style={[styles.tourCard, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
                         <View style={styles.tourHeader}>
                             <View style={styles.tourHeaderLeft}>
-                                <TextComponent variant="body" bold color={theme.textPrimary}>
-                                    {tour.title}
-                                </TextComponent>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                                    <TextComponent variant="body" bold color={theme.textPrimary}>
+                                        {tour.title}
+                                    </TextComponent>
+                                    {tour.status === 'REJECTED' && (
+                                        <View style={{ backgroundColor: theme.danger + '20', borderColor: theme.danger, borderWidth: 1, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
+                                            <TextComponent variant="caption" bold color={theme.danger} style={{ fontSize: 9 }}>
+                                                DISAPPROVED
+                                            </TextComponent>
+                                        </View>
+                                    )}
+                                </View>
                                 <TextComponent variant="caption" color={theme.textSecondary} style={{ marginTop: 2 }}>
                                     By {tour.author.name} • {tour.location}
                                 </TextComponent>
@@ -221,6 +233,14 @@ export function ModerationTab({ adminState }: ModerationTabProps) {
                                 {tour.points} pts
                             </TextComponent>
                         </View>
+
+                        {tour.imageUrl ? (
+                            <Image
+                                source={{ uri: tour.imageUrl }}
+                                style={{ width: '100%', height: 120, borderRadius: 8, marginVertical: 8 }}
+                                contentFit="cover"
+                            />
+                        ) : null}
 
                         <TextComponent variant="caption" color={theme.textSecondary} style={styles.tourDescription}>
                             {tour.description || 'No description provided.'}
@@ -315,40 +335,82 @@ export function ModerationTab({ adminState }: ModerationTabProps) {
                             </View>
                         )}
 
-                        <View style={styles.moderationActions}>
-                            <TouchableOpacity
-                                style={[styles.moderationBtn, { backgroundColor: theme.danger + '20', borderColor: theme.danger, borderWidth: 1 }]}
-                                onPress={() => openRejectionPrompt(tour.id)}
-                                disabled={moderatingAction !== null}
-                            >
-                                {moderatingAction?.id === tour.id && moderatingAction?.action === 'reject' ? (
-                                    <ActivityIndicator size="small" color={theme.danger} />
-                                ) : (
-                                    <>
-                                        <Ionicons name="close" size={16} color={theme.danger} style={{ marginRight: 6 }} />
-                                        <TextComponent variant="caption" bold color={theme.danger}>
-                                            Reject
+                        <View style={[styles.moderationActions, { gap: 8 }]}>
+                            {tour.status === 'REJECTED' ? (
+                                <>
+                                    <TouchableOpacity
+                                        style={[styles.moderationBtn, { backgroundColor: theme.danger, flex: 1 }]}
+                                        onPress={() => handleDeleteTour(tour.id)}
+                                        disabled={moderatingAction !== null}
+                                    >
+                                        <Ionicons name="trash-outline" size={16} color={theme.textOnPrimary} style={{ marginRight: 6 }} />
+                                        <TextComponent variant="caption" bold color={theme.textOnPrimary}>
+                                            Delete Entirely
                                         </TextComponent>
-                                    </>
-                                )}
-                            </TouchableOpacity>
+                                    </TouchableOpacity>
 
-                            <TouchableOpacity
-                                style={[styles.moderationBtn, { backgroundColor: theme.primary + '20', borderColor: theme.primary, borderWidth: 1 }]}
-                                onPress={() => handleModerateTour(tour.id, 'PUBLISHED')}
-                                disabled={moderatingAction !== null}
-                            >
-                                {moderatingAction?.id === tour.id && moderatingAction?.action === 'approve' ? (
-                                    <ActivityIndicator size="small" color={theme.primary} />
-                                ) : (
-                                    <>
-                                        <Ionicons name="checkmark" size={16} color={theme.primary} style={{ marginRight: 6 }} />
-                                        <TextComponent variant="caption" bold color={theme.primary}>
-                                            Approve
-                                        </TextComponent>
-                                    </>
-                                )}
-                            </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={[styles.moderationBtn, { backgroundColor: theme.primary + '20', borderColor: theme.primary, borderWidth: 1, flex: 1 }]}
+                                        onPress={() => handleModerateTour(tour.id, 'PUBLISHED')}
+                                        disabled={moderatingAction !== null}
+                                    >
+                                        {moderatingAction?.id === tour.id && moderatingAction?.action === 'approve' ? (
+                                            <ActivityIndicator size="small" color={theme.primary} />
+                                        ) : (
+                                            <>
+                                                <Ionicons name="checkmark" size={16} color={theme.primary} style={{ marginRight: 6 }} />
+                                                <TextComponent variant="caption" bold color={theme.primary}>
+                                                    Re-approve
+                                                </TextComponent>
+                                            </>
+                                        )}
+                                    </TouchableOpacity>
+                                </>
+                            ) : (
+                                <>
+                                    <TouchableOpacity
+                                        style={[styles.moderationBtn, { backgroundColor: theme.danger + '20', borderColor: theme.danger, borderWidth: 1, flex: 1 }]}
+                                        onPress={() => openRejectionPrompt(tour.id)}
+                                        disabled={moderatingAction !== null}
+                                    >
+                                        {moderatingAction?.id === tour.id && moderatingAction?.action === 'reject' ? (
+                                            <ActivityIndicator size="small" color={theme.danger} />
+                                        ) : (
+                                            <>
+                                                <Ionicons name="close" size={16} color={theme.danger} style={{ marginRight: 6 }} />
+                                                <TextComponent variant="caption" bold color={theme.danger}>
+                                                    Reject
+                                                </TextComponent>
+                                            </>
+                                        )}
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                        style={[styles.moderationBtn, { backgroundColor: theme.primary + '20', borderColor: theme.primary, borderWidth: 1, flex: 1 }]}
+                                        onPress={() => handleModerateTour(tour.id, 'PUBLISHED')}
+                                        disabled={moderatingAction !== null}
+                                    >
+                                        {moderatingAction?.id === tour.id && moderatingAction?.action === 'approve' ? (
+                                            <ActivityIndicator size="small" color={theme.primary} />
+                                        ) : (
+                                            <>
+                                                <Ionicons name="checkmark" size={16} color={theme.primary} style={{ marginRight: 6 }} />
+                                                <TextComponent variant="caption" bold color={theme.primary}>
+                                                    Approve
+                                                </TextComponent>
+                                            </>
+                                        )}
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                        style={[styles.moderationBtn, { backgroundColor: theme.danger + '10', borderColor: theme.danger, borderWidth: 1, width: 44, justifyContent: 'center', alignItems: 'center' }]}
+                                        onPress={() => handleDeleteTour(tour.id)}
+                                        disabled={moderatingAction !== null}
+                                    >
+                                        <Ionicons name="trash-outline" size={16} color={theme.danger} />
+                                    </TouchableOpacity>
+                                </>
+                            )}
                         </View>
                     </View>
                 ))
