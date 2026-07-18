@@ -6,6 +6,7 @@ import { FlagIcon } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
+import { LeafletMap } from '../components/common/LeafletMap';
 import Animated, { SlideInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TourCard from '../components/exploreScreen/TourCard';
@@ -37,12 +38,79 @@ export default function MapScreen() {
     isFetchingDetails
   } = useMapScreenLogic();
 
+  if (Platform.OS === 'android') {
+    const leafletMarkers = !selectedTour
+      ? (tours || []).map((tour: any) => {
+          const lat = tour.startLat ?? (tour.stops?.find((s: any) => s.number === 1) || tour.stops?.[0])?.latitude;
+          const lng = tour.startLng ?? (tour.stops?.find((s: any) => s.number === 1) || tour.stops?.[0])?.longitude;
+          return {
+            id: tour.id,
+            latitude: lat,
+            longitude: lng,
+            title: tour.title,
+            description: t('clickToViewRoute'),
+            color: theme.primary
+          };
+        }).filter(m => m.latitude && m.longitude)
+      : (selectedTour.stops || []).map((stop: any) => ({
+          id: stop.id,
+          latitude: stop.latitude,
+          longitude: stop.longitude,
+          title: `${stop.number}. ${stop.name}`,
+          description: stop.description,
+          color: theme.primary
+        }));
+
+    const leafletPolylines = selectedTour && routeSegments
+      ? routeSegments.map((segment: any) => ({
+          coordinates: segment.coords,
+          strokeColor: theme.primary,
+          strokeWidth: 4
+        }))
+      : [];
+
+    return (
+      <View style={styles.container}>
+        <LeafletMap
+          ref={mapRef as any}
+          style={styles.map}
+          initialRegion={{
+            latitude: 52.3676,
+            longitude: 4.9041,
+            latitudeDelta: 0.1,
+            longitudeDelta: 0.1,
+          }}
+          markers={leafletMarkers}
+          polylines={leafletPolylines}
+          onMarkerPress={(markerId) => {
+            if (!selectedTour) {
+              const tour = tours.find(t => t.id === markerId);
+              if (tour) handleTourSelect(tour);
+            }
+          }}
+        />
+        {selectedTour && (
+          <TouchableOpacity
+            style={[
+              styles.backButton,
+              { top: insets.top + 16 }
+            ]}
+            onPress={handleBack}
+          >
+            <BlurView intensity={30} tint="dark" style={styles.backButtonBlur}>
+              <Ionicons name="arrow-back" size={24} color="#FFF" />
+            </BlurView>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <MapView
         ref={mapRef}
         style={styles.map}
-
         showsUserLocation={true}
         userInterfaceStyle={mode}
         showsMyLocationButton={false}

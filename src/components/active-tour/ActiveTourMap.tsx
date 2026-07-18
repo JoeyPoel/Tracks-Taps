@@ -4,7 +4,7 @@ import * as Location from 'expo-location';
 import React, { useEffect, useRef, useState } from 'react';
 import { Linking, Modal, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ArrowsPointingOutIcon } from 'react-native-heroicons/outline';
-import MapView, { LatLng, Marker, Polyline } from 'react-native-maps';
+import MapView, { LatLng, Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -13,6 +13,7 @@ import { StopType } from '../../types/models';
 import { getStopIcon } from '../../utils/stopIcons';
 import { AnimatedPressable } from '../common/AnimatedPressable';
 import { TextComponent } from '../common/TextComponent';
+import { LeafletMap } from '../common/LeafletMap';
 
 interface StopLocation {
     latitude: number;
@@ -174,6 +175,122 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
         }
     };
 
+    if ((Platform.OS as string) === 'android') {
+        const leafletMarkers = [
+            {
+                id: currentStop.id,
+                latitude: currentStop.latitude,
+                longitude: currentStop.longitude,
+                title: currentStop.name,
+                color: theme.primary
+            }
+        ];
+        if (previousStop) {
+            leafletMarkers.push({
+                id: previousStop.id,
+                latitude: previousStop.latitude,
+                longitude: previousStop.longitude,
+                title: previousStop.name,
+                color: theme.textSecondary
+            });
+        }
+
+        const leafletPolylines = previewRoute && previewRoute.coords.length > 0
+            ? [
+                {
+                    coordinates: previewRoute.coords,
+                    strokeColor: theme.primary,
+                    strokeWidth: 3
+                }
+            ]
+            : [];
+
+        const leafletNavPolylines = navigationRoute && navigationRoute.coords.length > 0
+            ? [
+                {
+                    coordinates: navigationRoute.coords,
+                    strokeColor: theme.primary,
+                    strokeWidth: 4
+                }
+            ]
+            : [];
+
+        return (
+            <>
+                {/* Small Preview Map */}
+                <View style={styles.container}>
+                    <LeafletMap
+                        ref={mapRef as any}
+                        style={styles.map}
+                        initialRegion={{
+                            latitude: currentStop.latitude,
+                            longitude: currentStop.longitude,
+                            latitudeDelta: 0.02,
+                            longitudeDelta: 0.02,
+                        }}
+                        markers={leafletMarkers}
+                        polylines={leafletPolylines}
+                    />
+
+                    {/* Expand Button - White Background */}
+                    <AnimatedPressable
+                        style={[styles.expandButton, { backgroundColor: theme.bgPrimary, shadowColor: theme.shadowColor }]}
+                        onPress={() => setIsFullScreen(true)}
+                        interactionScale="subtle"
+                        haptic="selection"
+                    >
+                        <ArrowsPointingOutIcon size={20} color={theme.textPrimary} />
+                    </AnimatedPressable>
+                </View>
+
+                {/* Full Screen Modal */}
+                <Modal
+                    visible={isFullScreen}
+                    animationType="slide"
+                    presentationStyle="fullScreen"
+                    onRequestClose={() => setIsFullScreen(false)}
+                >
+                    <View style={[styles.fullScreenContainer, { backgroundColor: theme.bgPrimary }]}>
+                        <LeafletMap
+                            ref={fullScreenMapRef as any}
+                            style={styles.fullScreenMap}
+                            initialRegion={{
+                                latitude: currentStop.latitude,
+                                longitude: currentStop.longitude,
+                                latitudeDelta: 0.02,
+                                longitudeDelta: 0.02,
+                            }}
+                            markers={leafletMarkers}
+                            polylines={leafletNavPolylines}
+                        />
+
+                        {/* Top Bar / Back Button */}
+                        <View style={[styles.topBar, { top: insets.top + 10 }]}>
+                            <TouchableOpacity
+                                onPress={() => setIsFullScreen(false)}
+                                style={styles.backButton}
+                            >
+                                <BlurView intensity={30} tint="dark" style={styles.backButtonBlur}>
+                                    <Ionicons name="arrow-back" size={24} color="#FFF" />
+                                </BlurView>
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* External Navigation Button */}
+                        <TouchableOpacity
+                            style={[styles.externalNavButton, { backgroundColor: theme.primary, top: insets.top + 10 }]}
+                            onPress={handleExternalNavigation}
+                        >
+                            <Ionicons name="navigate" size={20} color={theme.textOnPrimary} />
+                            <TextComponent style={styles.externalNavText} color={theme.textOnPrimary} bold>{t('navigate')}</TextComponent>
+                        </TouchableOpacity>
+
+                    </View>
+                </Modal>
+            </>
+        );
+    }
+
     return (
         <>
             {/* Small Preview Map */}
@@ -222,7 +339,6 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                             coordinates={previewRoute.coords}
                             strokeColor={theme.primary}
                             strokeWidth={3}
-                            lineDashPattern={Platform.OS === 'android' && previewRoute.type === 'DIRECT' ? [5, 5] : undefined}
                         />
                     )}
                 </MapView>
@@ -276,7 +392,6 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                                 coordinates={navigationRoute.coords}
                                 strokeColor={theme.primary}
                                 strokeWidth={4}
-                                lineDashPattern={Platform.OS === 'android' && navigationRoute.type === 'DIRECT' ? [5, 5] : undefined}
                             />
                         )}
                     </MapView>

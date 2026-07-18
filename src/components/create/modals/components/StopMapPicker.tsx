@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Keyboard, LayoutAnimation, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { LeafletMap } from '@/src/components/common/LeafletMap';
 import MapView, { Marker, Polyline, PROVIDER_DEFAULT, Region } from 'react-native-maps';
 
 interface StopMapPickerProps {
@@ -199,88 +200,146 @@ export function StopMapPicker({
         }
     }
 
+    const leafletMarkers = [
+        ...existingStops.map((stop, index) => ({
+            id: `stop-${index}`,
+            latitude: stop.latitude,
+            longitude: stop.longitude,
+            title: `${index + 1}. ${stop.name}`,
+            color: theme.textSecondary
+        })),
+        ...(marker && !selectedResult ? [{
+            id: 'placed-marker',
+            latitude: marker.latitude,
+            longitude: marker.longitude,
+            title: 'Staged Location',
+            color: theme.primary
+        }] : []),
+        ...(isResultsVisible ? results.map((result, idx) => ({
+            id: `search-${idx}`,
+            latitude: result.latitude,
+            longitude: result.longitude,
+            title: result.name,
+            description: result.description,
+            color: theme.secondary
+        })) : []),
+        ...(selectedResult && !isResultsVisible ? [{
+            id: 'selected-result',
+            latitude: selectedResult.item.latitude,
+            longitude: selectedResult.item.longitude,
+            title: selectedResult.item.name,
+            description: selectedResult.item.description,
+            color: theme.primary
+        }] : [])
+    ];
+
+    const leafletPolylines = [
+        {
+            coordinates: routeCoordinates,
+            strokeColor: theme.primary,
+            strokeWidth: 3
+        }
+    ];
+
     return (
         <View style={[styles.mapContainer, isExpanded && styles.expandedContainer]}>
-            <MapView
-                ref={mapRef}
-                provider={PROVIDER_DEFAULT}
-                style={styles.map}
-                region={region}
-                userInterfaceStyle={mode}
-                onRegionChangeComplete={(newRegion) => {
-                    if (!isAnimating.current) {
-                        setRegion(newRegion);
-                    }
-                }}
-                onPress={handleMapPress}
-                showsUserLocation
-                showsMyLocationButton
-            >
-                {existingStops.map((stop, index) => (
-                    <Marker
-                        key={index}
-                        coordinate={{ latitude: stop.latitude, longitude: stop.longitude }}
-                        title={`${index + 1}. ${stop.name}`}
-                        style={{ opacity: 0.6 }}
-                        tracksViewChanges={false}
-                    >
-                        <View style={[styles.markerPip, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
-                            {getStopIcon(stop.type || StopType.Viewpoint, 14, theme.textSecondary)}
-                        </View>
-                    </Marker>
-                ))}
-
-                <Polyline
-                    coordinates={routeCoordinates}
-                    strokeColor={theme.primary}
-                    strokeWidth={3}
-                    lineDashPattern={Platform.OS === 'android' ? [5, 5] : undefined}
+            {Platform.OS === 'android' ? (
+                <LeafletMap
+                    ref={mapRef as any}
+                    style={styles.map}
+                    initialRegion={region}
+                    markers={leafletMarkers}
+                    polylines={leafletPolylines}
+                    onPress={(coord: any) => handleMapPress({ nativeEvent: { coordinate: coord } })}
+                    onMarkerPress={(markerId: string | number) => {
+                        if (typeof markerId === 'string' && markerId.startsWith('search-')) {
+                            const idx = parseInt(markerId.split('-')[1]);
+                            const result = results[idx];
+                            if (result) handleStageResult(result, idx);
+                        }
+                    }}
                 />
+            ) : (
+                <MapView
+                    ref={mapRef}
+                    provider={PROVIDER_DEFAULT}
+                    style={styles.map}
+                    region={region}
+                    userInterfaceStyle={mode}
+                    onRegionChangeComplete={(newRegion) => {
+                        if (!isAnimating.current) {
+                            setRegion(newRegion);
+                        }
+                    }}
+                    onPress={handleMapPress}
+                    showsUserLocation
+                    showsMyLocationButton
+                >
+                    {existingStops.map((stop, index) => (
+                        <Marker
+                            key={index}
+                            coordinate={{ latitude: stop.latitude, longitude: stop.longitude }}
+                            title={`${index + 1}. ${stop.name}`}
+                            style={{ opacity: 0.6 }}
+                            tracksViewChanges={false}
+                        >
+                            <View style={[styles.markerPip, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
+                                {getStopIcon(stop.type || StopType.Viewpoint, 14, theme.textSecondary)}
+                            </View>
+                        </Marker>
+                    ))}
 
-                {marker && !selectedResult && (
-                    <Marker key={`marker-${marker.latitude}-${marker.longitude}`} coordinate={marker} zIndex={100} tracksViewChanges={false}>
-                        <View style={[styles.markerPip, { backgroundColor: theme.primary, borderColor: theme.borderPrimary, borderWidth: 2 }]}>
-                            {getStopIcon(currentStopType, 16, theme.textOnPrimary)}
-                        </View>
-                    </Marker>
-                )}
+                    <Polyline
+                        coordinates={routeCoordinates}
+                        strokeColor={theme.primary}
+                        strokeWidth={3}
+                    />
 
-                {/* Search Result Markers (Apple Maps style) */}
-                {isResultsVisible && results.map((result, idx) => (
-                    <Marker
-                        key={`search-${idx}`}
-                        coordinate={{ latitude: result.latitude, longitude: result.longitude }}
-                        onPress={() => handleStageResult(result, idx)}
-                        zIndex={50}
-                        tracksViewChanges={false}
-                    >
-                        <View style={[
-                            styles.searchMarker, 
-                            { backgroundColor: theme.secondary, borderColor: theme.bgSecondary },
-                            selectedResult?.item.latitude === result.latitude && { transform: [{ scale: 1.2 }], borderWidth: 3, borderColor: theme.primary }
-                        ]}>
-                            <TextComponent bold variant="caption" color={theme.textOnSecondary}>{idx + 1}</TextComponent>
-                        </View>
-                    </Marker>
-                ))}
+                    {marker && !selectedResult && (
+                        <Marker key={`marker-${marker.latitude}-${marker.longitude}`} coordinate={marker} zIndex={100} tracksViewChanges={false}>
+                            <View style={[styles.markerPip, { backgroundColor: theme.primary, borderColor: theme.borderPrimary, borderWidth: 2 }]}>
+                                {getStopIcon(currentStopType, 16, theme.textOnPrimary)}
+                            </View>
+                        </Marker>
+                    )}
 
-                {/* Explicit Highlight for Selected (if list is cleared) */}
-                {selectedResult && !isResultsVisible && (
-                    <Marker 
-                        coordinate={{ latitude: selectedResult.item.latitude, longitude: selectedResult.item.longitude }} 
-                        zIndex={100}
-                        onPress={() => {
-                            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-                            setSelectedResult(selectedResult); // Trigger re-center/card if needed
-                        }}
-                        tracksViewChanges={false}
-                    >
-                        <View style={[styles.markerPip, { backgroundColor: theme.primary, borderColor: theme.borderPrimary, borderWidth: 2 }]}>
-                            {getStopIcon(currentStopType, 16, theme.textOnPrimary)}
-                        </View>
-                    </Marker>
-                )}
-            </MapView>
+                    {/* Search Result Markers (Apple Maps style) */}
+                    {isResultsVisible && results.map((result, idx) => (
+                        <Marker
+                            key={`search-${idx}`}
+                            coordinate={{ latitude: result.latitude, longitude: result.longitude }}
+                            onPress={() => handleStageResult(result, idx)}
+                            zIndex={50}
+                            tracksViewChanges={false}
+                        >
+                            <View style={[
+                                styles.searchMarker, 
+                                { backgroundColor: theme.secondary, borderColor: theme.bgSecondary },
+                                selectedResult?.item.latitude === result.latitude && { transform: [{ scale: 1.2 }], borderWidth: 3, borderColor: theme.primary }
+                            ]}>
+                                <TextComponent bold variant="caption" color={theme.textOnSecondary}>{idx + 1}</TextComponent>
+                            </View>
+                        </Marker>
+                    ))}
+
+                    {/* Explicit Highlight for Selected (if list is cleared) */}
+                    {selectedResult && !isResultsVisible && (
+                        <Marker 
+                            coordinate={{ latitude: selectedResult.item.latitude, longitude: selectedResult.item.longitude }} 
+                            zIndex={100}
+                            onPress={() => {
+                                LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                                setSelectedResult(selectedResult); // Trigger re-center/card if needed
+                            }}
+                            tracksViewChanges={false}
+                        >
+                            <View style={[styles.markerPip, { backgroundColor: theme.primary, borderColor: theme.borderPrimary, borderWidth: 2 }]}>
+                                {getStopIcon(currentStopType, 16, theme.textOnPrimary)}
+                            </View>
+                        </Marker>
+                    )}
+                </MapView>
+            )}
 
             {/* Search Bar Overlay */}
             <View style={styles.searchOverlay}>
