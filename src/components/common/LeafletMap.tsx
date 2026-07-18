@@ -73,6 +73,10 @@ const LEAFLET_HTML = `
     var userLocationMarker = null;
 
     function initMap(lat, lng, zoom) {
+      if (typeof L === 'undefined') {
+        setTimeout(function() { initMap(lat, lng, zoom); }, 100);
+        return;
+      }
       map = L.map('map', { zoomControl: false }).setView([lat, lng], zoom);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -107,17 +111,22 @@ const LEAFLET_HTML = `
       window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'ready' }));
     }
 
-    window.addEventListener('message', function(event) {
+    function handleMessage(event) {
       try {
         var message = JSON.parse(event.data);
         if (message.type === 'init') {
           initMap(message.lat, message.lng, message.zoom);
         } else if (message.type === 'animateToRegion') {
-          map.setView([message.lat, message.lng], message.zoom || map.getZoom());
+          if (map) {
+            map.setView([message.lat, message.lng], message.zoom || map.getZoom());
+          }
         } else if (message.type === 'fitToCoordinates') {
-          var bounds = L.latLngBounds(message.coords.map(function(c) { return [c.latitude, c.longitude]; }));
-          map.fitBounds(bounds, { padding: [30, 30] });
+          if (map && message.coords && message.coords.length > 0) {
+            var bounds = L.latLngBounds(message.coords.map(function(c) { return [c.latitude, c.longitude]; }));
+            map.fitBounds(bounds, { padding: [30, 30] });
+          }
         } else if (message.type === 'updateMarkers') {
+          if (!map) return;
           // Clear old markers
           Object.keys(markersMap).forEach(function(key) { map.removeLayer(markersMap[key]); });
           markersMap = {};
@@ -145,6 +154,7 @@ const LEAFLET_HTML = `
             markersMap[m.id] = marker;
           });
         } else if (message.type === 'updatePolylines') {
+          if (!map) return;
           polylineObjects.forEach(function(p) { map.removeLayer(p); });
           polylineObjects = [];
 
@@ -160,7 +170,10 @@ const LEAFLET_HTML = `
       } catch (e) {
         console.error("Leaflet postMessage error:", e);
       }
-    });
+    }
+
+    window.addEventListener('message', handleMessage);
+    document.addEventListener('message', handleMessage);
   </script>
 </body>
 </html>
