@@ -330,7 +330,7 @@ export default function ExploreScreen() {
             author={tourItem.author?.name || t('unknown')}
             imageUrl={tourItem.imageUrl}
             distance={`${tourItem.distance} km`}
-            duration={`${tourItem.duration} min`}
+            duration={`${(tourItem.duration / 60).toFixed(1)} ${t('hrs')}`}
             stops={tourItem._count?.stops || 0}
             rating={
               tourItem.reviews && tourItem.reviews.length > 0

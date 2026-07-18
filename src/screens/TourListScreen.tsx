@@ -281,7 +281,7 @@ export default function TourListScreen() {
                                     author={item.author?.name || 'Unknown'}
                                     imageUrl={item.imageUrl}
                                     distance={item.distance ? `${item.distance} km` : '0 km'}
-                                    duration={item.duration ? `${item.duration} min` : '0 min'}
+                                    duration={item.duration ? `${(item.duration / 60).toFixed(1)} ${t('hrs')}` : `0.0 ${t('hrs')}`}
                                     stops={item._count?.stops ?? item.stops?.length ?? 0}
                                     rating={item.rating || (item.reviews?.length > 0 ? (item.reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / item.reviews.length) : 0)}
                                     reviewCount={item._count?.reviews ?? item.reviews?.length ?? 0}

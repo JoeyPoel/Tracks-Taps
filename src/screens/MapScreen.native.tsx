@@ -267,7 +267,7 @@ export default function MapScreen() {
             author={(selectedTour as any).author?.name || 'Tracks & Taps'}
             imageUrl={selectedTour.imageUrl}
             distance={`${(selectedTour as any).distance} km`}
-            duration={`${(selectedTour as any).duration} min`}
+            duration={`${((selectedTour as any).duration / 60).toFixed(1)} ${t('hrs')}`}
             stops={(selectedTour as any).stops?.length || 0}
             rating={selectedTour.averageRating ?? (selectedTour.reviews && selectedTour.reviews.length > 0
               ? selectedTour.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / selectedTour.reviews.length

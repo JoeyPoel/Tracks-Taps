@@ -303,7 +303,7 @@ export default function FriendProfileScreen() {
                                     author={latestCreated.author?.name || t('unknown')}
                                     imageUrl={latestCreated.imageUrl}
                                     distance={`${latestCreated.distance} ${t('km')}`}
-                                    duration={`${latestCreated.duration} ${t('min')}`}
+                                    duration={`${(latestCreated.duration / 60).toFixed(1)} ${t('hrs')}`}
                                     stops={latestCreated._count?.stops || 0}
                                     rating={latestCreated.reviews?.reduce((acc: number, r: any) => acc + r.rating, 0) / (latestCreated.reviews?.length || 1) || 0}
                                     reviewCount={latestCreated._count?.reviews || 0}
@@ -328,7 +328,7 @@ export default function FriendProfileScreen() {
                                     author={latestPlayed.tour.author?.name || t('unknown')}
                                     imageUrl={latestPlayed.tour.imageUrl}
                                     distance={`${latestPlayed.tour.distance} ${t('km')}`}
-                                    duration={`${latestPlayed.tour.duration} ${t('min')}`}
+                                    duration={`${(latestPlayed.tour.duration / 60).toFixed(1)} ${t('hrs')}`}
                                     stops={latestPlayed.tour._count?.stops || 0}
                                     rating={latestPlayed.tour.reviews?.reduce((acc: number, r: any) => acc + r.rating, 0) / (latestPlayed.tour.reviews?.length || 1) || 0}
                                     reviewCount={latestPlayed.tour._count?.reviews || 0}

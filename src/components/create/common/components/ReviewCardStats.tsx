@@ -32,18 +32,43 @@ export function ReviewCardStats({ draft, updateDraft }: Props) {
             </View>
 
             {/* Duration */}
-            <View style={styles.statItem}>
-                <ClockIcon size={16} color={theme.textSecondary} />
-                <TextInput
-                    value={String(draft.duration)}
-                    onChangeText={(text) => updateDraft('duration', text)}
-                    keyboardType="numeric"
-                    style={[styles.statInput, { color: theme.textSecondary }]}
-                />
-                <TextComponent style={[styles.statText, { marginLeft: 2 }]} color={theme.textSecondary} variant="body">
-                    {t('min')}
-                </TextComponent>
-            </View>
+            {(() => {
+                const [inputValue, setInputValue] = React.useState('');
+
+                React.useEffect(() => {
+                    const mins = parseInt(draft.duration) || 0;
+                    const hrs = (mins / 60).toFixed(1);
+                    if (parseFloat(inputValue) !== parseFloat(hrs)) {
+                        setInputValue(hrs);
+                    }
+                }, [draft.duration]);
+
+                const handleTextChange = (text: string) => {
+                    setInputValue(text);
+                    const parsedHrs = parseFloat(text);
+                    if (!isNaN(parsedHrs)) {
+                        const mins = Math.round(parsedHrs * 60);
+                        updateDraft('duration', String(mins));
+                    } else {
+                        updateDraft('duration', '0');
+                    }
+                };
+
+                return (
+                    <View style={styles.statItem}>
+                        <ClockIcon size={16} color={theme.textSecondary} />
+                        <TextInput
+                            value={inputValue}
+                            onChangeText={handleTextChange}
+                            keyboardType="numeric"
+                            style={[styles.statInput, { color: theme.textSecondary }]}
+                        />
+                        <TextComponent style={[styles.statText, { marginLeft: 2 }]} color={theme.textSecondary} variant="body">
+                            {t('hrs')}
+                        </TextComponent>
+                    </View>
+                );
+            })()}
 
             {/* Stops */}
             <View style={styles.statItem}>

@@ -174,7 +174,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           tour.title,
           tour.author?.name || t('unknown'),
           tour.genre || t('unknown'),
-          tour.duration,
+          (tour.duration / 60).toFixed(1),
           tour.distance,
           stopsCount,
           desc
@@ -355,7 +355,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           <StatCard
             icon="time-outline"
             label={t('duration')}
-            value={`${tour.duration} ${t('min')}`}
+            value={`${(tour.duration / 60).toFixed(1)} ${t('hrs')}`}
             theme={theme}
             delay={300}
           />
@@ -391,7 +391,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
                       tour.title,
                       tour.author?.name || t('unknown'),
                       tour.genre || t('unknown'),
-                      tour.duration,
+                      (tour.duration / 60).toFixed(1),
                       tour.distance,
                       stopsCount,
                       desc

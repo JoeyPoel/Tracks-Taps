@@ -147,7 +147,7 @@ export default function SavedTripDetailScreen() {
                             author={item.author?.name || 'Unknown'}
                             imageUrl={item.imageUrl}
                             distance={item.distance ? `${item.distance} ${t('km')}` : `0 ${t('km')}`}
-                            duration={item.duration ? `${item.duration} ${t('min')}` : `0 ${t('min')}`}
+                            duration={item.duration ? `${(item.duration / 60).toFixed(1)} ${t('hrs')}` : `0.0 ${t('hrs')}`}
                             stops={item.stops?.length || 0}
                             rating={rating}
                             reviewCount={reviewCount}
