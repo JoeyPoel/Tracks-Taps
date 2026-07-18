@@ -14,6 +14,8 @@ interface ModerationTabProps {
         setModerationSearchQuery: (val: string) => void;
         moderationSortOption: 'oldest' | 'newest' | 'points-desc' | 'distance-desc';
         setModerationSortOption: (val: 'oldest' | 'newest' | 'points-desc' | 'distance-desc') => void;
+        moderationStatusTab: 'pending' | 'rejected';
+        setModerationStatusTab: (val: 'pending' | 'rejected') => void;
         loadingPending: boolean;
         filteredAndSortedTours: TourMetadata[];
         expandedTours: Record<number, boolean>;
@@ -44,6 +46,8 @@ export function ModerationTab({ adminState }: ModerationTabProps) {
         setModerationSearchQuery,
         moderationSortOption,
         setModerationSortOption,
+        moderationStatusTab,
+        setModerationStatusTab,
         loadingPending,
         filteredAndSortedTours,
         expandedTours,
@@ -144,9 +148,55 @@ export function ModerationTab({ adminState }: ModerationTabProps) {
                     )}
                 </TouchableOpacity>
             </View>
-            <TextComponent variant="h3" bold color={theme.textPrimary} style={styles.sectionHeading}>
-                {t('toursAwaitingReview')}
-            </TextComponent>
+            {/* Status Tab Switch */}
+            <View style={{
+                flexDirection: 'row',
+                backgroundColor: theme.bgSecondary,
+                borderRadius: 12,
+                padding: 4,
+                marginBottom: 16,
+                marginTop: 16,
+                borderWidth: 1,
+                borderColor: theme.borderPrimary
+            }}>
+                <TouchableOpacity
+                    style={{
+                        flex: 1,
+                        paddingVertical: 10,
+                        alignItems: 'center',
+                        borderRadius: 8,
+                        backgroundColor: moderationStatusTab === 'pending' ? theme.primary : 'transparent'
+                    }}
+                    onPress={() => setModerationStatusTab('pending')}
+                >
+                    <TextComponent
+                        variant="body"
+                        bold
+                        color={moderationStatusTab === 'pending' ? theme.textOnPrimary : theme.textSecondary}
+                    >
+                        Awaiting Review
+                    </TextComponent>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={{
+                        flex: 1,
+                        paddingVertical: 10,
+                        alignItems: 'center',
+                        borderRadius: 8,
+                        backgroundColor: moderationStatusTab === 'rejected' ? theme.primary : 'transparent'
+                    }}
+                    onPress={() => setModerationStatusTab('rejected')}
+                >
+                    <TextComponent
+                        variant="body"
+                        bold
+                        color={moderationStatusTab === 'rejected' ? theme.textOnPrimary : theme.textSecondary}
+                    >
+                        Disapproved
+                    </TextComponent>
+                </TouchableOpacity>
+            </View>
 
             {/* Search Bar */}
             <View style={[styles.searchBarContainer, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>

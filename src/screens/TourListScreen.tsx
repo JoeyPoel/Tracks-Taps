@@ -295,6 +295,7 @@ export default function TourListScreen() {
                         );
                     }
 
+                    const isApproved = item.status === 'PUBLISHED';
                     const isRejected = item.status === 'REJECTED';
                     const isPending = item.status === 'PENDING_REVIEW';
 
@@ -316,9 +317,9 @@ export default function TourListScreen() {
                                     genre={item.genre}
                                     tourType={item.type}
                                     onPress={() => router.push(`/tour/${item.id}`)}
-                                    onEdit={type === 'created' ? () => router.push({ pathname: '/(tabs)/create', params: { tourId: item.id } }) : undefined}
+                                    onEdit={undefined}
                                 />
-                                {isPending && (
+                                {type !== 'created' && isPending && (
                                     <View style={{
                                         backgroundColor: theme.warning + '15',
                                         borderColor: theme.warning + '30',
@@ -341,7 +342,7 @@ export default function TourListScreen() {
                                         </TextComponent>
                                     </View>
                                 )}
-                                {isRejected && (
+                                {type !== 'created' && isRejected && (
                                     <View style={{
                                         backgroundColor: theme.danger + '15',
                                         borderColor: theme.danger + '30',
@@ -370,21 +371,63 @@ export default function TourListScreen() {
                                     </View>
                                 )}
                                 {type === 'created' && (
-                                    <View style={{ flexDirection: 'row', gap: 12, marginTop: 8, justifyContent: 'flex-end', paddingHorizontal: 4 }}>
-                                        <TouchableOpacity
-                                            onPress={() => router.push({ pathname: '/(tabs)/create', params: { tourId: item.id } })}
-                                            style={[styles.actionButton, { backgroundColor: theme.primary + '15' }]}
-                                        >
-                                            <Ionicons name="pencil" size={16} color={theme.primary} />
-                                            <TextComponent variant="label" color={theme.primary} style={{ marginLeft: 4 }}>{t('edit')}</TextComponent>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            onPress={() => handleDeleteTour(item.id)}
-                                            style={[styles.actionButton, { backgroundColor: theme.danger + '15' }]}
-                                        >
-                                            <Ionicons name="trash-outline" size={16} color={theme.danger} />
-                                            <TextComponent variant="label" color={theme.danger} style={{ marginLeft: 4 }}>{t('delete')}</TextComponent>
-                                        </TouchableOpacity>
+                                    <View style={{
+                                        backgroundColor: isApproved ? theme.success + '15' : isRejected ? theme.danger + '15' : theme.warning + '15',
+                                        borderColor: isApproved ? theme.success + '30' : isRejected ? theme.danger + '30' : theme.warning + '30',
+                                        borderWidth: 1,
+                                        borderTopWidth: 0,
+                                        borderBottomLeftRadius: 24,
+                                        borderBottomRightRadius: 24,
+                                        borderTopLeftRadius: 0,
+                                        borderTopRightRadius: 0,
+                                        paddingHorizontal: 16,
+                                        paddingVertical: 12,
+                                        marginTop: -16,
+                                        zIndex: -1,
+                                        paddingTop: 28,
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                    }}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 12 }}>
+                                            <Ionicons 
+                                                name={isApproved ? "checkmark-circle-outline" : isRejected ? "warning-outline" : "time-outline"} 
+                                                size={16} 
+                                                color={isApproved ? theme.success : isRejected ? theme.danger : theme.warning} 
+                                                style={{ marginRight: 6 }} 
+                                            />
+                                            <View style={{ flex: 1 }}>
+                                                <TextComponent 
+                                                    variant="caption" 
+                                                    bold 
+                                                    color={isApproved ? theme.success : isRejected ? theme.danger : theme.warning}
+                                                >
+                                                    {isApproved ? 'Approved' : isRejected ? 'Needs Attention' : 'Pending Admin Review'}
+                                                </TextComponent>
+                                                {isRejected && item.rejectionReason && (
+                                                    <TextComponent variant="caption" color={theme.textSecondary} style={{ fontSize: 10, marginTop: 2 }}>
+                                                        Reason: {item.rejectionReason}
+                                                    </TextComponent>
+                                                )}
+                                            </View>
+                                        </View>
+                                        
+                                        <View style={{ flexDirection: 'row', gap: 8 }}>
+                                            <TouchableOpacity
+                                                onPress={() => router.push({ pathname: '/(tabs)/create', params: { tourId: item.id } })}
+                                                style={[styles.actionButton, { backgroundColor: theme.primary + '15', paddingHorizontal: 10, paddingVertical: 6 }]}
+                                            >
+                                                <Ionicons name="pencil" size={14} color={theme.primary} />
+                                                <TextComponent variant="label" color={theme.primary} style={{ marginLeft: 4, fontSize: 11 }}>{t('edit')}</TextComponent>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                onPress={() => handleDeleteTour(item.id)}
+                                                style={[styles.actionButton, { backgroundColor: theme.danger + '15', paddingHorizontal: 10, paddingVertical: 6 }]}
+                                            >
+                                                <Ionicons name="trash-outline" size={14} color={theme.danger} />
+                                                <TextComponent variant="label" color={theme.danger} style={{ marginLeft: 4, fontSize: 11 }}>{t('delete')}</TextComponent>
+                                            </TouchableOpacity>
+                                        </View>
                                     </View>
                                 )}
                             </View>

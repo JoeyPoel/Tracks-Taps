@@ -97,14 +97,6 @@ export default function ProfileScreen() {
     }, [user?.id, user?.isAdmin, refreshUser, loadFriends])
   );
 
-  if (loading && !user) {
-    return (
-      <ScreenWrapper style={{ backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }}>
-        <TextComponent style={{ color: theme.textPrimary }}>Loading profile...</TextComponent>
-      </ScreenWrapper>
-    );
-  }
-
   const progress = LevelSystem.getProgress(user?.xp || 0);
 
   React.useEffect(() => {
@@ -131,6 +123,14 @@ export default function ProfileScreen() {
     };
     // Only re-fire when the screen is focused or narration mode changes — not on every data refresh
   }, [isFocused, narrationMode, user?.id]);
+
+  if (loading && !user) {
+    return (
+      <ScreenWrapper style={{ backgroundColor: theme.bgPrimary, justifyContent: 'center', alignItems: 'center' }}>
+        <TextComponent style={{ color: theme.textPrimary }}>Loading profile...</TextComponent>
+      </ScreenWrapper>
+    );
+  }
 
   return (
     <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={true} includeBottom={false} animateEntry={false}>

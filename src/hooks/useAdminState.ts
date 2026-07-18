@@ -149,6 +149,7 @@ export function useAdminState() {
     // Moderation search & sort state
     const [moderationSearchQuery, setModerationSearchQuery] = useState('');
     const [moderationSortOption, setModerationSortOption] = useState<'oldest' | 'newest' | 'points-desc' | 'distance-desc'>('oldest');
+    const [moderationStatusTab, setModerationStatusTab] = useState<'pending' | 'rejected'>('pending');
 
     // Users state
     const [usersList, setUsersList] = useState<any[]>([]);
@@ -635,6 +636,12 @@ export function useAdminState() {
     const filteredAndSortedTours = useMemo(() => {
         let list = [...pendingTours];
 
+        if (moderationStatusTab === 'pending') {
+            list = list.filter(tour => tour.status === 'PENDING_REVIEW');
+        } else {
+            list = list.filter(tour => tour.status === 'REJECTED');
+        }
+
         if (moderationSearchQuery.trim()) {
             const query = moderationSearchQuery.toLowerCase();
             list = list.filter(tour =>
@@ -658,7 +665,7 @@ export function useAdminState() {
         });
 
         return list;
-    }, [pendingTours, moderationSearchQuery, moderationSortOption]);
+    }, [pendingTours, moderationStatusTab, moderationSearchQuery, moderationSortOption]);
 
     return {
         theme,
@@ -700,6 +707,8 @@ export function useAdminState() {
         setModerationSearchQuery,
         moderationSortOption,
         setModerationSortOption,
+        moderationStatusTab,
+        setModerationStatusTab,
         filteredAndSortedTours,
         usersList,
         userSearchQuery,
