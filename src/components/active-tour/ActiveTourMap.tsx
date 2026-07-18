@@ -197,6 +197,7 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                     <Marker
                         coordinate={{ latitude: currentStop.latitude, longitude: currentStop.longitude }}
                         title={currentStop.name}
+                        tracksViewChanges={false}
                     >
                         <View style={[styles.markerContainer, { backgroundColor: theme.bgSecondary }]}>
                             {getStopIcon(currentStop.type, 20, theme.textPrimary)}
@@ -208,6 +209,7 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                             coordinate={{ latitude: previousStop.latitude, longitude: previousStop.longitude }}
                             title={previousStop.name}
                             opacity={0.6}
+                            tracksViewChanges={false}
                         >
                             <View style={[styles.markerContainer, { backgroundColor: theme.bgSecondary, opacity: 0.8 }]}>
                                 {getStopIcon(previousStop.type || 'Viewpoint', 20, theme.textSecondary)}
@@ -220,7 +222,7 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                             coordinates={previewRoute.coords}
                             strokeColor={theme.primary}
                             strokeWidth={3}
-                            lineDashPattern={previewRoute.type === 'DIRECT' ? [5, 5] : undefined}
+                            lineDashPattern={Platform.OS === 'android' && previewRoute.type === 'DIRECT' ? [5, 5] : undefined}
                         />
                     )}
                 </MapView>
@@ -261,6 +263,7 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                         <Marker
                             coordinate={{ latitude: currentStop.latitude, longitude: currentStop.longitude }}
                             title={currentStop.name}
+                            tracksViewChanges={false}
                         >
                             <View style={[styles.markerContainer, { backgroundColor: theme.bgSecondary, transform: [{ scale: 1.2 }] }]}>
                                 {getStopIcon(currentStop.type, 24, theme.textPrimary)}
@@ -273,7 +276,7 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                                 coordinates={navigationRoute.coords}
                                 strokeColor={theme.primary}
                                 strokeWidth={4}
-                                lineDashPattern={navigationRoute.type === 'DIRECT' ? [5, 5] : undefined}
+                                lineDashPattern={Platform.OS === 'android' && navigationRoute.type === 'DIRECT' ? [5, 5] : undefined}
                             />
                         )}
                     </MapView>

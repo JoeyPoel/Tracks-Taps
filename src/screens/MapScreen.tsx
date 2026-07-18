@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TextComponent } from '../components/common/TextComponent';
@@ -161,7 +161,7 @@ export default function MapScreen() {
                 coordinates={segment.coords}
                 strokeColor={theme.primary}
                 strokeWidth={4} // Thicker line
-                lineDashPattern={segment.type === 'DIRECT' ? [8, 8] : undefined}
+                lineDashPattern={Platform.OS === 'android' && segment.type === 'DIRECT' ? [8, 8] : undefined}
               />
             ))}
           </>

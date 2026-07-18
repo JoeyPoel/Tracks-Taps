@@ -222,6 +222,7 @@ export function StopMapPicker({
                         coordinate={{ latitude: stop.latitude, longitude: stop.longitude }}
                         title={`${index + 1}. ${stop.name}`}
                         style={{ opacity: 0.6 }}
+                        tracksViewChanges={false}
                     >
                         <View style={[styles.markerPip, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
                             {getStopIcon(stop.type || StopType.Viewpoint, 14, theme.textSecondary)}
@@ -233,11 +234,11 @@ export function StopMapPicker({
                     coordinates={routeCoordinates}
                     strokeColor={theme.primary}
                     strokeWidth={3}
-                    lineDashPattern={[5, 5]}
+                    lineDashPattern={Platform.OS === 'android' ? [5, 5] : undefined}
                 />
 
                 {marker && !selectedResult && (
-                    <Marker key={`marker-${marker.latitude}-${marker.longitude}`} coordinate={marker} zIndex={100}>
+                    <Marker key={`marker-${marker.latitude}-${marker.longitude}`} coordinate={marker} zIndex={100} tracksViewChanges={false}>
                         <View style={[styles.markerPip, { backgroundColor: theme.primary, borderColor: theme.borderPrimary, borderWidth: 2 }]}>
                             {getStopIcon(currentStopType, 16, theme.textOnPrimary)}
                         </View>
@@ -251,6 +252,7 @@ export function StopMapPicker({
                         coordinate={{ latitude: result.latitude, longitude: result.longitude }}
                         onPress={() => handleStageResult(result, idx)}
                         zIndex={50}
+                        tracksViewChanges={false}
                     >
                         <View style={[
                             styles.searchMarker, 
@@ -271,6 +273,7 @@ export function StopMapPicker({
                             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
                             setSelectedResult(selectedResult); // Trigger re-center/card if needed
                         }}
+                        tracksViewChanges={false}
                     >
                         <View style={[styles.markerPip, { backgroundColor: theme.primary, borderColor: theme.borderPrimary, borderWidth: 2 }]}>
                             {getStopIcon(currentStopType, 16, theme.textOnPrimary)}
