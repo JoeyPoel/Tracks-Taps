@@ -14,6 +14,11 @@ export interface LeafletMarker {
     title?: string;
     description?: string;
     color?: string;
+    type?: 'tour' | 'stop';
+    imageUrl?: string;
+    genre?: string;
+    stopType?: string;
+    stopNumber?: number;
 }
 
 export interface LeafletPolyline {
@@ -111,6 +116,52 @@ const LEAFLET_HTML = `
       window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'ready' }));
     }
 
+    function getGenreSvg(genre, size) {
+      size = size || 16;
+      var compassPath = '<circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>';
+      var path = compassPath;
+
+      if (genre === 'Adventure' || genre === 'Compass') {
+        path = '<circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>';
+      } else if (genre === 'Pub Crawl' || genre === 'Nightlife' || genre === 'Beer') {
+        path = '<path d="M17 11h1a3 3 0 0 1 0 6h-1"></path><path d="M9 12v6H5v-6h4m0-4h8v12H9V8Z"></path>';
+      } else if (genre === 'Culture' || genre === 'Sightseeing' || genre === 'Museum') {
+        path = '<path d="M4 22V10h16v12M2 10l10-8 10 8M6 14v4M10 14v4M14 14v4M18 14v4"></path>';
+      } else if (genre === 'Food' || genre === 'Gastronomy') {
+        path = '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v4M12 15V2M15 2v13a3 3 0 0 0 3 3h1v4M18 2v13"></path>';
+      } else if (genre === 'Nature' || genre === 'Outdoors') {
+        path = '<path d="m12 19 7-7H5l7 7Zm0 0v3M12 2l8 8H4l8-8Z"></path>';
+      } else if (genre === 'History') {
+        path = '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5v-15Z"></path>';
+      }
+
+      return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" stroke="#ffffff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="display:block;">' + path + '</svg>';
+    }
+
+    function getStopSvg(stopType, size, color) {
+      size = size || 16;
+      color = color || '#333333';
+      var path = '<circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>';
+
+      if (stopType === 'Viewpoint') {
+        path = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle>';
+      } else if (stopType === 'Pub' || stopType === 'Bar') {
+        path = '<path d="M17 11h1a3 3 0 0 1 0 6h-1"></path><path d="M9 12v6H5v-6h4m0-4h8v12H9V8Z"></path>';
+      } else if (stopType === 'Restaurant' || stopType === 'Food') {
+        path = '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v4M12 15V2M15 2v13a3 3 0 0 0 3 3h1v4M18 2v13"></path>';
+      } else if (stopType === 'Historical' || stopType === 'Landmark') {
+        path = '<path d="M4 22V10h16v12M2 10l10-8 10 8M6 14v4M10 14v4M14 14v4M18 14v4"></path>';
+      } else if (stopType === 'Activity' || stopType === 'Challenge') {
+        path = '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34M12 2a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4 4 4 0 0 1-4-4V6a4 4 0 0 1 4-4Z"></path>';
+      } else if (stopType === 'Shop' || stopType === 'Store') {
+        path = '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"></path>';
+      } else if (stopType === 'Restroom') {
+        path = '<path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-3.87 0-7 3.13-7 7v1h14v-1c0-3.87-3.13-7-7-7z"></path>';
+      }
+
+      return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" stroke="' + color + '" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="display:block;">' + path + '</svg>';
+    }
+
     function handleMessage(event) {
       try {
         var message = JSON.parse(event.data);
@@ -133,11 +184,58 @@ const LEAFLET_HTML = `
 
           message.markers.forEach(function(m) {
             var iconColor = m.color || '#E91E63';
+            var html = '';
+            var iconSize = [24, 24];
+            var iconAnchor = [12, 12];
+
+            if (m.type === 'tour') {
+              iconSize = [48, 56];
+              iconAnchor = [24, 48];
+              var imageHtml = '';
+              if (m.imageUrl) {
+                imageHtml = '<img src="' + m.imageUrl + '" style="width:100%; height:100%; object-fit:cover;" />';
+              } else {
+                imageHtml = '<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background-color:' + iconColor + '; color:#fff;">' + getGenreSvg(m.genre, 20) + '</div>';
+              }
+
+              html = 
+                '<div style="position:relative; width:48px; height:48px;">' +
+                  '<div style="width:40px; height:40px; border-radius:20px; border:3px solid #ffffff; box-shadow:0 3px 6px rgba(0,0,0,0.3); overflow:hidden; background-color:#333; margin: auto;">' +
+                    imageHtml +
+                  '</div>' +
+                  '<div style="position:absolute; bottom:2px; right:0px; width:20px; height:20px; border-radius:10px; border:2px solid #ffffff; background-color:' + iconColor + '; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.2); z-index: 10;">' +
+                    getGenreSvg(m.genre, 10) +
+                  '</div>' +
+                  '<div style="position:absolute; bottom:-6px; left:20px; width:0; height:0; border-left:4px solid transparent; border-right:4px solid transparent; border-top:6px solid #ffffff;"></div>' +
+                '</div>';
+            } else if (m.type === 'stop') {
+              iconSize = [40, 44];
+              iconAnchor = [20, 36];
+
+              var isStart = m.stopNumber === 1;
+              var bubbleBg = isStart ? iconColor : '#ffffff';
+              var iconColorHex = isStart ? '#ffffff' : '#333333';
+              var borderHex = isStart ? '#ffffff' : iconColor;
+
+              html = 
+                '<div style="position:relative; width:40px; height:40px;">' +
+                  '<div style="width:36px; height:36px; border-radius:18px; border:2px solid ' + borderHex + '; background-color:' + bubbleBg + '; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 6px rgba(0,0,0,0.25);">' +
+                    getStopSvg(m.stopType, 18, iconColorHex) +
+                  '</div>' +
+                  '<div style="position:absolute; top:-4px; right:-4px; min-width:16px; height:16px; border-radius:8px; border:1.5px solid #ffffff; background-color:' + iconColor + '; display:flex; align-items:center; justify-content:center; padding:0 3px; box-shadow:0 1px 3px rgba(0,0,0,0.2); z-index: 10;">' +
+                    '<span style="color:#ffffff; font-size:9px; font-weight:bold; font-family:sans-serif; line-height:1;">' + m.stopNumber + '</span>' +
+                  '</div>' +
+                  '<div style="position:absolute; bottom:-5px; left:16px; width:0; height:0; border-left:4px solid transparent; border-right:4px solid transparent; border-top:5px solid ' + borderHex + ';"></div>' +
+                '</div>';
+            } else {
+              html = '<div class="custom-marker-icon" style="background-color: ' + iconColor + ';"></div>';
+            }
+
             var customIcon = L.divIcon({
               className: '',
-              html: '<div class="custom-marker-icon" style="background-color: ' + iconColor + ';"></div>',
-              iconSize: [24, 24],
-              iconAnchor: [12, 12]
+              html: html,
+              iconSize: iconSize,
+              iconAnchor: iconAnchor
             });
 
             var marker = L.marker([m.latitude, m.longitude], { icon: customIcon });

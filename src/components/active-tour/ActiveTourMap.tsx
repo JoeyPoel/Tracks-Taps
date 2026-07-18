@@ -21,6 +21,7 @@ interface StopLocation {
     name: string;
     type: StopType;
     id: number;
+    number?: number;
 }
 
 interface ActiveTourMapProps {
@@ -182,7 +183,10 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                 latitude: currentStop.latitude,
                 longitude: currentStop.longitude,
                 title: currentStop.name,
-                color: theme.primary
+                color: theme.primary,
+                type: 'stop' as const,
+                stopType: currentStop.type,
+                stopNumber: currentStop.number ?? 1,
             }
         ];
         if (previousStop) {
@@ -191,7 +195,10 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                 latitude: previousStop.latitude,
                 longitude: previousStop.longitude,
                 title: previousStop.name,
-                color: theme.textSecondary
+                color: theme.textSecondary,
+                type: 'stop' as const,
+                stopType: previousStop.type,
+                stopNumber: previousStop.number ?? 1,
             });
         }
 

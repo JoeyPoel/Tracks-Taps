@@ -49,7 +49,10 @@ export default function MapScreen() {
             longitude: lng,
             title: tour.title,
             description: t('clickToViewRoute'),
-            color: theme.primary
+            color: theme.primary,
+            type: 'tour' as const,
+            imageUrl: tour.imageUrl,
+            genre: tour.genre || 'Adventure',
           };
         }).filter(m => m.latitude && m.longitude)
       : (selectedTour.stops || []).map((stop: any) => ({
@@ -58,7 +61,10 @@ export default function MapScreen() {
           longitude: stop.longitude,
           title: `${stop.number}. ${stop.name}`,
           description: stop.description,
-          color: theme.primary
+          color: theme.primary,
+          type: 'stop' as const,
+          stopType: stop.type,
+          stopNumber: stop.number,
         }));
 
     const leafletPolylines = selectedTour && routeSegments

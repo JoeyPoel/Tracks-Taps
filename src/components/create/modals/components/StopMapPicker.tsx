@@ -206,14 +206,20 @@ export function StopMapPicker({
             latitude: stop.latitude,
             longitude: stop.longitude,
             title: `${index + 1}. ${stop.name}`,
-            color: theme.textSecondary
+            color: theme.textSecondary,
+            type: 'stop' as const,
+            stopType: stop.type || StopType.Viewpoint,
+            stopNumber: index + 1
         })),
         ...(marker && !selectedResult ? [{
             id: 'placed-marker',
             latitude: marker.latitude,
             longitude: marker.longitude,
             title: 'Staged Location',
-            color: theme.primary
+            color: theme.primary,
+            type: 'stop' as const,
+            stopType: currentStopType || StopType.Viewpoint,
+            stopNumber: editingIndex !== null && editingIndex !== undefined ? editingIndex + 1 : existingStops.length + 1
         }] : []),
         ...(isResultsVisible ? results.map((result, idx) => ({
             id: `search-${idx}`,
@@ -221,7 +227,10 @@ export function StopMapPicker({
             longitude: result.longitude,
             title: result.name,
             description: result.description,
-            color: theme.secondary
+            color: theme.secondary,
+            type: 'stop' as const,
+            stopType: StopType.Viewpoint,
+            stopNumber: idx + 1
         })) : []),
         ...(selectedResult && !isResultsVisible ? [{
             id: 'selected-result',
@@ -229,7 +238,10 @@ export function StopMapPicker({
             longitude: selectedResult.item.longitude,
             title: selectedResult.item.name,
             description: selectedResult.item.description,
-            color: theme.primary
+            color: theme.primary,
+            type: 'stop' as const,
+            stopType: currentStopType || StopType.Viewpoint,
+            stopNumber: editingIndex !== null && editingIndex !== undefined ? editingIndex + 1 : existingStops.length + 1
         }] : [])
     ];
 
