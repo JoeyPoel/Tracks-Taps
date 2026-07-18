@@ -58,7 +58,7 @@ export function useTextToSpeech() {
      * @param text The text to speak.
      * @param force If true, speaks even if narrationMode is set to 'off'.
      */
-    const speak = useCallback(async (text: string, force = false) => {
+    const speak = useCallback(async (text: string, force = false, rateOverride?: number) => {
         if (!text) return;
         
         // Speak only if narration is enabled or forced (e.g. manual press of speaker button)
@@ -76,7 +76,7 @@ export function useTextToSpeech() {
             const voiceLang = LANGUAGE_VOICE_MAP[language] || 'en-US';
             Speech.speak(text, {
                 language: voiceLang,
-                rate: speechRate,
+                rate: rateOverride !== undefined ? rateOverride : speechRate,
                 onDone: () => {
                     if (globalSpeechSessionId === sessionId) {
                         setIsSpeaking(false);

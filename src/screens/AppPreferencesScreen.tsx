@@ -493,13 +493,17 @@ export default function AppPreferencesScreen() {
                 { rate: 0.75, label: t('slower') },
                 { rate: 1.0, label: t('normal') },
                 { rate: 1.25, label: t('faster') },
-                { rate: 1.5, label: t('fast') },
+                { rate: 1.4, label: t('fast') },
               ].map((rateOpt) => {
                 const isActive = speechRate === rateOpt.rate;
                 return (
                   <Pressable
                     key={rateOpt.rate}
-                    onPress={() => setSpeechRate(rateOpt.rate)}
+                    onPress={() => {
+                      setSpeechRate(rateOpt.rate);
+                      const formatString = require('../utils/stringUtils').formatString;
+                      speak(formatString(t('narrationSpeedChangedTo' as any) || 'Narration speed changed to {0}', rateOpt.label), true, rateOpt.rate);
+                    }}
                     style={{
                       flex: 1,
                       height: 38,
