@@ -73,3 +73,8 @@ lerna-debug.log*
 
 # Google Services
 
+
+# Database backups
+/database_backups/
+*.sql
+

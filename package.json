@@ -10,6 +10,7 @@
     "web": "expo start --web",
     "build": "npx prisma generate && expo export -p web && node scripts/vercel-build.js",
     "lint": "expo lint",
+    "db:backup": "node scripts/backup-db.js",
     "postinstall": "patch-package && prisma generate"
   },
   "dependencies": {
