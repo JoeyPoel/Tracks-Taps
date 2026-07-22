@@ -1,0 +1,5 @@
+node_modules
+android
+.expo
+database_backups
+api/_expo

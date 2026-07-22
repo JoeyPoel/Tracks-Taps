@@ -38,6 +38,8 @@ export default function AppPreferencesScreen() {
   const setShowSpeakButtons = useStore(state => state.setShowSpeakButtons);
   const fontScale = useStore(state => state.fontScale);
   const setFontScale = useStore(state => state.setFontScale);
+  const dyslexicMode = useStore(state => state.dyslexicMode);
+  const setDyslexicMode = useStore(state => state.setDyslexicMode);
   const isFocused = useIsFocused();
   const { isActive: isTutorialActive, steps, currentStepIndex } = useTutorial();
   const scrollViewRef = React.useRef<ScrollView>(null);
@@ -596,6 +598,28 @@ export default function AppPreferencesScreen() {
                 </Pressable>
               );
             })}
+          </View>
+        </View>
+
+        {/* Dyslexic Mode Section */}
+        {renderSectionHeader(t('dyslexicMode' as any) || 'Dyslexic Font', 'glasses-outline')}
+        <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
+          <View style={[styles.row, styles.lastRow]}>
+            <View style={styles.rowInfo}>
+              <TextComponent style={styles.rowTitle} color={theme.textPrimary} bold variant="body">
+                {t('dyslexicMode' as any) || 'Dyslexic Font'}
+              </TextComponent>
+              <TextComponent style={styles.rowSubtitle} color={theme.textSecondary} variant="caption">
+                {t('dyslexicModeDesc' as any) || 'Use the OpenDyslexic font to improve readability.'}
+              </TextComponent>
+            </View>
+            <Switch
+              value={dyslexicMode}
+              onValueChange={setDyslexicMode}
+              trackColor={{ false: theme.bgDisabled, true: theme.primary + '80' }}
+              thumbColor={dyslexicMode ? theme.primary : '#f4f3f4'}
+              ios_backgroundColor={theme.bgDisabled}
+            />
           </View>
         </View>
 

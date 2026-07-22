@@ -40,31 +40,40 @@ export const TextComponent: React.FC<TextComponentProps> = ({
 }) => {
     const { theme } = useTheme();
     const fontScale = useStore(state => state.fontScale);
+    const dyslexicMode = useStore(state => state.dyslexicMode);
     const multiplier = SCALE_MULTIPLIERS[fontScale] ?? 1.0;
 
     const getVariantStyle = (): TextStyle => {
-        switch (variant) {
-            case 'h1':
-                return { fontSize: Math.round(32 * multiplier), fontWeight: '700', lineHeight: Math.round(40 * multiplier) };
-            case 'h2':
-                return { fontSize: Math.round(24 * multiplier), fontWeight: '700', lineHeight: Math.round(32 * multiplier) };
-            case 'h3':
-                return { fontSize: Math.round(20 * multiplier), fontWeight: '600', lineHeight: Math.round(28 * multiplier) };
-            case 'body':
-                return { fontSize: Math.round(16 * multiplier), lineHeight: Math.round(24 * multiplier) };
-            case 'label':
-                return { fontSize: Math.round(14 * multiplier), fontWeight: '500', lineHeight: Math.round(20 * multiplier) };
-            case 'caption':
-                return { fontSize: Math.round(12 * multiplier), lineHeight: Math.round(16 * multiplier) };
-            default:
-                return { fontSize: Math.round(16 * multiplier) };
+        const variantStyle: TextStyle = (() => {
+            switch (variant) {
+                case 'h1':
+                    return { fontSize: Math.round(32 * multiplier), fontWeight: '700', lineHeight: Math.round(40 * multiplier) };
+                case 'h2':
+                    return { fontSize: Math.round(24 * multiplier), fontWeight: '700', lineHeight: Math.round(32 * multiplier) };
+                case 'h3':
+                    return { fontSize: Math.round(20 * multiplier), fontWeight: '600', lineHeight: Math.round(28 * multiplier) };
+                case 'body':
+                    return { fontSize: Math.round(16 * multiplier), lineHeight: Math.round(24 * multiplier) };
+                case 'label':
+                    return { fontSize: Math.round(14 * multiplier), fontWeight: '500', lineHeight: Math.round(20 * multiplier) };
+                case 'caption':
+                    return { fontSize: Math.round(12 * multiplier), lineHeight: Math.round(16 * multiplier) };
+                default:
+                    return { fontSize: Math.round(16 * multiplier) };
+            }
+        })();
+
+        if (dyslexicMode) {
+            delete variantStyle.lineHeight;
         }
+        return variantStyle;
     };
 
     const baseStyle: TextStyle = {
         color: color || theme.textPrimary,
         textAlign: center ? 'center' : 'auto',
         fontWeight: bold ? '700' : undefined,
+        fontFamily: dyslexicMode ? 'OpenDyslexic' : undefined,
     };
 
     // Override size if provided — also scale it

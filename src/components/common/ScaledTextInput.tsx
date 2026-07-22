@@ -17,6 +17,7 @@ const SCALE_MULTIPLIERS: Record<string, number> = {
  */
 export const ScaledTextInput: React.FC<TextInputProps> = ({ style, ...props }) => {
     const fontScale = useStore(state => state.fontScale);
+    const dyslexicMode = useStore(state => state.dyslexicMode);
     const multiplier = SCALE_MULTIPLIERS[fontScale] ?? 1.0;
 
     const flatStyle = StyleSheet.flatten(style) as any;
@@ -25,6 +26,7 @@ export const ScaledTextInput: React.FC<TextInputProps> = ({ style, ...props }) =
     const scaledStyle = {
         ...flatStyle,
         fontSize: Math.round(baseFontSize * multiplier),
+        fontFamily: dyslexicMode ? 'OpenDyslexic' : flatStyle?.fontFamily,
     };
 
     return (

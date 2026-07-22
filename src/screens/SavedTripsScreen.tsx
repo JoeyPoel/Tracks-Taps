@@ -159,7 +159,7 @@ export default function SavedTripsScreen() {
     return (
         <ScreenWrapper
             style={{ backgroundColor: theme.bgPrimary }}
-            includeTop={true}
+            includeTop={false}
             includeBottom={false}
             withBottomTabs={true}
             animateEntry={false}

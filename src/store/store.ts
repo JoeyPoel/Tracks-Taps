@@ -88,6 +88,9 @@ interface StoreState {
     // Text Size
     fontScale: 'smallest' | 'small' | 'normal' | 'large' | 'largest';
     setFontScale: (scale: 'smallest' | 'small' | 'normal' | 'large' | 'largest') => void;
+    // Dyslexic Mode
+    dyslexicMode: boolean;
+    setDyslexicMode: (enabled: boolean) => void;
 }
 
 export const useStore = create<StoreState>()(
@@ -110,6 +113,8 @@ export const useStore = create<StoreState>()(
             setShowSpeakButtons: (show) => set({ showSpeakButtons: show }),
             fontScale: 'normal',
             setFontScale: (scale) => set({ fontScale: scale }),
+            dyslexicMode: false,
+            setDyslexicMode: (enabled) => set({ dyslexicMode: enabled }),
             triggerFloatingPoints: (amount: number, label?: string) => {
                 const id = Math.random().toString(36).substring(7);
                 set((state) => ({ 
@@ -663,6 +668,7 @@ export const useStore = create<StoreState>()(
                 speechRate: state.speechRate,
                 showSpeakButtons: state.showSpeakButtons,
                 fontScale: state.fontScale,
+                dyslexicMode: state.dyslexicMode,
             }),
         }
     )

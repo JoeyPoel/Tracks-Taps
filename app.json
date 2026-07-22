@@ -87,7 +87,14 @@
           }
         }
       ],
-      "expo-font",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/OpenDyslexic-Regular.otf"
+          ]
+        }
+      ],
       [
         "@react-native-google-signin/google-signin",
         {
