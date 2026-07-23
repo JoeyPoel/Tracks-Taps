@@ -1,4 +1,9 @@
+.next
 node_modules
+.git
+.turbo
+build
+dist
 android
 .expo
 database_backups

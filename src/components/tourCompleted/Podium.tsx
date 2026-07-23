@@ -17,6 +17,7 @@ interface PodiumProps {
     visibleRanks?: number[]; // [1, 2, 3] to show all, [] to show none
     isPubGolf?: boolean;
     stops?: any[];
+    rankingMode?: 'pubgolf' | 'xp';
 }
 
 const PodiumBar = ({
@@ -24,13 +25,15 @@ const PodiumBar = ({
     place,
     isVisible,
     isPubGolf,
-    stops
+    stops,
+    rankingMode
 }: {
     team: Team | null,
     place: number,
     isVisible: boolean,
     isPubGolf?: boolean,
-    stops?: any[]
+    stops?: any[],
+    rankingMode?: 'pubgolf' | 'xp'
 }) => {
     const { theme } = useTheme();
     const { t } = useLanguage();
@@ -41,6 +44,10 @@ const PodiumBar = ({
     const targetHeight = place === 1 ? 180 : place === 2 ? 140 : 110;
 
     useEffect(() => {
+        // Reset to 0 to trigger the rising animation again
+        height.value = 0;
+        opacity.value = 0;
+
         if (isVisible) {
             height.value = withSpring(targetHeight, { damping: 12, stiffness: 90 });
             opacity.value = withSpring(1);
@@ -48,7 +55,7 @@ const PodiumBar = ({
             height.value = 0;
             opacity.value = 0;
         }
-    }, [isVisible]);
+    }, [isVisible, team?.id, rankingMode]);
 
     const animatedStyle = useAnimatedStyle(() => {
         return {
@@ -97,7 +104,7 @@ const PodiumBar = ({
                         <View style={[styles.scoreBadge, { backgroundColor: theme.bgSecondary, flexDirection: 'row', alignItems: 'center', gap: 2 }]}>
                             <Ionicons name="beer-outline" size={10} color={theme.pubgolfColor} />
                             <TextComponent style={[styles.score, { color: theme.pubgolfColor }]} bold variant="caption">
-                                {getPubGolfStats(stops, team.pubGolfStops).totalSips} {t('sips').toUpperCase()}
+                                {getPubGolfStats(stops, team.pubGolfStops, team.pubGolfPenalties).totalSips} {t('sips').toUpperCase()}
                             </TextComponent>
                         </View>
                     )}
@@ -126,9 +133,29 @@ const PodiumBar = ({
     );
 };
 
-export default function Podium({ teams, visibleRanks = [1, 2, 3], isPubGolf, stops }: PodiumProps) {
+export default function Podium({ teams, visibleRanks = [1, 2, 3], isPubGolf, stops, rankingMode = 'xp' }: PodiumProps) {
     const { theme } = useTheme();
-    const sortedTeams = [...teams].sort((a, b) => (b.score || 0) - (a.score || 0));
+    const sortedTeams = [...teams].sort((a, b) => {
+        if (rankingMode === 'pubgolf') {
+            const scoreA = getPubGolfStats(stops, a.pubGolfStops, a.pubGolfPenalties).currentScore;
+            const scoreB = getPubGolfStats(stops, b.pubGolfStops, b.pubGolfPenalties).currentScore;
+            if (scoreA !== scoreB) {
+                return scoreA - scoreB; // Lower score wins
+            }
+            const timeA = a.finishedAt ? new Date(a.finishedAt).getTime() : Number.MAX_SAFE_INTEGER;
+            const timeB = b.finishedAt ? new Date(b.finishedAt).getTime() : Number.MAX_SAFE_INTEGER;
+            return timeA - timeB;
+        } else {
+            const scoreA = a.score || 0;
+            const scoreB = b.score || 0;
+            if (scoreB !== scoreA) {
+                return scoreB - scoreA; // Higher score wins
+            }
+            const timeA = a.finishedAt ? new Date(a.finishedAt).getTime() : Number.MAX_SAFE_INTEGER;
+            const timeB = b.finishedAt ? new Date(b.finishedAt).getTime() : Number.MAX_SAFE_INTEGER;
+            return timeA - timeB;
+        }
+    });
 
     const first = sortedTeams[0];
     const second = sortedTeams.length > 1 ? sortedTeams[1] : null;
@@ -139,9 +166,9 @@ export default function Podium({ teams, visibleRanks = [1, 2, 3], isPubGolf, sto
     return (
         <View style={styles.container}>
             <View style={styles.podiumWrapper}>
-                <PodiumBar team={second} place={2} isVisible={visibleRanks.includes(2)} isPubGolf={isPubGolf} stops={stops} />
-                <PodiumBar team={first} place={1} isVisible={visibleRanks.includes(1)} isPubGolf={isPubGolf} stops={stops} />
-                <PodiumBar team={third} place={3} isVisible={visibleRanks.includes(3)} isPubGolf={isPubGolf} stops={stops} />
+                <PodiumBar team={second} place={2} isVisible={visibleRanks.includes(2)} isPubGolf={isPubGolf} stops={stops} rankingMode={rankingMode} />
+                <PodiumBar team={first} place={1} isVisible={visibleRanks.includes(1)} isPubGolf={isPubGolf} stops={stops} rankingMode={rankingMode} />
+                <PodiumBar team={third} place={3} isVisible={visibleRanks.includes(3)} isPubGolf={isPubGolf} stops={stops} rankingMode={rankingMode} />
             </View>
         </View>
     );

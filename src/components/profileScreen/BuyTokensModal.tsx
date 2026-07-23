@@ -15,6 +15,7 @@ import { useStore } from '../../store/store';
 interface BuyTokensModalProps {
     visible: boolean;
     onClose: () => void;
+    zIndex?: number;
 }
 
 const PACKAGES = [
@@ -31,7 +32,7 @@ import { usePurchases } from '../../hooks/usePurchases';
 
 // ... inside component
 
-export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps) {
+export default function BuyTokensModal({ visible, onClose, zIndex }: BuyTokensModalProps) {
     const { theme } = useTheme();
     const { t } = useLanguage();
     const { user, refreshUser } = useUserContext();
@@ -119,6 +120,7 @@ export default function BuyTokensModal({ visible, onClose }: BuyTokensModalProps
             title={t('buyTokens')}
             icon={<CircleStackIcon size={24} color={theme.accent} />}
             subtitle={t('chooseTokenPackage')}
+            zIndex={zIndex}
         >
             <ScrollView contentContainerStyle={styles.packagesContainer}>
                 {displayPackages.map((pkg, index) => {

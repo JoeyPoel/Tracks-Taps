@@ -21,6 +21,7 @@ import { useTourCompleted } from '../hooks/useTourCompleted';
 import { getPubGolfStats } from '../utils/pubGolfUtils';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
 import { useStore } from '../store/store';
+import { triggerHaptic } from '../utils/haptics';
 
 type RevealState = 'CALCULATING' | 'REVEAL_3' | 'REVEAL_2' | 'REVEAL_1' | 'CELEBRATE';
 
@@ -53,6 +54,16 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
     const [feedbackText, setFeedbackText] = useState('');
     const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
+    const isPubGolf = activeTour?.tour?.modes?.some((m: string) => m.toLowerCase() === 'pubgolf');
+    const [rankingMode, setRankingMode] = useState<'pubgolf' | 'xp'>(isPubGolf ? 'pubgolf' : 'xp');
+
+    useEffect(() => {
+        if (activeTour?.tour?.modes) {
+            const isPg = activeTour.tour.modes.some((m: string) => m.toLowerCase() === 'pubgolf');
+            setRankingMode(isPg ? 'pubgolf' : 'xp');
+        }
+    }, [activeTour]);
+
     const { speak, stop, isSpeaking } = useTextToSpeech();
     const narrationMode = useStore(state => state.narrationMode);
     const showSpeakButtons = useStore(state => state.showSpeakButtons);
@@ -60,17 +71,18 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
     const buildNarration = () => {
         if (!activeTour?.tour) return t('narrationLoadingResults');
         const tourTitle = activeTour.tour.title || t('tour');
-        const winnerName = winner?.name || winner?.user?.name || t('yourTeam');
+        const currentWinner = sortedTeams[0];
+        const winnerName = currentWinner?.name || currentWinner?.user?.name || t('yourTeam');
         let text = `${t('tourCompleted').replace('🎉', '')} ${tourTitle}. ${t('narrationCongratulations')} `;
-        if (activeTeams.length > 1) {
-            text += `${t('winner')} ${winnerName} ${t('narrationWithPoints')} ${winner?.score || 0} ${t('points')}. `;
-            const top3 = activeTeams.slice(0, 3);
+        if (sortedTeams.length > 1) {
+            text += `${t('winner')} ${winnerName} ${t('narrationWithPoints')} ${currentWinner?.score || 0} ${t('points')}. `;
+            const top3 = sortedTeams.slice(0, 3);
             text += `${t('narrationPodiumLabel')}: `;
             top3.forEach((team: any, i: number) => {
                 text += `${i + 1}: ${team.name || team.user?.name || t('yourTeam')} ${t('narrationWithPoints')} ${team.score || 0} ${t('points')}. `;
             });
-        } else if (activeTeams.length === 1) {
-            text += `${t('narrationYouScored')} ${activeTeams[0]?.score || 0} ${t('points')}. `;
+        } else if (sortedTeams.length === 1) {
+            text += `${t('narrationYouScored')} ${sortedTeams[0]?.score || 0} ${t('points')}. `;
         }
         text += t('narrationTourCompletedActions');
         return text;
@@ -194,11 +206,40 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
         );
     }
 
-    const podiumTeams = activeTeams.slice(0, 3);
-    const runnerUps = activeTeams.slice(3);
-    const winnerName = winner?.name || winner?.user?.name || t('you');
-    const isPubGolf = activeTour.tour.modes?.some(m => m.toLowerCase() === 'pubgolf');
-    const stops = activeTour.tour.stops;
+    const stops = activeTour.tour.stops || [];
+
+    const getPubGolfScore = (team: any) => {
+        const stats = getPubGolfStats(stops, team.pubGolfStops, team.pubGolfPenalties);
+        return stats.currentScore;
+    };
+
+    // Sort activeTeams based on rankingMode
+    const sortedTeams = [...activeTeams].sort((a, b) => {
+        if (rankingMode === 'pubgolf') {
+            const scoreA = getPubGolfScore(a);
+            const scoreB = getPubGolfScore(b);
+            if (scoreA !== scoreB) {
+                return scoreA - scoreB; // Lower score wins
+            }
+            const timeA = a.finishedAt ? new Date(a.finishedAt).getTime() : Number.MAX_SAFE_INTEGER;
+            const timeB = b.finishedAt ? new Date(b.finishedAt).getTime() : Number.MAX_SAFE_INTEGER;
+            return timeA - timeB;
+        } else {
+            const scoreA = a.score ?? 0;
+            const scoreB = b.score ?? 0;
+            if (scoreB !== scoreA) {
+                return scoreB - scoreA; // Higher score wins
+            }
+            const timeA = a.finishedAt ? new Date(a.finishedAt).getTime() : Number.MAX_SAFE_INTEGER;
+            const timeB = b.finishedAt ? new Date(b.finishedAt).getTime() : Number.MAX_SAFE_INTEGER;
+            return timeA - timeB;
+        }
+    });
+
+    const podiumTeams = sortedTeams.slice(0, 3);
+    const runnerUps = sortedTeams.slice(3);
+    const currentWinner = sortedTeams[0];
+    const winnerName = currentWinner?.name || currentWinner?.user?.name || t('you');
 
     // Determine which ranks to show based on state
     const getVisibleRanks = () => {
@@ -271,9 +312,55 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
 
                 {/* Hero Section: Winner & Podium */}
                 <View style={styles.heroSection}>
+                    {isPubGolf && revealState === 'CELEBRATE' && (
+                        <View style={[styles.toggleContainer, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
+                            <TouchableOpacity
+                                style={[
+                                    styles.toggleButton,
+                                    rankingMode === 'pubgolf' && { backgroundColor: theme.primary }
+                                ]}
+                                onPress={() => {
+                                    triggerHaptic('light');
+                                    setRankingMode('pubgolf');
+                                }}
+                            >
+                                <TextComponent
+                                    bold
+                                    color={rankingMode === 'pubgolf' ? theme.textOnPrimary : theme.textSecondary}
+                                    variant="caption"
+                                >
+                                    ⛳ {t('pubgolf') || 'Pub Golf'}
+                                </TextComponent>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[
+                                    styles.toggleButton,
+                                    rankingMode === 'xp' && { backgroundColor: theme.primary }
+                                ]}
+                                onPress={() => {
+                                    triggerHaptic('light');
+                                    setRankingMode('xp');
+                                }}
+                            >
+                                <TextComponent
+                                    bold
+                                    color={rankingMode === 'xp' ? theme.textOnPrimary : theme.textSecondary}
+                                    variant="caption"
+                                >
+                                    {t('xpLeaderboard') || '⚡ XP Leaderboard'}
+                                </TextComponent>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+
                     <View style={styles.winnerHeaderContainer}>
                         {revealState === 'CELEBRATE' && (
-                            <Animated.View entering={ZoomIn.springify().damping(12)} style={styles.winnerHeader}>
+                            <Animated.View 
+                                key={`${rankingMode}_${currentWinner?.id || 'none'}`}
+                                entering={ZoomIn.springify().damping(12)} 
+                                style={styles.winnerHeader}
+                            >
                                 <View style={{ alignItems: 'center' }}>
                                     <TextComponent style={styles.winnerText} color={theme.textPrimary} bold variant="h1" center>
                                         {winnerName}
@@ -283,12 +370,12 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                                     <View style={styles.scoreItem}>
                                         <Ionicons name="flash" size={14} color={theme.primary} />
                                         <TextComponent style={styles.winnerScoreText} color={theme.primary} bold variant="caption">
-                                            {winner?.score || 0} PTS
+                                            {currentWinner?.score || 0} PTS
                                         </TextComponent>
                                     </View>
                                     
-                                    {isPubGolf && winner && (() => {
-                                        const stats = getPubGolfStats(stops, winner.pubGolfStops);
+                                    {isPubGolf && currentWinner && (() => {
+                                        const stats = getPubGolfStats(stops, currentWinner.pubGolfStops, currentWinner.pubGolfPenalties);
                                         const sips = stats.totalSips;
                                         return (
                                             <>
@@ -308,8 +395,8 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                     </View>
 
                     <View style={styles.podiumContainer}>
-                        {activeTeams.length > 0 && (
-                            <Podium teams={podiumTeams} visibleRanks={getVisibleRanks()} isPubGolf={isPubGolf} stops={stops} />
+                        {sortedTeams.length > 0 && (
+                            <Podium teams={podiumTeams} visibleRanks={getVisibleRanks()} isPubGolf={isPubGolf} stops={stops} rankingMode={rankingMode} />
                         )}
                     </View>
                 </View>
@@ -344,7 +431,7 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                                             <TextComponent style={styles.runnerUpScore} color={theme.textPrimary} bold variant="body">{team.score} PTS</TextComponent>
                                         </View>
                                         {isPubGolf && (() => {
-                                            const stats = getPubGolfStats(stops, team.pubGolfStops);
+                                            const stats = getPubGolfStats(stops, team.pubGolfStops, team.pubGolfPenalties);
                                             const sips = stats.totalSips;
                                             return (
                                                 <View style={[styles.pgBadge, { backgroundColor: theme.bgSecondary, marginTop: 2 }]}>
@@ -586,5 +673,22 @@ const styles = StyleSheet.create({
     parText: {
         letterSpacing: 1,
         fontSize: 12,
+    },
+    toggleContainer: {
+        flexDirection: 'row',
+        borderRadius: 25,
+        padding: 4,
+        borderWidth: 1,
+        marginBottom: 16,
+        width: '80%',
+        maxWidth: 320,
+        alignSelf: 'center',
+    },
+    toggleButton: {
+        flex: 1,
+        paddingVertical: 10,
+        borderRadius: 21,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });

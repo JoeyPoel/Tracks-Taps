@@ -19,6 +19,7 @@ interface AppModalProps {
     modalStyle?: any;
     alignment?: 'bottom' | 'center';
     overlay?: React.ReactNode;
+    zIndex?: number;
 }
 
 export function AppModal({
@@ -32,7 +33,8 @@ export function AppModal({
     height,
     modalStyle,
     alignment = 'bottom',
-    overlay
+    overlay,
+    zIndex
 }: AppModalProps) {
     const { theme } = useTheme();
     const insets = useSafeAreaInsets();
@@ -49,7 +51,7 @@ export function AppModal({
             animationType="none" // We use Reanimated
             onRequestClose={onClose}
         >
-            <View style={styles.overlayContainer}>
+            <View style={[styles.overlayContainer, zIndex !== undefined ? { zIndex } : undefined]}>
                 {/* Backdrop */}
                 <Pressable
                     style={styles.backdrop}

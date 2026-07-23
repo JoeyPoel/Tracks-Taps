@@ -59,20 +59,7 @@ export const activeTourService = {
         const activeTour = await activeTourRepository.findActiveTourProgress(id, userId);
         if (!activeTour) return null;
 
-        const tourAuthorId = activeTour.tour?.authorId;
-        const isAuthor = tourAuthorId === userId;
-        const isHostAuthor = activeTour.userId === tourAuthorId;
-        
-        // Find if any team member in this active tour is the tour author
-        const teamsWithAuthor = tourAuthorId ? await prisma.team.findFirst({
-            where: {
-                activeTourId: id,
-                userId: tourAuthorId
-            }
-        }) : null;
-        const anyTeamMemberIsAuthor = !!teamsWithAuthor;
-
-        const isLocked = !activeTour.isPaid && !isAuthor && !isHostAuthor && !anyTeamMemberIsAuthor;
+        const isLocked = !activeTour.isPaid;
 
         if (isLocked && activeTour.teams) {
             for (const team of activeTour.teams) {
@@ -160,24 +147,8 @@ export const activeTourService = {
 
         if (currentStop >= 6) {
             const activeTour = await activeTourRepository.findActiveTourById(activeTourId);
-            if (activeTour) {
-                const tourAuthorId = activeTour.tour?.authorId;
-                const isAuthor = tourAuthorId === userId;
-                const isHostAuthor = activeTour.userId === tourAuthorId;
-                
-                // Find if any team member in this active tour is the tour author
-                const teamsWithAuthor = tourAuthorId ? await prisma.team.findFirst({
-                    where: {
-                        activeTourId: activeTourId,
-                        userId: tourAuthorId
-                    }
-                }) : null;
-                const anyTeamMemberIsAuthor = !!teamsWithAuthor;
-
-                const isLocked = !activeTour.isPaid && !isAuthor && !isHostAuthor && !anyTeamMemberIsAuthor;
-                if (isLocked) {
-                    currentStop = 5;
-                }
+            if (activeTour && !activeTour.isPaid) {
+                currentStop = 5;
             }
         }
 

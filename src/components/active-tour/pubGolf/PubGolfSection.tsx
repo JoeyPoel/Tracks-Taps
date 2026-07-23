@@ -7,6 +7,8 @@ import { TextComponent } from '../../common/TextComponent';
 import { AppModal } from '../../common/AppModal';
 import PubGolfScoreCard from './PubGolfScoreCard';
 import PubGolfStopCard from './PubGolfStopCard';
+import { triggerHaptic } from '../../../utils/haptics';
+import { useToast } from '../../../context/ToastContext';
 
 interface PubGolfSectionProps {
     activeTour: any;
@@ -29,6 +31,7 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
 }) => {
     const { t } = useLanguage();
     const { theme } = useTheme();
+    const { showToast } = useToast();
     const [subTab, setSubTab] = useState<'scorecard' | 'hazards'>('scorecard');
     const [modalVisible, setModalVisible] = useState(false);
     const [customDesc, setCustomDesc] = useState('');
@@ -62,19 +65,33 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
     const totalSips = stopSips + totalPenaltySips;
     const finalScore = currentScore + totalPenaltySips;
 
+    const formatString = (str: string, ...args: any[]) => {
+        return str.replace(/{(\d+)}/g, (match, number) => {
+            return typeof args[number] !== 'undefined' ? args[number] : match;
+        });
+    };
+
     const quickHazards = [
-        { title: '🍺 Bunker Hazard', desc: 'Drink spilled / Extra shot needed', penalty: 1, key: 'bunker', color: '#F59E0B' },
-        { title: '🚽 Water Hazard', desc: 'Restroom visit at restricted pub', penalty: 2, key: 'water', color: '#3B82F6' },
-        { title: '🏃 Out of Bounds (Time)', desc: 'Failed to keep up with timeline', penalty: 2, key: 'oob_time', color: '#EF4444' },
-        { title: '🗺️ Out of Bounds (Venue)', desc: 'Left designated venue boundary', penalty: 3, key: 'oob_venue', color: '#F97316' },
-        { title: '🍹 Unfinished Drink', desc: `Incomplete beverage (Par + 2)`, penalty: unfinishedDrinkPenalty, key: 'unfinished', color: '#8B5CF6' },
-        { title: '🤮 Vomiting Penalty', desc: 'Immediate penalty stroke addition', penalty: 10, key: 'vomit', color: '#10B981' }
+        { title: t('bunkerHazardTitle'), desc: t('bunkerHazardDesc'), penalty: 1, key: 'bunker', color: '#F59E0B', emoji: '🍺' },
+        { title: t('waterHazardTitle'), desc: t('waterHazardDesc'), penalty: 2, key: 'water', color: '#3B82F6', emoji: '🚽' },
+        { title: t('oobTimeHazardTitle'), desc: t('oobTimeHazardDesc'), penalty: 2, key: 'oob_time', color: '#EF4444', emoji: '🏃' },
+        { title: t('oobVenueHazardTitle'), desc: t('oobVenueHazardDesc'), penalty: 3, key: 'oob_venue', color: '#F97316', emoji: '🗺️' },
+        { title: t('unfinishedDrinkHazardTitle'), desc: formatString(t('unfinishedDrinkHazardDesc'), currentPar + 2), penalty: unfinishedDrinkPenalty, key: 'unfinished', color: '#8B5CF6', emoji: '🍹' },
+        { title: t('vomitHazardTitle'), desc: t('vomitHazardDesc'), penalty: 10, key: 'vomit', color: '#10B981', emoji: '🤮' }
     ];
 
-    const handleAddPenalty = async (label: string, sips: number) => {
+    const handleAddPenalty = async (label: string, sips: number, emoji?: string, color?: string) => {
+        triggerHaptic('warning');
         setSubmitting(true);
         try {
             await onAddPenalty(label, sips);
+            showToast({
+                title: t('penalty') || 'Penalty Added!',
+                message: `${label} (+${sips} ${t('sips') || 'sips'})`,
+                emoji: emoji || '⚠️',
+                backgroundColor: color || '#EF4444',
+                duration: 2500
+            });
         } finally {
             setSubmitting(false);
         }
@@ -82,18 +99,26 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
 
     const handleAddCustom = async () => {
         if (!customDesc.trim()) {
-            Alert.alert('Error', 'Please enter a description');
+            Alert.alert(t('error') || 'Error', t('customPenaltyErrorDesc') || 'Please enter a description');
             return;
         }
         const sipsVal = parseInt(customSips);
         if (isNaN(sipsVal) || sipsVal <= 0) {
-            Alert.alert('Error', 'Please enter a valid number of sips');
+            Alert.alert(t('error') || 'Error', t('customPenaltyErrorSips') || 'Please enter a valid number of sips');
             return;
         }
 
+        triggerHaptic('warning');
         setSubmitting(true);
         try {
             await onAddPenalty(customDesc.trim(), sipsVal);
+            showToast({
+                title: t('penalty') || 'Penalty Added!',
+                message: `${customDesc.trim()} (+${sipsVal} ${t('sips') || 'sips'})`,
+                emoji: '⚠️',
+                backgroundColor: '#EF4444',
+                duration: 2500
+            });
             setCustomDesc('');
             setCustomSips('1');
             setModalVisible(false);
@@ -125,7 +150,7 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
                         bold
                         color={subTab === 'scorecard' ? theme.textOnPrimary : theme.textSecondary}
                     >
-                        📋 Scorecard
+                        {t('scorecardTab') || '📋 Scorecard'}
                     </TextComponent>
                 </TouchableOpacity>
 
@@ -141,7 +166,7 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
                         bold
                         color={subTab === 'hazards' ? theme.textOnPrimary : theme.textSecondary}
                     >
-                        ⛳ Hazards & Penalties ({penalties.length})
+                        {formatString(t('hazardsTab') || '⛳ Hazards & Penalties ({0})', penalties.length)}
                     </TextComponent>
                 </TouchableOpacity>
             </View>
@@ -152,13 +177,13 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
                     {penalties.length > 0 && (
                         <View style={[styles.card, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
                             <TextComponent variant="caption" bold color={theme.textSecondary} style={{ textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
-                                Active Penalties (+{totalPenaltySips} sips)
+                                {formatString(t('activePenaltiesSips') || 'Active Penalties (+{0} sips)', totalPenaltySips)}
                             </TextComponent>
                             <View style={{ gap: 6 }}>
                                 {penalties.map((penalty: any) => (
                                     <View key={penalty.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <TextComponent variant="caption" color={theme.textPrimary}>• {penalty.description}</TextComponent>
-                                        <TextComponent variant="caption" bold color={theme.danger}>+{penalty.sips} sips</TextComponent>
+                                        <TextComponent variant="caption" bold color={theme.danger}>+{penalty.sips} {t('sips') || 'sips'}</TextComponent>
                                     </View>
                                 ))}
                             </View>
@@ -168,7 +193,7 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
                     {/* Scorecard Stops list */}
                     <View style={{ gap: 8 }}>
                         <TextComponent variant="label" bold color={theme.textSecondary} style={{ textTransform: 'uppercase', letterSpacing: 1, paddingLeft: 4 }}>
-                            Holes Scorecard
+                            {t('holesScorecard') || 'Holes Scorecard'}
                         </TextComponent>
                         {pubGolfStops.map((stop: any) => (
                             <PubGolfStopCard
@@ -198,7 +223,7 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
                                         borderColor: item.color + '45'
                                     }
                                 ]}
-                                onPress={() => handleAddPenalty(item.title, item.penalty)}
+                                onPress={() => handleAddPenalty(item.title, item.penalty, item.emoji, item.color)}
                                 disabled={submitting}
                             >
                                 <View style={styles.squareContent}>
@@ -210,7 +235,7 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
                                     </TextComponent>
                                     <View style={[styles.badge, { backgroundColor: item.color + '22' }]}>
                                         <TextComponent variant="caption" bold color={item.color}>
-                                            +{item.penalty} Sips
+                                            +{item.penalty} {t('sips') || 'Sips'}
                                         </TextComponent>
                                     </View>
                                 </View>
@@ -221,18 +246,21 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
                     {/* Custom Penalty Button */}
                     <TouchableOpacity
                         style={[styles.customBtn, { borderColor: theme.primary }]}
-                        onPress={() => setModalVisible(true)}
+                        onPress={() => {
+                            triggerHaptic('light');
+                            setModalVisible(true);
+                        }}
                     >
                         <Ionicons name="options-outline" size={18} color={theme.primary} />
                         <TextComponent variant="body" bold color={theme.primary} style={{ marginLeft: 8 }}>
-                            Add Custom Penalty
+                            {t('addCustomPenalty') || 'Add Custom Penalty'}
                         </TextComponent>
                     </TouchableOpacity>
 
                     {/* Applied Penalties Manager */}
                     <View style={[styles.card, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
                         <TextComponent variant="body" bold color={theme.textPrimary} style={{ marginBottom: 12 }}>
-                            Applied Penalties List
+                            {t('appliedPenaltiesList') || 'Applied Penalties List'}
                         </TextComponent>
 
                         {penalties.length > 0 ? (
@@ -249,10 +277,13 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
                                         </View>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                                             <TextComponent variant="caption" bold color={theme.danger}>
-                                                +{penalty.sips} sips
+                                                +{penalty.sips} {t('sips') || 'sips'}
                                             </TextComponent>
                                             <TouchableOpacity
-                                                onPress={() => onDeletePenalty(penalty.id)}
+                                                onPress={() => {
+                                                    triggerHaptic('light');
+                                                    onDeletePenalty(penalty.id);
+                                                }}
                                                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                                             >
                                                 <Ionicons name="trash-outline" size={16} color={theme.danger} />
@@ -263,7 +294,7 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
                             </View>
                         ) : (
                             <TextComponent variant="caption" color={theme.textSecondary} style={{ fontStyle: 'italic' }}>
-                                No penalties applied yet. Keep up the good work!
+                                {t('noPenaltiesApplied') || 'No penalties applied yet. Keep up the good work!'}
                             </TextComponent>
                         )}
                     </View>
@@ -274,13 +305,13 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
             <AppModal
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
-                title="Add Custom Penalty"
+                title={t('addCustomPenalty') || 'Add Custom Penalty'}
                 alignment="center"
             >
                 <View style={{ gap: 12, paddingBottom: 16 }}>
                     <TextInput
                         style={[styles.input, { color: theme.textPrimary, borderColor: theme.borderPrimary, backgroundColor: theme.bgSecondary }]}
-                        placeholder="Description (e.g. Swore in public)"
+                        placeholder={t('descriptionEgSwore') || 'Description (e.g. Swore in public)'}
                         placeholderTextColor={theme.textSecondary + '80'}
                         value={customDesc}
                         onChangeText={setCustomDesc}
@@ -288,7 +319,7 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                         <TextInput
                             style={[styles.input, { flex: 1, color: theme.textPrimary, borderColor: theme.borderPrimary, backgroundColor: theme.bgSecondary }]}
-                            placeholder="Sips penalty"
+                            placeholder={t('sipsPenalty') || 'Sips penalty'}
                             placeholderTextColor={theme.textSecondary + '80'}
                             value={customSips}
                             onChangeText={setCustomSips}
@@ -300,7 +331,7 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
                             disabled={submitting}
                         >
                             <TextComponent variant="caption" bold color={theme.textOnPrimary}>
-                                Add Custom
+                                {t('addCustom') || 'Add Custom'}
                             </TextComponent>
                         </TouchableOpacity>
                     </View>

@@ -45,6 +45,17 @@ export default function PubGolfInputGrid({
                             }
                             : {};
 
+                        // Calculate dynamic haptic type based on performance relative to par
+                        const getSipHapticType = (val: number, parVal: number) => {
+                            if (val === 1) return 'success'; // Hole-in-one is always success
+                            const diff = val - parVal;
+                            if (diff < 0) return 'heavy'; // Under par
+                            if (diff === 0) return 'medium'; // Par
+                            if (diff === 1) return 'light'; // Bogey
+                            if (diff === 2) return 'warning'; // Double bogey
+                            return 'error'; // Triple bogey+
+                        };
+
                         return (
                             <AnimatedPressable
                                 key={num}
@@ -63,7 +74,7 @@ export default function PubGolfInputGrid({
                                 ]}
                                 onPress={() => onSelectSips(num)}
                                 interactionScale="medium"
-                                haptic="selection"
+                                haptic={getSipHapticType(num, par)}
                             >
                                 <Text style={[
                                     styles.sipButtonText,

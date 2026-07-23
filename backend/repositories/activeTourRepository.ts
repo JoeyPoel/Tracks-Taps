@@ -58,6 +58,7 @@ export const activeTourRepository = {
         }
 
         const activeTourId = generateActiveTourId();
+        const isAuthor = tour.authorId === userId;
 
         const activeTour = await prisma.activeTour.create({
             data: {
@@ -65,6 +66,7 @@ export const activeTourRepository = {
                 tourId,
                 userId, // Set the creator as the host
                 status: SessionStatus.WAITING,
+                isPaid: isAuthor,
                 teams: {
                     create: {
                         userId,
@@ -119,6 +121,15 @@ export const activeTourRepository = {
         });
 
         if (!activeTour) throw new Error("Active tour not found");
+
+        const isAuthor = activeTour.tour?.authorId === userId;
+        if (isAuthor && !activeTour.isPaid) {
+            await prisma.activeTour.update({
+                where: { id: activeTourId },
+                data: { isPaid: true }
+            });
+            activeTour.isPaid = true;
+        }
 
         // Check if user is already on a team in this tour
         const existingTeam = await prisma.team.findFirst({

@@ -32,6 +32,7 @@ import { LevelSystem } from '../utils/levelUtils';
 import { useTranslation } from '../context/TranslationContext';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
 import { useIsFocused } from '@react-navigation/native';
+import { useToast } from '../context/ToastContext';
 
 // Wrapper for smooth tab transitions
 const TabContentWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -68,6 +69,7 @@ const TabContentWrapper = ({ children }: { children: React.ReactNode }) => {
 function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user: any }) {
     const { theme } = useTheme();
     const { t, language } = useLanguage();
+    const { showToast } = useToast();
     const router = useRouter();
     const isFocused = useIsFocused();
     const [activeTab, setActiveTab] = useState(0);
@@ -148,13 +150,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
 
     const currentStop = activeTour?.tour?.stops?.[currentStopIndex];
 
-    const isAuthor = activeTour?.tour?.author?.id === user.id;
-    const isHostAuthor = activeTour?.userId === activeTour?.tour?.author?.id;
-    // Check if any team member (player) in this session is the tour author
-    const anyTeamMemberIsAuthor = activeTour?.teams?.some(
-        (t: any) => t.userId === activeTour?.tour?.author?.id
-    ) ?? false;
-    const isLocked = currentStopIndex >= 5 && !activeTour?.isPaid && !isAuthor && !isHostAuthor && !anyTeamMemberIsAuthor;
+    const isLocked = currentStopIndex >= 5 && !activeTour?.isPaid;
 
     React.useEffect(() => {
         const playNarration = async () => {
@@ -451,7 +447,13 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         setIsUnlocking(true);
         try {
             await handleUnlockTour();
-            alert("Tour successfully unlocked for the group!");
+            showToast({
+                title: t('success') || 'Success',
+                message: 'Tour successfully unlocked for the group!',
+                emoji: '🎉',
+                backgroundColor: theme.success,
+                duration: 3000
+            });
             await goToStop(6);
         } catch (err: any) {
             alert(err.message || "Failed to unlock tour.");
@@ -470,7 +472,13 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
             const success = await purchasePackage(oneTokenPkg, 1, true); // skipSuccessAlert = true
             if (success) {
                 await handleUnlockTour();
-                alert("Tour successfully unlocked for the group!");
+                showToast({
+                    title: t('success') || 'Success',
+                    message: 'Tour successfully unlocked for the group!',
+                    emoji: '🎉',
+                    backgroundColor: theme.success,
+                    duration: 3000
+                });
                 await goToStop(6);
             }
         } catch (err: any) {
@@ -482,10 +490,11 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
 
     const lockedModal = (
         <AppModal
-            visible={isLocked && !localModalClose}
+            visible={isLocked && !localModalClose && !buyTokensModalVisible}
             onClose={() => goToStop(5)}
             title="" // Overwrites/hides the default title layout
             alignment="center"
+            zIndex={1000}
         >
             {/* Custom Big Block Title below the default slot */}
             <View style={{ alignItems: 'center', marginTop: -60, marginBottom: 20, zIndex: -1 }}>
@@ -662,6 +671,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
             <BuyTokensModal
                 visible={buyTokensModalVisible}
                 onClose={() => setBuyTokensModalVisible(false)}
+                zIndex={1100}
             />
 
             {/* Render floating points overlay at the root level */}

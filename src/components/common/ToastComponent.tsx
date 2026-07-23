@@ -105,10 +105,22 @@ export const ToastComponent: React.FC<ToastProps> = ({
                                 styles.container,
                                 {
                                     backgroundColor: theme.bgSecondary,
-                                    borderColor: theme.borderPrimary
+                                    borderColor: accentColor + '40',
+                                    borderWidth: 1.5
                                 }
                             ]}
                         >
+                            {/* Tinted background overlay */}
+                            <View 
+                                style={[
+                                    StyleSheet.absoluteFill, 
+                                    { 
+                                        backgroundColor: accentColor, 
+                                        opacity: isDark ? 0.08 : 0.05,
+                                        zIndex: -1 
+                                    }
+                                ]} 
+                            />
                             {/* Icon / Emoji Section */}
                             <View style={[styles.iconContainer, { backgroundColor: `${accentColor}15` }]}>
                                 {emoji.startsWith('http') ? (

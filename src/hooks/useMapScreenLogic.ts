@@ -211,12 +211,11 @@ export const useMapScreenLogic = () => {
     const handleBack = () => {
         setSelectedTour(null);
         setRouteSegments([]);
-        setTabBarVisible(true); // Show tab bar
-        // Restore the previous region
-        if (lastRegion.current && mapRef.current) {
-            // Small delay to allow state update to process
+        setTabBarVisible(true);
+
+        if (lastRegion.current) {
             setTimeout(() => {
-                mapRef.current?.animateToRegion(lastRegion.current, 1000);
+                mapRef.current?.animateToRegion(lastRegion.current!, 500);
             }, 100);
         } else {
             // Default back to user location or Amsterdam if no last region
@@ -235,14 +234,16 @@ export const useMapScreenLogic = () => {
             clearTimeout(handleRegionChangeTimeout.current);
         }
         handleRegionChangeTimeout.current = setTimeout(() => {
+            const latDelta = Math.max(region.latitudeDelta, 0.001);
+            const lngDelta = Math.max(region.longitudeDelta, 0.001);
             const bounds = {
-                minLat: region.latitude - region.latitudeDelta / 2,
-                maxLat: region.latitude + region.latitudeDelta / 2,
-                minLng: region.longitude - region.longitudeDelta / 2,
-                maxLng: region.longitude + region.longitudeDelta / 2,
+                minLat: region.latitude - latDelta / 2,
+                maxLat: region.latitude + latDelta / 2,
+                minLng: region.longitude - lngDelta / 2,
+                maxLng: region.longitude + lngDelta / 2,
             };
             refetch(bounds);
-        }, 500);
+        }, 1000);
     };
 
     // Initial fetch for guests if needed

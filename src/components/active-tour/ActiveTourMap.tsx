@@ -202,20 +202,20 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
             });
         }
 
-        const leafletPolylines = previewRoute && previewRoute.coords.length > 0
+        const leafletPolylines = previewRoute && previewRoute.coords && previewRoute.coords.filter((c: any) => c && typeof c.latitude === 'number' && !isNaN(c.latitude) && typeof c.longitude === 'number' && !isNaN(c.longitude)).length >= 2
             ? [
                 {
-                    coordinates: previewRoute.coords,
+                    coordinates: previewRoute.coords.filter((c: any) => c && typeof c.latitude === 'number' && !isNaN(c.latitude) && typeof c.longitude === 'number' && !isNaN(c.longitude)),
                     strokeColor: theme.primary,
                     strokeWidth: 3
                 }
             ]
             : [];
 
-        const leafletNavPolylines = navigationRoute && navigationRoute.coords.length > 0
+        const leafletNavPolylines = navigationRoute && navigationRoute.coords && navigationRoute.coords.filter((c: any) => c && typeof c.latitude === 'number' && !isNaN(c.latitude) && typeof c.longitude === 'number' && !isNaN(c.longitude)).length >= 2
             ? [
                 {
-                    coordinates: navigationRoute.coords,
+                    coordinates: navigationRoute.coords.filter((c: any) => c && typeof c.latitude === 'number' && !isNaN(c.latitude) && typeof c.longitude === 'number' && !isNaN(c.longitude)),
                     strokeColor: theme.primary,
                     strokeWidth: 4
                 }
@@ -341,9 +341,9 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                         </Marker>
                     )}
 
-                    {previewRoute && previewRoute.coords.length > 0 && (
+                    {previewRoute && previewRoute.coords && previewRoute.coords.filter((c: any) => c && typeof c.latitude === 'number' && !isNaN(c.latitude) && typeof c.longitude === 'number' && !isNaN(c.longitude)).length >= 2 && (
                         <Polyline
-                            coordinates={previewRoute.coords}
+                            coordinates={previewRoute.coords.filter((c: any) => c && typeof c.latitude === 'number' && !isNaN(c.latitude) && typeof c.longitude === 'number' && !isNaN(c.longitude))}
                             strokeColor={theme.primary}
                             strokeWidth={3}
                         />
@@ -394,9 +394,9 @@ export default function ActiveTourMap({ currentStop, previousStop }: ActiveTourM
                         </Marker>
 
                         {/* Navigation Route from User -> Destination */}
-                        {navigationRoute && navigationRoute.coords.length > 0 && (
+                        {navigationRoute && navigationRoute.coords && navigationRoute.coords.filter((c: any) => c && typeof c.latitude === 'number' && !isNaN(c.latitude) && typeof c.longitude === 'number' && !isNaN(c.longitude)).length >= 2 && (
                             <Polyline
-                                coordinates={navigationRoute.coords}
+                                coordinates={navigationRoute.coords.filter((c: any) => c && typeof c.latitude === 'number' && !isNaN(c.latitude) && typeof c.longitude === 'number' && !isNaN(c.longitude))}
                                 strokeColor={theme.primary}
                                 strokeWidth={4}
                             />

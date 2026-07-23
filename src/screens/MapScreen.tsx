@@ -23,6 +23,16 @@ export default function MapScreen() {
   const { speak } = useTextToSpeech();
   const { translateText, isAutoTranslateEnabled, forceTranslate } = useTranslation();
 
+  const [tracksViewChanges, setTracksViewChanges] = React.useState(true);
+
+  React.useEffect(() => {
+    setTracksViewChanges(true);
+    const timer = setTimeout(() => {
+      setTracksViewChanges(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [tours, selectedTour]);
+
   const {
     mapRef,
     tours,
@@ -68,7 +78,7 @@ export default function MapScreen() {
                 title={tour.title}
                 description={t('clickToViewRoute')}
                 onPress={() => handleTourSelect(tour)}
-                tracksViewChanges={false}
+                tracksViewChanges={tracksViewChanges}
               >
                 <View style={styles.markerContainer}>
                   <View style={[styles.markerImageWrapper, { borderColor: theme.fixedWhite || '#FFF', backgroundColor: theme.bgSecondary }]}>
@@ -114,7 +124,7 @@ export default function MapScreen() {
                 }}
                 title={`${stop.number}. ${stop.name}`}
                 description={stop.description}
-                tracksViewChanges={false}
+                tracksViewChanges={tracksViewChanges}
                 onPress={async () => {
                   let nameVal = stop.name;
                   let descVal = stop.description || '';
@@ -155,14 +165,18 @@ export default function MapScreen() {
               </Marker>
             ))}
 
-            {routeSegments && routeSegments.map((segment: any, index: number) => (
-              <Polyline
-                key={index}
-                coordinates={segment.coords}
-                strokeColor={theme.primary}
-                strokeWidth={4} // Thicker line
-              />
-            ))}
+            {routeSegments && routeSegments.map((segment: any, index: number) => {
+              const validCoords = segment.coords && segment.coords.filter((c: any) => c && typeof c.latitude === 'number' && !isNaN(c.latitude) && typeof c.longitude === 'number' && !isNaN(c.longitude));
+              if (!validCoords || validCoords.length < 2) return null;
+              return (
+                <Polyline
+                  key={index}
+                  coordinates={validCoords}
+                  strokeColor={theme.primary}
+                  strokeWidth={4} // Thicker line
+                />
+              );
+            })}
           </>
         )}
       </MapView>
