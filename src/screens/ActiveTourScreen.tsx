@@ -27,6 +27,7 @@ import { useUserContext } from '../context/UserContext';
 import { useActiveTour } from '../hooks/useActiveTour';
 import { usePurchases } from '../hooks/usePurchases';
 import BuyTokensModal from '../components/profileScreen/BuyTokensModal';
+import { LockedTourModal } from '../components/active-tour/LockedTourModal';
 import { LevelSystem } from '../utils/levelUtils';
 
 import { useTranslation } from '../context/TranslationContext';
@@ -488,122 +489,13 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         }
     };
 
-    const lockedModal = (
-        <AppModal
-            visible={isLocked && !localModalClose && !buyTokensModalVisible}
-            onClose={() => goToStop(5)}
-            title="" // Overwrites/hides the default title layout
-            alignment="center"
-            zIndex={1000}
-        >
-            {/* Custom Big Block Title below the default slot */}
-            <View style={{ alignItems: 'center', marginTop: -60, marginBottom: 20, zIndex: -1 }}>
-                <TextComponent
-                    variant="h1"
-                    style={{
-                        fontSize: 26,
-                        fontWeight: '900', // Heavy block weight
-                        letterSpacing: 1.5,
-                        textAlign: 'center',
-                        textTransform: 'uppercase', // Ensures block letters
-                        color: theme.textPrimary
-                    }}
-                >
-                    {t('continueAdventure') || "Continue the Adventure"}
-                </TextComponent>
-            </View>
-
-            {/* Progress Teaser */}
-            <View style={styles.progressContainer}>
-                <TextComponent color={theme.textPrimary} variant="label" bold style={styles.progressText}>
-                    {`${t('progress') || "Progress"}: ${currentStopIndex} / ${activeTour.tour?.stops?.length || 0} ${t('stops') || "Stops"}`}
-                </TextComponent>
-                <View style={[styles.progressBarTrack, { backgroundColor: theme.bgSecondary }]}>
-                    <View
-                        style={[
-                            styles.progressBarFill,
-                            {
-                                width: `${((currentStopIndex
-
-                                ) / (activeTour.tour?.stops?.length || 1)) * 100}%`
-                            },
-                        ]}
-                    />
-                </View>
-            </View>
-
-            {/* Anticipation (Pulsing Icon) */}
-            <View style={styles.pulseContainerWrapper}>
-                <Animated.View style={[styles.pulseIconContainer,]}>
-                    <LockClosedIcon size={56} color="#FFD700" />
-                </Animated.View>
-            </View>
-
-            {/* Value‑Driven Copy */}
-            <TextComponent color={theme.textPrimary} variant="body" center style={styles.valueCopy}>
-                {t('unlockCopy') || "To keep the incredible party going for the entire squad and explore more unique stops and challenges, one hero can unlock the full tour for everyone now."}
-            </TextComponent>
-
-            {/* Token Balance */}
-            <View style={[styles.tokenBalanceContainer, { backgroundColor: theme.bgSecondary, borderColor: 'rgba(255,215,0,0.25)', borderWidth: 1 }]}>
-                <TextComponent color={theme.textSecondary} variant="caption" bold>
-                    {t('yourTokenBalance') || "YOUR TOKEN BALANCE"}
-                </TextComponent>
-                <View style={styles.tokenBalanceValueRow}>
-                    <CircleStackIcon size={20} color="#FFD700" />
-                    <TextComponent color="#FFD700" bold variant="h3">
-                        {user.tokens || 0}
-                    </TextComponent>
-                </View>
-            </View>
-
-            {/* Choice Architecture */}
-            <View style={styles.lockActionButtons}>
-                <AnimatedPressable
-                    style={[
-                        styles.primaryHeroButton,
-                        isUnlocking && { opacity: 0.5 },
-                    ]}
-                    disabled={isUnlocking}
-                    onPress={() => {
-                        if ((user.tokens || 0) < 1) {
-                            setBuyTokensModalVisible(true);
-                        } else {
-                            handleUnlockWithToken();
-                        }
-                    }}
-                    interactionScale="medium"
-                    haptic="success"
-                >
-                    <View style={styles.buttonContent}>
-                        <TextComponent color="#15151A" bold variant="body" center>
-                            {t('beTheSquadHero') || "BE THE SQUAD HERO"}
-                        </TextComponent>
-                        <TextComponent color="rgba(21, 21, 26, 0.7)" variant="caption" center>
-                            {t('useOneToken') || "Use 1 Token (For Everyone!)"}
-                        </TextComponent>
-                    </View>
-                </AnimatedPressable>
-
-                <AnimatedPressable
-                    style={styles.secondaryCashButton}
-                    disabled={isUnlocking}
-                    onPress={handleUnlockWithCash}
-                    interactionScale="medium"
-                    haptic="success"
-                >
-                    <View style={styles.buttonContent}>
-                        <TextComponent color="#FFD700" bold variant="body" center>
-                            {`${t('unlockWithCash')} (${oneTokenPrice})`}
-                        </TextComponent>
-                        <TextComponent color={theme.textSecondary} variant="caption" center>
-                            {t('priceOneBeer') || "(The price of only 1 beer!)"}
-                        </TextComponent>
-                    </View>
-                </AnimatedPressable>
-            </View>
-        </AppModal>
-    );
+    const onUnlockWithToken = () => {
+        if ((user.tokens || 0) < 1) {
+            setBuyTokensModalVisible(true);
+        } else {
+            handleUnlockWithToken();
+        }
+    };
 
     return (
         <View style={[styles.container, { backgroundColor: theme.bgPrimary }]}>
@@ -665,7 +557,19 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
             {activeBingoChallengeItem}
 
             {/* Render lock overlay modal */}
-            {lockedModal}
+            <LockedTourModal
+                visible={isLocked && !localModalClose && !buyTokensModalVisible}
+                onClose={() => goToStop(5)}
+                currentStopIndex={currentStopIndex}
+                totalStops={activeTour.tour?.stops?.length || 0}
+                tokens={user.tokens || 0}
+                oneTokenPrice={oneTokenPrice}
+                isUnlocking={isUnlocking}
+                onUnlockWithToken={onUnlockWithToken}
+                onUnlockWithCash={handleUnlockWithCash}
+                theme={theme}
+                t={t}
+            />
 
             {/* Render buy tokens modal */}
             <BuyTokensModal

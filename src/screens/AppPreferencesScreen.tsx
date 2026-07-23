@@ -18,6 +18,9 @@ import { darkTheme, lightTheme } from '../context/theme';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
 import { useIsFocused } from '@react-navigation/native';
 import { useTutorial } from '../context/TutorialContext';
+import { ThemeSelector } from '../components/preferences/ThemeSelector';
+import { NarrationSettings } from '../components/preferences/NarrationSettings';
+import { TextSizeSettings } from '../components/preferences/TextSizeSettings';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -178,115 +181,13 @@ export default function AppPreferencesScreen() {
 
         {/* Custom Theme Section */}
         {renderSectionHeader(t('customThemes') || 'Custom Themes', 'brush-outline')}
-        {!user ? (
-          <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor, padding: 20, alignItems: 'center' }]}>
-            <Ionicons name="brush-outline" size={32} color={theme.textTertiary} style={{ marginBottom: 10 }} />
-            <TextComponent style={{ textAlign: 'center', marginBottom: 6 }} color={theme.textPrimary} bold variant="body">
-              Personalize Your Experience
-            </TextComponent>
-            <TextComponent style={{ textAlign: 'center', marginBottom: 16 }} color={theme.textSecondary} variant="caption">
-              Sign in to unlock 10 premium custom color themes and save your preferences.
-            </TextComponent>
-          </View>
-        ) : (
-          <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
-            <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 4 }}>
-              <TextComponent color={theme.textSecondary} variant="caption">
-                Select a custom color palette to skin the app.
-              </TextComponent>
-            </View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.themeScrollContainer}
-            >
-              {/* Default Theme Card */}
-              {(() => {
-                const isActive = !user.customTheme;
-                const colors: [string, string] = mode === 'dark' 
-                  ? ['#1E293B', '#0F172A'] // Slate/Dark default representation
-                  : ['#FFFFFF', '#F8FAFC']; // White/Light default representation
-                
-                return (
-                  <AnimatedPressable
-                    onPress={(e) => handleThemeSelect(null, e)}
-                    style={[
-                      styles.themeOption,
-                      {
-                        backgroundColor: isActive ? theme.primary + '10' : 'transparent',
-                        borderColor: isActive ? theme.primary : theme.borderSecondary,
-                        borderWidth: isActive ? 1.5 : 1
-                      }
-                    ]}
-                  >
-                    <LinearGradient
-                      colors={colors}
-                      style={styles.themeColorCircle}
-                    />
-                    <TextComponent
-                      style={styles.themeLabel}
-                      color={isActive ? theme.primary : theme.textPrimary}
-                      bold={isActive}
-                      variant="caption"
-                      numberOfLines={1}
-                    >
-                      Default
-                    </TextComponent>
-                    {isActive && (
-                      <View style={[styles.activeBadge, { backgroundColor: theme.primary }]}>
-                        <Ionicons name="checkmark" size={10} color={theme.textOnPrimary} />
-                      </View>
-                    )}
-                  </AnimatedPressable>
-                );
-              })()}
-
-              {/* 10 Other Themes */}
-              {COLOR_THEMES.filter(tc => !tc.id.endsWith('_accessibility')).map((themeConfig) => {
-                const isActive = user.customTheme === themeConfig.id;
-                const config = mode === 'dark' ? themeConfig.dark : themeConfig.light;
-                const colors: [string, string] = [
-                  config.primary || theme.primary,
-                  config.secondary || config.primary || theme.secondary
-                ];
-
-                return (
-                  <AnimatedPressable
-                    key={themeConfig.id}
-                    onPress={(e) => handleThemeSelect(themeConfig.id, e)}
-                    style={[
-                      styles.themeOption,
-                      {
-                        backgroundColor: isActive ? theme.primary + '10' : 'transparent',
-                        borderColor: isActive ? theme.primary : theme.borderSecondary,
-                        borderWidth: isActive ? 1.5 : 1
-                      }
-                    ]}
-                  >
-                    <LinearGradient
-                      colors={colors}
-                      style={styles.themeColorCircle}
-                    />
-                    <TextComponent
-                      style={styles.themeLabel}
-                      color={isActive ? theme.primary : theme.textPrimary}
-                      bold={isActive}
-                      variant="caption"
-                      numberOfLines={1}
-                    >
-                      {themeConfig.name}
-                    </TextComponent>
-                    {isActive && (
-                      <View style={[styles.activeBadge, { backgroundColor: theme.primary }]}>
-                        <Ionicons name="checkmark" size={10} color={theme.textOnPrimary} />
-                      </View>
-                    )}
-                  </AnimatedPressable>
-                );
-              })}
-            </ScrollView>
-          </View>
-        )}
+        <ThemeSelector
+          user={user}
+          mode={mode}
+          theme={theme}
+          onSelectTheme={handleThemeSelect}
+          t={t}
+        />
 
         {/* App Interface Language Section */}
         {renderSectionHeader(t('appInterfaceLanguage'), 'language-outline')}
@@ -430,176 +331,26 @@ export default function AppPreferencesScreen() {
 
         {/* Accessibility Narration Section */}
         {renderSectionHeader(t('accessibilityNarration' as any) || 'Accessibility Narration', 'volume-medium-outline')}
-        <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}>
-          <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
-            <TextComponent color={theme.textSecondary} variant="caption">
-              {t('accessibilityNarrationDesc')}
-            </TextComponent>
-          </View>
-          <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingBottom: 16, gap: 8 }}>
-            {[
-              { id: 'off', label: t('off'), desc: t('noNarration') },
-              { id: 'tour-only', label: t('tourOnly'), desc: t('duringTours') },
-              { id: 'full', label: t('fullApp'), desc: t('narrateAllScreens') },
-            ].map((modeOpt) => {
-              const isActive = narrationMode === modeOpt.id;
-              return (
-                <Pressable
-                  key={modeOpt.id}
-                  onPress={() => {
-                    setNarrationMode(modeOpt.id as any);
-                    const formatString = require('../utils/stringUtils').formatString;
-                    speak(formatString(t('narrationModeChangedTo'), modeOpt.label), true);
-                  }}
-                  style={[
-                    styles.themeOption,
-                    {
-                      flex: 1,
-                      backgroundColor: isActive ? theme.primary + '10' : 'transparent',
-                      borderColor: isActive ? theme.primary : theme.borderSecondary,
-                      borderWidth: isActive ? 1.5 : 1,
-                      paddingVertical: 10,
-                      borderRadius: 14,
-                    }
-                  ]}
-                >
-                  <Ionicons 
-                    name={modeOpt.id === 'off' ? 'volume-mute-outline' : modeOpt.id === 'tour-only' ? 'walk-outline' : 'megaphone-outline'} 
-                    size={22} 
-                    color={isActive ? theme.primary : theme.textSecondary} 
-                    style={{ marginBottom: 6 }}
-                  />
-                  <TextComponent color={isActive ? theme.primary : theme.textPrimary} bold={isActive} variant="caption">
-                    {modeOpt.label}
-                  </TextComponent>
-                  <TextComponent color={theme.textTertiary} variant="caption" style={{ fontSize: 9, marginTop: 2, textAlign: 'center' }}>
-                    {modeOpt.desc}
-                  </TextComponent>
-                  {isActive && (
-                    <View style={[styles.activeBadge, { backgroundColor: theme.primary }]}>
-                      <Ionicons name="checkmark" size={10} color={theme.textOnPrimary} />
-                    </View>
-                  )}
-                </Pressable>
-              );
-            })}
-          </View>
-
-          {/* Speech Rate Control */}
-          <View style={{ borderTopWidth: 1, borderTopColor: theme.borderSecondary, padding: 16 }}>
-            <TextComponent color={theme.textPrimary} bold variant="body" style={{ marginBottom: 12 }}>
-              {t('voiceNarrationSpeed')}
-            </TextComponent>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              {[
-                { rate: 0.75, label: t('slower') },
-                { rate: 1.0, label: t('normal') },
-                { rate: 1.25, label: t('faster') },
-                { rate: 1.4, label: t('fast') },
-              ].map((rateOpt) => {
-                const isActive = speechRate === rateOpt.rate;
-                return (
-                  <Pressable
-                    key={rateOpt.rate}
-                    onPress={() => {
-                      setSpeechRate(rateOpt.rate);
-                      const formatString = require('../utils/stringUtils').formatString;
-                      speak(formatString(t('narrationSpeedChangedTo' as any) || 'Narration speed changed to {0}', rateOpt.label), true, rateOpt.rate);
-                    }}
-                    style={{
-                      flex: 1,
-                      height: 38,
-                      borderRadius: 10,
-                      backgroundColor: isActive ? theme.primary : theme.bgPrimary,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderWidth: 1,
-                      borderColor: isActive ? theme.primary : theme.borderSecondary,
-                    }}
-                  >
-                    <TextComponent color={isActive ? theme.textOnPrimary : theme.textPrimary} bold={isActive} variant="caption">
-                      {rateOpt.label}
-                    </TextComponent>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </View>
-          
-          {/* Show Speak Buttons Option */}
-          <View style={[styles.row, { borderTopWidth: 1, borderTopColor: theme.borderSecondary, borderBottomWidth: 0, paddingHorizontal: 16, paddingVertical: 14 }]}>
-            <View style={styles.rowInfo}>
-              <TextComponent color={theme.textPrimary} bold variant="body">
-                {t('showSpeakerIcons')}
-              </TextComponent>
-              <TextComponent color={theme.textSecondary} variant="caption">
-                {t('showSpeakerIconsDesc')}
-              </TextComponent>
-            </View>
-            <Switch
-              value={showSpeakButtons}
-              onValueChange={setShowSpeakButtons}
-              trackColor={{ false: theme.bgDisabled, true: theme.primary + '80' }}
-              thumbColor={showSpeakButtons ? theme.primary : '#f4f3f4'}
-            />
-          </View>
-        </View>
+        <NarrationSettings
+          narrationMode={narrationMode}
+          setNarrationMode={setNarrationMode}
+          speechRate={speechRate}
+          setSpeechRate={setSpeechRate}
+          showSpeakButtons={showSpeakButtons}
+          setShowSpeakButtons={setShowSpeakButtons}
+          theme={theme}
+          t={t}
+          speak={speak}
+        />
 
         {/* Text Size Section */}
         {renderSectionHeader(t('textSize' as any) || 'Text Size', 'text-outline')}
-        <View style={[styles.card, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor, padding: 16 }]}>
-          <TextComponent color={theme.textSecondary} variant="caption" style={{ marginBottom: 12 }}>
-            {t('textSizeDesc')}
-          </TextComponent>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            {[
-              { id: 'smallest' as const, label: t('smallest') },
-              { id: 'small' as const, label: t('small') },
-              { id: 'normal' as const, label: t('normal') },
-              { id: 'large' as const, label: t('large') },
-              { id: 'largest' as const, label: t('largest') },
-            ].map((opt) => {
-              const isActive = fontScale === opt.id;
-              const previewSize = 
-                opt.id === 'smallest' ? 10 :
-                opt.id === 'small' ? 12 :
-                opt.id === 'normal' ? 14 :
-                opt.id === 'large' ? 17 : 21;
-              return (
-                <Pressable
-                  key={opt.id}
-                  onPress={() => setFontScale(opt.id)}
-                  style={{
-                    flex: 1,
-                    paddingVertical: 10,
-                    paddingHorizontal: 4,
-                    borderRadius: 10,
-                    backgroundColor: isActive ? theme.primary + '15' : theme.bgPrimary,
-                    alignItems: 'center',
-                    borderWidth: isActive ? 1.5 : 1,
-                    borderColor: isActive ? theme.primary : theme.borderSecondary,
-                    gap: 2,
-                  }}
-                >
-                  <TextComponent
-                    color={isActive ? theme.primary : theme.textSecondary}
-                    bold={isActive}
-                    size={previewSize}
-                  >
-                    Aa
-                  </TextComponent>
-                  <TextComponent 
-                    color={isActive ? theme.primary : theme.textPrimary} 
-                    bold={isActive} 
-                    style={{ fontSize: 9 }}
-                  >
-                    {opt.label}
-                  </TextComponent>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
+        <TextSizeSettings
+          fontScale={fontScale}
+          setFontScale={setFontScale}
+          theme={theme}
+          t={t}
+        />
 
         {/* Dyslexic Mode Section */}
         {renderSectionHeader(t('dyslexicMode' as any) || 'Dyslexic Font', 'glasses-outline')}

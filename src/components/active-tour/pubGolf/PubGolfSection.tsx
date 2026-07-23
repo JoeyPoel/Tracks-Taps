@@ -86,7 +86,7 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
         try {
             await onAddPenalty(label, sips);
             showToast({
-                title: t('penalty') || 'Penalty Added!',
+                title: t('penalty' as any) || 'Penalty Added!',
                 message: `${label} (+${sips} ${t('sips') || 'sips'})`,
                 emoji: emoji || '⚠️',
                 backgroundColor: color || '#EF4444',
@@ -99,12 +99,12 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
 
     const handleAddCustom = async () => {
         if (!customDesc.trim()) {
-            Alert.alert(t('error') || 'Error', t('customPenaltyErrorDesc') || 'Please enter a description');
+            Alert.alert(t('error') || 'Error', t('customPenaltyErrorDesc' as any) || 'Please enter a description');
             return;
         }
         const sipsVal = parseInt(customSips);
         if (isNaN(sipsVal) || sipsVal <= 0) {
-            Alert.alert(t('error') || 'Error', t('customPenaltyErrorSips') || 'Please enter a valid number of sips');
+            Alert.alert(t('error') || 'Error', t('customPenaltyErrorSips' as any) || 'Please enter a valid number of sips');
             return;
         }
 
@@ -113,7 +113,7 @@ const PubGolfSection: React.FC<PubGolfSectionProps> = ({
         try {
             await onAddPenalty(customDesc.trim(), sipsVal);
             showToast({
-                title: t('penalty') || 'Penalty Added!',
+                title: t('penalty' as any) || 'Penalty Added!',
                 message: `${customDesc.trim()} (+${sipsVal} ${t('sips') || 'sips'})`,
                 emoji: '⚠️',
                 backgroundColor: '#EF4444',

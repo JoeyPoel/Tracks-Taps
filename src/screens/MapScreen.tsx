@@ -23,16 +23,6 @@ export default function MapScreen() {
   const { speak } = useTextToSpeech();
   const { translateText, isAutoTranslateEnabled, forceTranslate } = useTranslation();
 
-  const [tracksViewChanges, setTracksViewChanges] = React.useState(true);
-
-  React.useEffect(() => {
-    setTracksViewChanges(true);
-    const timer = setTimeout(() => {
-      setTracksViewChanges(false);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [tours, selectedTour]);
-
   const {
     mapRef,
     tours,
@@ -43,6 +33,16 @@ export default function MapScreen() {
     handleBack,
     onRegionChangeComplete
   } = useMapScreenLogic();
+
+  const [tracksViewChanges, setTracksViewChanges] = React.useState(true);
+
+  React.useEffect(() => {
+    setTracksViewChanges(true);
+    const timer = setTimeout(() => {
+      setTracksViewChanges(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [tours, selectedTour]);
 
   return (
     <View style={styles.container}>

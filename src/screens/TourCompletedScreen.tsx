@@ -13,6 +13,8 @@ import { AnimatedButton } from '../components/common/AnimatedButton';
 import FeedbackCard from '../components/tourCompleted/FeedbackCard';
 import Podium from '../components/tourCompleted/Podium';
 import ReviewForm from '../components/tourCompleted/ReviewForm';
+import { WinnerHeader } from '../components/tourCompleted/WinnerHeader';
+import { RunnerUpList } from '../components/tourCompleted/RunnerUpList';
 import TourCard from '../components/exploreScreen/TourCard';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
@@ -356,41 +358,18 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
 
                     <View style={styles.winnerHeaderContainer}>
                         {revealState === 'CELEBRATE' && (
-                            <Animated.View 
-                                key={`${rankingMode}_${currentWinner?.id || 'none'}`}
-                                entering={ZoomIn.springify().damping(12)} 
-                                style={styles.winnerHeader}
-                            >
-                                <View style={{ alignItems: 'center' }}>
-                                    <TextComponent style={styles.winnerText} color={theme.textPrimary} bold variant="h1" center>
-                                        {winnerName}
-                                    </TextComponent>
-                                </View>
-                                <View style={[styles.winnerScorePill, { backgroundColor: theme.bgSecondary }]}>
-                                    <View style={styles.scoreItem}>
-                                        <Ionicons name="flash" size={14} color={theme.primary} />
-                                        <TextComponent style={styles.winnerScoreText} color={theme.primary} bold variant="caption">
-                                            {currentWinner?.score || 0} PTS
-                                        </TextComponent>
-                                    </View>
-                                    
-                                    {isPubGolf && currentWinner && (() => {
-                                        const stats = getPubGolfStats(stops, currentWinner.pubGolfStops, currentWinner.pubGolfPenalties);
-                                        const sips = stats.totalSips;
-                                        return (
-                                            <>
-                                                <View style={{ width: 1, height: 12, backgroundColor: theme.borderPrimary, marginHorizontal: 4 }} />
-                                                <View style={[styles.pgBadge, { backgroundColor: theme.bgSecondary }]}>
-                                                    <Ionicons name="beer-outline" size={12} color={theme.pubgolfColor} />
-                                                    <TextComponent style={[styles.winnerScoreText, { color: theme.pubgolfColor }]} bold variant="caption">
-                                                        {sips} {t('sips').toUpperCase()}
-                                                    </TextComponent>
-                                                </View>
-                                            </>
-                                        );
-                                    })()}
-                                </View>
-                            </Animated.View>
+                            <WinnerHeader
+                                winnerName={winnerName}
+                                score={currentWinner?.score || 0}
+                                isPubGolf={isPubGolf || false}
+                                stops={stops}
+                                pubGolfStops={currentWinner?.pubGolfStops || []}
+                                pubGolfPenalties={currentWinner?.pubGolfPenalties || []}
+                                theme={theme}
+                                t={t}
+                                rankingMode={rankingMode}
+                                winnerId={currentWinner?.id || 'none'}
+                            />
                         )}
                     </View>
 
@@ -418,34 +397,14 @@ export default function TourCompletedScreen({ activeTourId, celebrate = false }:
                     )}
 
                     {/* Runner Ups List - Minimal Clean Design */}
-                    {revealState === 'CELEBRATE' && runnerUps.length > 0 && (
-                        <Animated.View entering={FadeInDown.delay(400).springify()} style={styles.runnerUpSection}>
-                            <TextComponent style={styles.sectionTitle} color={theme.textSecondary} bold variant="caption">{t('leaderboard')}</TextComponent>
-                            {runnerUps.map((team, index) => (
-                                <View key={team.id} style={[styles.runnerUpRow, { borderColor: theme.borderPrimary }]}>
-                                    <TextComponent style={styles.runnerUpRank} color={theme.textSecondary} bold variant="body">{index + 4}</TextComponent>
-                                    <TextComponent style={styles.runnerUpName} color={theme.textPrimary} bold variant="body">{team.name || team.user?.name}</TextComponent>
-                                    <View style={{ alignItems: 'flex-end' }}>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                            <Ionicons name="flash" size={12} color={theme.primary} />
-                                            <TextComponent style={styles.runnerUpScore} color={theme.textPrimary} bold variant="body">{team.score} PTS</TextComponent>
-                                        </View>
-                                        {isPubGolf && (() => {
-                                            const stats = getPubGolfStats(stops, team.pubGolfStops, team.pubGolfPenalties);
-                                            const sips = stats.totalSips;
-                                            return (
-                                                <View style={[styles.pgBadge, { backgroundColor: theme.bgSecondary, marginTop: 2 }]}>
-                                                    <Ionicons name="beer-outline" size={10} color={theme.pubgolfColor} />
-                                                    <TextComponent style={{ color: theme.pubgolfColor, fontWeight: '800', fontSize: 10 }} variant="caption">
-                                                        {sips} {t('sips').toUpperCase()}
-                                                    </TextComponent>
-                                                </View>
-                                            );
-                                        })()}
-                                    </View>
-                                </View>
-                            ))}
-                        </Animated.View>
+                    {revealState === 'CELEBRATE' && (
+                        <RunnerUpList
+                            runnerUps={runnerUps}
+                            isPubGolf={isPubGolf || false}
+                            stops={stops}
+                            theme={theme}
+                            t={t}
+                        />
                     )}
 
                     {/* Actions Footer */}

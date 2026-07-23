@@ -25,6 +25,8 @@ import AddToSavedTripsModal from '../components/saved-trips/AddToSavedTripsModal
 import ReviewForm from '../components/tourCompleted/ReviewForm';
 import TourGallery from '../components/tourdetailScreen/TourGallery';
 import TourReviews from '../components/tourdetailScreen/TourReviews';
+import { TourDetailHero } from '../components/tourdetailScreen/TourDetailHero';
+import { TranslationButton } from '../components/tourdetailScreen/TranslationButton';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -257,98 +259,17 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
 
-        {/* Hero Section */}
-        <View style={styles.heroContainer}>
-          <Image
-            source={{ uri: tour.imageUrl }}
-            style={styles.heroImage}
-            contentFit="cover"
-            transition={500}
-          />
-          <LinearGradient
-            colors={['transparent', 'rgba(0,0,0,0.05)', theme.bgPrimary]}
-            locations={[0, 0.4, 1]}
-            style={styles.heroGradient}
-          />
-          <Animated.View entering={FadeInUp.delay(200)} style={styles.heroContent}>
-            <View style={[styles.tagContainer, { backgroundColor: theme.primary }]}>
-              <TextComponent style={styles.tagText} variant="caption" bold color={theme.textOnPrimary}>
-                {t(tour.genre?.toLowerCase() as any) || tour.genre}
-              </TextComponent>
-            </View>
-            <TextComponent style={styles.title} variant="h1" bold color={theme.fixedWhite}>{tour.title}</TextComponent>
-            <TouchableOpacity
-              style={styles.authorRow}
-              activeOpacity={0.7}
-              onPress={() => tour.author?.id && router.push({ pathname: '/(tabs)/profile/friend-profile', params: { userId: tour.author.id } })}
-            >
-              <TextComponent style={{ marginRight: 4 }} color={theme.fixedWhite} variant="body">{t('by')}</TextComponent>
-              <TextComponent style={{ textDecorationLine: 'underline' }} color={theme.fixedWhite} variant="body" bold>{tour.author?.name || t('unknown')}</TextComponent>
-            </TouchableOpacity>
-          </Animated.View>
-
-          {/* View on Map FAB */}
-          <TouchableOpacity
-            onPress={() => router.push({ pathname: '/(tabs)/map', params: { tourId: tour.id } })}
-            style={[styles.mapFab, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
-          >
-            <Ionicons name="map" size={24} color={theme.textPrimary} />
-            <TextComponent style={styles.mapFabText} variant="label" bold color={theme.textPrimary}>{t('map')}</TextComponent>
-          </TouchableOpacity>
-
-
-          {/* Add to List Button */}
-          <TouchableOpacity
-            onPress={() => {
-              if (!user) {
-                authEvents.emit();
-                return;
-              }
-              setShowSavedTripModal(true);
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            }}
-            style={[styles.addToListFab, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
-          >
-            <Ionicons name={isSaved ? "bookmark" : "bookmark-outline"} size={24} color={isSaved ? "#FFD700" : theme.textPrimary} />
-          </TouchableOpacity>
-
-          {/* Saved Trip Button */}
-          <TouchableOpacity
-            onPress={() => {
-              if (!user) {
-                authEvents.emit();
-                return;
-              }
-              toggleFavourite(tourId);
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            }}
-            onLongPress={() => {
-              if (!user) {
-                authEvents.emit();
-                return;
-              }
-              setShowSavedTripModal(true);
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            }}
-            style={[styles.savedTripFab, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
-          >
-            <Ionicons
-              name={isFavourite(tourId) ? "heart" : "heart-outline"}
-              size={24}
-              color={isFavourite(tourId) ? theme.primary : theme.textPrimary}
-            />
-          </TouchableOpacity>
-
-          {/* Edit Button (Only for Author) */}
-          {user && tour.author?.id && String(user.id) === String(tour.author.id) && (
-            <TouchableOpacity
-              onPress={() => router.push({ pathname: '/(tabs)/create', params: { tourId: tour.id } })}
-              style={[styles.editFab, { backgroundColor: theme.bgSecondary, shadowColor: theme.shadowColor }]}
-            >
-              <Ionicons name="pencil" size={24} color={theme.primary} />
-            </TouchableOpacity>
-          )}
-        </View>
+        <TourDetailHero
+          tour={tour}
+          theme={theme}
+          t={t}
+          user={user}
+          isSaved={isSaved}
+          isFavourite={isFavourite}
+          toggleFavourite={toggleFavourite}
+          setShowSavedTripModal={setShowSavedTripModal}
+          router={router}
+        />
 
         {/* Stats Grid */}
         <View style={styles.statsGrid}>
@@ -583,92 +504,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   );
 }
 
-interface TranslationButtonProps {
-  theme: any;
-  t: (key: any) => string;
-  isTourDetailsStep: boolean;
-  isAutoTranslateEnabled: boolean;
-  setIsAutoTranslateEnabled: (enabled: boolean) => void;
-  isTargetLanguageSet: boolean;
-  setIsLangModalVisible: (visible: boolean) => void;
-}
 
-const TranslationButton = ({
-  theme,
-  t,
-  isTourDetailsStep,
-  isAutoTranslateEnabled,
-  setIsAutoTranslateEnabled,
-  isTargetLanguageSet,
-  setIsLangModalVisible,
-}: TranslationButtonProps) => {
-  const pulseValue = useSharedValue(1);
-
-  React.useEffect(() => {
-    if (isTourDetailsStep) {
-      pulseValue.value = withRepeat(
-        withSequence(
-          withTiming(1.15, { duration: 800 }),
-          withTiming(1.0, { duration: 800 })
-        ),
-        -1,
-        true
-      );
-    } else {
-      pulseValue.value = 1;
-    }
-  }, [isTourDetailsStep]);
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: pulseValue.value }],
-      shadowOpacity: isTourDetailsStep ? 0.35 : 0,
-      shadowRadius: isTourDetailsStep ? 8 : 0,
-      shadowColor: theme.primary,
-      shadowOffset: { width: 0, height: 0 },
-      elevation: isTourDetailsStep ? 6 : 0,
-      borderRadius: 16,
-      borderWidth: isTourDetailsStep ? 1.5 : (isAutoTranslateEnabled ? 1 : 0),
-      borderColor: isTourDetailsStep ? theme.primary : (isAutoTranslateEnabled ? theme.primary + '30' : 'transparent'),
-    };
-  });
-
-  return (
-    <Animated.View style={animatedStyle}>
-      <TouchableOpacity
-        onPress={() => {
-          const newEnabled = !isAutoTranslateEnabled;
-          setIsAutoTranslateEnabled(newEnabled);
-          if (newEnabled && !isTargetLanguageSet) {
-            setIsLangModalVisible(true);
-          }
-        }}
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: isAutoTranslateEnabled || isTourDetailsStep ? theme.primary + '15' : theme.bgSecondary,
-          paddingHorizontal: 12,
-          paddingVertical: 6,
-          borderRadius: 16,
-        }}
-      >
-        <Ionicons
-          name="language"
-          size={16}
-          color={isAutoTranslateEnabled || isTourDetailsStep ? theme.primary : theme.textSecondary}
-        />
-        <TextComponent
-          variant="caption"
-          color={isAutoTranslateEnabled || isTourDetailsStep ? theme.primary : theme.textSecondary}
-          bold
-          style={{ marginLeft: 6 }}
-        >
-          {t('translate')}
-        </TextComponent>
-      </TouchableOpacity>
-    </Animated.View>
-  );
-};
 
 // Mini Component for Stats
 const StatCard = ({ icon, label, value, theme, delay }: any) => (
