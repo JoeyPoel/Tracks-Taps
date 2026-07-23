@@ -235,7 +235,7 @@ export default function ProfileScreen() {
         )}
 
         {/* Grouped Settings Section */}
-        <Animated.View style={{ marginTop: 40 }}>
+        <Animated.View style={{ marginTop: 20 }}>
           <TextComponent style={[styles.sectionTitle, { color: theme.textSecondary }]}>{t('manageAccount')?.toUpperCase() || 'MANAGE ACCOUNT'}</TextComponent>
 
           <View style={[styles.settingsGroup, { backgroundColor: theme.bgSecondary }]}>

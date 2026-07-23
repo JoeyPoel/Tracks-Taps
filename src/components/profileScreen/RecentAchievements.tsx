@@ -75,7 +75,15 @@ export default function RecentAchievements({ achievements, loading, onSeeAll }: 
                                 <View
                                     style={[
                                         styles.card,
-                                        { backgroundColor: theme.bgSecondary }
+                                        { 
+                                            backgroundColor: theme.bgSecondary,
+                                            borderColor: activeColor + '35',
+                                            borderWidth: 1.5,
+                                            shadowColor: activeColor,
+                                            shadowOpacity: 0.15,
+                                            shadowRadius: 10,
+                                            elevation: 4
+                                        }
                                     ]}
                                 >
                                     <View style={[styles.iconContainer, { backgroundColor: activeColor + '15' }]}>
@@ -133,20 +141,19 @@ const styles = StyleSheet.create({
         marginHorizontal: 2,
     },
     iconContainer: {
-        width: 50,
-        height: 50,
-        borderRadius: 12, // Rounded square to match new List Item style
+        width: 54,
+        height: 54,
+        borderRadius: 27, // Fully circular bubble
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 16,
-        // Clean solid look
+        marginBottom: 12,
     },
     title: {
-        fontSize: 11,
-        fontWeight: '600',
+        fontSize: 12,
+        fontWeight: '700',
         textAlign: 'center',
         width: '100%',
-        opacity: 0.9,
+        opacity: 0.95,
     },
     emptyText: {
         fontSize: 14,

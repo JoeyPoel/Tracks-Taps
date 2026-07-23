@@ -54,7 +54,7 @@ export default function TeamSetupScreen() {
     }, [isFocused, narrationMode]);
 
     return (
-        <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} animateEntry={false}>
+        <ScreenWrapper style={{ backgroundColor: theme.bgPrimary }} includeTop={false} animateEntry={false}>
             <ScreenHeader
                 title={t('teamSetup')}
                 showBackButton={true}
