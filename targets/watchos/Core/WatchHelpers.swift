@@ -101,7 +101,7 @@ extension View {
         if manager.dyslexicMode {
             return self.font(.custom("OpenDyslexic", size: scaledSize))
         } else {
-            return self.font(.system(scaledSize, weight: weight, design: .rounded))
+            return self.font(.system(size: scaledSize, weight: weight, design: .rounded))
         }
     }
 }

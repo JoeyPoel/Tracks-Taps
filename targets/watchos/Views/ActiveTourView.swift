@@ -43,8 +43,6 @@ struct ActiveTourView: View {
             }
         }
         .tabViewStyle(.page)
-        // Set the default selection page (StopInfoPage)
-        .indexViewStyle(.page(backgroundDisplayMode: .always))
         .background(Color(hex: manager.themeBgPrimary))
     }
 }

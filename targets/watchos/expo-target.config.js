@@ -1,7 +1,7 @@
 /** @type {import('@bacons/apple-targets/app.plugin').ConfigFunction} */
 module.exports = (config) => ({
   type: "watch",
-  name: "Tracks & Taps",
+  name: "TracksAndTaps",
   identifier: "com.joeypoel.trackstaps.watch",
   deploymentTarget: "10.0",
   icon: "../../assets/images/AppIconColouredDarkTheme.png",
@@ -9,5 +9,9 @@ module.exports = (config) => ({
     "com.apple.security.application-groups": [
       "group.com.joeypoel.trackstaps"
     ]
+  },
+  infoPlist: {
+    CFBundleDisplayName: "Tracks & Taps",
+    CFBundleName: "Tracks & Taps"
   }
 });
