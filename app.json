@@ -15,6 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.joeypoel.trackstaps",
+      "appleTeamId": "W394V23ZQZ",
       "buildNumber": "10",
       "icon": {
         "light": "./assets/images/AppIconColouredWhiteTheme.png",
