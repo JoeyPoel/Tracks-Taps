@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tracks&Taps",
     "slug": "tracks-and-taps",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/AppIconColouredDarkTheme.png",
     "scheme": "tracks-taps",
@@ -64,7 +64,6 @@
     },
     "plugins": [
       "@bacons/apple-targets",
-      "@plevo/expo-watch-connectivity",
       "./plugins/withModularHeaders",
       "expo-router",
       [
