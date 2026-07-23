@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tracks&Taps",
     "slug": "tracks-and-taps",
-    "version": "2.7.7",
+    "version": "3.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/AppIconColouredDarkTheme.png",
     "scheme": "tracks-taps",
@@ -29,7 +29,12 @@
         "ITSAppUsesNonExemptEncryption": false
       },
       "googleServicesFile": "./GoogleService-Info.plist",
-      "usesAppleSignIn": true
+      "usesAppleSignIn": true,
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.com.joeypoel.trackstaps"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -57,6 +62,8 @@
       ]
     },
     "plugins": [
+      "@bacons/apple-targets",
+      "@plevo/expo-watch-connectivity",
       "./plugins/withModularHeaders",
       "expo-router",
       [

@@ -6,6 +6,7 @@ import { useAuth } from '@/src/context/AuthContext';
 import { useTutorial } from '@/src/context/TutorialContext';
 import { getAppMaxWidth } from '@/src/hooks/useAppWidth';
 import { useLevelUpListener } from '@/src/hooks/useLevelUpListener';
+import { useWatchSync } from '@/src/hooks/useWatchSync';
 import { supabase } from '@/utils/supabase';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -35,6 +36,9 @@ export function MainLayout() {
 
     // Initialize push notifications for the logged in user
     usePushNotifications(user?.id);
+
+    // Sync app state to watchOS companion app
+    useWatchSync();
 
     useEffect(() => {
         const checkInitialState = async () => {
