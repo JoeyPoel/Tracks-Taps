@@ -193,7 +193,7 @@ struct PubGolfRow: View {
         }) {
             HStack(spacing: 4) {
                 Text("\(stop.stopNumber)")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .font(.system(size: 10, weight: .bold))
                     .foregroundColor(textSecondary)
                     .frame(width: 14)
 
@@ -238,7 +238,7 @@ struct PubGolfRow: View {
                     if stop.sips > 0 {
                         let colors = scoreColors(for: stop.sips, par: stop.par)
                         Text("\(stop.sips)")
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                            .font(.system(size: 11, weight: .bold))
                             .foregroundColor(colors.text)
                             .frame(width: 22, height: 22)
                             .background(
@@ -251,7 +251,7 @@ struct PubGolfRow: View {
                             )
                     } else {
                         Text("–")
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                            .font(.system(size: 11, weight: .bold))
                             .foregroundColor(textSecondary)
                             .frame(width: 22, height: 22)
                             .background(

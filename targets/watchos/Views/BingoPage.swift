@@ -67,7 +67,7 @@ struct BingoCell: View {
     var isDark: Bool { manager.themeMode != "light" }
 
     var typeEmoji: String {
-        guard let type = cell?.type else { return "⭐" }
+        guard let type = cell?.challenge.type else { return "⭐" }
         switch type.uppercased() {
         case "TRIVIA":     return "❓"
         case "PICTURE":    return "📸"
@@ -81,7 +81,7 @@ struct BingoCell: View {
 
     var body: some View {
         let isCompleted = cell?.isCompleted ?? false
-        let isFailed = cell?.isFailed ?? false
+        let isFailed = cell?.challenge.isFailed ?? false
         let title = cell?.title ?? ""
 
         ZStack {
