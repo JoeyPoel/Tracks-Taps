@@ -66,48 +66,60 @@ struct BingoCell: View {
 
     var isDark: Bool { manager.themeMode != "light" }
 
+    var typeEmoji: String {
+        guard let type = cell?.type else { return "⭐" }
+        switch type.uppercased() {
+        case "TRIVIA":     return "❓"
+        case "PICTURE":    return "📸"
+        case "DARE":       return "🎯"
+        case "LOCATION", "CHECK_IN": return "📍"
+        case "RIDDLE":     return "🧩"
+        case "TRUE_FALSE": return "✅"
+        default:           return "⭐"
+        }
+    }
+
     var body: some View {
         let isCompleted = cell?.isCompleted ?? false
+        let isFailed = cell?.isFailed ?? false
         let title = cell?.title ?? ""
 
         ZStack {
             RoundedRectangle(cornerRadius: 6)
                 .fill(isCompleted
                       ? Color(hex: manager.themeSecondary).opacity(0.35)
-                      : (isDark ? Color.white.opacity(0.08) : Color.black.opacity(0.06)))
+                      : (isFailed ? Color(hex: "#EF4444").opacity(0.2) : (isDark ? Color.white.opacity(0.08) : Color.black.opacity(0.06))))
                 .overlay(
                     RoundedRectangle(cornerRadius: 6)
                         .stroke(isCompleted
                                 ? Color(hex: manager.themeSecondary).opacity(0.7)
-                                : Color.clear, lineWidth: 1.5)
+                                : (isFailed ? Color(hex: "#EF4444").opacity(0.7) : Color.clear), lineWidth: 1.5)
                 )
 
-            if isCompleted {
-                VStack(spacing: 1) {
+            VStack(spacing: 2) {
+                if isCompleted {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(Color(hex: manager.themeSecondary))
-                        .font(.system(size: 10))
-                    if !title.isEmpty {
-                        Text(title)
-                            .font(.system(size: 7, weight: .medium))
-                            .foregroundColor(isDark ? .white.opacity(0.8) : Color(hex: "#1E293B"))
-                            .multilineTextAlignment(.center)
-                            .lineLimit(2)
-                            .padding(.horizontal, 2)
-                    }
+                        .font(.system(size: 11))
+                } else if isFailed {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(Color(hex: "#EF4444"))
+                        .font(.system(size: 11))
+                } else {
+                    Text(typeEmoji)
+                        .font(.system(size: 12))
                 }
-            } else if !title.isEmpty {
-                Text(title)
-                    .font(.system(size: 7, weight: .medium))
-                    .foregroundColor(isDark ? .white.opacity(0.7) : Color(hex: "#475569"))
-                    .multilineTextAlignment(.center)
-                    .lineLimit(3)
-                    .padding(4)
-            } else {
-                Text("?")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(isDark ? Color.white.opacity(0.2) : Color.black.opacity(0.2))
+                
+                if !title.isEmpty {
+                    Text(title)
+                        .font(.system(size: 6.5, weight: .medium))
+                        .foregroundColor(isDark ? .white.opacity(0.8) : Color(hex: "#1E293B"))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .padding(.horizontal, 2)
+                }
             }
+            .padding(.vertical, 4)
         }
         .frame(maxWidth: .infinity)
         .aspectRatio(1, contentMode: .fit)

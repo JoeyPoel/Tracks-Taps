@@ -11,6 +11,17 @@ struct PreTourLobbyView: View {
         manager.teams.first { $0.id == manager.myTeamId }
     }
 
+    var formattedTourCode: String {
+        guard let id = manager.activeTourId else { return "" }
+        let s = String(id)
+        if s.count == 9 {
+            let index3 = s.index(s.startIndex, offsetBy: 3)
+            let index6 = s.index(s.startIndex, offsetBy: 6)
+            return "\(s[..<index3]) \(s[index3..<index6]) \(s[index6...])"
+        }
+        return s
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 8) {
@@ -30,28 +41,60 @@ struct PreTourLobbyView: View {
                     .foregroundColor(textPrimary)
                     .lineLimit(2)
 
+                // Tour code
+                if manager.activeTourId != nil {
+                    HStack(spacing: 4) {
+                        Text("CODE:")
+                            .wFont(size: 8, weight: .bold)
+                            .foregroundColor(.gray)
+                        Text(formattedTourCode)
+                            .wFont(size: 10, weight: .semibold, design: .monospaced)
+                            .foregroundColor(Color(hex: manager.themeAccent))
+                    }
+                    .padding(.top, -2)
+                }
+
                 Divider()
                     .background(Color.white.opacity(0.15))
                     .padding(.vertical, 2)
 
-                // My Team Details
+                // My Team Details (Rendered separately with full styling)
                 if let team = myTeam {
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text("YOUR TEAM")
-                            .wFont(size: 9, weight: .bold)
+                            .wFont(size: 8, weight: .bold)
                             .foregroundColor(.gray)
-                        HStack(spacing: 6) {
-                            Text(team.emoji)
-                                .font(.system(size: 13))
-                            Text(team.name)
-                                .wFont(size: 11, weight: .semibold)
-                                .foregroundColor(Color(hex: team.color))
+                        
+                        HStack(spacing: 8) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color(hex: team.color).opacity(0.2))
+                                    .frame(width: 24, height: 24)
+                                Text(team.emoji)
+                                    .font(.system(size: 14))
+                            }
+
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(team.name)
+                                    .wFont(size: 11, weight: .bold)
+                                    .foregroundColor(Color(hex: team.color))
+                                
+                                Text("Player: \(team.userName)")
+                                    .wFont(size: 9)
+                                    .foregroundColor(textSecondary)
+                            }
+                            Spacer()
                         }
+                        .padding(6)
+                        .background(Color.white.opacity(0.04))
+                        .cornerRadius(8)
                     }
-                    .padding(6)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.white.opacity(0.06))
-                    .cornerRadius(8)
+                    .padding(8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color(hex: team.color), lineWidth: 1.5)
+                    )
+                    .padding(.bottom, 4)
                 }
 
                 // Teams List Header
@@ -60,26 +103,35 @@ struct PreTourLobbyView: View {
                     .foregroundColor(textSecondary)
                     .padding(.top, 4)
 
-                // List of teams
+                // List of other teams (excluding current user's team)
                 VStack(spacing: 6) {
-                    ForEach(manager.teams) { team in
-                        HStack(spacing: 6) {
-                            Text(team.emoji)
-                                .font(.system(size: 11))
-                            
-                            VStack(alignment: .leading, spacing: 1) {
-                                Text(team.name)
-                                    .wFont(size: 10, weight: .semibold)
-                                    .foregroundColor(Color(hex: team.color))
-                                Text("Player: \(team.userName)")
-                                    .wFont(size: 8)
-                                    .foregroundColor(.gray)
+                    let otherTeams = manager.teams.filter { $0.id != manager.myTeamId }
+                    if otherTeams.isEmpty {
+                        Text("Waiting for other players...")
+                            .wFont(size: 9)
+                            .foregroundColor(.gray)
+                            .padding(.vertical, 4)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    } else {
+                        ForEach(otherTeams) { team in
+                            HStack(spacing: 6) {
+                                Text(team.emoji)
+                                    .font(.system(size: 11))
+                                
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(team.name)
+                                        .wFont(size: 10, weight: .semibold)
+                                        .foregroundColor(Color(hex: team.color))
+                                    Text("Player: \(team.userName)")
+                                        .wFont(size: 8)
+                                        .foregroundColor(.gray)
+                                }
+                                Spacer()
                             }
-                            Spacer()
+                            .padding(6)
+                            .background(Color.white.opacity(0.04))
+                            .cornerRadius(6)
                         }
-                        .padding(6)
-                        .background(Color.white.opacity(0.04))
-                        .cornerRadius(6)
                     }
                 }
 

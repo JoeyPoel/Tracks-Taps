@@ -68,6 +68,29 @@ export function useWatchSync() {
       } else if (message.action === 'completeChallenge') {
         const { challengeId } = message;
         if (!challengeId) return;
+
+        // Optimistically update active challenges list in phone store
+        if (activeTour.teams && Array.isArray(activeTour.teams)) {
+          const updatedTeams = activeTour.teams.map(t => {
+            if (t.userId === user.id) {
+              const currentActive = t.activeChallenges || [];
+              const exists = currentActive.some(ac => ac.challengeId === challengeId);
+              let updatedActive = currentActive.map(ac => {
+                if (ac.challengeId === challengeId) {
+                  return { ...ac, completed: true, failed: false };
+                }
+                return ac;
+              });
+              if (!exists) {
+                updatedActive.push({ challengeId, completed: true, failed: false });
+              }
+              return { ...t, activeChallenges: updatedActive };
+            }
+            return t;
+          });
+          updateActiveTourLocal({ teams: updatedTeams });
+        }
+
         try {
           const updatedProgress = await activeTourService.completeChallenge(activeTour.id, challengeId, user.id);
           updateActiveTourLocal(updatedProgress);
@@ -81,6 +104,29 @@ export function useWatchSync() {
       } else if (message.action === 'failChallenge') {
         const { challengeId } = message;
         if (!challengeId) return;
+
+        // Optimistically update active challenges list in phone store
+        if (activeTour.teams && Array.isArray(activeTour.teams)) {
+          const updatedTeams = activeTour.teams.map(t => {
+            if (t.userId === user.id) {
+              const currentActive = t.activeChallenges || [];
+              const exists = currentActive.some(ac => ac.challengeId === challengeId);
+              let updatedActive = currentActive.map(ac => {
+                if (ac.challengeId === challengeId) {
+                  return { ...ac, completed: false, failed: true };
+                }
+                return ac;
+              });
+              if (!exists) {
+                updatedActive.push({ challengeId, completed: false, failed: true });
+              }
+              return { ...t, activeChallenges: updatedActive };
+            }
+            return t;
+          });
+          updateActiveTourLocal({ teams: updatedTeams });
+        }
+
         try {
           await activeTourService.failChallenge(activeTour.id, challengeId, user.id);
           await fetchActiveTourProgress(activeTour.id, user.id);
@@ -102,6 +148,28 @@ export function useWatchSync() {
 
         const isCorrect = String(answer).trim().toLowerCase() === String(challenge.answer ?? '').trim().toLowerCase();
 
+        // Optimistically update active challenges list in phone store
+        if (activeTour.teams && Array.isArray(activeTour.teams)) {
+          const updatedTeams = activeTour.teams.map(t => {
+            if (t.userId === user.id) {
+              const currentActive = t.activeChallenges || [];
+              const exists = currentActive.some(ac => ac.challengeId === challengeId);
+              let updatedActive = currentActive.map(ac => {
+                if (ac.challengeId === challengeId) {
+                  return { ...ac, completed: isCorrect, failed: !isCorrect };
+                }
+                return ac;
+              });
+              if (!exists) {
+                updatedActive.push({ challengeId, completed: isCorrect, failed: !isCorrect });
+              }
+              return { ...t, activeChallenges: updatedActive };
+            }
+            return t;
+          });
+          updateActiveTourLocal({ teams: updatedTeams });
+        }
+
         try {
           if (isCorrect) {
             const updatedProgress = await activeTourService.completeChallenge(activeTour.id, challengeId, user.id);
@@ -121,6 +189,30 @@ export function useWatchSync() {
         const pgStops = activeTour.tour?.stops?.filter(s => s.pubgolfPar != null && s.pubgolfPar > 0) || [];
         const stop = pgStops[stopIndex];
         if (!stop) return;
+        // Optimistically update the store's team sips locally on the phone for instant UI feedback
+        if (activeTour.teams && Array.isArray(activeTour.teams)) {
+          const updatedTeams = activeTour.teams.map(t => {
+            if (t.userId === user.id) {
+              const updatedPubGolfStops = (t.pubGolfStops || []).map(pg => {
+                if (pg.stopId === stop.id) {
+                  return { ...pg, sips };
+                }
+                return pg;
+              });
+              
+              // If the stop wasn't in the array yet, append it
+              const hasStop = updatedPubGolfStops.some(pg => pg.stopId === stop.id);
+              const finalPubGolfStops = hasStop 
+                ? updatedPubGolfStops 
+                : [...updatedPubGolfStops, { stopId: stop.id, sips }];
+
+              return { ...t, pubGolfStops: finalPubGolfStops };
+            }
+            return t;
+          });
+          updateActiveTourLocal({ teams: updatedTeams });
+        }
+
         try {
           const updatedProgress = await activeTourService.updatePubGolfScore(activeTour.id, stop.id, sips, user.id);
           updateActiveTourLocal(updatedProgress);
@@ -133,6 +225,21 @@ export function useWatchSync() {
       } else if (message.action === 'addPubGolfPenalty') {
         const { description, sips } = message;
         if (!description || sips === undefined) return;
+
+        // Optimistically update penalties list on phone for instant UI feedback
+        if (activeTour.teams && Array.isArray(activeTour.teams)) {
+          const updatedTeams = activeTour.teams.map(t => {
+            if (t.userId === user.id) {
+              const tempId = -Date.now();
+              const currentPenalties = t.pubGolfPenalties || [];
+              const newPenalty = { id: tempId, description, sips };
+              return { ...t, pubGolfPenalties: [...currentPenalties, newPenalty] };
+            }
+            return t;
+          });
+          updateActiveTourLocal({ teams: updatedTeams });
+        }
+
         try {
           const updatedProgress = await activeTourService.addPubGolfPenalty(activeTour.id, user.id, description, sips);
           updateActiveTourLocal(updatedProgress);
@@ -145,6 +252,20 @@ export function useWatchSync() {
       } else if (message.action === 'deletePubGolfPenalty') {
         const { penaltyId } = message;
         if (penaltyId === undefined) return;
+
+        // Optimistically delete penalty on phone for instant UI feedback
+        if (activeTour.teams && Array.isArray(activeTour.teams)) {
+          const updatedTeams = activeTour.teams.map(t => {
+            if (t.userId === user.id) {
+              const currentPenalties = t.pubGolfPenalties || [];
+              const updatedPenalties = currentPenalties.filter(p => p.id !== penaltyId);
+              return { ...t, pubGolfPenalties: updatedPenalties };
+            }
+            return t;
+          });
+          updateActiveTourLocal({ teams: updatedTeams });
+        }
+
         try {
           const updatedProgress = await activeTourService.deletePubGolfPenalty(activeTour.id, user.id, penaltyId);
           updateActiveTourLocal(updatedProgress);

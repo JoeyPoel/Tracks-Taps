@@ -56,6 +56,7 @@ struct WatchTeam: Identifiable {
     let emoji: String
     let color: String
     let score: Int
+    let golfScore: Int
     let currentStop: Int
     let finishedAt: String?
     let userName: String
@@ -83,6 +84,7 @@ class WatchConnectivityManager: NSObject, ObservableObject, WCSessionDelegate {
 
     // MARK: Tour state
     @Published var activeTourName: String? = nil
+    @Published var activeTourId: Int? = nil
     @Published var completedStops: Int = 0
     @Published var totalStops: Int = 0
     @Published var currentStopName: String? = nil
@@ -196,6 +198,98 @@ class WatchConnectivityManager: NSObject, ObservableObject, WCSessionDelegate {
         sendPayload(["action": "requestSync"])
     }
 
+    /// Optimistically updates the sips score locally for instant UI feedback on the watch
+    func updatePubGolfSipsOptimistically(stopIndex: Int, sips: Int) {
+        guard stopIndex >= 0 && stopIndex < pubGolfStops.count else { return }
+        let stop = pubGolfStops[stopIndex]
+        let updatedStop = WatchPubGolfStop(
+            id: stop.id,
+            stopName: stop.stopName,
+            stopNumber: stop.stopNumber,
+            par: stop.par,
+            drink: stop.drink,
+            sips: sips
+        )
+        pubGolfStops[stopIndex] = updatedStop
+    }
+
+    /// Optimistically adds a penalty locally for instant UI feedback on the watch
+    func addPubGolfPenaltyOptimistically(description: String, sips: Int) {
+        let tempId = Int.random(in: -10000...(-1))
+        let penalty = WatchPubGolfPenalty(id: tempId, description: description, sips: sips)
+        pubGolfPenalties.append(penalty)
+        pubGolfTotalPenalties += sips
+    }
+
+    /// Optimistically deletes a penalty locally for instant UI feedback on the watch
+    func deletePubGolfPenaltyOptimistically(penaltyId: Int) {
+        if let idx = pubGolfPenalties.firstIndex(where: { $0.id == penaltyId }) {
+            let penalty = pubGolfPenalties[idx]
+            pubGolfTotalPenalties = max(0, pubGolfTotalPenalties - penalty.sips)
+            pubGolfPenalties.remove(at: idx)
+        }
+    }
+
+    /// Optimistically updates a challenge's status (completed/failed) locally on the watch
+    func updateChallengeStatusOptimistically(challengeId: Int, isCompleted: Bool, isFailed: Bool) {
+        // Update in stopChallenges
+        if let idx = stopChallenges.firstIndex(where: { $0.id == challengeId }) {
+            let ch = stopChallenges[idx]
+            stopChallenges[idx] = WatchChallenge(
+                id: ch.id,
+                title: ch.title,
+                description: ch.description,
+                type: ch.type,
+                content: ch.content,
+                hint: ch.hint,
+                options: ch.options,
+                answer: ch.answer,
+                isCompleted: isCompleted,
+                isFailed: isFailed
+            )
+        }
+        // Update in bonusChallenges
+        if let idx = bonusChallenges.firstIndex(where: { $0.id == challengeId }) {
+            let ch = bonusChallenges[idx]
+            bonusChallenges[idx] = WatchChallenge(
+                id: ch.id,
+                title: ch.title,
+                description: ch.description,
+                type: ch.type,
+                content: ch.content,
+                hint: ch.hint,
+                options: ch.options,
+                answer: ch.answer,
+                isCompleted: isCompleted,
+                isFailed: isFailed
+            )
+        }
+        // Also update in bingoChallenges if present
+        if let idx = bingoChallenges.firstIndex(where: { $0.challenge.id == challengeId }) {
+            let cell = bingoChallenges[idx]
+            let ch = cell.challenge
+            bingoChallenges[idx] = WatchBingoCell(
+                id: cell.id,
+                title: cell.title,
+                row: cell.row,
+                col: cell.col,
+                isCompleted: isCompleted,
+                challenge: WatchChallenge(
+                    id: ch.id,
+                    title: ch.title,
+                    description: ch.description,
+                    type: ch.type,
+                    content: ch.content,
+                    hint: ch.hint,
+                    options: ch.options,
+                    answer: ch.answer,
+                    isCompleted: isCompleted,
+                    isFailed: isFailed
+                )
+            )
+        }
+    }
+
     // MARK: - WCSessionDelegate
 
     func session(
@@ -266,6 +360,7 @@ class WatchConnectivityManager: NSObject, ObservableObject, WCSessionDelegate {
         if let tourData = context["activeTour"] as? [String: Any] {
             self.hasActiveTour = true
             self.activeTourName = tourData["name"] as? String
+            self.activeTourId = tourData["id"] as? Int
             self.completedStops = tourData["completedStops"] as? Int ?? 0
             self.totalStops = tourData["totalStops"] as? Int ?? 0
             self.currentStopName = tourData["currentStopName"] as? String
@@ -299,6 +394,7 @@ class WatchConnectivityManager: NSObject, ObservableObject, WCSessionDelegate {
         } else if let noTour = context["hasActiveTour"] as? Bool, !noTour {
             self.hasActiveTour = false
             self.activeTourName = nil
+            self.activeTourId = nil
             self.currentStopName = nil
             self.currentStopDescription = nil
             self.currentStopLatitude = nil
@@ -438,6 +534,7 @@ class WatchConnectivityManager: NSObject, ObservableObject, WCSessionDelegate {
                 emoji: dict["emoji"] as? String ?? "👥",
                 color: dict["color"] as? String ?? "#3B82F6",
                 score: dict["score"] as? Int ?? 0,
+                golfScore: dict["golfScore"] as? Int ?? 0,
                 currentStop: dict["currentStop"] as? Int ?? 1,
                 finishedAt: dict["finishedAt"] as? String,
                 userName: dict["userName"] as? String ?? "Explorer"

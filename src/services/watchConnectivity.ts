@@ -227,16 +227,21 @@ export class WatchConnectivityService {
 
     const totalPenalties = pubGolfPenalties.reduce((sum, p) => sum + p.sips, 0);
 
-    const teamsData = (activeTour.teams || []).map(t => ({
-      id: t.id,
-      name: t.name,
-      emoji: t.emoji || '👥',
-      color: t.color || '#3B82F6',
-      score: t.score || 0,
-      currentStop: t.currentStop || 1,
-      finishedAt: t.finishedAt ? t.finishedAt.toString() : null,
-      userName: t.user?.name || 'Explorer',
-    }));
+    const teamsData = (activeTour.teams || []).map(t => {
+      const sipsSum = (t.pubGolfStops || []).reduce((sum, s) => sum + (s.sips || 0), 0);
+      const penaltiesSum = (t.pubGolfPenalties || []).reduce((sum, p) => sum + (p.sips || 0), 0);
+      return {
+        id: t.id,
+        name: t.name,
+        emoji: t.emoji || '👥',
+        color: t.color || '#3B82F6',
+        score: t.score || 0,
+        golfScore: sipsSum + penaltiesSum,
+        currentStop: t.currentStop || 1,
+        finishedAt: t.finishedAt ? t.finishedAt.toString() : null,
+        userName: t.user?.name || 'Explorer',
+      };
+    });
 
     // All stop coordinates for the route map
     const allStopsMap = (tour?.stops || []).map((s, idx) => ({
@@ -249,6 +254,7 @@ export class WatchConnectivityService {
     }));
 
     const tourPayload = {
+      id: activeTour.id,
       name: tour?.title || 'Active Tour',
       status: activeTour.status || 'IN_PROGRESS',
       completedStops,

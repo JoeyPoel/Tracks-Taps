@@ -360,8 +360,14 @@ export const useStore = create<StoreState>()(
                     let finalTeams = state.activeTour.teams || [];
                     if (updates.teams && updates.teams.length > 0) {
                         const updatesMap = new Map(updates.teams.map(t => [t.id, t]));
-                        // Update existing
-                        finalTeams = finalTeams.map(t => updatesMap.get(t.id) || t);
+                        // Update existing by shallow merging properties (so we don't lose t.user relation)
+                        finalTeams = finalTeams.map(t => {
+                            const update = updatesMap.get(t.id);
+                            if (update) {
+                                return { ...t, ...update };
+                            }
+                            return t;
+                        });
                         // Add new
                         const existingIds = new Set(finalTeams.map(t => t.id));
                         const newTeams = updates.teams.filter(t => !existingIds.has(t.id));

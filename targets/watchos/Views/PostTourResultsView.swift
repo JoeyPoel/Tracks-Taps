@@ -2,14 +2,21 @@ import SwiftUI
 
 struct PostTourResultsView: View {
     @ObservedObject var manager = WatchConnectivityManager.shared
+    @State private var isSortingByGolf = true
 
     var isDark: Bool { manager.themeMode != "light" }
     var textPrimary: Color { isDark ? .white : Color(hex: "#1E293B") }
     var textSecondary: Color { isDark ? Color.white.opacity(0.7) : Color(hex: "#475569") }
 
-    // Sorted teams by score descending
+    // Sorted teams depending on active score filter
     var sortedTeams: [WatchTeam] {
-        manager.teams.sorted { $0.score > $1.score }
+        if isSortingByGolf {
+            // Pub Golf: Lower score is better!
+            return manager.teams.sorted { $0.golfScore < $1.golfScore }
+        } else {
+            // Tour XP: Higher score is better!
+            return manager.teams.sorted { $0.score > $1.score }
+        }
     }
 
     var body: some View {
@@ -34,9 +41,30 @@ struct PostTourResultsView: View {
                     .background(Color.white.opacity(0.15))
                     .padding(.vertical, 2)
 
+                // ── Score System Switcher (Only if Pub Golf stops are present) ──
+                if !manager.pubGolfStops.isEmpty {
+                    Button(action: {
+                        isSortingByGolf.toggle()
+                    }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: isSortingByGolf ? "bolt.fill" : "flag.fill")
+                                .font(.system(size: 10))
+                            Text(isSortingByGolf ? "Show Tour XP" : "Show Pub Golf Sips")
+                                .wFont(size: 9, weight: .bold)
+                        }
+                        .foregroundColor(.white)
+                        .padding(.vertical, 6)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.white.opacity(0.12))
+                        .cornerRadius(8)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.bottom, 4)
+                }
+
                 // ── Podium Section (Top 3) ──
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("PODIUM WINNERS")
+                    Text(isSortingByGolf ? "PUB GOLF PODIUM" : "XP PODIUM")
                         .wFont(size: 9, weight: .bold)
                         .foregroundColor(.gray)
                         .padding(.bottom, 2)
@@ -44,13 +72,13 @@ struct PostTourResultsView: View {
                     let teamsCount = sortedTeams.count
 
                     if teamsCount > 0 {
-                        PodiumRow(medal: "🥇", team: sortedTeams[0], badgeColor: Color(hex: "#FFD700")) // Gold
+                        PodiumRow(medal: "🥇", team: sortedTeams[0], badgeColor: Color(hex: "#FFD700"), showSips: isSortingByGolf)
                     }
                     if teamsCount > 1 {
-                        PodiumRow(medal: "🥈", team: sortedTeams[1], badgeColor: Color(hex: "#C0C0C0")) // Silver
+                        PodiumRow(medal: "🥈", team: sortedTeams[1], badgeColor: Color(hex: "#C0C0C0"), showSips: isSortingByGolf)
                     }
                     if teamsCount > 2 {
-                        PodiumRow(medal: "🥉", team: sortedTeams[2], badgeColor: Color(hex: "#CD7F32")) // Bronze
+                        PodiumRow(medal: "🥉", team: sortedTeams[2], badgeColor: Color(hex: "#CD7F32"), showSips: isSortingByGolf)
                     }
                 }
                 .padding(8)
@@ -58,7 +86,7 @@ struct PostTourResultsView: View {
                 .cornerRadius(8)
 
                 // ── Full Scoreboard ──
-                Text("All Teams Scoreboard")
+                Text(isSortingByGolf ? "Golf Scoreboard" : "XP Scoreboard")
                     .wFont(size: 10, weight: .bold)
                     .foregroundColor(textSecondary)
                     .padding(.top, 6)
@@ -80,7 +108,7 @@ struct PostTourResultsView: View {
                             
                             Spacer()
 
-                            Text("\(team.score) pts")
+                            Text(isSortingByGolf ? "\(team.golfScore) sips" : "\(team.score) pts")
                                 .wFont(size: 10, weight: .bold)
                                 .foregroundColor(textPrimary)
                         }
@@ -100,6 +128,10 @@ struct PostTourResultsView: View {
             .padding(.horizontal, 4)
             .padding(.vertical, 6)
         }
+        .onAppear {
+            // Default to golf score if the tour is a Pub Golf tour
+            isSortingByGolf = !manager.pubGolfStops.isEmpty
+        }
     }
 }
 
@@ -107,6 +139,7 @@ struct PodiumRow: View {
     let medal: String
     let team: WatchTeam
     let badgeColor: Color
+    var showSips: Bool
 
     var body: some View {
         HStack(spacing: 6) {
@@ -123,7 +156,7 @@ struct PodiumRow: View {
 
             Spacer()
 
-            Text("\(team.score) pts")
+            Text(showSips ? "\(team.golfScore) sips" : "\(team.score) pts")
                 .wFont(size: 9, weight: .bold)
                 .foregroundColor(.black)
                 .padding(.horizontal, 6)

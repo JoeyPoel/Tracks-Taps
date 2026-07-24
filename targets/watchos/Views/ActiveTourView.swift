@@ -9,37 +9,47 @@ struct ActiveTourView: View {
 
     var hasPubGolf: Bool { !manager.pubGolfStops.isEmpty }
     var hasBingo: Bool { manager.tourModes.contains("BINGO") && !manager.bingoChallenges.isEmpty }
-    var hasChallenges: Bool { !manager.stopChallenges.isEmpty || !manager.bonusChallenges.isEmpty }
+    var hasStopChallenges: Bool { !manager.stopChallenges.isEmpty }
+    var hasBonusChallenges: Bool { !manager.bonusChallenges.isEmpty }
+    var hasDescription: Bool { manager.currentStopDescription != nil && !manager.currentStopDescription!.isEmpty }
 
     /// True when there are additional pages beyond the main stop info page.
-    var hasExtraPages: Bool { hasChallenges || hasPubGolf || hasBingo }
+    var hasExtraPages: Bool { hasDescription || hasStopChallenges || hasBonusChallenges || hasPubGolf || hasBingo }
 
     var body: some View {
         TabView {
-            // Page 0: Detailed tour information (swiping right to reveal)
-            TourDetailPage()
-                .tag(-1)
-
-            // Page 1: Stop info + navigation (Main Page)
+            // Page 0: Stop info + navigation (Main Page)
             StopInfoPage(showSwipeHint: hasExtraPages)
                 .tag(0)
 
-            // Page 2: Challenges (if any)
-            if hasChallenges {
-                ChallengesPage()
+            // Page 1: Stop Description (if available)
+            if hasDescription {
+                StopDescriptionPage()
                     .tag(1)
             }
 
-            // Page 3: Pub Golf scorecard (if applicable)
-            if hasPubGolf {
-                PubGolfPage()
+            // Page 2: Stop Specific Challenges (if any)
+            if hasStopChallenges {
+                ChallengesPage(isBonus: false)
                     .tag(2)
             }
 
-            // Page 4: Bingo grid (if applicable)
+            // Page 3: Bonus Challenges (if any)
+            if hasBonusChallenges {
+                ChallengesPage(isBonus: true)
+                    .tag(3)
+            }
+
+            // Page 4: Pub Golf scorecard (if applicable)
+            if hasPubGolf {
+                PubGolfPage()
+                    .tag(4)
+            }
+
+            // Page 5: Bingo grid (if applicable)
             if hasBingo {
                 BingoPage()
-                    .tag(3)
+                    .tag(5)
             }
         }
         .tabViewStyle(.page)
@@ -47,90 +57,12 @@ struct ActiveTourView: View {
     }
 }
 
-// MARK: - Page 0: Tour Detail Page
+// MARK: - Page 1: Stop Info + Controls
 
-struct TourDetailPage: View {
-    @ObservedObject var manager = WatchConnectivityManager.shared
-
-    var isDark: Bool { manager.themeMode != "light" }
-    var textPrimary: Color { isDark ? .white : Color(hex: "#1E293B") }
-    var textSecondary: Color { isDark ? Color.white.opacity(0.7) : Color(hex: "#475569") }
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 6) {
-                // Header
-                HStack(spacing: 4) {
-                    Image(systemName: "info.circle.fill")
-                        .foregroundColor(Color(hex: manager.themeSecondary))
-                        .font(.system(size: 11))
-                    Text("TOUR DETAILS")
-                        .wFont(size: 10, weight: .bold)
-                        .foregroundColor(Color(hex: manager.themeSecondary))
-                }
-
-                // Title
-                Text(manager.tx(manager.activeTourName))
-                    .wFont(size: 13, weight: .bold)
-                    .foregroundColor(textPrimary)
-                    .lineLimit(3)
-                    .padding(.top, 2)
-
-                // Meta metadata (curator, stops, difficulty)
-                VStack(alignment: .leading, spacing: 2) {
-                    if !manager.creatorName.isEmpty {
-                        Text("Curated by \(manager.creatorName)")
-                            .wFont(size: 10)
-                            .foregroundColor(textSecondary)
-                    }
-
-                    HStack(spacing: 8) {
-                        Text("\(manager.totalStops) stops")
-                            .wFont(size: 9, weight: .semibold)
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 2)
-                            .background(Color.white.opacity(0.12))
-                            .cornerRadius(4)
-
-                        Text(manager.difficulty.uppercased())
-                            .wFont(size: 9, weight: .bold)
-                            .foregroundColor(difficultyColor)
-                    }
-                    .padding(.top, 2)
-                }
-
-                Divider()
-                    .background(isDark ? Color.white.opacity(0.2) : Color.black.opacity(0.1))
-                    .padding(.vertical, 2)
-
-                // Description
-                if !manager.tourDescription.isEmpty {
-                    Text(manager.tx(manager.tourDescription))
-                        .wFont(size: 10)
-                        .foregroundColor(textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                } else {
-                    Text("No overview details provided.")
-                        .wFont(size: 10)
-                        .foregroundColor(textSecondary)
-                }
-            }
-            .padding(10)
-            .background(Color(hex: manager.themeBgSecondary))
-            .cornerRadius(12)
-            .padding(.horizontal, 4)
-            .padding(.vertical, 6)
-        }
-    }
-
-    private var difficultyColor: Color {
-        switch manager.difficulty.lowercased() {
-        case "easy":   return .green
-        case "medium": return .orange
-        case "hard":   return .red
-        default:       return .gray
-        }
-    }
+struct NextStopPin: Identifiable {
+    let id = UUID()
+    let coordinate: CLLocationCoordinate2D
+    let name: String
 }
 
 // MARK: - Page 1: Stop Info + Controls
@@ -138,6 +70,7 @@ struct TourDetailPage: View {
 struct StopInfoPage: View {
     var showSwipeHint: Bool = false
     @ObservedObject var manager = WatchConnectivityManager.shared
+    @ObservedObject var locationManager = WatchLocationManager.shared
 
     var isDark: Bool { manager.themeMode != "light" }
     var textPrimary: Color { isDark ? .white : Color(hex: "#1E293B") }
@@ -145,6 +78,41 @@ struct StopInfoPage: View {
 
     var progressFraction: Double {
         manager.totalStops > 0 ? Double(manager.completedStops) / Double(manager.totalStops) : 0.0
+    }
+
+    @State private var mapRegion = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 52.3702, longitude: 4.8952),
+        span: MKCoordinateSpan(latitudeDelta: 0.012, longitudeDelta: 0.012)
+    )
+
+    var nextStopPin: NextStopPin? {
+        guard let lat = manager.currentStopLatitude, let lng = manager.currentStopLongitude else { return nil }
+        return NextStopPin(coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lng), name: manager.currentStopName ?? "Next Stop")
+    }
+
+    private func centerMapOnStopAndUser() {
+        guard let lat = manager.currentStopLatitude, let lng = manager.currentStopLongitude else { return }
+        let stopCoord = CLLocationCoordinate2D(latitude: lat, longitude: lng)
+        
+        if let userCoord = locationManager.userLocation {
+            let centerLat = (userCoord.latitude + stopCoord.latitude) / 2.0
+            let centerLng = (userCoord.longitude + stopCoord.longitude) / 2.0
+            
+            // Calculate delta adding padding so both fit with margins
+            let deltaLat = max(0.005, abs(userCoord.latitude - stopCoord.latitude) * 1.6)
+            let deltaLng = max(0.005, abs(userCoord.longitude - stopCoord.longitude) * 1.6)
+            
+            mapRegion = MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: centerLat, longitude: centerLng),
+                span: MKCoordinateSpan(latitudeDelta: deltaLat, longitudeDelta: deltaLng)
+            )
+        } else {
+            // Fallback if user location is not fetched yet
+            mapRegion = MKCoordinateRegion(
+                center: stopCoord,
+                span: MKCoordinateSpan(latitudeDelta: 0.012, longitudeDelta: 0.012)
+            )
+        }
     }
 
     var body: some View {
@@ -185,26 +153,70 @@ struct StopInfoPage: View {
                     }
                     .padding(.vertical, 2)
 
-                    // Route Map Preview button
-                    if !manager.allStops.isEmpty {
-                        NavigationLink(destination: RouteMapView()) {
-                            HStack {
-                                Image(systemName: "map.fill")
-                                    .font(.system(size: 10))
-                                Text("View Route Map")
-                                    .wFont(size: 10, weight: .semibold)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 8))
+                    // Inline Map showing current stop + user location
+                    if let pin = nextStopPin {
+                        Map(coordinateRegion: $mapRegion, showsUserLocation: true, annotationItems: [pin]) { item in
+                            MapAnnotation(coordinate: item.coordinate) {
+                                VStack(spacing: 0) {
+                                    // Glowing Pin head
+                                    ZStack {
+                                        Circle()
+                                            .fill(
+                                                LinearGradient(
+                                                    colors: [Color(hex: manager.themeAccent), Color(hex: manager.themePrimary)],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                )
+                                            )
+                                            .frame(width: 22, height: 22)
+                                            .shadow(color: Color(hex: manager.themePrimary).opacity(0.5), radius: 3)
+                                        
+                                        Circle()
+                                            .stroke(Color.white, lineWidth: 1.5)
+                                            .frame(width: 22, height: 22)
+                                        
+                                        Image(systemName: "flag.fill")
+                                            .font(.system(size: 9, weight: .bold))
+                                            .foregroundColor(.white)
+                                    }
+                                    
+                                    // Pointer
+                                    Image(systemName: "triangle.fill")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 6, height: 4)
+                                        .foregroundColor(Color(hex: manager.themePrimary))
+                                        .rotationEffect(.degrees(180))
+                                        .offset(y: -1)
+                                    
+                                    // Stop Name Card
+                                    Text(manager.tx(item.name).uppercased())
+                                        .wFont(size: 6.5, weight: .bold)
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2.5)
+                                        .background(Color.black.opacity(0.75))
+                                        .cornerRadius(5)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 5)
+                                                .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+                                        )
+                                        .padding(.top, 2)
+                                }
                             }
-                            .foregroundColor(.white)
-                            .padding(.vertical, 6)
-                            .padding(.horizontal, 8)
-                            .background(Color(hex: manager.themeSecondary).opacity(0.2))
-                            .cornerRadius(8)
                         }
-                        .buttonStyle(.plain)
+                        .frame(height: 85)
+                        .cornerRadius(10)
                         .padding(.vertical, 2)
+                        .onAppear {
+                            centerMapOnStopAndUser()
+                        }
+                        .onChange(of: manager.currentStopLatitude) { _ in
+                            centerMapOnStopAndUser()
+                        }
+                        .onChange(of: locationManager.userLocation?.latitude) { _ in
+                            centerMapOnStopAndUser()
+                        }
                     }
 
                     // Current stop name
@@ -258,15 +270,6 @@ struct StopInfoPage: View {
                             }
                         }
                         .padding(.top, 2)
-                    }
-
-                    // Description
-                    if let desc = manager.currentStopDescription, !desc.isEmpty {
-                        Text(manager.tx(desc))
-                            .wFont(size: 11)
-                            .foregroundColor(textSecondary)
-                            .padding(.top, 2)
-                            .lineLimit(4)
                     }
 
                     Divider()
@@ -405,5 +408,84 @@ struct RouteMapView: View {
             center: CLLocationCoordinate2D(latitude: centerLat, longitude: centerLng),
             span: MKCoordinateSpan(latitudeDelta: deltaLat, longitudeDelta: deltaLng)
         )
+    }
+}
+
+// MARK: - Page 1.5: Stop Description Page
+
+struct StopDescriptionPage: View {
+    @ObservedObject var manager = WatchConnectivityManager.shared
+
+    var isDark: Bool { manager.themeMode != "light" }
+    var textPrimary: Color { isDark ? .white : Color(hex: "#1E293B") }
+    var textSecondary: Color { isDark ? Color.white.opacity(0.7) : Color(hex: "#475569") }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 6) {
+                // Header
+                HStack(spacing: 4) {
+                    Image(systemName: "doc.text.fill")
+                        .foregroundColor(Color(hex: manager.themeSecondary))
+                        .font(.system(size: 11))
+                    Text("STOP DESCRIPTION")
+                        .wFont(size: 10, weight: .bold)
+                        .foregroundColor(Color(hex: manager.themeSecondary))
+                }
+
+                if let stopName = manager.currentStopName {
+                    Text(manager.tx(stopName))
+                        .wFont(size: 12, weight: .bold)
+                        .foregroundColor(textPrimary)
+                        .padding(.top, 2)
+                }
+
+                Divider()
+                    .background(isDark ? Color.white.opacity(0.2) : Color.black.opacity(0.1))
+                    .padding(.vertical, 2)
+
+                if let desc = manager.currentStopDescription, !desc.isEmpty {
+                    Text(manager.tx(desc))
+                        .wFont(size: 10)
+                        .foregroundColor(textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else {
+                    Text("No details available for this stop.")
+                        .wFont(size: 10)
+                        .foregroundColor(textSecondary)
+                }
+            }
+            .padding(10)
+            .background(Color(hex: manager.themeBgSecondary))
+            .cornerRadius(12)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 6)
+        }
+    }
+}
+
+// MARK: - CoreLocation Manager Helper
+
+import CoreLocation
+
+class WatchLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+    private let manager = CLLocationManager()
+    @Published var userLocation: CLLocationCoordinate2D? = nil
+
+    static let shared = WatchLocationManager()
+
+    private override init() {
+        super.init()
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyBest
+        manager.requestWhenInUseAuthorization()
+        manager.startUpdatingLocation()
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
+        DispatchQueue.main.async {
+            self.userLocation = location.coordinate
+        }
     }
 }

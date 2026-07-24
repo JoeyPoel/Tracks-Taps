@@ -98,6 +98,18 @@ export const useJoinTour = () => {
                 params: { activeTourId: activeTourId.toString() }
             });
 
+            // Broadcast join to all lobby members immediately
+            try {
+                const { supabase } = await import('@/utils/supabase');
+                await supabase.channel(`lobby_${activeTourId}`).send({
+                    type: 'broadcast',
+                    event: 'lobby_update',
+                    payload: { action: 'join' }
+                });
+            } catch (broadcastError) {
+                console.warn('Failed to broadcast lobby join', broadcastError);
+            }
+
         } catch (err: any) {
             console.error(err);
             setError(t('failedToJoin'));

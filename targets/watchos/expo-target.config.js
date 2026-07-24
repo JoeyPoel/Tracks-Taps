@@ -10,8 +10,14 @@ module.exports = (config) => ({
       "group.com.joeypoel.trackstaps"
     ]
   },
+  resources: [
+    "../../assets/fonts/OpenDyslexic-Regular.otf"
+  ],
   infoPlist: {
     CFBundleDisplayName: "Tracks & Taps",
-    CFBundleName: "Tracks & Taps"
+    CFBundleName: "Tracks & Taps",
+    UIAppFonts: [
+      "OpenDyslexic-Regular.otf"
+    ]
   }
 });

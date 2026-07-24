@@ -5,12 +5,15 @@ import SwiftUI
 struct ChallengesPage: View {
     @ObservedObject var manager = WatchConnectivityManager.shared
     @State private var selectedChallenge: WatchChallenge? = nil
+    var isBonus: Bool = false
 
     var isDark: Bool { manager.themeMode != "light" }
     var textPrimary: Color { isDark ? .white : Color(hex: "#1E293B") }
     var textSecondary: Color { isDark ? Color.white.opacity(0.6) : Color(hex: "#475569") }
 
-    var allChallenges: [WatchChallenge] { manager.stopChallenges + manager.bonusChallenges }
+    var challenges: [WatchChallenge] {
+        isBonus ? manager.bonusChallenges : manager.stopChallenges
+    }
 
     var body: some View {
         NavigationStack {
@@ -18,25 +21,25 @@ struct ChallengesPage: View {
                 VStack(alignment: .leading, spacing: 6) {
                     // Header
                     HStack {
-                        Image(systemName: "bolt.fill")
+                        Image(systemName: isBonus ? "bolt.fill" : "mappin.and.ellipse")
                             .foregroundColor(Color(hex: manager.themeAccent))
                             .font(.caption)
-                        Text(manager.t("challenges").uppercased())
+                        Text((isBonus ? "Bonus Challenges" : "Stop Challenges").uppercased())
                             .wFont(size: 10, weight: .bold)
                             .foregroundColor(Color(hex: manager.themeAccent))
                         Spacer()
-                        Text("\(allChallenges.filter(\.isCompleted).count)/\(allChallenges.count)")
+                        Text("\(challenges.filter(\.isCompleted).count)/\(challenges.count)")
                             .wFont(size: 10)
                             .foregroundColor(textSecondary)
                     }
 
-                    if allChallenges.isEmpty {
-                        Text("No challenges for this stop.")
+                    if challenges.isEmpty {
+                        Text(isBonus ? "No bonus challenges." : "No challenges for this stop.")
                             .wFont(size: 11)
                             .foregroundColor(textSecondary)
                             .padding(.vertical, 8)
                     } else {
-                        ForEach(allChallenges) { challenge in
+                        ForEach(challenges) { challenge in
                             NavigationLink(destination: ChallengeDetailView(challenge: challenge)) {
                                 ChallengeRow(challenge: challenge)
                             }
@@ -324,6 +327,8 @@ struct ChallengeDetailView: View {
         VStack(spacing: 8) {
             Button(action: {
                 guard !isLocked else { return }
+                // Optimistic local update on watch
+                WatchConnectivityManager.shared.updateChallengeStatusOptimistically(challengeId: challenge.id, isCompleted: true, isFailed: false)
                 sendStructuredAction("completeChallenge", challengeId: challenge.id)
                 submitted = true
             }) {
@@ -340,6 +345,8 @@ struct ChallengeDetailView: View {
 
             Button(action: {
                 guard !isLocked else { return }
+                // Optimistic local update on watch
+                WatchConnectivityManager.shared.updateChallengeStatusOptimistically(challengeId: challenge.id, isCompleted: false, isFailed: true)
                 sendStructuredAction("failChallenge", challengeId: challenge.id)
                 submitted = true
             }) {
@@ -400,6 +407,15 @@ struct ChallengeDetailView: View {
      */
     private func submitAnswer(answer: String) {
         guard !submitted else { return }
+        
+        // Check answer correctness locally for instant feedback
+        let userAns = answer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let correctAns = (challenge.answer ?? "").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let isCorrect = userAns == correctAns
+        
+        // Optimistic local update on watch
+        WatchConnectivityManager.shared.updateChallengeStatusOptimistically(challengeId: challenge.id, isCompleted: isCorrect, isFailed: !isCorrect)
+        
         WatchConnectivityManager.shared.sendPayload([
             "action": "answerChallenge",
             "challengeId": challenge.id,

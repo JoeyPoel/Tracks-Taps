@@ -1,6 +1,8 @@
 import { supabase } from '@/utils/supabase';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { activeTourService } from '../services/activeTourService';
+import { WatchConnectivityService } from '../services/watchConnectivity';
+import { Platform } from 'react-native';
 
 export const usePreTourLobby = (activeTourId: number | null, user: any) => {
     // Local State
@@ -107,9 +109,15 @@ export const usePreTourLobby = (activeTourId: number | null, user: any) => {
         } catch (error: any) {
             console.error('Failed to start tour', error);
             setIsStarting(false);
-            return { success: false, error: error.message || 'Network error' };
         }
     };
+
+    // Sync lobby details instantly to watch on state update
+    useEffect(() => {
+        if (activeTour && Platform.OS === 'ios') {
+            WatchConnectivityService.syncActiveTour(activeTour);
+        }
+    }, [activeTour]);
 
     return {
         activeTour,

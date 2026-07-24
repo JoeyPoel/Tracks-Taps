@@ -77,9 +77,13 @@ struct WatchFontModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         if dyslexicMode {
-            content.font(.custom("OpenDyslexic", size: size))
+            if UIFont(name: "OpenDyslexic", size: size) != nil {
+                return AnyView(content.font(.custom("OpenDyslexic", size: size)))
+            } else {
+                return AnyView(content.font(.custom("OpenDyslexic-Regular", size: size)))
+            }
         } else {
-            content.font(.system(size: size, weight: weight, design: .rounded))
+            return AnyView(content.font(.system(size: size, weight: weight, design: .rounded)))
         }
     }
 }
@@ -99,9 +103,13 @@ extension View {
         let manager = WatchConnectivityManager.shared
         let scaledSize = size * CGFloat(manager.fontScaleMultiplier)
         if manager.dyslexicMode {
-            return self.font(.custom("OpenDyslexic", size: scaledSize))
+            if UIFont(name: "OpenDyslexic", size: scaledSize) != nil {
+                return AnyView(self.font(.custom("OpenDyslexic", size: scaledSize)))
+            } else {
+                return AnyView(self.font(.custom("OpenDyslexic-Regular", size: scaledSize)))
+            }
         } else {
-            return self.font(.system(size: scaledSize, weight: weight, design: .rounded))
+            return AnyView(self.font(.system(size: scaledSize, weight: weight, design: .rounded)))
         }
     }
 }
