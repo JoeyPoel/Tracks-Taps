@@ -8,7 +8,8 @@ module.exports = (config) => ({
   entitlements: {
     "com.apple.security.application-groups": [
       "group.com.joeypoel.trackstaps"
-    ]
+    ],
+    "com.apple.developer.game-center": true
   },
   resources: [
     "../../assets/fonts/OpenDyslexic-Regular.otf"
