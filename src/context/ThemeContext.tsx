@@ -35,17 +35,21 @@ const themes = {
 
 const THEME_STORAGE_KEY = '@app_theme_mode';
 
-const ThemeContext = createContext<ThemeContextProps>({
-    mode: "light",
-    theme: lightTheme,
-    toggleTheme: (): void => { },
-    triggerOverlay: (): void => { },
-    overlayTrigger: 0,
-    overlayType: null,
-    refreshThemeSettings: async (): Promise<void> => { },
-    activeHoliday: null,
-    performTransition: (): void => { }
-});
+const globalContext = global as any;
+if (!globalContext.__ThemeContext) {
+    globalContext.__ThemeContext = createContext<ThemeContextProps>({
+        mode: "light",
+        theme: lightTheme,
+        toggleTheme: (): void => { },
+        triggerOverlay: (): void => { },
+        overlayTrigger: 0,
+        overlayType: null,
+        refreshThemeSettings: async (): Promise<void> => { },
+        activeHoliday: null,
+        performTransition: (): void => { }
+    });
+}
+const ThemeContext: React.Context<ThemeContextProps> = globalContext.__ThemeContext;
 
 export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode => {
     const systemScheme: ColorSchemeName = useColorScheme();
@@ -333,18 +337,18 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
         performTransition
     }), [mode, theme, toggleTheme, triggerOverlay, overlayTrigger, overlayType, refreshThemeSettings, activeHoliday, performTransition]);
 
-    // Defer rendering until the first successful load from storage
-    // to prevent "theme flash" where the app shows the OS theme for a split second.
-    if (!isLoaded) return null;
-
     return (
         <ThemeContext.Provider value={value}>
-            {children}
-            {jsTransitionActive && (
-                <View style={[StyleSheet.absoluteFill, { zIndex: 999999 }]} pointerEvents="none">
-                    <Animated.View style={animatedOverlayStyle} />
-                </View>
-            )}
+            {isLoaded ? (
+                <>
+                    {children}
+                    {jsTransitionActive && (
+                        <View style={[StyleSheet.absoluteFill, { zIndex: 999999 }]} pointerEvents="none">
+                            <Animated.View style={animatedOverlayStyle} />
+                        </View>
+                    )}
+                </>
+            ) : null}
         </ThemeContext.Provider>
     );
 };

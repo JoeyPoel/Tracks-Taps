@@ -228,7 +228,7 @@ export const userController = {
     async updateUser(request: Request, parsedBody?: any) {
         try {
             const body = parsedBody || await request.json();
-            const { userId, name, avatarUrl, customTheme } = body;
+            const { userId, name, avatarUrl, customTheme, playStyle } = body;
 
             if (!userId) {
                 return Response.json({ error: 'Missing userId' }, { status: 400 });
@@ -240,6 +240,7 @@ export const userController = {
             if (name !== undefined) dataToUpdate.name = name;
             if (avatarUrl !== undefined) dataToUpdate.avatarUrl = avatarUrl;
             if (customTheme !== undefined) dataToUpdate.customTheme = customTheme;
+            if (playStyle !== undefined) dataToUpdate.playStyle = playStyle;
 
             const updatedUser = await userService.updateUser(Number(userId), dataToUpdate);
             return Response.json(updatedUser);

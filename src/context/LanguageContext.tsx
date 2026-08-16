@@ -12,7 +12,11 @@ interface LanguageContextType {
 
 const LANGUAGE_STORAGE_KEY = '@app_language';
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const globalContext = global as any;
+if (!globalContext.__LanguageContext) {
+    globalContext.__LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+}
+const LanguageContext: React.Context<LanguageContextType | undefined> = globalContext.__LanguageContext;
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>('en');
@@ -47,11 +51,9 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     return (allStrings[language] as any)[key] || key;
   };
 
-  if (!isLoaded) return null;
-
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      {children}
+      {isLoaded ? children : null}
     </LanguageContext.Provider>
   );
 };

@@ -240,8 +240,7 @@ export const TutorialProvider = ({ children }: { children: React.ReactNode }) =>
     const startTutorial = () => {
         setIsActive(true);
         setCurrentStepIndex(0);
-        // Force navigate to first step
-        router.push(steps[0].route as any);
+        router.push('/onboarding' as any);
     };
 
     const nextStep = () => {

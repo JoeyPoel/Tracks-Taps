@@ -63,7 +63,7 @@ interface StoreState {
     fetchUser: (userId: number) => Promise<void>;
     fetchUserByAuth: (authId: string, email?: string) => Promise<void>;
     fetchUserByEmail: (email: string) => Promise<void>;
-    updateUser: (userId: number, data: { name?: string; avatarUrl?: string; customTheme?: string | null; themePreference?: string }) => Promise<void>;
+    updateUser: (userId: number, data: { name?: string; avatarUrl?: string; customTheme?: string | null; themePreference?: string; playStyle?: string }) => Promise<void>;
     deleteUser: (userId: number) => Promise<void>;
     addXp: (amount: number) => void; // Optimistic update
     clearUser: () => void;
@@ -517,7 +517,7 @@ export const useStore = create<StoreState>()(
                 }
             },
 
-            updateUser: async (userId: number, data: { name?: string; avatarUrl?: string; customTheme?: string | null; themePreference?: string }) => {
+            updateUser: async (userId: number, data: { name?: string; avatarUrl?: string; customTheme?: string | null; themePreference?: string; playStyle?: string }) => {
                 const prevUser = get().user;
                 if (prevUser) {
                     set({

@@ -26,6 +26,11 @@ export const userService = {
         return response.data;
     },
 
+    async getUserByName(name: string) {
+        const response = await client.get(`/user?name=${encodeURIComponent(name)}`);
+        return response.data;
+    },
+
     async getUserByAuthId(authId: string, email?: string) {
         // If email is provided, pass it so the backend can create the user using authId + email. If not, just authId.
         const url = email ? `/user?authId=${authId}&email=${encodeURIComponent(email)}` : `/user?authId=${authId}`;
@@ -43,7 +48,7 @@ export const userService = {
         return response.data;
     },
 
-    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; customTheme?: string | null; themePreference?: string }) {
+    async updateUser(userId: number, data: { name?: string; avatarUrl?: string; customTheme?: string | null; themePreference?: string; playStyle?: string }) {
         const response = await client.post('/user', { action: 'update-user', userId, ...data });
         return response.data;
     },

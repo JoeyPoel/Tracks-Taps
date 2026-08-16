@@ -1,8 +1,7 @@
 import AuthRequiredModal from '@/src/components/AuthRequiredModal';
 import ThemedStatusBar from '@/src/components/ThemedStatusBar';
-import { ThemeOverlay } from '@/src/components/common/ThemeOverlay';
-import { TutorialOverlay } from '@/src/components/tutorial/TutorialOverlay';
 import { useAuth } from '@/src/context/AuthContext';
+import { ThemeOverlay } from '@/src/components/common/ThemeOverlay';
 import { useTutorial } from '@/src/context/TutorialContext';
 import { getAppMaxWidth } from '@/src/hooks/useAppWidth';
 import { useLevelUpListener } from '@/src/hooks/useLevelUpListener';
@@ -16,6 +15,7 @@ import { usePushNotifications } from '@/src/hooks/usePushNotifications';
 import { useTheme } from '../../context/ThemeContext';
 import { useStore } from '../../store/store';
 import { Image } from 'expo-image';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function MainLayout() {
     const { session, loading: authLoading } = useAuth();
@@ -103,6 +103,42 @@ export function MainLayout() {
         checkInitialState();
     }, []);
 
+    // Sync onboarding choices to backend database when user is authenticated
+    useEffect(() => {
+        if (user && user.id) {
+            const syncOnboardingData = async () => {
+                const onboardingUsername = await AsyncStorage.getItem('@onboarding_username');
+                const onboardingPlayStyle = await AsyncStorage.getItem('@onboarding_play_style');
+                const onboardingTheme = await AsyncStorage.getItem('@onboarding_theme');
+
+                const updates: any = {};
+                if (onboardingUsername && user.name !== onboardingUsername) {
+                    updates.name = onboardingUsername;
+                }
+                if (onboardingPlayStyle && user.playStyle !== onboardingPlayStyle) {
+                    updates.playStyle = onboardingPlayStyle;
+                }
+                if (onboardingTheme && user.customTheme !== onboardingTheme) {
+                    updates.customTheme = onboardingTheme;
+                }
+
+                if (Object.keys(updates).length > 0) {
+                    try {
+                        const updateUserAction = useStore.getState().updateUser;
+                        await updateUserAction(user.id, updates);
+                        if (onboardingUsername) await AsyncStorage.removeItem('@onboarding_username');
+                        if (onboardingPlayStyle) await AsyncStorage.removeItem('@onboarding_play_style');
+                        if (onboardingTheme) await AsyncStorage.removeItem('@onboarding_theme');
+                        console.log("Successfully synchronized onboarding choices to user profile:", updates);
+                    } catch (e) {
+                        console.error("Failed to sync onboarding choices to user table:", e);
+                    }
+                }
+            };
+            syncOnboardingData();
+        }
+    }, [user]);
+
     // Safety timeout for auth loading (handles offline hangs)
     useEffect(() => {
         if (authLoading && !authTimeout) {
@@ -161,6 +197,12 @@ export function MainLayout() {
     useEffect(() => {
         if (isLoading) return;
 
+        // Dev override: reset onboarding status for tracks.taps@gmail.com
+        if (user && user.email === 'tracks.taps@gmail.com' && hasSeenTutorial) {
+            resetTutorial();
+            return;
+        }
+
         // If the backend flagged this as a new user, force the tutorial to reset and play for this account
         if (user && (user as any).isNewUser) {
             // Unflag the local object so we only do this once
@@ -176,9 +218,10 @@ export function MainLayout() {
         }
 
         if (!isTutorialLoading && !hasSeenTutorial && !isActive) {
-            // Check if we are in the main app (not auth screens)
+            // Check if we are in the main app (not auth screens or onboarding screen)
             const inAuthGroup = segment[0] === 'auth';
-            if (!inAuthGroup) {
+            const isOnboarding = (segment[0] as string) === 'onboarding';
+            if (!inAuthGroup && !isOnboarding) {
                 const timer = setTimeout(() => {
                     startTutorial();
                 }, 1500);
@@ -214,12 +257,12 @@ export function MainLayout() {
             <View style={{ flex: 1, width: '100%', maxWidth: (segment as string[]).includes('map') ? '100%' : getAppMaxWidth(), alignSelf: 'center' }}>
                 <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bgPrimary } }}>
                     <Stack.Screen name="auth" options={{ headerShown: false }} />
+                    <Stack.Screen name="onboarding" options={{ headerShown: false }} />
                     <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                     <Stack.Screen name="+not-found" />
                 </Stack>
                 <ThemedStatusBar />
                 <AuthRequiredModal />
-                <TutorialOverlay />
                 <ThemeOverlay trigger={overlayTrigger} type={overlayType} />
             </View>
         </View>

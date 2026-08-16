@@ -1,4 +1,9 @@
-import { WatchConnectivity } from '@plevo/expo-watch-connectivity';
+let WatchConnectivity: any = null;
+try {
+  WatchConnectivity = require('@plevo/expo-watch-connectivity').WatchConnectivity;
+} catch (e) {
+  // Native watch module not found (expected in Expo Go)
+}
 import { ActiveTour, User } from '../types/models';
 import { strings } from '../context/strings';
 
@@ -45,6 +50,7 @@ export class WatchConnectivityService {
    * Safe to call multiple times — re-activates if session dropped.
    */
   public static async activate(): Promise<void> {
+    if (!WatchConnectivity) return;
     try {
       await WatchConnectivity.activate();
       this.isActivated = true;
@@ -62,6 +68,7 @@ export class WatchConnectivityService {
    * @param payload - Any dictionary payload to send.
    */
   private static pushToWatch(payload: Record<string, unknown>): void {
+    if (!WatchConnectivity) return;
     if (!this.isActivated) return;
     try {
       // Attempt instant delivery if watch is reachable (active + screen on)
@@ -85,8 +92,9 @@ export class WatchConnectivityService {
    * @param payload - Message dictionary.
    */
   public static sendLiveMessage(payload: Record<string, unknown>): void {
+    if (!WatchConnectivity) return;
     if (!this.isActivated) return;
-    WatchConnectivity.sendMessage(payload).catch(err =>
+    WatchConnectivity.sendMessage(payload).catch((err: any) =>
       console.warn('[Watch] sendLiveMessage failed (not reachable):', err)
     );
   }
@@ -359,10 +367,13 @@ export class WatchConnectivityService {
    * @returns Cleanup function to remove the listener.
    */
   public static addMessageListener(callback: (message: any) => void): () => void {
+    if (!WatchConnectivity) {
+      return () => {};
+    }
     if (!this.isActivated) {
       console.warn('Watch Connectivity is not activated yet. Listener might miss messages.');
     }
-    const subscription = WatchConnectivity.addMessageListener((event) => {
+    const subscription = WatchConnectivity.addMessageListener((event: any) => {
       const msg = event.message;
       // Handle resync request from watch (sent on scene activation)
       if (msg?.action === 'requestSync') {
