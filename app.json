@@ -89,9 +89,14 @@
             "imageHeight": 1024
           },
           "android": {
-            "image": "./assets/images/AppIconColouredDarkTheme.png",
+            "image": "./assets/images/AppIconColouredWhiteTheme.png",
+            "backgroundColor": "#F8FAFC",
             "imageWidth": 250,
-            "imageHeight": 250
+            "imageHeight": 250,
+            "dark": {
+              "image": "./assets/images/AppIconColouredDarkTheme.png",
+              "backgroundColor": "#0F172A"
+            }
           }
         }
       ],

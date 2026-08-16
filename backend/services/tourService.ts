@@ -60,8 +60,8 @@ export const tourService = {
             },
 
             stops: {
-                create: Array.isArray(data.stops) ? data.stops.map((stop: any) => ({
-                    number: stop.number,
+                create: Array.isArray(data.stops) ? data.stops.map((stop: any, idx: number) => ({
+                    number: idx + 1,
                     name: stop.name,
                     description: stop.description || '',
                     detailedDescription: stop.detailedDescription || '',
@@ -155,8 +155,8 @@ export const tourService = {
 
             stops: {
                 deleteMany: {}, // Clear existing stops (simplest update strategy)
-                create: Array.isArray(data.stops) ? data.stops.map((stop: any) => ({
-                    number: stop.number,
+                create: Array.isArray(data.stops) ? data.stops.map((stop: any, idx: number) => ({
+                    number: idx + 1,
                     name: stop.name,
                     description: stop.description || '',
                     detailedDescription: stop.detailedDescription || '',
