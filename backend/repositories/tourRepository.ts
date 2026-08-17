@@ -4,6 +4,64 @@ import { paginate } from '../utils/pagination';
 import { Prisma } from '@prisma/client';
 import { TourFilters } from '../../src/types/filters';
 
+// Helper to strip diacritics/accents and normalize strings for fuzzy matching
+function normalizeString(str: string): string {
+    return str
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, "")
+        .trim();
+}
+
+// Levenshtein distance calculation for typo tolerance
+function getLevenshteinDistance(a: string, b: string): number {
+    const tmp = [];
+    const alen = a.length;
+    const blen = b.length;
+    if (alen === 0) return blen;
+    if (blen === 0) return alen;
+    for (let i = 0; i <= alen; i++) tmp[i] = [i];
+    for (let j = 0; j <= blen; j++) tmp[0][j] = j;
+    for (let i = 1; i <= alen; i++) {
+        for (let j = 1; j <= blen; j++) {
+            tmp[i][j] = Math.min(
+                tmp[i - 1][j] + 1,
+                tmp[i][j - 1] + 1,
+                tmp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+            );
+        }
+    }
+    return tmp[alen][blen];
+}
+
+// Check if search terms match a target text fuzzy-style
+function isFuzzyMatch(text: string, term: string): boolean {
+    const normText = normalizeString(text);
+    const normTerm = normalizeString(term);
+    
+    if (!normText || !normTerm) return false;
+    
+    // Exact or direct substring match
+    if (normText.includes(normTerm)) return true;
+    
+    // For short search terms, avoid false matches by skipping Levenshtein check
+    if (normTerm.length < 3) return false;
+    
+    // Typo tolerance: split target into words and compare Levenshtein distance
+    const words = normText.split(/\s+/);
+    for (const word of words) {
+        if (word.length >= 3) {
+            const distance = getLevenshteinDistance(word, normTerm);
+            // Allow 1 typo for 3-5 chars, 2 typos for 6+ chars
+            const maxAllowed = normTerm.length <= 5 ? 1 : 2;
+            if (distance <= maxAllowed) return true;
+        }
+    }
+    return false;
+}
+
+
 export const tourRepository = {
     async getAllTours(filters: TourFilters = {}) {
         const where: Prisma.TourWhereInput = {};
@@ -27,7 +85,9 @@ export const tourRepository = {
             where.status = { in: allowedStatuses as any };
         }
 
-        if (filters.searchQuery) {
+        const isFuzzySearchActive = !!(filters.searchQuery || filters.location);
+
+        if (filters.searchQuery && !isFuzzySearchActive) {
             const terms = filters.searchQuery.trim().split(/\s+/);
             if (terms.length > 0) {
                 where.AND = terms.map(term => ({
@@ -43,7 +103,7 @@ export const tourRepository = {
             }
         }
 
-        if (filters.location) {
+        if (filters.location && !isFuzzySearchActive) {
             where.location = { contains: filters.location, mode: 'insensitive' };
         }
 
@@ -121,14 +181,17 @@ export const tourRepository = {
             orderBy.createdAt = 'desc';
         }
 
+        const takeLimit: number = isFuzzySearchActive ? 1000 : (limit + 1);
+
+        // Query Prisma. Skip/take is handled in JS when doing fuzzy filtering, otherwise handled in SQL.
         const tours = await prisma.tour.findMany({
             where,
             orderBy,
-            skip,
-            take: limit + 1,
+            ...(isFuzzySearchActive ? { take: takeLimit } : { skip, take: takeLimit }),
             select: {
                 id: true,
                 title: true,
+                description: true,
                 location: true,
                 imageUrl: true,
                 distance: true,
@@ -151,8 +214,41 @@ export const tourRepository = {
             }
         });
 
-        const hasMore = tours.length > limit;
-        const pageData = hasMore ? tours.slice(0, limit) : tours;
+        // Perform in-memory fuzzy matching if active
+        let filteredTours = tours;
+        if (isFuzzySearchActive) {
+            filteredTours = tours.filter(tour => {
+                // 1. Filter by location if specified
+                if (filters.location) {
+                    if (!isFuzzyMatch(tour.location, filters.location)) {
+                        return false;
+                    }
+                }
+                // 2. Filter by general searchQuery terms if specified
+                if (filters.searchQuery) {
+                    const terms = filters.searchQuery.trim().split(/\s+/);
+                    const matchesAllTerms = terms.every(term => {
+                        if (isFuzzyMatch(tour.title, term)) return true;
+                        if (isFuzzyMatch(tour.description, term)) return true;
+                        if (isFuzzyMatch(tour.location, term)) return true;
+                        if (tour.author?.name && isFuzzyMatch(tour.author.name, term)) return true;
+                        if (tour.stopNames && tour.stopNames.some((name: string) => isFuzzyMatch(name, term))) return true;
+                        return false;
+                    });
+                    if (!matchesAllTerms) return false;
+                }
+                return true;
+            });
+        }
+
+        // Apply custom pagination slice when fuzzy searching
+        const totalMatches = filteredTours.length;
+        const slicedTours = isFuzzySearchActive
+            ? filteredTours.slice(skip, skip + limit + 1)
+            : filteredTours;
+
+        const hasMore = slicedTours.length > limit;
+        const pageData = hasMore ? slicedTours.slice(0, limit) : slicedTours;
 
         const data = pageData.map(tour => {
             const reviewsList = tour.reviews || [];
@@ -181,8 +277,8 @@ export const tourRepository = {
         });
 
         const meta = {
-            total: hasMore ? skip + limit + 1 : skip + tours.length,
-            lastPage: hasMore ? page + 1 : page,
+            total: isFuzzySearchActive ? totalMatches : (hasMore ? skip + limit + 1 : skip + tours.length),
+            lastPage: Math.ceil((isFuzzySearchActive ? totalMatches : (hasMore ? skip + limit + 1 : skip + tours.length)) / limit) || 1,
             currentPage: page,
             perPage: limit,
             prev: page > 1 ? page - 1 : null,
