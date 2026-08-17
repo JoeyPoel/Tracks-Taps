@@ -165,6 +165,7 @@ export const tourController = {
                 points: parseInt(data.points) || 0,
                 modes: Array.isArray(data.modes) ? data.modes : [],
                 difficulty: mapDifficulty(data.difficulty),
+                stopNames: Array.isArray(data.stops) ? data.stops.map((stop: any) => stop.name || '') : [],
                 startLat: data.startLat ? parseFloat(data.startLat) : null,
                 startLng: data.startLng ? parseFloat(data.startLng) : null,
 
@@ -304,6 +305,36 @@ export const tourController = {
         } catch (error: any) {
             console.error('Error deleting tour:', error);
             return Response.json({ error: 'Failed to delete tour', details: error.message }, { status: 500 });
+        }
+    },
+    async reorderStops(request: Request, params?: { id: string }) {
+        let id = params?.id;
+
+        if (!id) {
+            const url = new URL(request.url);
+            const segments = url.pathname.split('/');
+            // /api/tours/[id]/reorder-stops -> segments: ['', 'api', 'tours', '[id]', 'reorder-stops']
+            id = segments[segments.length - 2];
+        }
+
+        const tourId = Number(id);
+        if (isNaN(tourId)) {
+            return Response.json({ error: 'Invalid tourId' }, { status: 400 });
+        }
+
+        try {
+            const body = await request.json();
+            const { reorderedStops } = body;
+
+            if (!Array.isArray(reorderedStops)) {
+                return Response.json({ error: 'Missing or invalid reorderedStops array' }, { status: 400 });
+            }
+
+            const result = await tourService.reorderStops(tourId, reorderedStops);
+            return Response.json({ success: true, result });
+        } catch (error: any) {
+            console.error('Error reordering stops:', error);
+            return Response.json({ error: 'Failed to reorder stops', details: error.message }, { status: 500 });
         }
     }
 };

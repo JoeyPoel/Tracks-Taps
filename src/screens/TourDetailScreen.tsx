@@ -18,6 +18,7 @@ import Animated, {
 import { AnimatedButton } from '../components/common/AnimatedButton';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { TextComponent } from '../components/common/TextComponent';
+import { ItineraryView } from '../components/common/ItineraryView';
 import { LanguagePickerModal } from '../components/common/LanguagePickerModal';
 import { TourLoadingScreen } from '../components/common/TourLoadingScreen';
 import BuyTokensModal from '../components/profileScreen/BuyTokensModal';
@@ -61,6 +62,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'highest' | 'lowest'>('newest');
   const [isLangModalVisible, setIsLangModalVisible] = useState(false);
   const [editingReview, setEditingReview] = useState<any>(null);
+  const [showStopsTimeline, setShowStopsTimeline] = useState(false);
 
   const { speak, stop, narrationMode } = useTextToSpeech();
   const showSpeakButtons = useStore(state => state.showSpeakButtons);
@@ -245,7 +247,7 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
 
   return (
     <ScreenWrapper key={tourId} style={{ backgroundColor: theme.bgPrimary }} animateEntry={false} includeTop={false} includeBottom={false}>
-      <Stack.Screen options={{ headerShown: false, gestureEnabled: true, fullScreenGestureEnabled: true }} />
+      <Stack.Screen options={{ headerShown: false, gestureEnabled: true, fullScreenGestureEnabled: false }} />
 
       {/* Back Button Overlay */}
       <TouchableOpacity
@@ -342,6 +344,38 @@ export default function TourDetailScreen({ tourId }: { tourId: number }) {
           <TextComponent style={styles.description} variant="body" color={theme.textSecondary}>
             {translateText(tour.description)}
           </TextComponent>
+        </Animated.View>
+
+        {/* Stops Itinerary Toggle Section */}
+        <Animated.View entering={FadeInUp.delay(650)} style={styles.section}>
+          <TouchableOpacity
+            onPress={() => setShowStopsTimeline(!showStopsTimeline)}
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingVertical: 12,
+              borderBottomWidth: 1,
+              borderBottomColor: theme.borderPrimary,
+              marginBottom: 12,
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Ionicons name="map-outline" size={20} color={theme.primary} />
+              <TextComponent variant="h2" bold color={theme.textPrimary} style={{ marginBottom: 0 }}>
+                {t('tourStops') || 'Tour Route & Stops'}
+              </TextComponent>
+            </View>
+            <Ionicons
+              name={showStopsTimeline ? "chevron-up" : "chevron-down"}
+              size={20}
+              color={theme.textSecondary}
+            />
+          </TouchableOpacity>
+
+          {showStopsTimeline && (
+            <ItineraryView stops={tour.stops || []} />
+          )}
         </Animated.View>
 
         {/* Gallery Section */}

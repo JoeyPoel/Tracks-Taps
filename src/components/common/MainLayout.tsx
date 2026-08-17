@@ -197,12 +197,6 @@ export function MainLayout() {
     useEffect(() => {
         if (isLoading) return;
 
-        // Dev override: reset onboarding status for tracks.taps@gmail.com
-        if (user && user.email === 'tracks.taps@gmail.com' && hasSeenTutorial) {
-            resetTutorial();
-            return;
-        }
-
         // If the backend flagged this as a new user, force the tutorial to reset and play for this account
         if (user && (user as any).isNewUser) {
             // Unflag the local object so we only do this once

@@ -67,6 +67,7 @@ export interface Stop {
     type: StopType;
     pubgolfPar: number | null;
     pubgolfDrink: string | null;
+    imageUrl?: string | null;
     challenges?: Challenge[];
 }
 
@@ -84,6 +85,7 @@ export interface Tour {
     status: TourStatus | string;
     type: TourType | string; // New field
     genre: string; // New field
+    stopNames?: string[];
     bingoLinePoints: number;
     bingoFullPoints: number;
     createdAt: Date;

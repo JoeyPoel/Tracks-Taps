@@ -112,6 +112,7 @@ model Tour {
   rejectionReason String?
   type        TourType         @default(QUICK_TRIP)
   genre       String           @default("Adventure")
+  stopNames   String[]         @default([])
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   startLat    Float?

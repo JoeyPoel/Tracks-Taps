@@ -35,7 +35,9 @@ export const tourRepository = {
                         { title: { contains: term, mode: 'insensitive' } },
                         { description: { contains: term, mode: 'insensitive' } },
                         { location: { contains: term, mode: 'insensitive' } },
-                        { author: { name: { contains: term, mode: 'insensitive' } } }
+                        { author: { name: { contains: term, mode: 'insensitive' } } },
+                        { stopNames: { hasSome: [term] } },
+                        { stops: { some: { name: { contains: term, mode: 'insensitive' } } } }
                     ]
                 }));
             }
@@ -137,6 +139,7 @@ export const tourRepository = {
                 status: true,
                 type: true,
                 genre: true,
+                stopNames: true,
                 createdAt: true,
                 author: { select: { name: true, avatarUrl: true, isAdmin: true } },
                 _count: { select: { stops: true } },
@@ -207,6 +210,7 @@ export const tourRepository = {
                     status: true,
                     type: true,
                     genre: true,
+                    stopNames: true,
                     createdAt: true,
                     author: {
                         select: {
@@ -274,6 +278,7 @@ export const tourRepository = {
                 status: true,
                 type: true,
                 genre: true,
+                stopNames: true,
                 createdAt: true,
                 author: {
                     select: {

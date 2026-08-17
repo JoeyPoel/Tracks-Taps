@@ -2,11 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Platform, ScrollView } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TextComponent } from '../components/common/TextComponent';
 import TourCard from '../components/exploreScreen/TourCard';
+import { AppModal } from '../components/common/AppModal';
+import { ItineraryView } from '../components/common/ItineraryView';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useMapScreenLogic } from '../hooks/useMapScreenLogic';
@@ -35,6 +37,7 @@ export default function MapScreen() {
   } = useMapScreenLogic();
 
   const [tracksViewChanges, setTracksViewChanges] = React.useState(true);
+  const [showItinerary, setShowItinerary] = React.useState(false);
 
   React.useEffect(() => {
     setTracksViewChanges(true);
@@ -204,6 +207,33 @@ export default function MapScreen() {
       {
         selectedTour && (
           <View style={[styles.tourInfo, { bottom: 120 }]}>
+            <View style={{ width: '100%', alignItems: 'flex-end', marginBottom: 8 }}>
+              <TouchableOpacity
+                onPress={() => setShowItinerary(true)}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: theme.bgSecondary,
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                  borderRadius: 20,
+                  gap: 6,
+                  borderWidth: 1,
+                  borderColor: theme.borderPrimary,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 2,
+                }}
+              >
+                <Ionicons name="list" size={16} color={theme.primary} />
+                <Text style={{ fontSize: 12, fontWeight: 'bold', color: theme.textPrimary }}>
+                  {t('itinerary') || 'Itinerary'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
             <TourCard
               title={selectedTour.title}
               author={(selectedTour as any).author?.name || 'Tracks & Taps'}
@@ -224,6 +254,22 @@ export default function MapScreen() {
                 router.push(`/tour/${selectedTour.id}`);
               }}
             />
+
+            <AppModal
+              visible={showItinerary}
+              onClose={() => setShowItinerary(false)}
+              title={selectedTour.title}
+              subtitle={t('stopsItinerary' as any) || 'Stops Itinerary'}
+            >
+              <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
+                <ItineraryView
+                  stops={(selectedTour as any).stops || []}
+                  onStopPress={(stop) => {
+                    setShowItinerary(false);
+                  }}
+                />
+              </ScrollView>
+            </AppModal>
           </View>
         )
       }

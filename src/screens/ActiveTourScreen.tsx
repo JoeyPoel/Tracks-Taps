@@ -1,6 +1,8 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, ScrollView, StyleSheet, View } from 'react-native';
+import { Animated, Easing, ScrollView, StyleSheet, View, Alert, TouchableOpacity, Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useStore } from '../store/store';
 import { LockClosedIcon } from 'react-native-heroicons/outline';
 import { CircleStackIcon } from 'react-native-heroicons/solid';
 import { PurchasesPackage } from 'react-native-purchases';
@@ -19,6 +21,7 @@ import { AnimatedPressable } from '../components/common/AnimatedPressable';
 import { AppModal } from '../components/common/AppModal';
 import { ScreenWrapper } from '../components/common/ScreenWrapper';
 import { TextComponent } from '../components/common/TextComponent';
+import { ItineraryView } from '../components/common/ItineraryView';
 import { TourLoadingScreen } from '../components/common/TourLoadingScreen';
 import CustomTabBar from '../components/CustomTabBar';
 import { useLanguage } from '../context/LanguageContext';
@@ -29,6 +32,8 @@ import { usePurchases } from '../hooks/usePurchases';
 import BuyTokensModal from '../components/profileScreen/BuyTokensModal';
 import { LockedTourModal } from '../components/active-tour/LockedTourModal';
 import { LevelSystem } from '../utils/levelUtils';
+import * as Location from 'expo-location';
+import { optimizeRemainingRoute } from '../utils/routeOptimizer';
 
 import { useTranslation } from '../context/TranslationContext';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
@@ -78,6 +83,8 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const [selectedBingoChallenge, setSelectedBingoChallenge] = useState<any>(null);
     const [localModalClose, setLocalModalClose] = useState(false);
     const [buyTokensModalVisible, setBuyTokensModalVisible] = useState(false);
+    const [isOptimizing, setIsOptimizing] = useState(false);
+    const [originalStops, setOriginalStops] = useState<{ id: number; number: number }[] | null>(null);
 
     useEffect(() => {
         setLocalModalClose(false);
@@ -393,6 +400,79 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         });
     }
 
+    // Add Itinerary Tab
+    tabItems.push({
+        key: 'itinerary',
+        label: t('itinerary') || 'Itinerary',
+        render: () => (
+            <TabContentWrapper key="itinerary">
+                <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
+                    <View style={{ marginVertical: 24, flexDirection: 'row', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
+                        <TouchableOpacity
+                            onPress={handleOptimizeRoute}
+                            disabled={isOptimizing}
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 8,
+                                borderColor: theme.primary,
+                                borderWidth: 1.5,
+                                paddingVertical: 12,
+                                paddingHorizontal: 24,
+                                borderRadius: 25,
+                                backgroundColor: 'transparent',
+                            }}
+                        >
+                            <Ionicons name="shuffle" size={18} color={theme.primary} />
+                            <Text style={{ color: theme.primary, fontWeight: 'bold', fontSize: 14 }}>
+                                {isOptimizing ? t('optimizing') : t('optimizeRoute')}
+                            </Text>
+                            <Ionicons name="sparkles" size={16} color={theme.primary} />
+                        </TouchableOpacity>
+
+                        {originalStops && (
+                            <TouchableOpacity
+                                onPress={handleRevertRoute}
+                                disabled={isOptimizing}
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    borderColor: theme.textSecondary,
+                                    borderWidth: 1.5,
+                                    paddingVertical: 12,
+                                    paddingHorizontal: 24,
+                                    borderRadius: 25,
+                                    backgroundColor: 'transparent',
+                                }}
+                            >
+                                <Ionicons name="refresh-outline" size={18} color={theme.textSecondary} />
+                                <Text style={{ color: theme.textSecondary, fontWeight: 'bold', fontSize: 14 }}>
+                                    {t('revertRoute')}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+
+                    <ItineraryView
+                        stops={activeTour.tour?.stops || []}
+                        activeStopIndex={currentStopIndex}
+                        onStopPress={(stop) => {
+                            if (stop.number !== undefined) {
+                                if (stop.number >= 6 && !activeTour?.isPaid) {
+                                    setLocalModalClose(false);
+                                    goToStop(stop.number - 1);
+                                    return;
+                                }
+                                goToStop(stop.number - 1);
+                            }
+                        }}
+                    />
+                </ScrollView>
+            </TabContentWrapper>
+        )
+    });
+
     const tabs = tabItems.map(i => i.label);
     const progress = LevelSystem.getProgress(user?.xp || 0);
 
@@ -487,6 +567,187 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         } finally {
             setIsUnlocking(false);
         }
+    };
+
+    const handleRevertRoute = async () => {
+        if (!originalStops || !activeTour?.tour?.stops) return;
+        setIsOptimizing(true);
+        try {
+            const stops = [...activeTour.tour.stops];
+            const originalMap = new Map(originalStops.map(item => [item.id, item.number]));
+
+            const revertedList = stops.map(stop => {
+                const origNum = originalMap.get(stop.id);
+                return {
+                    ...stop,
+                    number: origNum !== undefined ? origNum : stop.number
+                };
+            });
+
+            revertedList.sort((a, b) => a.number - b.number);
+
+            useStore.setState((state) => {
+                if (!state.activeTour || !state.activeTour.tour) return state;
+                return {
+                    activeTour: {
+                        ...state.activeTour,
+                        tour: {
+                            ...state.activeTour.tour,
+                            stops: revertedList
+                        }
+                    }
+                };
+            });
+
+            try {
+                const response = await fetch(`/api/tours/${activeTour.tourId}/reorder-stops`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        reorderedStops: revertedList.map(s => ({ id: s.id, number: s.number }))
+                    })
+                });
+                if (response.ok) {
+                    const store = useStore.getState();
+                    if (store.fetchActiveTourById) {
+                        await store.fetchActiveTourById(activeTourId, user.id);
+                    }
+                }
+            } catch (err) {
+                console.warn('Network error reverting route sequence on server:', err);
+            }
+
+            setOriginalStops(null);
+
+            showToast({
+                title: t('routeResetTitle'),
+                message: t('routeResetMessage'),
+                emoji: '🔄',
+                backgroundColor: theme.success,
+                duration: 3000
+            });
+        } catch (err: any) {
+            Alert.alert("Error", err.message || "Failed to reset route.");
+        } finally {
+            setIsOptimizing(false);
+        }
+    };
+
+    const handleOptimizeRoute = async () => {
+        if (!activeTour?.tour?.stops || activeTour.tour.stops.length === 0) return;
+
+        Alert.alert(
+            t('optimizeRouteTitle'),
+            t('optimizeRouteConfirmMessage'),
+            [
+                { text: t('cancel'), style: 'cancel' },
+                {
+                    text: t('optimize' as any) || "Optimize",
+                    onPress: async () => {
+                        setIsOptimizing(true);
+                        try {
+                            const { status } = await Location.requestForegroundPermissionsAsync();
+                            if (status !== 'granted') {
+                                Alert.alert(
+                                    t('locationPermissionRequired' as any) || "Permission Required",
+                                    t('locationPermissionMessage' as any) || "Please grant location access to optimize the route starting from your location."
+                                );
+                                return;
+                            }
+
+                            const location = await Location.getCurrentPositionAsync({});
+                            const { latitude, longitude } = location.coords;
+                            console.log("[OptimizeRoute] User Location:", latitude, longitude);
+
+                            const stops = activeTour.tour?.stops ? [...activeTour.tour.stops] : [];
+                            stops.sort((a, b) => a.number - b.number);
+
+                            const completedStops = stops.slice(0, currentStopIndex);
+                            const remainingStops = stops.slice(currentStopIndex);
+                            console.log("[OptimizeRoute] Total Stops count:", stops.length, "CurrentStopIndex:", currentStopIndex);
+                            console.log("[OptimizeRoute] Completed Stops:", completedStops.map(s => s.name));
+                            console.log("[OptimizeRoute] Remaining Stops to optimize:", remainingStops.map(s => `${s.name} (${s.latitude}, ${s.longitude})`));
+
+                            if (remainingStops.length <= 1) {
+                                Alert.alert(
+                                    t('noOptimizationNeeded' as any) || "No Optimization Needed",
+                                    t('fewStopsMessage' as any) || "There are too few remaining stops left to optimize."
+                                );
+                                return;
+                            }
+
+                            // Save original sequence before modifying
+                            if (!originalStops) {
+                                setOriginalStops(stops.map(s => ({ id: s.id, number: s.number })));
+                            }
+
+                            const optimizedRemaining = optimizeRemainingRoute(remainingStops, latitude, longitude);
+                            console.log("[OptimizeRoute] Optimized Remaining Stops order:", optimizedRemaining.map(s => s.name));
+
+                            const reorderedList = [...completedStops];
+                            optimizedRemaining.forEach((stop, i) => {
+                                reorderedList.push({
+                                    ...stop,
+                                    number: completedStops.length + i + 1
+                                });
+                            });
+
+                            useStore.setState((state) => {
+                                if (!state.activeTour || !state.activeTour.tour) return state;
+                                return {
+                                    activeTour: {
+                                        ...state.activeTour,
+                                        tour: {
+                                            ...state.activeTour.tour,
+                                            stops: reorderedList
+                                        }
+                                    }
+                                };
+                            });
+
+                            // Run background sync to server (non-blocking)
+                            try {
+                                const response = await fetch(`/api/tours/${activeTour.tourId}/reorder-stops`, {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        reorderedStops: reorderedList.map(s => ({ id: s.id, number: s.number }))
+                                    })
+                                });
+
+                                if (!response.ok) {
+                                    console.warn('Server failed to record updated stop order, continuing offline');
+                                } else {
+                                    // Refresh from server if successful
+                                    const store = useStore.getState();
+                                    if (store.fetchActiveTourById) {
+                                        await store.fetchActiveTourById(activeTourId, user.id);
+                                    }
+                                }
+                            } catch (apiErr) {
+                                console.warn('Network error updating stop sequence on server, proceeding offline:', apiErr);
+                            }
+
+                            showToast({
+                                title: t('routeOptimizedTitle'),
+                                message: t('routeOptimizedMessage'),
+                                emoji: '✨',
+                                backgroundColor: theme.success,
+                                duration: 3500
+                            });
+                        } catch (err: any) {
+                            console.error('Failed to optimize route:', err);
+                            Alert.alert(
+                                t('error' as any) || "Error",
+                                err.message || "Failed to optimize route."
+                            );
+                        } finally {
+                                setIsOptimizing(false);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     const onUnlockWithToken = () => {

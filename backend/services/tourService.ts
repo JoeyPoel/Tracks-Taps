@@ -54,6 +54,7 @@ export const tourService = {
             status: 'PENDING_REVIEW',
             type: data.type || 'DAY_TRIP',
             genre: data.genre || 'General',
+            stopNames: Array.isArray(data.stops) ? data.stops.map((stop: any) => stop.name || '') : [],
 
             author: {
                 connect: { id: userId }
@@ -148,6 +149,7 @@ export const tourService = {
             difficulty: data.difficulty,
             type: data.type,
             genre: data.genre,
+            stopNames: Array.isArray(data.stops) ? data.stops.map((stop: any) => stop.name || '') : [],
             status: newStatus,
             rejectionReason: newRejectionReason,
             startLat: data.startLat ? parseFloat(data.startLat) : null,
@@ -219,5 +221,15 @@ export const tourService = {
     },
     async deleteTour(id: number) {
         return await tourRepository.deleteTour(id);
+    },
+    async reorderStops(tourId: number, reorderedStops: { id: number, number: number }[]) {
+        return await prisma.$transaction(
+            reorderedStops.map(stop =>
+                prisma.stop.update({
+                    where: { id: stop.id },
+                    data: { number: stop.number }
+                })
+            )
+        );
     }
 };
