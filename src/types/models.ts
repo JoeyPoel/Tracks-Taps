@@ -73,6 +73,8 @@ export interface Stop {
     isFreeEntry?: boolean | null;
     ticketInfo?: string | null;
     openingHours?: string | null;
+    ticketPrice?: string | null;
+    requiresReservation?: boolean | null;
 }
 
 export interface Tour {

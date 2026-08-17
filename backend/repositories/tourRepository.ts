@@ -328,7 +328,9 @@ export const tourRepository = {
                             requiresTicket: true,
                             isFreeEntry: true,
                             ticketInfo: true,
-                            openingHours: true
+                            openingHours: true,
+                            ticketPrice: true,
+                            requiresReservation: true
                         }
                     },
                     _count: {
@@ -407,6 +409,8 @@ export const tourRepository = {
                         isFreeEntry: true,
                         ticketInfo: true,
                         openingHours: true,
+                        ticketPrice: true,
+                        requiresReservation: true,
                         challenges: {
                             select: {
                                 id: true,

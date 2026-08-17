@@ -20,6 +20,93 @@ export interface StopFormState {
     isFreeEntry: boolean;
     ticketInfo: string;
     openingHours: string;
+    ticketPrice: string;
+    requiresReservation: boolean;
+    openingHoursType: string;
+    hoursOpen: string;
+    hoursClose: string;
+    hoursWeekdaysOpen: string;
+    hoursWeekdaysClose: string;
+    hoursWeekendsOpen: string;
+    hoursWeekendsClose: string;
+    customMondayOpen: string; customMondayClose: string; customMondayClosed: boolean;
+    customTuesdayOpen: string; customTuesdayClose: string; customTuesdayClosed: boolean;
+    customWednesdayOpen: string; customWednesdayClose: string; customWednesdayClosed: boolean;
+    customThursdayOpen: string; customThursdayClose: string; customThursdayClosed: boolean;
+    customFridayOpen: string; customFridayClose: string; customFridayClosed: boolean;
+    customSaturdayOpen: string; customSaturdayClose: string; customSaturdayClosed: boolean;
+    customSundayOpen: string; customSundayClose: string; customSundayClosed: boolean;
+}
+
+function parseOpeningHours(str: string) {
+    const defaults = {
+        openingHoursType: '24h', // default to 24h/public space
+        hoursOpen: '09:00',
+        hoursClose: '17:00',
+        hoursWeekdaysOpen: '09:00',
+        hoursWeekdaysClose: '17:00',
+        hoursWeekendsOpen: '10:00',
+        hoursWeekendsClose: '16:00',
+        customMondayOpen: '09:00', customMondayClose: '17:00', customMondayClosed: false,
+        customTuesdayOpen: '09:00', customTuesdayClose: '17:00', customTuesdayClosed: false,
+        customWednesdayOpen: '09:00', customWednesdayClose: '17:00', customWednesdayClosed: false,
+        customThursdayOpen: '09:00', customThursdayClose: '17:00', customThursdayClosed: false,
+        customFridayOpen: '09:00', customFridayClose: '17:00', customFridayClosed: false,
+        customSaturdayOpen: '10:00', customSaturdayClose: '16:00', customSaturdayClosed: false,
+        customSundayOpen: '10:00', customSundayClose: '16:00', customSundayClosed: false,
+    };
+
+    if (!str) return defaults;
+    if (str.toLowerCase().includes('24 hours') || str.toLowerCase().includes('24h')) {
+        return { ...defaults, openingHoursType: '24h' };
+    }
+    
+    if (str.startsWith('Daily:')) {
+        const match = str.match(/Daily:\s*([0-9]{2}:[0-9]{2})[–-]([0-9]{2}:[0-9]{2})/);
+        if (match) {
+            return {
+                ...defaults,
+                openingHoursType: 'same_everyday',
+                hoursOpen: match[1],
+                hoursClose: match[2]
+            };
+        }
+    }
+    
+    if (str.includes('Mon') && str.includes('Sat')) {
+        const match = str.match(/Mon[–-](?:Fri|Vri):\s*([0-9]{2}:[0-9]{2})[–-]([0-9]{2}:[0-9]{2}),?\s*Sat[–-](?:Sun|Zon):\s*([0-9]{2}:[0-9]{2})[–-]([0-9]{2}:[0-9]{2})/i);
+        if (match) {
+            return {
+                ...defaults,
+                openingHoursType: 'weekdays_same',
+                hoursWeekdaysOpen: match[1],
+                hoursWeekdaysClose: match[2],
+                hoursWeekendsOpen: match[3],
+                hoursWeekendsClose: match[4]
+            };
+        }
+    }
+    
+    const res = { ...defaults, openingHoursType: 'custom' };
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const shortDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    
+    shortDays.forEach((day, idx) => {
+        const reg = new RegExp(`${day}:\\s*([0-9]{2}:[0-9]{2})[–-]([0-9]{2}:[0-9]{2})|${day}:\\s*Closed`, 'i');
+        const m = str.match(reg);
+        const dayKey = days[idx];
+        if (m) {
+            if (m[0].toLowerCase().includes('closed')) {
+                res[`custom${dayKey}Closed` as 'customMondayClosed'] = true;
+            } else {
+                res[`custom${dayKey}Open` as 'customMondayOpen'] = m[1];
+                res[`custom${dayKey}Close` as 'customMondayClose'] = m[2];
+                res[`custom${dayKey}Closed` as 'customMondayClosed'] = false;
+            }
+        }
+    });
+    
+    return res;
 }
 
 export function useStopForm(
@@ -49,19 +136,36 @@ export function useStopForm(
         isFreeEntry: false,
         ticketInfo: '',
         openingHours: '',
+        ticketPrice: '',
+        requiresReservation: false,
+        openingHoursType: '24h',
+        hoursOpen: '09:00',
+        hoursClose: '17:00',
+        hoursWeekdaysOpen: '09:00',
+        hoursWeekdaysClose: '17:00',
+        hoursWeekendsOpen: '10:00',
+        hoursWeekendsClose: '16:00',
+        customMondayOpen: '09:00', customMondayClose: '17:00', customMondayClosed: false,
+        customTuesdayOpen: '09:00', customTuesdayClose: '17:00', customTuesdayClosed: false,
+        customWednesdayOpen: '09:00', customWednesdayClose: '17:00', customWednesdayClosed: false,
+        customThursdayOpen: '09:00', customThursdayClose: '17:00', customThursdayClosed: false,
+        customFridayOpen: '09:00', customFridayClose: '17:00', customFridayClosed: false,
+        customSaturdayOpen: '10:00', customSaturdayClose: '16:00', customSaturdayClosed: false,
+        customSundayOpen: '10:00', customSundayClose: '16:00', customSundayClosed: false,
     });
 
     // Initialize form when visible or initialData changes
     useEffect(() => {
         if (visible) {
             if (initialData) {
+                const parsedHours = parseOpeningHours(initialData.openingHours);
                 setFormState({
                     name: initialData.name || '',
                     description: initialData.description || '',
                     detailedDescription: initialData.detailedDescription || '',
                     imageUrl: initialData.imageUrl || '',
                     type: initialData.type || StopType.Viewpoint,
-                    isPubGolfStop: !!initialData.pubgolfDrink, // If it has a drink, it's a pub golf stop
+                    isPubGolfStop: !!initialData.pubgolfDrink,
                     drink: initialData.pubgolfDrink || '',
                     par: initialData.pubgolfPar ? String(initialData.pubgolfPar) : '3',
                     marker: {
@@ -72,6 +176,9 @@ export function useStopForm(
                     isFreeEntry: !!initialData.isFreeEntry,
                     ticketInfo: initialData.ticketInfo || '',
                     openingHours: initialData.openingHours || '',
+                    ticketPrice: initialData.ticketPrice || '',
+                    requiresReservation: !!initialData.requiresReservation,
+                    ...parsedHours
                 });
             } else {
                 // Reset to defaults for new stop
@@ -89,11 +196,26 @@ export function useStopForm(
                     isFreeEntry: false,
                     ticketInfo: '',
                     openingHours: '',
+                    ticketPrice: '',
+                    requiresReservation: false,
+                    openingHoursType: '24h',
+                    hoursOpen: '09:00',
+                    hoursClose: '17:00',
+                    hoursWeekdaysOpen: '09:00',
+                    hoursWeekdaysClose: '17:00',
+                    hoursWeekendsOpen: '10:00',
+                    hoursWeekendsClose: '16:00',
+                    customMondayOpen: '09:00', customMondayClose: '17:00', customMondayClosed: false,
+                    customTuesdayOpen: '09:00', customTuesdayClose: '17:00', customTuesdayClosed: false,
+                    customWednesdayOpen: '09:00', customWednesdayClose: '17:00', customWednesdayClosed: false,
+                    customThursdayOpen: '09:00', customThursdayClose: '17:00', customThursdayClosed: false,
+                    customFridayOpen: '09:00', customFridayClose: '17:00', customFridayClosed: false,
+                    customSaturdayOpen: '10:00', customSaturdayClose: '16:00', customSaturdayClosed: false,
+                    customSundayOpen: '10:00', customSundayClose: '16:00', customSundayClosed: false,
                 });
             }
         }
     }, [visible, initialData]);
-
 
     const updateField = <K extends keyof StopFormState>(key: K, value: StopFormState[K]) => {
         setFormState(prev => ({ ...prev, [key]: value }));
@@ -110,11 +232,27 @@ export function useStopForm(
             isPubGolfStop: false,
             drink: '',
             par: '3',
-            marker: null, // Reset marker but region stays focused
+            marker: null,
             requiresTicket: false,
             isFreeEntry: false,
             ticketInfo: '',
             openingHours: '',
+            ticketPrice: '',
+            requiresReservation: false,
+            openingHoursType: '24h',
+            hoursOpen: '09:00',
+            hoursClose: '17:00',
+            hoursWeekdaysOpen: '09:00',
+            hoursWeekdaysClose: '17:00',
+            hoursWeekendsOpen: '10:00',
+            hoursWeekendsClose: '16:00',
+            customMondayOpen: '09:00', customMondayClose: '17:00', customMondayClosed: false,
+            customTuesdayOpen: '09:00', customTuesdayClose: '17:00', customTuesdayClosed: false,
+            customWednesdayOpen: '09:00', customWednesdayClose: '17:00', customWednesdayClosed: false,
+            customThursdayOpen: '09:00', customThursdayClose: '17:00', customThursdayClosed: false,
+            customFridayOpen: '09:00', customFridayClose: '17:00', customFridayClosed: false,
+            customSaturdayOpen: '10:00', customSaturdayClose: '16:00', customSaturdayClosed: false,
+            customSundayOpen: '10:00', customSundayClose: '16:00', customSundayClosed: false,
         }));
     };
 

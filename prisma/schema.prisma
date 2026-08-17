@@ -158,7 +158,10 @@ model Stop {
   isFreeEntry         Boolean?
   ticketInfo          String?
   openingHours        String?
+  ticketPrice         String?
+  requiresReservation Boolean?
   challenges          Challenge[]
+
   pubGolfStops        PubGolfStop[]
   tour                Tour          @relation(fields: [tourId], references: [id], onDelete: Cascade)
 

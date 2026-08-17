@@ -222,11 +222,27 @@ export function ItineraryView({ stops, onStopPress, activeStopIndex }: Itinerary
                   {/* Ticket + Free Entry badges */}
                   <View style={styles.metaRow}>
                     {stop.requiresTicket === true && (
-                      <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(239,68,68,0.15)' : '#FEE2E2' }]}>
-                        <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#f87171' : '#DC2626' }]}>
-                          🎟 {stop.ticketInfo ? stop.ticketInfo.split('—')[0].trim() : 'Ticket required'}
-                        </TextComponent>
-                      </View>
+                      <>
+                        <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(239,68,68,0.15)' : '#FEE2E2' }]}>
+                          <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#f87171' : '#DC2626' }]}>
+                            🎟 {stop.ticketPrice ? stop.ticketPrice : (stop.ticketInfo ? stop.ticketInfo.split('—')[0].trim() : 'Ticket required')}
+                          </TextComponent>
+                        </View>
+                        {stop.requiresReservation === true && (
+                          <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(245,158,11,0.15)' : '#FEF3C7' }]}>
+                            <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#fbbf24' : '#D97706' }]}>
+                              📅 Reservation required
+                            </TextComponent>
+                          </View>
+                        )}
+                        {stop.ticketInfo ? (
+                          <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(148,163,184,0.15)' : '#F1F5F9' }]}>
+                            <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#cbd5e1' : '#475569' }]}>
+                              ℹ️ {stop.ticketInfo.includes('—') ? stop.ticketInfo.split('—')[1].trim() : stop.ticketInfo}
+                            </TextComponent>
+                          </View>
+                        ) : null}
+                      </>
                     )}
                     {stop.isFreeEntry === true && stop.requiresTicket !== true && (
                       <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(16,185,129,0.15)' : '#DCFCE7' }]}>
@@ -235,10 +251,17 @@ export function ItineraryView({ stops, onStopPress, activeStopIndex }: Itinerary
                         </TextComponent>
                       </View>
                     )}
-                    {stop.openingHours && (
+                    {stop.openingHours && stop.openingHours !== 'Open 24 hours' && (
                       <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(99,102,241,0.15)' : '#EEF2FF' }]}>
                         <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#a5b4fc' : '#4338CA' }]}>
                           🕐 {stop.openingHours}
+                        </TextComponent>
+                      </View>
+                    )}
+                    {stop.openingHours === 'Open 24 hours' && (
+                      <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(16,185,129,0.15)' : '#DCFCE7' }]}>
+                        <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#34d399' : '#15803D' }]}>
+                          🕐 Open 24h
                         </TextComponent>
                       </View>
                     )}

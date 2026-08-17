@@ -107,10 +107,8 @@ export default function StopCreationModal({
                             />
 
                             <TicketHoursSection
-                                requiresTicket={requiresTicket} setRequiresTicket={(val) => updateField('requiresTicket', val)}
-                                isFreeEntry={isFreeEntry} setIsFreeEntry={(val) => updateField('isFreeEntry', val)}
-                                ticketInfo={ticketInfo} setTicketInfo={(val) => updateField('ticketInfo', val)}
-                                openingHours={openingHours} setOpeningHours={(val) => updateField('openingHours', val)}
+                                formState={formState}
+                                updateField={updateField}
                             />
 
                             <PubGolfSection
