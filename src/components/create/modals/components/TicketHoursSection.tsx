@@ -8,7 +8,7 @@ import { StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
 
 interface TicketHoursSectionProps {
     formState: any;
-    updateField: (key: any, value: any) => void;
+    updateField: (key: string, value: any) => void;
 }
 
 export function TicketHoursSection({ formState, updateField }: TicketHoursSectionProps) {
@@ -19,7 +19,7 @@ export function TicketHoursSection({ formState, updateField }: TicketHoursSectio
         requiresTicket,
         isFreeEntry,
         ticketInfo,
-        ticketPrice,
+        ticketPriceOptions = [],
         requiresReservation,
         openingHoursType,
         hoursOpen,
@@ -34,9 +34,12 @@ export function TicketHoursSection({ formState, updateField }: TicketHoursSectio
         updateField('requiresTicket', val);
         if (val) {
             updateField('isFreeEntry', false);
+            if (ticketPriceOptions.length === 0) {
+                updateField('ticketPriceOptions', [{ category: 'General', price: '' }]);
+            }
         } else {
-            updateField('ticketPrice', '');
-            updateField('requiresReservation', false);
+            updateField('ticketPriceOptions', [{ category: 'General', price: '' }]);
+            updateField('requiresReservation', 'NO');
             updateField('ticketInfo', '');
         }
     };
@@ -45,10 +48,30 @@ export function TicketHoursSection({ formState, updateField }: TicketHoursSectio
         updateField('isFreeEntry', val);
         if (val) {
             updateField('requiresTicket', false);
-            updateField('ticketPrice', '');
-            updateField('requiresReservation', false);
+            updateField('ticketPriceOptions', [{ category: 'General', price: '' }]);
+            updateField('requiresReservation', 'NO');
             updateField('ticketInfo', '');
         }
+    };
+
+    const handleAddPriceOption = () => {
+        const updated = [...ticketPriceOptions, { category: '', price: '' }];
+        updateField('ticketPriceOptions', updated);
+    };
+
+    const handleRemovePriceOption = (index: number) => {
+        const updated = ticketPriceOptions.filter((_: any, i: number) => i !== index);
+        updateField('ticketPriceOptions', updated.length > 0 ? updated : [{ category: 'General', price: '' }]);
+    };
+
+    const handlePriceOptionChange = (index: number, field: 'category' | 'price', value: string) => {
+        const updated = ticketPriceOptions.map((item: any, i: number) => {
+            if (i === index) {
+                return { ...item, [field]: value };
+            }
+            return item;
+        });
+        updateField('ticketPriceOptions', updated);
     };
 
     const renderDayInput = (dayName: string) => {
@@ -151,31 +174,80 @@ export function TicketHoursSection({ formState, updateField }: TicketHoursSectio
 
             {requiresTicket && (
                 <View style={styles.ticketDetails}>
-                    <View style={styles.row}>
-                        <View style={{ flex: 1 }}>
-                            <FormInput
-                                label={t('ticketPrice' as any) || 'Ticket Price'}
-                                value={ticketPrice}
-                                onChange={(val) => updateField('ticketPrice', val)}
-                                placeholder="e.g. €20 or Free"
-                            />
-                        </View>
-
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 24, paddingLeft: 12 }}>
-                            <View style={{ marginRight: 4 }}>
-                                <TextComponent bold style={{ fontSize: 13 }} color={theme.textPrimary}>
-                                    Need Reservation
-                                </TextComponent>
+                    <TextComponent style={styles.inputLabel} color={theme.textSecondary} bold variant="label">
+                        Ticket Price Options
+                    </TextComponent>
+                    {ticketPriceOptions.map((opt: any, index: number) => (
+                        <View key={index} style={[styles.row, { alignItems: 'flex-end', marginBottom: 8 }]}>
+                            <View style={{ flex: 2 }}>
+                                <FormInput
+                                    value={opt.category}
+                                    onChange={(val) => handlePriceOptionChange(index, 'category', val)}
+                                    placeholder="e.g. Adult / Student"
+                                />
                             </View>
-                            <Switch
-                                value={requiresReservation}
-                                onValueChange={(val) => updateField('requiresReservation', val)}
-                                trackColor={{ false: theme.bgTertiary, true: theme.primary }}
-                            />
+                            <View style={{ flex: 2 }}>
+                                <FormInput
+                                    value={opt.price}
+                                    onChange={(val) => handlePriceOptionChange(index, 'price', val)}
+                                    placeholder="e.g. €20 or Free"
+                                />
+                            </View>
+                            <TouchableOpacity
+                                onPress={() => handleRemovePriceOption(index)}
+                                style={[styles.deleteButton, { backgroundColor: theme.bgTertiary }]}
+                            >
+                                <Ionicons name="trash" size={16} color={theme.danger} />
+                            </TouchableOpacity>
+                        </View>
+                    ))}
+
+                    <TouchableOpacity
+                        onPress={handleAddPriceOption}
+                        style={[styles.addPriceButton, { borderColor: theme.borderPrimary }]}
+                    >
+                        <Ionicons name="add" size={16} color={theme.primary} />
+                        <TextComponent bold style={{ fontSize: 12 }} color={theme.primary}>
+                            Add Price Option
+                        </TextComponent>
+                    </TouchableOpacity>
+
+                    {/* Reservation Selector */}
+                    <View style={{ marginTop: 12 }}>
+                        <TextComponent style={styles.inputLabel} color={theme.textSecondary} bold variant="label">
+                            Reservation Required?
+                        </TextComponent>
+                        <View style={styles.selectorGrid}>
+                            {[
+                                { key: 'YES', label: 'Yes' },
+                                { key: 'NO', label: 'No' },
+                                { key: 'MAYBE', label: 'Maybe' },
+                                { key: '', label: 'Not filled' },
+                            ].map((item) => (
+                                <TouchableOpacity
+                                    key={item.key}
+                                    onPress={() => updateField('requiresReservation', item.key)}
+                                    style={[
+                                        styles.selectorItem,
+                                        {
+                                            backgroundColor: (requiresReservation || '') === item.key ? theme.primary : theme.bgTertiary,
+                                            borderColor: (requiresReservation || '') === item.key ? theme.primary : theme.borderPrimary
+                                        }
+                                    ]}
+                                >
+                                    <TextComponent
+                                        bold
+                                        style={{ fontSize: 12 }}
+                                        color={(requiresReservation || '') === item.key ? theme.textOnPrimary : theme.textPrimary}
+                                    >
+                                        {item.label}
+                                    </TextComponent>
+                                </TouchableOpacity>
+                            ))}
                         </View>
                     </View>
 
-                    <View style={{ marginTop: 8 }}>
+                    <View style={{ marginTop: 12 }}>
                         <FormInput
                             label={t('ticketInfo' as any) || 'Extra Booking / Ticket Info'}
                             value={ticketInfo}
@@ -352,6 +424,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         textTransform: 'uppercase',
         marginBottom: 6,
+        marginTop: 6,
     },
     selectorGrid: {
         flexDirection: 'row',
@@ -372,5 +445,23 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 4,
+    },
+    deleteButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    addPriceButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 10,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        gap: 6,
+        marginTop: 4,
     },
 });

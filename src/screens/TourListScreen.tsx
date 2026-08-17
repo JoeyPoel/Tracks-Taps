@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, RefreshControl, StyleSheet, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { EmptyState } from '../components/common/EmptyState';
 import { ScreenHeader } from '../components/common/ScreenHeader';
@@ -40,6 +40,11 @@ export default function TourListScreen() {
     const [tours, setTours] = useState<any[]>([]);
     const [editingReview, setEditingReview] = useState<any>(null);
     const [submittingReview, setSubmittingReview] = useState(false);
+
+    // Pagination states
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
 
     // If targetUserId is provided, use that, otherwise use logged in user's ID
     const effectiveUserId = targetUserId ? Number(targetUserId) : user?.id;
@@ -88,45 +93,59 @@ export default function TourListScreen() {
     }, [isFocused, type, title, tours, loading, narrationMode]);
 
     useEffect(() => {
-        loadTours();
+        loadTours(1, false);
     }, [type, targetUserId]);
 
-    const loadTours = async () => {
+    const loadTours = async (pageNum = 1, append = false) => {
         if (!effectiveUserId) return;
-        setLoading(true);
-        setTours([]); // Clear current items when loading new data to avoid stale rendering
+        if (pageNum === 1) {
+            setLoading(true);
+            setTours([]); // Clear current items when loading new data to avoid stale rendering
+        } else {
+            setLoadingMore(true);
+        }
         try {
+            const limit = 10;
+            let newData: any[] = [];
             if (type === 'done') {
-                const response: any = await userService.getUserPlayedTours(effectiveUserId);
+                const response: any = await userService.getUserPlayedTours(effectiveUserId, pageNum, limit);
                 const data = (response.data && Array.isArray(response.data)) ? response.data : response;
 
                 // data from API is UserPlayedTour[] with nested tour
-                setTours(Array.isArray(data) ? data.map((pt: any) => ({
+                newData = Array.isArray(data) ? data.map((pt: any) => ({
                     ...pt.tour,
                     uniqueKey: pt.id.toString() // UserPlayedTour ID
-                })) : []);
+                })) : [];
             } else if (type === 'created') {
-                const response: any = await userService.getUserCreatedTours(effectiveUserId);
+                const response: any = await userService.getUserCreatedTours(effectiveUserId, pageNum, limit);
                 const data = (response.data && Array.isArray(response.data)) ? response.data : response;
 
-                setTours(Array.isArray(data) ? data.map((t: any) => ({
+                newData = Array.isArray(data) ? data.map((t: any) => ({
                     ...t,
                     uniqueKey: t.id.toString()
-                })) : []);
+                })) : [];
             } else if (type === 'reviews') {
-                const response: any = await userService.getUserReviews(effectiveUserId);
+                const response: any = await userService.getUserReviews(effectiveUserId, pageNum, limit);
                 const data = (response.data && Array.isArray(response.data)) ? response.data : response;
 
-                setTours(Array.isArray(data) ? data.map((r: any) => ({
+                newData = Array.isArray(data) ? data.map((r: any) => ({
                     ...r,
                     uniqueKey: r.id.toString()
-                })) : []);
+                })) : [];
             }
+
+            setTours(prev => append ? [...prev, ...newData] : newData);
+            setHasMore(newData.length >= limit);
+            setPage(pageNum);
         } catch (error) {
             console.error('Error loading tours', error);
         } finally {
-            // Small delay to ensure state batching doesn't cause a layout "bump" before animations start
-            setTimeout(() => setLoading(false), 100);
+            if (pageNum === 1) {
+                // Small delay to ensure state batching doesn't cause a layout "bump" before animations start
+                setTimeout(() => setLoading(false), 100);
+            } else {
+                setLoadingMore(false);
+            }
         }
     };
 
@@ -389,9 +408,22 @@ export default function TourListScreen() {
                 refreshControl={
                     <RefreshControl
                         refreshing={loading}
-                        onRefresh={loadTours}
+                        onRefresh={() => loadTours(1, false)}
                         tintColor={theme.primary}
                     />
+                }
+                onEndReached={() => {
+                    if (hasMore && !loading && !loadingMore) {
+                        loadTours(page + 1, true);
+                    }
+                }}
+                onEndReachedThreshold={0.5}
+                ListFooterComponent={
+                    loadingMore ? (
+                        <View style={{ paddingVertical: 20, alignItems: 'center' }}>
+                            <ActivityIndicator color={theme.primary} />
+                        </View>
+                    ) : null
                 }
                 ListEmptyComponent={
                     (!loading && tours.length === 0) ? (

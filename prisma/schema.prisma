@@ -159,7 +159,7 @@ model Stop {
   ticketInfo          String?
   openingHours        String?
   ticketPrice         String?
-  requiresReservation Boolean?
+  requiresReservation String?
   challenges          Challenge[]
 
   pubGolfStops        PubGolfStop[]

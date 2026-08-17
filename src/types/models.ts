@@ -74,7 +74,7 @@ export interface Stop {
     ticketInfo?: string | null;
     openingHours?: string | null;
     ticketPrice?: string | null;
-    requiresReservation?: boolean | null;
+    requiresReservation?: string | null;
 }
 
 export interface Tour {

@@ -223,15 +223,44 @@ export function ItineraryView({ stops, onStopPress, activeStopIndex }: Itinerary
                   <View style={styles.metaRow}>
                     {stop.requiresTicket === true && (
                       <>
-                        <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(239,68,68,0.15)' : '#FEE2E2' }]}>
-                          <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#f87171' : '#DC2626' }]}>
-                            🎟 {stop.ticketPrice ? stop.ticketPrice : (stop.ticketInfo ? stop.ticketInfo.split('—')[0].trim() : 'Ticket required')}
-                          </TextComponent>
-                        </View>
-                        {stop.requiresReservation === true && (
+                        {(() => {
+                          const priceStr = stop.ticketPrice;
+                          if (priceStr && priceStr.startsWith('[')) {
+                            try {
+                              const arr = JSON.parse(priceStr);
+                              if (Array.isArray(arr) && arr.length > 0) {
+                                return arr.map((opt: any, idx: number) => {
+                                  if (!opt.price) return null;
+                                  return (
+                                    <View key={idx} style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(239,68,68,0.15)' : '#FEE2E2' }]}>
+                                      <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#f87171' : '#DC2626' }]}>
+                                        🎟 {opt.category ? `${opt.category}: ` : ''}{opt.price}
+                                      </TextComponent>
+                                    </View>
+                                  );
+                                });
+                              }
+                            } catch (e) {}
+                          }
+                          return (
+                            <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(239,68,68,0.15)' : '#FEE2E2' }]}>
+                              <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#f87171' : '#DC2626' }]}>
+                                🎟 {stop.ticketPrice ? stop.ticketPrice : (stop.ticketInfo ? stop.ticketInfo.split('—')[0].trim() : 'Ticket required')}
+                              </TextComponent>
+                            </View>
+                          );
+                        })()}
+                        {stop.requiresReservation === 'YES' && (
+                          <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(239,68,68,0.15)' : '#FEE2E2' }]}>
+                            <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#f87171' : '#DC2626' }]}>
+                              📅 Reservation required
+                            </TextComponent>
+                          </View>
+                        )}
+                        {stop.requiresReservation === 'MAYBE' && (
                           <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(245,158,11,0.15)' : '#FEF3C7' }]}>
                             <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#fbbf24' : '#D97706' }]}>
-                              📅 Reservation required
+                              📅 Reservation recommended
                             </TextComponent>
                           </View>
                         )}

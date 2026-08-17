@@ -108,7 +108,7 @@ export default function StopCreationModal({
 
                             <TicketHoursSection
                                 formState={formState}
-                                updateField={updateField}
+                                updateField={updateField as any}
                             />
 
                             <PubGolfSection

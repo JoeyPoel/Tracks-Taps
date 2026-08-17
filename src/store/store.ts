@@ -607,7 +607,7 @@ export const useStore = create<StoreState>()(
 
                 set({ loadingFriends: true });
                 try {
-                    const response: any = await friendService.getFriends();
+                    const response: any = await friendService.getFriends(1, 1000);
                     const data = (response.data && Array.isArray(response.data)) ? response.data : response;
                     set({
                         friends: Array.isArray(data) ? data : [],

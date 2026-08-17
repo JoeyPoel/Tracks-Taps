@@ -33,7 +33,7 @@ export const createStopPayload = (
 ) => {
     const {
         name, description, detailedDescription, imageUrl, type, isPubGolfStop, drink, par, marker,
-        requiresTicket, isFreeEntry, ticketInfo, ticketPrice, requiresReservation,
+        requiresTicket, isFreeEntry, ticketInfo, ticketPriceOptions, requiresReservation,
         openingHoursType, hoursOpen, hoursClose, hoursWeekdaysOpen, hoursWeekdaysClose, hoursWeekendsOpen, hoursWeekendsClose
     } = state;
 
@@ -79,8 +79,8 @@ export const createStopPayload = (
         requiresTicket: requiresTicket || null,
         isFreeEntry: isFreeEntry || null,
         ticketInfo: requiresTicket ? (ticketInfo || null) : null,
-        ticketPrice: requiresTicket ? (ticketPrice || null) : null,
-        requiresReservation: requiresTicket ? !!requiresReservation : null,
+        ticketPrice: requiresTicket ? JSON.stringify(ticketPriceOptions) : null,
+        requiresReservation: requiresTicket ? (requiresReservation || null) : null,
         openingHours: compiledOpeningHours,
     };
 };

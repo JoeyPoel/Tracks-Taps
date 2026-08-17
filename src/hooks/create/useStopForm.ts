@@ -21,7 +21,8 @@ export interface StopFormState {
     ticketInfo: string;
     openingHours: string;
     ticketPrice: string;
-    requiresReservation: boolean;
+    ticketPriceOptions: { category: string; price: string }[];
+    requiresReservation: string;
     openingHoursType: string;
     hoursOpen: string;
     hoursClose: string;
@@ -137,7 +138,8 @@ export function useStopForm(
         ticketInfo: '',
         openingHours: '',
         ticketPrice: '',
-        requiresReservation: false,
+        ticketPriceOptions: [{ category: 'General', price: '' }],
+        requiresReservation: 'NO',
         openingHoursType: '24h',
         hoursOpen: '09:00',
         hoursClose: '17:00',
@@ -177,7 +179,15 @@ export function useStopForm(
                     ticketInfo: initialData.ticketInfo || '',
                     openingHours: initialData.openingHours || '',
                     ticketPrice: initialData.ticketPrice || '',
-                    requiresReservation: !!initialData.requiresReservation,
+                    ticketPriceOptions: (() => {
+                        try {
+                            if (initialData.ticketPrice && initialData.ticketPrice.startsWith('[')) {
+                                return JSON.parse(initialData.ticketPrice);
+                            }
+                        } catch (e) {}
+                        return [{ category: 'General', price: initialData.ticketPrice || '' }];
+                    })(),
+                    requiresReservation: initialData.requiresReservation || 'NO',
                     ...parsedHours
                 });
             } else {
@@ -197,7 +207,8 @@ export function useStopForm(
                     ticketInfo: '',
                     openingHours: '',
                     ticketPrice: '',
-                    requiresReservation: false,
+                    ticketPriceOptions: [{ category: 'General', price: '' }],
+                    requiresReservation: 'NO',
                     openingHoursType: '24h',
                     hoursOpen: '09:00',
                     hoursClose: '17:00',
@@ -238,7 +249,8 @@ export function useStopForm(
             ticketInfo: '',
             openingHours: '',
             ticketPrice: '',
-            requiresReservation: false,
+            ticketPriceOptions: [{ category: 'General', price: '' }],
+            requiresReservation: 'NO',
             openingHoursType: '24h',
             hoursOpen: '09:00',
             hoursClose: '17:00',

@@ -23,6 +23,13 @@ export const useMapScreenLogic = () => {
     const [routeSegments, setRouteSegments] = useState<any[]>([]);
     const [isFetchingDetails, setIsFetchingDetails] = useState(false);
 
+    // Ensure Tab Bar goes back up when component unmounts
+    useEffect(() => {
+        return () => {
+            setTabBarVisible(true);
+        };
+    }, [setTabBarVisible]);
+
     // Handle deep linking / navigation with tourId
     useEffect(() => {
         if (tourId) {
