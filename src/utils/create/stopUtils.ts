@@ -48,9 +48,9 @@ export const createStopPayload = (
             compiledOpeningHours = `Daily: ${hoursOpen}–${hoursClose}`;
         }
     } else if (openingHoursType === 'weekdays_same') {
-        if (hoursWeekdaysOpen && hoursWeekdaysClose && hoursWeekendsOpen && hoursWeekendsClose) {
-            compiledOpeningHours = `Mon–Fri: ${hoursWeekdaysOpen}–${hoursWeekdaysClose}, Sat–Sun: ${hoursWeekendsOpen}–${hoursWeekendsClose}`;
-        }
+        const weekdaysText = state.hoursWeekdaysClosed ? 'Closed' : `${hoursWeekdaysOpen}–${hoursWeekdaysClose}`;
+        const weekendsText = state.hoursWeekendsClosed ? 'Closed' : `${hoursWeekendsOpen}–${hoursWeekendsClose}`;
+        compiledOpeningHours = `Mon–Fri: ${weekdaysText}, Sat–Sun: ${weekendsText}`;
     } else if (openingHoursType === 'custom') {
         const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         const shortDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];

@@ -953,6 +953,7 @@ export const strings = {
     scorecardTab: '📋 Scorecard',
     hazardsTab: '⛳ Hazards & Penalties ({0})',
     xpLeaderboard: '⚡ XP Leaderboard',
+    infoDisclaimerHours: '⏱ Opening times, prices, and entry requirements listed here are provided for convenience and may not be up to date. Tracks & Taps is not responsible for inaccuracies. Always verify with the venue directly before visiting.',
   },
   es: {
     modes: 'Modos',
@@ -1898,6 +1899,7 @@ export const strings = {
     scorecardTab: '📋 Tarjeta',
     hazardsTab: '⛳ Obstáculos y Penalizaciones ({0})',
     xpLeaderboard: '⚡ Marcador de XP',
+    infoDisclaimerHours: '⏱ Los horarios de apertura, precios y requisitos de entrada indicados son orientativos y pueden no estar actualizados. Tracks & Taps no se hace responsable de inexactitudes. Comprueba siempre la información directamente con el local antes de visitarlo.',
   },
   nl: {
     modes: 'Modi',
@@ -2851,6 +2853,7 @@ export const strings = {
     scorecardTab: '📋 Scorekaart',
     hazardsTab: '⛳ Hindernissen & Straffen ({0})',
     xpLeaderboard: '⚡ XP Scorebord',
+    infoDisclaimerHours: '⏱ De genoemde openingstijden, prijzen en toegangseisen zijn ter informatie en kunnen verouderd zijn. Tracks & Taps is niet verantwoordelijk voor onjuistheden. Controleer de actuele informatie altijd rechtstreeks bij de locatie voor uw bezoek.',
   },
   pl: {
     modes: 'Tryby',
@@ -3804,6 +3807,7 @@ export const strings = {
     scorecardTab: '📋 Karta wyników',
     hazardsTab: '⛳ Przeszkody i Kary ({0})',
     xpLeaderboard: '⚡ Tabela wyników XP',
+    infoDisclaimerHours: '⏱ Podane godziny otwarcia, ceny i wymagania wstępu mają charakter informacyjny i mogą być nieaktualne. Tracks & Taps nie ponosi odpowiedzialności za nieścisłości. Przed wizytą zawsze weryfikuj informacje bezpośrednio z miejscem.',
   },
   fr: {
     modes: 'Modes',
@@ -4757,6 +4761,7 @@ export const strings = {
     scorecardTab: '📋 Carte de score',
     hazardsTab: '⛳ Obstacles et Pénalités ({0})',
     xpLeaderboard: '⚡ Leaderboard XP',
+    infoDisclaimerHours: '⏱ Les horaires d\'ouverture, les tarifs et les conditions d\'accès indiqués sont fournis à titre indicatif et peuvent ne pas être à jour. Tracks & Taps décline toute responsabilité en cas d\'inexactitudes. Vérifiez toujours les informations directement auprès du lieu avant votre visite.',
   },
   de: {
     modes: 'Modi',
@@ -5710,5 +5715,6 @@ export const strings = {
     scorecardTab: '📋 Scorecard',
     hazardsTab: '⛳ Hindernisse & Strafen ({0})',
     xpLeaderboard: '⚡ XP-Bestenliste',
+    infoDisclaimerHours: '⏱ Die angegebenen Öffnungszeiten, Preise und Zugangsvoraussetzungen dienen nur zur Orientierung und sind möglicherweise nicht aktuell. Tracks & Taps übernimmt keine Haftung für Ungenauigkeiten. Bitte verifiziere die Informationen immer direkt vor Ort, bevor du einen Besuch planst.',
   },
 };

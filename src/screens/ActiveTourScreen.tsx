@@ -84,6 +84,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
     const [localModalClose, setLocalModalClose] = useState(false);
     const [buyTokensModalVisible, setBuyTokensModalVisible] = useState(false);
     const [isOptimizing, setIsOptimizing] = useState(false);
+    const [isResetting, setIsResetting] = useState(false);
     const [originalStops, setOriginalStops] = useState<{ id: number; number: number }[] | null>(null);
 
     useEffect(() => {
@@ -410,7 +411,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                     <View style={{ marginVertical: 24, flexDirection: 'row', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
                         <TouchableOpacity
                             onPress={handleOptimizeRoute}
-                            disabled={isOptimizing}
+                            disabled={isOptimizing || isResetting}
                             style={{
                                 flexDirection: 'row',
                                 alignItems: 'center',
@@ -421,6 +422,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                                 paddingHorizontal: 24,
                                 borderRadius: 25,
                                 backgroundColor: 'transparent',
+                                opacity: (isOptimizing || isResetting) ? 0.6 : 1,
                             }}
                         >
                             <Ionicons name="shuffle" size={18} color={theme.primary} />
@@ -433,7 +435,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                         {originalStops && (
                             <TouchableOpacity
                                 onPress={handleRevertRoute}
-                                disabled={isOptimizing}
+                                disabled={isOptimizing || isResetting}
                                 style={{
                                     flexDirection: 'row',
                                     alignItems: 'center',
@@ -444,11 +446,12 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                                     paddingHorizontal: 24,
                                     borderRadius: 25,
                                     backgroundColor: 'transparent',
+                                    opacity: (isOptimizing || isResetting) ? 0.6 : 1,
                                 }}
                             >
                                 <Ionicons name="refresh-outline" size={18} color={theme.textSecondary} />
                                 <Text style={{ color: theme.textSecondary, fontWeight: 'bold', fontSize: 14 }}>
-                                    {t('revertRoute')}
+                                    {isResetting ? 'Resetting...' : t('revertRoute')}
                                 </Text>
                             </TouchableOpacity>
                         )}
@@ -571,7 +574,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
 
     const handleRevertRoute = async () => {
         if (!originalStops || !activeTour?.tour?.stops) return;
-        setIsOptimizing(true);
+        setIsResetting(true);
         try {
             const stops = [...activeTour.tour.stops];
             const originalMap = new Map(originalStops.map(item => [item.id, item.number]));
@@ -629,7 +632,7 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
         } catch (err: any) {
             Alert.alert("Error", err.message || "Failed to reset route.");
         } finally {
-            setIsOptimizing(false);
+            setIsResetting(false);
         }
     };
 

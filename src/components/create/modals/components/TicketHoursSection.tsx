@@ -318,43 +318,79 @@ export function TicketHoursSection({ formState, updateField }: TicketHoursSectio
 
             {openingHoursType === 'weekdays_same' && (
                 <View style={{ gap: 8 }}>
-                    <View style={styles.timeRow}>
-                        <View style={{ flex: 1 }}>
-                            <FormInput
-                                label="Weekdays Open (Mon–Fri)"
-                                value={hoursWeekdaysOpen}
-                                onChange={(val) => updateField('hoursWeekdaysOpen', val)}
-                                placeholder="09:00"
-                            />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <FormInput
-                                label="Weekdays Close (Mon–Fri)"
-                                value={hoursWeekdaysClose}
-                                onChange={(val) => updateField('hoursWeekdaysClose', val)}
-                                placeholder="17:00"
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 4 }}>
+                        <TextComponent bold style={{ fontSize: 13 }} color={theme.textPrimary}>
+                            Weekdays (Mon–Fri)
+                        </TextComponent>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <TextComponent style={{ fontSize: 11 }} color={theme.textSecondary}>
+                                Closed
+                            </TextComponent>
+                            <Switch
+                                value={formState.hoursWeekdaysClosed || false}
+                                onValueChange={(val) => updateField('hoursWeekdaysClosed', val)}
+                                trackColor={{ false: theme.bgTertiary, true: theme.danger }}
                             />
                         </View>
                     </View>
 
-                    <View style={styles.timeRow}>
-                        <View style={{ flex: 1 }}>
-                            <FormInput
-                                label="Weekends Open (Sat–Sun)"
-                                value={hoursWeekendsOpen}
-                                onChange={(val) => updateField('hoursWeekendsOpen', val)}
-                                placeholder="10:00"
-                            />
+                    {!formState.hoursWeekdaysClosed && (
+                        <View style={styles.timeRow}>
+                            <View style={{ flex: 1 }}>
+                                <FormInput
+                                    label="Weekdays Open (Mon–Fri)"
+                                    value={hoursWeekdaysOpen}
+                                    onChange={(val) => updateField('hoursWeekdaysOpen', val)}
+                                    placeholder="09:00"
+                                />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <FormInput
+                                    label="Weekdays Close (Mon–Fri)"
+                                    value={hoursWeekdaysClose}
+                                    onChange={(val) => updateField('hoursWeekdaysClose', val)}
+                                    placeholder="17:00"
+                                />
+                            </View>
                         </View>
-                        <View style={{ flex: 1 }}>
-                            <FormInput
-                                label="Weekends Close (Sat–Sun)"
-                                value={hoursWeekendsClose}
-                                onChange={(val) => updateField('hoursWeekendsClose', val)}
-                                placeholder="16:00"
+                    )}
+
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 4, marginTop: 8 }}>
+                        <TextComponent bold style={{ fontSize: 13 }} color={theme.textPrimary}>
+                            Weekends (Sat–Sun)
+                        </TextComponent>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <TextComponent style={{ fontSize: 11 }} color={theme.textSecondary}>
+                                Closed
+                            </TextComponent>
+                            <Switch
+                                value={formState.hoursWeekendsClosed || false}
+                                onValueChange={(val) => updateField('hoursWeekendsClosed', val)}
+                                trackColor={{ false: theme.bgTertiary, true: theme.danger }}
                             />
                         </View>
                     </View>
+
+                    {!formState.hoursWeekendsClosed && (
+                        <View style={styles.timeRow}>
+                            <View style={{ flex: 1 }}>
+                                <FormInput
+                                    label="Weekends Open (Sat–Sun)"
+                                    value={hoursWeekendsOpen}
+                                    onChange={(val) => updateField('hoursWeekendsOpen', val)}
+                                    placeholder="10:00"
+                                />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <FormInput
+                                    label="Weekends Close (Sat–Sun)"
+                                    value={hoursWeekendsClose}
+                                    onChange={(val) => updateField('hoursWeekendsClose', val)}
+                                    placeholder="16:00"
+                                />
+                            </View>
+                        </View>
+                    )}
                 </View>
             )}
 

@@ -59,7 +59,8 @@ export default function RecentAchievements({ achievements, loading, onSeeAll }: 
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 12, paddingHorizontal: 4 }}
+                contentContainerStyle={{ gap: 12, paddingHorizontal: 4, paddingVertical: 12 }}
+                style={{ marginVertical: -12 }}
             >
                 {loading ? (
                     <>

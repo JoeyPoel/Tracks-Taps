@@ -30,6 +30,8 @@ export interface StopFormState {
     hoursWeekdaysClose: string;
     hoursWeekendsOpen: string;
     hoursWeekendsClose: string;
+    hoursWeekdaysClosed: boolean;
+    hoursWeekendsClosed: boolean;
     customMondayOpen: string; customMondayClose: string; customMondayClosed: boolean;
     customTuesdayOpen: string; customTuesdayClose: string; customTuesdayClosed: boolean;
     customWednesdayOpen: string; customWednesdayClose: string; customWednesdayClosed: boolean;
@@ -48,6 +50,8 @@ function parseOpeningHours(str: string) {
         hoursWeekdaysClose: '17:00',
         hoursWeekendsOpen: '10:00',
         hoursWeekendsClose: '16:00',
+        hoursWeekdaysClosed: false,
+        hoursWeekendsClosed: false,
         customMondayOpen: '09:00', customMondayClose: '17:00', customMondayClosed: false,
         customTuesdayOpen: '09:00', customTuesdayClose: '17:00', customTuesdayClosed: false,
         customWednesdayOpen: '09:00', customWednesdayClose: '17:00', customWednesdayClosed: false,
@@ -75,15 +79,18 @@ function parseOpeningHours(str: string) {
     }
     
     if (str.includes('Mon') && str.includes('Sat')) {
-        const match = str.match(/Mon[–-](?:Fri|Vri):\s*([0-9]{2}:[0-9]{2})[–-]([0-9]{2}:[0-9]{2}),?\s*Sat[–-](?:Sun|Zon):\s*([0-9]{2}:[0-9]{2})[–-]([0-9]{2}:[0-9]{2})/i);
-        if (match) {
+        const weekdaysMatch = str.match(/Mon[–-](?:Fri|Vri):\s*(?:([0-9]{2}:[0-9]{2})[–-]([0-9]{2}:[0-9]{2})|(Closed))/i);
+        const weekendsMatch = str.match(/Sat[–-](?:Sun|Zon):\s*(?:([0-9]{2}:[0-9]{2})[–-]([0-9]{2}:[0-9]{2})|(Closed))/i);
+        if (weekdaysMatch || weekendsMatch) {
             return {
                 ...defaults,
                 openingHoursType: 'weekdays_same',
-                hoursWeekdaysOpen: match[1],
-                hoursWeekdaysClose: match[2],
-                hoursWeekendsOpen: match[3],
-                hoursWeekendsClose: match[4]
+                hoursWeekdaysClosed: !!(weekdaysMatch && weekdaysMatch[3] && weekdaysMatch[3].toLowerCase().includes('closed')),
+                hoursWeekdaysOpen: (weekdaysMatch && weekdaysMatch[1]) || '09:00',
+                hoursWeekdaysClose: (weekdaysMatch && weekdaysMatch[2]) || '17:00',
+                hoursWeekendsClosed: !!(weekendsMatch && weekendsMatch[3] && weekendsMatch[3].toLowerCase().includes('closed')),
+                hoursWeekendsOpen: (weekendsMatch && weekendsMatch[1]) || '10:00',
+                hoursWeekendsClose: (weekendsMatch && weekendsMatch[2]) || '16:00'
             };
         }
     }
@@ -147,6 +154,8 @@ export function useStopForm(
         hoursWeekdaysClose: '17:00',
         hoursWeekendsOpen: '10:00',
         hoursWeekendsClose: '16:00',
+        hoursWeekdaysClosed: false,
+        hoursWeekendsClosed: false,
         customMondayOpen: '09:00', customMondayClose: '17:00', customMondayClosed: false,
         customTuesdayOpen: '09:00', customTuesdayClose: '17:00', customTuesdayClosed: false,
         customWednesdayOpen: '09:00', customWednesdayClose: '17:00', customWednesdayClosed: false,
@@ -216,6 +225,8 @@ export function useStopForm(
                     hoursWeekdaysClose: '17:00',
                     hoursWeekendsOpen: '10:00',
                     hoursWeekendsClose: '16:00',
+                    hoursWeekdaysClosed: false,
+                    hoursWeekendsClosed: false,
                     customMondayOpen: '09:00', customMondayClose: '17:00', customMondayClosed: false,
                     customTuesdayOpen: '09:00', customTuesdayClose: '17:00', customTuesdayClosed: false,
                     customWednesdayOpen: '09:00', customWednesdayClose: '17:00', customWednesdayClosed: false,
@@ -258,6 +269,8 @@ export function useStopForm(
             hoursWeekdaysClose: '17:00',
             hoursWeekendsOpen: '10:00',
             hoursWeekendsClose: '16:00',
+            hoursWeekdaysClosed: false,
+            hoursWeekendsClosed: false,
             customMondayOpen: '09:00', customMondayClose: '17:00', customMondayClosed: false,
             customTuesdayOpen: '09:00', customTuesdayClose: '17:00', customTuesdayClosed: false,
             customWednesdayOpen: '09:00', customWednesdayClose: '17:00', customWednesdayClosed: false,

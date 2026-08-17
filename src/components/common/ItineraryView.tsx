@@ -227,8 +227,12 @@ export function ItineraryView({ stops, onStopPress, activeStopIndex }: Itinerary
                           const priceStr = stop.ticketPrice;
                           if (priceStr && priceStr.startsWith('[')) {
                             try {
-                              const arr = JSON.parse(priceStr);
+                              let arr = JSON.parse(priceStr);
                               if (Array.isArray(arr) && arr.length > 0) {
+                                // Flatten nested array if needed (e.g. [[{...}]])
+                                if (Array.isArray(arr[0])) {
+                                  arr = arr[0];
+                                }
                                 return arr.map((opt: any, idx: number) => {
                                   if (!opt.price) return null;
                                   return (
@@ -321,6 +325,13 @@ export function ItineraryView({ stops, onStopPress, activeStopIndex }: Itinerary
           </View>
         );
       })}
+
+      {/* Disclaimer */}
+      <View style={styles.disclaimerContainer}>
+        <TextComponent style={styles.disclaimerText} color={theme.textSecondary}>
+          {t('infoDisclaimerHours' as any) || '⏱ Opening times, prices, and entry requirements may not be up to date. Tracks & Taps is not responsible for inaccuracies. Always verify with the venue directly before visiting.'}
+        </TextComponent>
+      </View>
     </View>
   );
 }
@@ -454,5 +465,20 @@ const styles = StyleSheet.create({
   transitText: {
     fontSize: 11,
     fontWeight: '600',
+  },
+  disclaimerContainer: {
+    marginTop: 20,
+    marginHorizontal: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: 'rgba(148,163,184,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(148,163,184,0.15)',
+  },
+  disclaimerText: {
+    fontSize: 11,
+    lineHeight: 16,
+    opacity: 0.75,
   },
 });
