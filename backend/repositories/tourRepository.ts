@@ -228,7 +228,11 @@ export const tourRepository = {
                             description: true,
                             latitude: true,
                             longitude: true,
-                            type: true
+                            type: true,
+                            requiresTicket: true,
+                            isFreeEntry: true,
+                            ticketInfo: true,
+                            openingHours: true
                         }
                     },
                     _count: {
@@ -303,6 +307,10 @@ export const tourRepository = {
                         type: true,
                         pubgolfPar: true,
                         pubgolfDrink: true,
+                        requiresTicket: true,
+                        isFreeEntry: true,
+                        ticketInfo: true,
+                        openingHours: true,
                         challenges: {
                             select: {
                                 id: true,

@@ -218,6 +218,31 @@ export function ItineraryView({ stops, onStopPress, activeStopIndex }: Itinerary
                       {category.label}
                     </TextComponent>
                   </View>
+
+                  {/* Ticket + Free Entry badges */}
+                  <View style={styles.metaRow}>
+                    {stop.requiresTicket === true && (
+                      <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(239,68,68,0.15)' : '#FEE2E2' }]}>
+                        <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#f87171' : '#DC2626' }]}>
+                          🎟 {stop.ticketInfo ? stop.ticketInfo.split('—')[0].trim() : 'Ticket required'}
+                        </TextComponent>
+                      </View>
+                    )}
+                    {stop.isFreeEntry === true && stop.requiresTicket !== true && (
+                      <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(16,185,129,0.15)' : '#DCFCE7' }]}>
+                        <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#34d399' : '#15803D' }]}>
+                          🆓 Free entry
+                        </TextComponent>
+                      </View>
+                    )}
+                    {stop.openingHours && (
+                      <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(99,102,241,0.15)' : '#EEF2FF' }]}>
+                        <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#a5b4fc' : '#4338CA' }]}>
+                          🕐 {stop.openingHours}
+                        </TextComponent>
+                      </View>
+                    )}
+                  </View>
                 </View>
 
                 {/* Compass Navigation Button */}
@@ -326,11 +351,27 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 8,
     gap: 4,
+    marginBottom: 4,
   },
   categoryText: {
     fontSize: 10,
     fontWeight: 'bold',
     textTransform: 'uppercase',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+    marginTop: 2,
+  },
+  metaBadge: {
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  metaBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
   },
   navButton: {
     width: 32,

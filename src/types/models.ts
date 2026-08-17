@@ -69,6 +69,10 @@ export interface Stop {
     pubgolfDrink: string | null;
     imageUrl?: string | null;
     challenges?: Challenge[];
+    requiresTicket?: boolean | null;
+    isFreeEntry?: boolean | null;
+    ticketInfo?: string | null;
+    openingHours?: string | null;
 }
 
 export interface Tour {
