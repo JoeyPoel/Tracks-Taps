@@ -8,6 +8,7 @@ import { Animated, KeyboardAvoidingView, LayoutAnimation, Modal, Platform, Scrol
 import { PubGolfSection } from './components/PubGolfSection';
 import { StopForm } from './components/StopForm';
 import { StopMapPicker } from './components/StopMapPicker';
+import { TicketHoursSection } from './components/TicketHoursSection';
 
 interface StopCreationModalProps {
     visible: boolean;
@@ -32,7 +33,7 @@ export default function StopCreationModal({
     const { t } = useLanguage();
 
     const { formState, region, setRegion, isPubGolfEnabled, updateField, handleSave } = useStopForm(onSave, visible, modes, existingStops, initialData);
-    const { name, description, detailedDescription, imageUrl, type, isPubGolfStop, drink, par, marker } = formState;
+    const { name, description, detailedDescription, imageUrl, type, isPubGolfStop, drink, par, marker, requiresTicket, isFreeEntry, ticketInfo, openingHours } = formState;
 
     const [isSearching, setIsSearching] = useState(false);
     const formOpacity = React.useRef(new Animated.Value(1)).current;
@@ -103,6 +104,13 @@ export default function StopCreationModal({
                                 detailedDescription={detailedDescription} setDetailedDescription={(val) => updateField('detailedDescription', val)}
                                 imageUrl={imageUrl} setImageUrl={(val) => updateField('imageUrl', val)}
                                 type={type} setType={(val) => updateField('type', val)}
+                            />
+
+                            <TicketHoursSection
+                                requiresTicket={requiresTicket} setRequiresTicket={(val) => updateField('requiresTicket', val)}
+                                isFreeEntry={isFreeEntry} setIsFreeEntry={(val) => updateField('isFreeEntry', val)}
+                                ticketInfo={ticketInfo} setTicketInfo={(val) => updateField('ticketInfo', val)}
+                                openingHours={openingHours} setOpeningHours={(val) => updateField('openingHours', val)}
                             />
 
                             <PubGolfSection

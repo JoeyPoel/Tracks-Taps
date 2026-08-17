@@ -16,6 +16,10 @@ export interface StopFormState {
     drink: string;
     par: string;
     marker: { latitude: number; longitude: number } | null;
+    requiresTicket: boolean;
+    isFreeEntry: boolean;
+    ticketInfo: string;
+    openingHours: string;
 }
 
 export function useStopForm(
@@ -41,6 +45,10 @@ export function useStopForm(
         drink: '',
         par: '3',
         marker: null,
+        requiresTicket: false,
+        isFreeEntry: false,
+        ticketInfo: '',
+        openingHours: '',
     });
 
     // Initialize form when visible or initialData changes
@@ -60,6 +68,10 @@ export function useStopForm(
                         latitude: initialData.latitude,
                         longitude: initialData.longitude
                     },
+                    requiresTicket: !!initialData.requiresTicket,
+                    isFreeEntry: !!initialData.isFreeEntry,
+                    ticketInfo: initialData.ticketInfo || '',
+                    openingHours: initialData.openingHours || '',
                 });
             } else {
                 // Reset to defaults for new stop
@@ -73,10 +85,15 @@ export function useStopForm(
                     drink: '',
                     par: '3',
                     marker: null,
+                    requiresTicket: false,
+                    isFreeEntry: false,
+                    ticketInfo: '',
+                    openingHours: '',
                 });
             }
         }
     }, [visible, initialData]);
+
 
     const updateField = <K extends keyof StopFormState>(key: K, value: StopFormState[K]) => {
         setFormState(prev => ({ ...prev, [key]: value }));
@@ -94,6 +111,10 @@ export function useStopForm(
             drink: '',
             par: '3',
             marker: null, // Reset marker but region stays focused
+            requiresTicket: false,
+            isFreeEntry: false,
+            ticketInfo: '',
+            openingHours: '',
         }));
     };
 

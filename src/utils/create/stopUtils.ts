@@ -31,7 +31,7 @@ export const createStopPayload = (
     state: StopFormState,
     isPubGolfEnabled: boolean
 ) => {
-    const { name, description, detailedDescription, imageUrl, type, isPubGolfStop, drink, par, marker } = state;
+    const { name, description, detailedDescription, imageUrl, type, isPubGolfStop, drink, par, marker, requiresTicket, isFreeEntry, ticketInfo, openingHours } = state;
 
     if (!marker) throw new Error("Marker is required to create a stop payload");
 
@@ -46,5 +46,9 @@ export const createStopPayload = (
         challenges: [],
         pubgolfDrink: (isPubGolfEnabled && isPubGolfStop) ? drink : null,
         pubgolfPar: (isPubGolfEnabled && isPubGolfStop) ? parseInt(par) : null,
+        requiresTicket: requiresTicket || null,
+        isFreeEntry: isFreeEntry || null,
+        ticketInfo: requiresTicket ? ticketInfo : null,
+        openingHours: openingHours || null,
     };
 };
