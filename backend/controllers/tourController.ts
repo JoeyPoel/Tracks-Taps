@@ -187,6 +187,12 @@ export const tourController = {
                         type: mapStopType(stop.type),
                         pubgolfPar: stop.pubgolfPar || null,
                         pubgolfDrink: stop.pubgolfDrink || null,
+                        requiresTicket: stop.requiresTicket !== undefined ? stop.requiresTicket : null,
+                        isFreeEntry: stop.isFreeEntry !== undefined ? stop.isFreeEntry : null,
+                        ticketInfo: stop.ticketInfo || null,
+                        openingHours: stop.openingHours || null,
+                        ticketPrice: stop.ticketPrice || null,
+                        requiresReservation: stop.requiresReservation || null,
                         challenges: {
                             create: Array.isArray(stop.challenges) ? stop.challenges.map((c: any) => ({
                                 title: c.title,

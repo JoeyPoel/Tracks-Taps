@@ -39,7 +39,6 @@ export function TicketHoursSection({ formState, updateField }: TicketHoursSectio
             }
         } else {
             updateField('ticketPriceOptions', [{ category: 'General', price: '' }]);
-            updateField('requiresReservation', 'NO');
             updateField('ticketInfo', '');
         }
     };
@@ -49,7 +48,6 @@ export function TicketHoursSection({ formState, updateField }: TicketHoursSectio
         if (val) {
             updateField('requiresTicket', false);
             updateField('ticketPriceOptions', [{ category: 'General', price: '' }]);
-            updateField('requiresReservation', 'NO');
             updateField('ticketInfo', '');
         }
     };
@@ -61,13 +59,20 @@ export function TicketHoursSection({ formState, updateField }: TicketHoursSectio
 
     const handleRemovePriceOption = (index: number) => {
         const updated = ticketPriceOptions.filter((_: any, i: number) => i !== index);
-        updateField('ticketPriceOptions', updated.length > 0 ? updated : [{ category: 'General', price: '' }]);
+        updateField('ticketPriceOptions', updated);
     };
 
     const handlePriceOptionChange = (index: number, field: 'category' | 'price', value: string) => {
+        let formattedValue = value;
+        if (field === 'price' && value.trim().length > 0) {
+            const clean = value.trim();
+            if (!clean.startsWith('€') && !clean.toLowerCase().includes('free')) {
+                formattedValue = `€${clean}`;
+            }
+        }
         const updated = ticketPriceOptions.map((item: any, i: number) => {
             if (i === index) {
-                return { ...item, [field]: value };
+                return { ...item, [field]: formattedValue };
             }
             return item;
         });
@@ -172,6 +177,41 @@ export function TicketHoursSection({ formState, updateField }: TicketHoursSectio
                 />
             </View>
 
+            {/* Reservation Selector (Root level) */}
+            <View style={{ marginTop: 12, paddingHorizontal: 4 }}>
+                <TextComponent style={styles.inputLabel} color={theme.textSecondary} bold variant="label">
+                    Reservation Required?
+                </TextComponent>
+                <View style={styles.selectorGrid}>
+                    {[
+                        { key: 'YES', label: 'Yes' },
+                        { key: 'NO', label: 'No' },
+                        { key: 'MAYBE', label: 'Maybe' },
+                        { key: '', label: 'Not filled' },
+                    ].map((item) => (
+                        <TouchableOpacity
+                            key={item.key}
+                            onPress={() => updateField('requiresReservation', item.key)}
+                            style={[
+                                styles.selectorItem,
+                                {
+                                    backgroundColor: (requiresReservation || '') === item.key ? theme.primary : theme.bgTertiary,
+                                    borderColor: (requiresReservation || '') === item.key ? theme.primary : theme.borderPrimary
+                                }
+                            ]}
+                        >
+                            <TextComponent
+                                bold
+                                style={{ fontSize: 12 }}
+                                color={(requiresReservation || '') === item.key ? theme.textOnPrimary : theme.textPrimary}
+                            >
+                                {item.label}
+                            </TextComponent>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            </View>
+
             {requiresTicket && (
                 <View style={styles.ticketDetails}>
                     <TextComponent style={styles.inputLabel} color={theme.textSecondary} bold variant="label">
@@ -211,41 +251,6 @@ export function TicketHoursSection({ formState, updateField }: TicketHoursSectio
                             Add Price Option
                         </TextComponent>
                     </TouchableOpacity>
-
-                    {/* Reservation Selector */}
-                    <View style={{ marginTop: 12 }}>
-                        <TextComponent style={styles.inputLabel} color={theme.textSecondary} bold variant="label">
-                            Reservation Required?
-                        </TextComponent>
-                        <View style={styles.selectorGrid}>
-                            {[
-                                { key: 'YES', label: 'Yes' },
-                                { key: 'NO', label: 'No' },
-                                { key: 'MAYBE', label: 'Maybe' },
-                                { key: '', label: 'Not filled' },
-                            ].map((item) => (
-                                <TouchableOpacity
-                                    key={item.key}
-                                    onPress={() => updateField('requiresReservation', item.key)}
-                                    style={[
-                                        styles.selectorItem,
-                                        {
-                                            backgroundColor: (requiresReservation || '') === item.key ? theme.primary : theme.bgTertiary,
-                                            borderColor: (requiresReservation || '') === item.key ? theme.primary : theme.borderPrimary
-                                        }
-                                    ]}
-                                >
-                                    <TextComponent
-                                        bold
-                                        style={{ fontSize: 12 }}
-                                        color={(requiresReservation || '') === item.key ? theme.textOnPrimary : theme.textPrimary}
-                                    >
-                                        {item.label}
-                                    </TextComponent>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-                    </View>
 
                     <View style={{ marginTop: 12 }}>
                         <FormInput

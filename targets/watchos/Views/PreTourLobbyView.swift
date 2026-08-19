@@ -48,8 +48,8 @@ struct PreTourLobbyView: View {
                             .wFont(size: 8, weight: .bold)
                             .foregroundColor(.gray)
                         Text(formattedTourCode)
-                            .wFont(size: 10, weight: .semibold, design: .monospaced)
-                            .foregroundColor(Color(hex: manager.themeAccent))
+                            .wFont(size: 10, weight: .semibold)
+                            .monospaced()
                     }
                     .padding(.top, -2)
                 }

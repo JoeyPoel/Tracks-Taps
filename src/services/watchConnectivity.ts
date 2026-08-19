@@ -153,7 +153,7 @@ export class WatchConnectivityService {
       const stopIdx = Math.min(currentStopNumber - 1, tour.stops.length - 1);
       const stop = tour.stops[stopIdx];
       currentStopName = stop?.name;
-      currentStopDescription = stop?.description || undefined;
+      currentStopDescription = stop?.detailedDescription || stop?.description || undefined;
       // Guard against 0,0 coordinates (invalid/missing)
       currentStopLatitude = (stop?.latitude && stop.latitude !== 0) ? stop.latitude : undefined;
       currentStopLongitude = (stop?.longitude && stop.longitude !== 0) ? stop.longitude : undefined;

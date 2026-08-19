@@ -86,7 +86,38 @@ const ONBOARDING_TRANSLATIONS: Record<string, Record<string, string>> = {
         login: "Log In",
         orUseAsGuest: "or use as guest",
         continue: "Continue",
-        letsPlay: "Let's Play! 🚀"
+        letsPlay: "Let's Play! 🚀",
+        yesSetupDesc: "Enables narration, text resizing, and layouts.",
+        noContinueDesc: "Skip custom accessibility helpers.",
+        accessibilityNarrationDesc: "Speech narration reads screen text, challenges, and navigation instructions aloud.",
+        off: "Off",
+        noNarration: "No narration",
+        tourOnly: "Tour Only",
+        duringTours: "During active tours",
+        fullApp: "Full App",
+        narrateAllScreens: "Narrate all screens",
+        voiceNarrationSpeed: "Voice Narration Speed",
+        slower: "Slower",
+        normal: "Normal",
+        faster: "Faster",
+        fast: "Fast",
+        showSpeakerIcons: "Show Speaker Icons",
+        showSpeakerIconsDesc: "Display audio buttons next to text blocks.",
+        textSizeDesc: "Adjust the size of the text for easier reading.",
+        smallest: "Smallest",
+        small: "Small",
+        large: "Large",
+        largest: "Largest",
+        normalTheme: "Normal Theme",
+        blueYellowAccessibility: "Blue & Yellow",
+        redTealAccessibility: "Red & Teal",
+        highContrastAccessibility: "High Contrast Monochrome",
+        soloTitle: "Solo Explorer",
+        soloDesc: "Explore at your own pace, read historical trivia, and find secrets.",
+        pubGolfTitle: "Pub Golfer",
+        pubGolfDesc: "Fun drinking-game mechanics, sips tracking, and group scoring.",
+        socialTitle: "Social Competitor",
+        socialDesc: "Compete in challenge grids, earn achievements, and dominate leaderboard."
     },
     nl: {
         welcomeTitle: "Tracks & Taps maakt er een uitdaging van.",
@@ -116,7 +147,38 @@ const ONBOARDING_TRANSLATIONS: Record<string, Record<string, string>> = {
         login: "Inloggen",
         orUseAsGuest: "of ga verder als gast",
         continue: "Doorgaan",
-        letsPlay: "Laten we spelen! 🚀"
+        letsPlay: "Laten we spelen! 🚀",
+        yesSetupDesc: "Schakelt voorlezen, tekstgrootte aanpassen en indelingen in.",
+        noContinueDesc: "Toegankelijkheidshulpmiddelen overslaan.",
+        accessibilityNarrationDesc: "Spraakvoorlezen leest schermtekst, uitdagingen en navigatie-instructies hardop voor.",
+        off: "Uit",
+        noNarration: "Geen voorlezen",
+        tourOnly: "Alleen tour",
+        duringTours: "Tijdens actieve tours",
+        fullApp: "Volledige app",
+        narrateAllScreens: "Alle schermen voorlezen",
+        voiceNarrationSpeed: "Spraakvoorleessnelheid",
+        slower: "Langzamer",
+        normal: "Normaal",
+        faster: "Sneller",
+        fast: "Snel",
+        showSpeakerIcons: "Luidspreker-iconen weergeven",
+        showSpeakerIconsDesc: "Toon audioknoppen naast tekstblokken.",
+        textSizeDesc: "Pas de tekstgrootte aan om gemakkelijker te kunnen lezen.",
+        smallest: "Kleinste",
+        small: "Klein",
+        large: "Groot",
+        largest: "Grootste",
+        normalTheme: "Standaard thema",
+        blueYellowAccessibility: "Blauw & Geel",
+        redTealAccessibility: "Rood & Teal",
+        highContrastAccessibility: "Monochroom met hoog contrast",
+        soloTitle: "Solo-verkender",
+        soloDesc: "Verken in je eigen tempo, lees historische weetjes en vind geheimen.",
+        pubGolfTitle: "Pubgolfer",
+        pubGolfDesc: "Leuke drankspel-mechanica, slagen bijhouden en groepsscores.",
+        socialTitle: "Sociale speler",
+        socialDesc: "Speel op uitdagingsroosters, verdien prestaties en domineer het klassement."
     },
     es: {
         welcomeTitle: "Tracks & Taps lo convierte todo en un desafío.",
@@ -146,7 +208,38 @@ const ONBOARDING_TRANSLATIONS: Record<string, Record<string, string>> = {
         login: "Iniciar Sesión",
         orUseAsGuest: "o usar como invitado",
         continue: "Continuar",
-        letsPlay: "¡A jugar! 🚀"
+        letsPlay: "¡A jugar! 🚀",
+        yesSetupDesc: "Habilita la narración, el cambio de tamaño del texto y los diseños.",
+        noContinueDesc: "Omitir los asistentes de accesibilidad personalizados.",
+        accessibilityNarrationDesc: "La narración de voz lee en voz alta el texto de la pantalla, los desafíos y las instrucciones de navegación.",
+        off: "Apagado",
+        noNarration: "Sin narración",
+        tourOnly: "Solo Tour",
+        duringTours: "Durante tours activos",
+        fullApp: "App Completa",
+        narrateAllScreens: "Narrar todas las pantallas",
+        voiceNarrationSpeed: "Velocidad de narración de voz",
+        slower: "Más lento",
+        normal: "Normal",
+        faster: "Más rápido",
+        fast: "Rápido",
+        showSpeakerIcons: "Mostrar iconos de altavoz",
+        showSpeakerIconsDesc: "Muestra botones de audio junto a los bloques de texto.",
+        textSizeDesc: "Ajusta el tamaño del texto para facilitar la lectura.",
+        smallest: "El más pequeño",
+        small: "Pequeño",
+        large: "Grande",
+        largest: "El más grande",
+        normalTheme: "Tema normal",
+        blueYellowAccessibility: "Azul y Amarillo",
+        redTealAccessibility: "Rojo y Teal",
+        highContrastAccessibility: "Monocromo de alto contraste",
+        soloTitle: "Explorador Solitario",
+        soloDesc: "Explora a tu propio ritmo, lee datos históricos curiosos y encuentra secretos.",
+        pubGolfTitle: "Jugador de Pub Golf",
+        pubGolfDesc: "Mecánica divertida de juego para beber, seguimiento de tragos y puntuación grupal.",
+        socialTitle: "Competidor Social",
+        socialDesc: "Compite en cuadrículas de desafíos, gana logros y domina la tabla de clasificación."
     },
     fr: {
         welcomeTitle: "Tracks & Taps transforme tout en défi.",
@@ -170,13 +263,44 @@ const ONBOARDING_TRANSLATIONS: Record<string, Record<string, string>> = {
         writeUniqueName: "Écrivez un nom de code unique pour valider cette étape.",
         placeholderName: "Entrez votre nom d'aventurier...",
         selectStyleTitle: "Style de Jeu 🎯",
-        selectStyleDesc: "Nous adapterons nos suggestions à votre style d'aventure urbaine préféré.",
+        selectStyleDesc: "We will tailor recommendation styles to fit your personal city adventure style.",
         completeBonus: "BONUS DE FIN D'INTÉGRATION",
         signUp: "S'inscrire",
         login: "Se Connecter",
         orUseAsGuest: "ou utiliser comme invité",
         continue: "Continuer",
-        letsPlay: "Jouons ! 🚀"
+        letsPlay: "Jouons ! 🚀",
+        yesSetupDesc: "Active la narration, le redimensionnement du texte et les mises en page.",
+        noContinueDesc: "Passer les aides à l'accessibilité personnalisées.",
+        accessibilityNarrationDesc: "La narration vocale lit à haute voix le texte de l'écran, les défis et les instructions de navigation.",
+        off: "Désactivé",
+        noNarration: "Pas de narration",
+        tourOnly: "Tour uniquement",
+        duringTours: "Pendant les tours actifs",
+        fullApp: "Application complète",
+        narrateAllScreens: "Narrer tous les écrans",
+        voiceNarrationSpeed: "Vitesse de la narration vocale",
+        slower: "Plus lent",
+        normal: "Normal",
+        faster: "Plus rapide",
+        fast: "Rapide",
+        showSpeakerIcons: "Afficher les icônes de haut-parleur",
+        showSpeakerIconsDesc: "Afficher les boutons audio à côté des blocs de texte.",
+        textSizeDesc: "Ajustez la taille du texte pour faciliter la lecture.",
+        smallest: "Le plus petit",
+        small: "Petit",
+        large: "Grand",
+        largest: "Le plus grand",
+        normalTheme: "Thème normal",
+        blueYellowAccessibility: "Bleu & Jaune",
+        redTealAccessibility: "Rouge & Teal",
+        highContrastAccessibility: "Monochrome à contraste élevé",
+        soloTitle: "Explorateur Solo",
+        soloDesc: "Explorez à votre rythme, lisez des anecdotes historiques et trouvez des secrets.",
+        pubGolfTitle: "Joueur de Pub Golf",
+        pubGolfDesc: "Mécanique de jeu de boisson amusante, suivi des gorgées et score de groupe.",
+        socialTitle: "Compétiteur Social",
+        socialDesc: "Participez à des grilles de défis, gagnez des succès et dominez le classement."
     },
     de: {
         welcomeTitle: "Tracks & Taps macht aus allem eine Challenge.",
@@ -206,7 +330,38 @@ const ONBOARDING_TRANSLATIONS: Record<string, Record<string, string>> = {
         login: "Einloggen",
         orUseAsGuest: "oder als Gast fortfahren",
         continue: "Weiter",
-        letsPlay: "Los geht's! 🚀"
+        letsPlay: "Los geht's! 🚀",
+        yesSetupDesc: "Aktiviert Sprachausgabe, Textskalierung und barrierefreie Layouts.",
+        noContinueDesc: "Eigene Barrierefreiheits-Hilfen überspringen.",
+        accessibilityNarrationDesc: "Die Sprachausgabe liest Bildschirmtexte, Herausforderungen und Navigationsanweisungen laut vor.",
+        off: "Aus",
+        noNarration: "Keine Sprachausgabe",
+        tourOnly: "Nur Tour",
+        duringTours: "Während aktiver Touren",
+        fullApp: "Ganze App",
+        narrateAllScreens: "Alle Bildschirme vorlesen",
+        voiceNarrationSpeed: "Sprachausgabe-Geschwindigkeit",
+        slower: "Langsamer",
+        normal: "Normal",
+        faster: "Schneller",
+        fast: "Schnell",
+        showSpeakerIcons: "Lautsprecher-Symbole anzeigen",
+        showSpeakerIconsDesc: "Audio-Schaltflächen neben Textblöcken anzeigen.",
+        textSizeDesc: "Passe die Textgröße für einfacheres Lesen an.",
+        smallest: "Sehr klein",
+        small: "Klein",
+        large: "Groß",
+        largest: "Sehr groß",
+        normalTheme: "Standard-Theme",
+        blueYellowAccessibility: "Blau & Gelb",
+        redTealAccessibility: "Rot & Teal",
+        highContrastAccessibility: "Kontrastreiches Monochrom",
+        soloTitle: "Solo-Entdecker",
+        soloDesc: "Erkunde in deinem eigenen Tempo, lies historische Trivia und finde Geheimnisse.",
+        pubGolfTitle: "Pub-Golfer",
+        pubGolfDesc: "Lustige Trinkspiel-Mechaniken, Schluck-Tracking und Gruppenwertung.",
+        socialTitle: "Sozialer Wettkämpfer",
+        socialDesc: "Tritt in Challenge-Rastern an, verdiene Erfolge und dominiere die Bestenliste."
     },
     pl: {
         welcomeTitle: "Tracks & Taps zamienia wszystko w wyzwanie.",
@@ -236,13 +391,44 @@ const ONBOARDING_TRANSLATIONS: Record<string, Record<string, string>> = {
         login: "Zaloguj się",
         orUseAsGuest: "lub kontynuuj jako gość",
         continue: "Kontynuuj",
-        letsPlay: "Zaczynamy! 🚀"
+        letsPlay: "Zaczynamy! 🚀",
+        yesSetupDesc: "Włącza lektora, zmianę rozmiaru tekstu i układów.",
+        noContinueDesc: "Pomiń niestandardowe ułatwienia dostępu.",
+        accessibilityNarrationDesc: "Lektor czyta na głos tekst na ekranie, wyzwania i instrukcje nawigacyjne.",
+        off: "Wyłączone",
+        noNarration: "Brak lektora",
+        tourOnly: "Tylko trasa",
+        duringTours: "Podczas aktywnych tras",
+        fullApp: "Cała aplikacja",
+        narrateAllScreens: "Czytaj wszystkie ekrany",
+        voiceNarrationSpeed: "Prędkość głosu lektora",
+        slower: "Wolniej",
+        normal: "Normalnie",
+        faster: "Szybciej",
+        fast: "Szybko",
+        showSpeakerIcons: "Pokaż ikony głośnika",
+        showSpeakerIconsDesc: "Wyświetlaj przyciski audio obok bloków tekstu.",
+        textSizeDesc: "Dostosuj rozmiar tekstu, aby ułatwić czytanie.",
+        smallest: "Najmniejszy",
+        small: "Mały",
+        large: "Duży",
+        largest: "Największy",
+        normalTheme: "Zwykły motyw",
+        blueYellowAccessibility: "Niebieski i żółty",
+        redTealAccessibility: "Czerwony i turkusowy",
+        highContrastAccessibility: "Monochromatyczny wysoki kontrast",
+        soloTitle: "Samotny Odkrywca",
+        soloDesc: "Eksploruj we własnym tempie, czytaj historyczne ciekawostki i znajduj sekrety.",
+        pubGolfTitle: "Pub-golfer",
+        pubGolfDesc: "Zabawna mechanika gry barowej, śledzenie łyków i punktacja grupowa.",
+        socialTitle: "Rywal Towarzyski",
+        socialDesc: "Rywalizuj w siatkach wyzwań, zdobywaj osiągnięcia i dominuj w tabeli liderów."
     }
 };
 
 export default function OnboardingScreen() {
     const { theme, mode, performTransition } = useTheme();
-    const { language, setLanguage } = useLanguage();
+    const { language, setLanguage, t } = useLanguage();
     const { setIsAutoTranslateEnabled, translateText } = useTranslation();
     const { user, refreshUser, updateUserXp } = useUserContext();
     const router = useRouter();
@@ -277,6 +463,10 @@ export default function OnboardingScreen() {
     const ot = (key: string) => {
         const langCode = language || 'en';
         return ONBOARDING_TRANSLATIONS[langCode]?.[key] || ONBOARDING_TRANSLATIONS.en[key];
+    };
+
+    const customT = (key: string) => {
+        return ot(key) || (t && t(key as any)) || key;
     };
 
     useEffect(() => {
@@ -521,9 +711,9 @@ export default function OnboardingScreen() {
     });
 
     const playStyles: PlayStyleOption[] = [
-        { id: 'solo', title: 'Solo Explorer', description: 'Explore at your own pace, read historical trivia, and find secrets.', emoji: '🧭' },
-        { id: 'pub_golf', title: 'Pub Golfer', description: 'Fun drinking-game mechanics, sips tracking, and group scoring.', emoji: '⛳' },
-        { id: 'social', title: 'Social Competitor', description: 'Compete in challenge grids, earn achievements, and dominate leaderboard.', emoji: '⚔️' }
+        { id: 'solo', title: ot('soloTitle'), description: ot('soloDesc'), emoji: '🧭' },
+        { id: 'pub_golf', title: ot('pubGolfTitle'), description: ot('pubGolfDesc'), emoji: '⛳' },
+        { id: 'social', title: ot('socialTitle'), description: ot('socialDesc'), emoji: '⚔️' }
     ];
 
     const isContinueDisabled =
@@ -550,7 +740,7 @@ export default function OnboardingScreen() {
                     <View style={styles.splashContent}>
                         <View style={styles.splashTop}>
                             <Animated.Text style={[styles.splashLogo, { color: theme.primary }]}>
-                                tracks & taps
+                                Tracks & Taps
                             </Animated.Text>
                             <TextComponent variant="body" color={theme.textSecondary} center style={styles.splashSub}>
                                 The World is Your Game Board 🗺️
@@ -569,7 +759,7 @@ export default function OnboardingScreen() {
                                     STOP 1 / 9
                                 </TextComponent>
                                 <TextComponent variant="h3" style={{ fontSize: 16, marginTop: 4 }}>
-                                    De Grote Markt 🍻
+                                    Dam Square
                                 </TextComponent>
                             </View>
                         </Animated.View>
@@ -730,7 +920,7 @@ export default function OnboardingScreen() {
                                                     <Volume2 size={24} color={accessibilityEnabled === true ? theme.primary : theme.textPrimary} />
                                                     <View style={{ flex: 1 }}>
                                                         <TextComponent variant="h3" style={{ fontSize: 16 }}>{ot('yesSetup')}</TextComponent>
-                                                        <TextComponent variant="caption" color={theme.textSecondary}>Enables narration, text resizing, and layouts.</TextComponent>
+                                                        <TextComponent variant="caption" color={theme.textSecondary}>{ot('yesSetupDesc')}</TextComponent>
                                                     </View>
                                                 </View>
                                             </TouchableOpacity>
@@ -749,7 +939,7 @@ export default function OnboardingScreen() {
                                                     <Play size={24} color={theme.textSecondary} />
                                                     <View style={{ flex: 1 }}>
                                                         <TextComponent variant="h3" style={{ fontSize: 16 }}>{ot('noContinue')}</TextComponent>
-                                                        <TextComponent variant="caption" color={theme.textSecondary}>Skip custom accessibility helpers.</TextComponent>
+                                                        <TextComponent variant="caption" color={theme.textSecondary}>{ot('noContinueDesc')}</TextComponent>
                                                     </View>
                                                 </View>
                                             </TouchableOpacity>
@@ -789,7 +979,7 @@ export default function OnboardingScreen() {
                                             showSpeakButtons={showSpeakButtons}
                                             setShowSpeakButtons={setShowSpeakButtons}
                                             theme={theme}
-                                            t={(key: any) => translateText(key)}
+                                            t={customT}
                                             speak={speak}
                                         />
 
@@ -800,7 +990,7 @@ export default function OnboardingScreen() {
                                             fontScale={fontScale}
                                             setFontScale={setFontScale}
                                             theme={theme}
-                                            t={(key: any) => translateText(key)}
+                                            t={customT}
                                         />
 
                                         <View style={[styles.innerPreferenceCard, { backgroundColor: theme.bgTertiary, marginTop: 12 }]}>
@@ -862,7 +1052,13 @@ export default function OnboardingScreen() {
                                                                 variant="caption"
                                                                 numberOfLines={2}
                                                             >
-                                                                {themeConfig.name.replace(' (Deuteranopia/Protanopia)', '').replace(' (Tritanopia)', '')}
+                                                                {themeConfig.id === null 
+                                                                    ? ot('normalTheme')
+                                                                    : themeConfig.id === 'blue_yellow_accessibility'
+                                                                        ? ot('blueYellowAccessibility')
+                                                                        : themeConfig.id === 'red_teal_accessibility'
+                                                                            ? ot('redTealAccessibility')
+                                                                            : ot('highContrastAccessibility')}
                                                             </TextComponent>
                                                             {isActive && (
                                                                 <View style={[styles.activeBadge, { backgroundColor: theme.primary }]}>

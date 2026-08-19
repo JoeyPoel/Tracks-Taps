@@ -17,6 +17,11 @@ import { getGenreIcon } from '../utils/genres';
 import { getStopIcon } from '../utils/stopIcons';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
 import { useTranslation } from '../context/TranslationContext';
+import Animated, { FadeInDown, SlideInDown } from 'react-native-reanimated';
+import { ScaledTextInput } from '../components/common/ScaledTextInput';
+import ExploreFilterSidebar from '../components/exploreScreen/ExploreFilterSidebar';
+import { useStore } from '../store/store';
+import { BlurView } from 'expo-blur';
 
 export default function MapScreen() {
   const { theme, mode } = useTheme();
@@ -35,6 +40,107 @@ export default function MapScreen() {
     handleBack,
     onRegionChangeComplete
   } = useMapScreenLogic();
+
+  const tourFilters = useStore((state) => state.tourFilters);
+  const setTourFilters = useStore((state) => state.setTourFilters);
+  const [filterVisible, setFilterVisible] = React.useState(false);
+  const [searchText, setSearchText] = React.useState(tourFilters.searchQuery || '');
+  const [zoomTrigger, setZoomTrigger] = React.useState(0);
+
+  const lastFilterVisible = React.useRef(filterVisible);
+  React.useEffect(() => {
+    if (lastFilterVisible.current && !filterVisible) {
+      setZoomTrigger(prev => prev + 1);
+    }
+    lastFilterVisible.current = filterVisible;
+  }, [filterVisible]);
+
+  React.useEffect(() => {
+    if (tourFilters.searchQuery !== searchText) {
+      setSearchText(tourFilters.searchQuery || '');
+    }
+  }, [tourFilters.searchQuery]);
+
+  const filteredTours = React.useMemo(() => {
+    return (tours || []).filter((tour: any) => {
+      // 1. Search Query
+      if (tourFilters.searchQuery) {
+        const q = tourFilters.searchQuery.toLowerCase().trim();
+        const matchTitle = tour.title?.toLowerCase().includes(q);
+        const matchDesc = tour.description?.toLowerCase().includes(q);
+        const matchAuthor = tour.author?.name?.toLowerCase().includes(q);
+        const matchStops = tour.stops?.some((s: any) => s.name?.toLowerCase().includes(q));
+        if (!matchTitle && !matchDesc && !matchAuthor && !matchStops) return false;
+      }
+      // 2. Genres
+      if (tourFilters.genres && tourFilters.genres.length > 0) {
+        if (!tour.genre || !tourFilters.genres.includes(tour.genre)) return false;
+      }
+      // 3. Difficulty
+      if (tourFilters.difficulty) {
+        if (tour.difficulty !== tourFilters.difficulty) return false;
+      }
+      // 4. Game Modes
+      if (tourFilters.modes && tourFilters.modes.length > 0) {
+        if (!tour.modes || !tour.modes.some((m: string) => tourFilters.modes!.includes(m))) return false;
+      }
+      // 5. Distance
+      if (tourFilters.minDistance !== undefined) {
+        if ((tour.distance || 0) < tourFilters.minDistance) return false;
+      }
+      if (tourFilters.maxDistance !== undefined) {
+        if ((tour.distance || 0) > tourFilters.maxDistance) return false;
+      }
+      // 6. Duration
+      if (tourFilters.minDuration !== undefined) {
+        if ((tour.duration || 0) < tourFilters.minDuration) return false;
+      }
+      if (tourFilters.maxDuration !== undefined) {
+        if ((tour.duration || 0) > tourFilters.maxDuration) return false;
+      }
+      return true;
+    });
+  }, [tours, tourFilters]);
+
+  React.useEffect(() => {
+    if (selectedTour || zoomTrigger === 0) return;
+
+    const coordinates = (filteredTours || [])
+      .map(tour => {
+        const lat = tour.startLat ?? (tour.stops?.find((s: any) => s.number === 1) || tour.stops?.[0])?.latitude;
+        const lng = tour.startLng ?? (tour.stops?.find((s: any) => s.number === 1) || tour.stops?.[0])?.longitude;
+        return (lat && lng) ? { latitude: lat, longitude: lng } : null;
+      })
+      .filter((c): c is { latitude: number; longitude: number } => c !== null);
+
+    if (coordinates.length > 0) {
+      let minLat = 90;
+      let maxLat = -90;
+      let minLng = 180;
+      let maxLng = -180;
+      coordinates.forEach(c => {
+        if (c.latitude < minLat) minLat = c.latitude;
+        if (c.latitude > maxLat) maxLat = c.latitude;
+        if (c.longitude < minLng) minLng = c.longitude;
+        if (c.longitude > maxLng) maxLng = c.longitude;
+      });
+
+      const latDelta = Math.max(maxLat - minLat, 0.08);
+      const lngDelta = Math.max(maxLng - minLng, 0.08);
+      const centerLat = (minLat + maxLat) / 2;
+      const centerLng = (minLng + maxLng) / 2;
+
+      const timer = setTimeout(() => {
+        mapRef.current?.animateToRegion({
+          latitude: centerLat,
+          longitude: centerLng,
+          latitudeDelta: latDelta + 0.04,
+          longitudeDelta: lngDelta + 0.04,
+        }, 1000);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [zoomTrigger, selectedTour]);
 
   const [tracksViewChanges, setTracksViewChanges] = React.useState(true);
   const [showItinerary, setShowItinerary] = React.useState(false);
@@ -65,7 +171,7 @@ export default function MapScreen() {
         onRegionChangeComplete={onRegionChangeComplete}
       >
         {!selectedTour ? (
-          tours.map((tour: any) => {
+          (filteredTours || []).map((tour: any) => {
             const lat = tour.startLat ?? (tour.stops?.find((s: Stop) => s.number === 1) || tour.stops?.[0])?.latitude;
             const lng = tour.startLng ?? (tour.stops?.find((s: Stop) => s.number === 1) || tour.stops?.[0])?.longitude;
 
@@ -264,15 +370,62 @@ export default function MapScreen() {
               <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
                 <ItineraryView
                   stops={(selectedTour as any).stops || []}
-                  onStopPress={(stop) => {
-                    setShowItinerary(false);
-                  }}
                 />
               </ScrollView>
             </AppModal>
           </View>
         )
       }
+
+      {!selectedTour && (
+        <Animated.View
+          entering={FadeInDown.duration(600).springify()}
+          style={[
+            styles.mapSearchContainer,
+            { 
+              top: insets.top + 16,
+              borderColor: theme.borderPrimary,
+              backgroundColor: 'transparent',
+              overflow: 'hidden',
+            }
+          ]}
+        >
+          <BlurView
+            intensity={90}
+            tint={mode as any}
+            style={styles.searchBlur}
+          >
+            <Ionicons name="search" size={20} color={theme.textSecondary} style={{ marginRight: 8 }} />
+            <ScaledTextInput
+              style={[styles.mapSearchInput, { color: theme.textSecondary }]}
+              placeholder={t('whereToNext') || "Where to next?"}
+              placeholderTextColor={theme.textSecondary + '80'}
+              value={searchText}
+              onChangeText={(text) => {
+                setSearchText(text);
+                setTourFilters({ ...tourFilters, searchQuery: text });
+              }}
+              returnKeyType="search"
+              onSubmitEditing={() => {
+                setZoomTrigger(prev => prev + 1);
+              }}
+            />
+            <TouchableOpacity
+              style={styles.mapFilterButton}
+              onPress={() => setFilterVisible(true)}
+              accessibilityLabel={t('filterTours') || "Filter tours"}
+            >
+              <Ionicons name="options-outline" size={20} color={theme.textSecondary} />
+            </TouchableOpacity>
+          </BlurView>
+        </Animated.View>
+      )}
+
+      {/* FILTER SIDEBAR */}
+      <ExploreFilterSidebar
+        visible={filterVisible}
+        onClose={() => setFilterVisible(false)}
+      />
     </View>
   );
 }
@@ -289,13 +442,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 24,
     borderRadius: 22,
-    // overflow: 'hidden', // Removed to allow shadow
     width: 44,
     height: 44,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  // backButtonBlur removed
   tourInfo: {
     position: 'absolute',
     left: 24,
@@ -376,7 +527,6 @@ const styles = StyleSheet.create({
     borderColor: 'white',
   },
   stopNumberText: {
-    // Handled by TextComponent
   },
   markerContainer: {
     alignItems: 'center',
@@ -439,5 +589,37 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: '#FFF',
+  },
+  mapSearchContainer: {
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  searchBlur: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    height: '100%',
+  },
+  mapSearchInput: {
+    flex: 1,
+    fontSize: 14,
+    paddingVertical: 8,
+  },
+  mapFilterButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

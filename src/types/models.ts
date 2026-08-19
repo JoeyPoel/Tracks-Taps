@@ -60,6 +60,7 @@ export interface Stop {
     number: number;
     name: string;
     description: string;
+    detailedDescription?: string | null;
     createdAt: Date;
     updatedAt: Date;
     longitude: number;
@@ -96,6 +97,8 @@ export interface Tour {
     bingoFullPoints: number;
     createdAt: Date;
     updatedAt: Date;
+    startLat?: number | null;
+    startLng?: number | null;
     authorId: number;
     author?: {
         id?: number;

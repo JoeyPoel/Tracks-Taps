@@ -464,10 +464,10 @@ function ActiveTourContent({ activeTourId, user }: { activeTourId: number, user:
                             if (stop.number !== undefined) {
                                 if (stop.number >= 6 && !activeTour?.isPaid) {
                                     setLocalModalClose(false);
-                                    goToStop(stop.number - 1);
+                                    goToStop(stop.number);
                                     return;
                                 }
-                                goToStop(stop.number - 1);
+                                goToStop(stop.number);
                             }
                         }}
                     />

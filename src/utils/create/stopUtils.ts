@@ -24,6 +24,17 @@ export const validateStop = (
         };
     }
 
+    if (state.requiresTicket) {
+        const hasEmptyPrice = state.ticketPriceOptions?.some((opt: any) => !opt.price || !opt.price.trim());
+        if (hasEmptyPrice) {
+            return {
+                valid: false,
+                message: "Please enter a price for all ticket options or remove them.",
+                title: t('missingInfo' as any) || 'Missing Info'
+            };
+        }
+    }
+
     return { valid: true };
 };
 
@@ -79,7 +90,7 @@ export const createStopPayload = (
         requiresTicket: requiresTicket || null,
         isFreeEntry: isFreeEntry || null,
         ticketInfo: requiresTicket ? (ticketInfo || null) : null,
-        ticketPrice: requiresTicket ? JSON.stringify(ticketPriceOptions) : null,
+        ticketPrice: (requiresTicket && ticketPriceOptions && ticketPriceOptions.length > 0) ? JSON.stringify(ticketPriceOptions) : null,
         requiresReservation: requiresTicket ? (requiresReservation || null) : null,
         openingHours: compiledOpeningHours,
     };

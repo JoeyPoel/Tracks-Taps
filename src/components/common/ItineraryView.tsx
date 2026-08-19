@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Linking, Platform, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,6 +19,111 @@ interface ItineraryViewProps {
 export function ItineraryView({ stops, onStopPress, activeStopIndex }: ItineraryViewProps) {
   const { theme, mode } = useTheme();
   const { t } = useLanguage();
+  const [expandedStops, setExpandedStops] = useState<Record<string, boolean>>({});
+
+  const toggleExpand = (stopId: string) => {
+    setExpandedStops(prev => ({
+      ...prev,
+      [stopId]: !prev[stopId]
+    }));
+  };
+
+  const parseOpeningHoursToDays = (hoursStr: string | null | undefined) => {
+    if (!hoursStr) return [];
+    const daysFull = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const daysShort = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    const cleanStr = hoursStr.trim();
+
+    // 1. Open 24 hours
+    if (cleanStr.toLowerCase() === 'open 24 hours' || cleanStr.toLowerCase() === '24/7' || cleanStr.toLowerCase() === 'open 24h') {
+      return daysFull.map(d => ({ day: d, hours: 'Open 24h' }));
+    }
+
+    // 2. Daily: 09:00–18:00
+    if (cleanStr.toLowerCase().startsWith('daily:')) {
+      const hours = cleanStr.substring(6).trim();
+      return daysFull.map(d => ({ day: d, hours }));
+    }
+
+    // 3. Mon–Fri: 09:00–18:00, Sat–Sun: Closed
+    if (cleanStr.includes('Mon–Fri') || cleanStr.includes('Mon-Fri')) {
+      const parts = cleanStr.split(',');
+      let weekdayHours = 'Closed';
+      let weekendHours = 'Closed';
+      
+      parts.forEach(part => {
+        const p = part.trim();
+        if (p.startsWith('Mon–Fri') || p.startsWith('Mon-Fri')) {
+          weekdayHours = p.substring(p.indexOf(':') + 1).trim();
+        } else if (p.startsWith('Sat–Sun') || p.startsWith('Sat-Sun')) {
+          weekendHours = p.substring(p.indexOf(':') + 1).trim();
+        }
+      });
+
+      return daysFull.map((d, idx) => {
+        const isWeekend = idx >= 5;
+        return { day: d, hours: isWeekend ? weekendHours : weekdayHours };
+      });
+    }
+
+    // 4. Custom daily split: "Mon: 09:00-18:00, Tue: ..."
+    if (cleanStr.includes(':')) {
+      const parts = cleanStr.split(',');
+      const scheduleMap: Record<string, string> = {};
+      parts.forEach(part => {
+        const colonIdx = part.indexOf(':');
+        if (colonIdx !== -1) {
+          const dayPrefix = part.substring(0, colonIdx).trim().toLowerCase();
+          const hours = part.substring(colonIdx + 1).trim();
+          scheduleMap[dayPrefix] = hours;
+        }
+      });
+
+      return daysFull.map((day, idx) => {
+        const short = daysShort[idx].toLowerCase();
+        const full = day.toLowerCase();
+        const hours = scheduleMap[short] || scheduleMap[full] || 'Closed';
+        return { day, hours };
+      });
+    }
+
+    return [{ day: 'Opening Hours', hours: cleanStr }];
+  };
+
+  const renderTicketInfo = (info: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const match = info.match(urlRegex);
+    
+    if (match && match.length > 0) {
+      const url = match[0];
+      const cleanText = info.replace(urlRegex, '').trim();
+      return (
+        <View style={styles.ticketLinkContainer}>
+          {cleanText ? (
+            <TextComponent style={styles.ticketInfoText} color={theme.textSecondary}>
+              {cleanText}
+            </TextComponent>
+          ) : null}
+          <TouchableOpacity
+            onPress={() => Linking.openURL(url).catch(err => console.error("URL error", err))}
+            style={[styles.ticketLinkButton, { backgroundColor: theme.primary }]}
+          >
+            <Ionicons name="cart-outline" size={14} color={theme.textOnPrimary} style={{ marginRight: 4 }} />
+            <TextComponent style={styles.ticketLinkButtonText} color={theme.textOnPrimary} bold>
+              Book Tickets
+            </TextComponent>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <TextComponent style={styles.ticketInfoText} color={theme.textSecondary}>
+        {info}
+      </TextComponent>
+    );
+  };
 
   if (!stops || stops.length === 0) {
     return (
@@ -196,119 +301,168 @@ export function ItineraryView({ stops, onStopPress, activeStopIndex }: Itinerary
                   },
                 ]}
               >
-                {/* Image */}
-                {stop.imageUrl ? (
-                  <Image
-                    source={{ uri: stop.imageUrl }}
-                    style={styles.stopImage}
-                    contentFit="cover"
-                  />
-                ) : null}
+                {/* Main Row: Image, Text Details, Navigate button */}
+                <View style={styles.stopCardMainRow}>
+                  {/* Image */}
+                  {stop.imageUrl ? (
+                    <Image
+                      source={{ uri: stop.imageUrl }}
+                      style={styles.stopImage}
+                      contentFit="cover"
+                    />
+                  ) : null}
 
-                {/* Stop Details */}
-                <View style={styles.stopInfo}>
-                  <TextComponent variant="body" bold color={theme.textPrimary} style={styles.stopName}>
-                    {stop.name}
-                  </TextComponent>
-                  
-                  {/* Category Badge */}
-                  <View style={[styles.categoryBadge, { backgroundColor: category.bg }]}>
-                    {getStopIcon(stop.type, 12, category.text)}
-                    <TextComponent style={[styles.categoryText, { color: category.text }]}>
-                      {category.label}
+                  {/* Stop Details */}
+                  <View style={styles.stopInfo}>
+                    <TextComponent variant="body" bold color={theme.textPrimary} style={styles.stopName}>
+                      {stop.name}
                     </TextComponent>
+                    
+                    {/* Category Badge */}
+                    <View style={[styles.categoryBadge, { backgroundColor: category.bg }]}>
+                      {getStopIcon(stop.type, 12, category.text)}
+                      <TextComponent style={[styles.categoryText, { color: category.text }]}>
+                        {category.label}
+                      </TextComponent>
+                    </View>
                   </View>
 
-                  {/* Ticket + Free Entry badges */}
-                  <View style={styles.metaRow}>
-                    {stop.requiresTicket === true && (
-                      <>
-                        {(() => {
-                          const priceStr = stop.ticketPrice;
-                          if (priceStr && priceStr.startsWith('[')) {
-                            try {
-                              let arr = JSON.parse(priceStr);
-                              if (Array.isArray(arr) && arr.length > 0) {
-                                // Flatten nested array if needed (e.g. [[{...}]])
-                                if (Array.isArray(arr[0])) {
-                                  arr = arr[0];
-                                }
-                                return arr.map((opt: any, idx: number) => {
-                                  if (!opt.price) return null;
-                                  return (
-                                    <View key={idx} style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(239,68,68,0.15)' : '#FEE2E2' }]}>
-                                      <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#f87171' : '#DC2626' }]}>
-                                        🎟 {opt.category ? `${opt.category}: ` : ''}{opt.price}
-                                      </TextComponent>
-                                    </View>
-                                  );
-                                });
-                              }
-                            } catch (e) {}
-                          }
-                          return (
-                            <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(239,68,68,0.15)' : '#FEE2E2' }]}>
-                              <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#f87171' : '#DC2626' }]}>
-                                🎟 {stop.ticketPrice ? stop.ticketPrice : (stop.ticketInfo ? stop.ticketInfo.split('—')[0].trim() : 'Ticket required')}
-                              </TextComponent>
-                            </View>
-                          );
-                        })()}
-                        {stop.requiresReservation === 'YES' && (
-                          <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(239,68,68,0.15)' : '#FEE2E2' }]}>
-                            <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#f87171' : '#DC2626' }]}>
-                              📅 Reservation required
-                            </TextComponent>
-                          </View>
-                        )}
-                        {stop.requiresReservation === 'MAYBE' && (
-                          <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(245,158,11,0.15)' : '#FEF3C7' }]}>
-                            <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#fbbf24' : '#D97706' }]}>
-                              📅 Reservation recommended
-                            </TextComponent>
-                          </View>
-                        )}
-                        {stop.ticketInfo ? (
-                          <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(148,163,184,0.15)' : '#F1F5F9' }]}>
-                            <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#cbd5e1' : '#475569' }]}>
-                              ℹ️ {stop.ticketInfo.includes('—') ? stop.ticketInfo.split('—')[1].trim() : stop.ticketInfo}
-                            </TextComponent>
-                          </View>
-                        ) : null}
-                      </>
-                    )}
-                    {stop.isFreeEntry === true && stop.requiresTicket !== true && (
-                      <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(16,185,129,0.15)' : '#DCFCE7' }]}>
-                        <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#34d399' : '#15803D' }]}>
-                          🆓 Free entry
-                        </TextComponent>
-                      </View>
-                    )}
-                    {stop.openingHours && stop.openingHours !== 'Open 24 hours' && (
-                      <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(99,102,241,0.15)' : '#EEF2FF' }]}>
-                        <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#a5b4fc' : '#4338CA' }]}>
-                          🕐 {stop.openingHours}
-                        </TextComponent>
-                      </View>
-                    )}
-                    {stop.openingHours === 'Open 24 hours' && (
-                      <View style={[styles.metaBadge, { backgroundColor: mode === 'dark' ? 'rgba(16,185,129,0.15)' : '#DCFCE7' }]}>
-                        <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#34d399' : '#15803D' }]}>
-                          🕐 Open 24h
-                        </TextComponent>
-                      </View>
-                    )}
-                  </View>
+                  {/* Compass Navigation Button */}
+                  <TouchableOpacity
+                    onPress={() => handleNavigate(stop)}
+                    style={[styles.navButton, { backgroundColor: theme.primary }]}
+                  >
+                    <Ionicons name="navigate" size={16} color={theme.textOnPrimary} />
+                  </TouchableOpacity>
                 </View>
 
-                {/* Compass Navigation Button */}
-                <TouchableOpacity
-                  onPress={() => handleNavigate(stop)}
-                  style={[styles.navButton, { backgroundColor: theme.primary }]}
-                >
-                  <Ionicons name="navigate" size={16} color={theme.textOnPrimary} />
-                </TouchableOpacity>
+                {/* Minimal Badges Row (At the bottom of the card container) */}
+                <View style={[styles.metaRow, { marginTop: 8, paddingLeft: stop.imageUrl ? 62 : 12 }]}>
+                  {stop.requiresTicket === true ? (
+                    <View style={[styles.metaBadgeOutline, { borderColor: mode === 'dark' ? '#f87171' : '#DC2626' }]}>
+                      <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#f87171' : '#DC2626' }]}>
+                        🎟 {t('ticketRequired' as any) || 'Ticket Required'}
+                      </TextComponent>
+                    </View>
+                  ) : (
+                    stop.isFreeEntry === true && (
+                      <View style={[styles.metaBadgeOutline, { borderColor: mode === 'dark' ? '#34d399' : '#15803D' }]}>
+                        <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#34d399' : '#15803D' }]}>
+                          🆓 {t('freeEntry' as any) || 'Free Entry'}
+                        </TextComponent>
+                      </View>
+                    )
+                  )}
+
+                  {stop.requiresTicket === true && stop.requiresReservation === 'YES' && (
+                    <View style={[styles.metaBadgeOutline, { borderColor: mode === 'dark' ? '#f87171' : '#DC2626' }]}>
+                      <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#f87171' : '#DC2626' }]}>
+                        📅 {t('reservationRequired' as any) || 'Res. Required'}
+                      </TextComponent>
+                    </View>
+                  )}
+
+                  {stop.requiresTicket === true && stop.requiresReservation === 'MAYBE' && (
+                    <View style={[styles.metaBadgeOutline, { borderColor: mode === 'dark' ? '#fbbf24' : '#D97706' }]}>
+                      <TextComponent style={[styles.metaBadgeText, { color: mode === 'dark' ? '#fbbf24' : '#D97706' }]}>
+                        📅 {t('reservationRecommended' as any) || 'Res. Recommended'}
+                      </TextComponent>
+                    </View>
+                  )}
+
+                </View>
+
+                {/* Expandable trigger button for hours / ticket details (Always beneath labels) */}
+                {((stop.openingHours && stop.openingHours !== 'Open 24 hours') || stop.requiresTicket === true) && (
+                  <TouchableOpacity 
+                    onPress={() => toggleExpand(String(stop.id || index))}
+                    style={[styles.expandTextTrigger, { marginTop: 4, paddingLeft: stop.imageUrl ? 62 : 12 }]}
+                  >
+                    <TextComponent style={styles.expandText} color={theme.primary} bold>
+                      {expandedStops[String(stop.id || index)] 
+                        ? `${t('showLess' as any) || 'Show Less'} ▲` 
+                        : `${t('ticketsAndHours' as any) || 'Hours & Prices'} ▼`}
+                    </TextComponent>
+                  </TouchableOpacity>
+                )}
               </TouchableOpacity>
+
+              {/* Expandable Section */}
+              {expandedStops[String(stop.id || index)] && (
+                <View style={[styles.expandablePanel, { backgroundColor: theme.bgSecondary, borderColor: theme.borderPrimary }]}>
+                  {/* 1. Opening Hours Table */}
+                  {stop.openingHours && stop.openingHours !== 'Open 24 hours' && (
+                    <View style={styles.expandableSectionBlock}>
+                      <TextComponent bold style={styles.sectionLabel} color={theme.textPrimary}>
+                        🕐 {t('openingHours' as any) || 'Opening Hours'}
+                      </TextComponent>
+                      {parseOpeningHoursToDays(stop.openingHours).map((item, idx) => (
+                        <View key={idx} style={styles.hoursRow}>
+                          <TextComponent style={styles.hoursDay} color={theme.textSecondary}>
+                            {item.day}
+                          </TextComponent>
+                          <TextComponent style={styles.hoursTime} color={theme.textPrimary} bold={item.hours !== 'Closed'}>
+                            {item.hours}
+                          </TextComponent>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+
+                  {/* 2. Ticket Prices */}
+                  {stop.requiresTicket === true && stop.ticketPrice && stop.ticketPrice !== '[]' && (
+                    <View style={styles.expandableSectionBlock}>
+                      <TextComponent bold style={styles.sectionLabel} color={theme.textPrimary}>
+                        💵 {t('ticketPrices' as any) || 'Ticket Prices'}
+                      </TextComponent>
+                      {(() => {
+                        const priceStr = stop.ticketPrice;
+                        if (priceStr && priceStr.startsWith('[')) {
+                          try {
+                            let arr = JSON.parse(priceStr);
+                            if (Array.isArray(arr) && arr.length > 0) {
+                              if (Array.isArray(arr[0])) arr = arr[0];
+                              return arr.map((opt: any, idx: number) => {
+                                if (!opt.price) return null;
+                                return (
+                                  <View key={idx} style={styles.hoursRow}>
+                                    <TextComponent style={styles.hoursDay} color={theme.textSecondary}>
+                                      {opt.category || 'General'}
+                                    </TextComponent>
+                                    <TextComponent style={styles.hoursTime} color={theme.textPrimary} bold>
+                                      {opt.price}
+                                    </TextComponent>
+                                  </View>
+                                );
+                              });
+                            }
+                          } catch (e) {}
+                        }
+                        return (
+                          <View style={styles.hoursRow}>
+                            <TextComponent style={styles.hoursDay} color={theme.textSecondary}>
+                              General Admission
+                            </TextComponent>
+                            <TextComponent style={styles.hoursTime} color={theme.textPrimary} bold>
+                              {stop.ticketPrice || stop.ticketInfo || 'Ticket Required'}
+                            </TextComponent>
+                          </View>
+                        );
+                      })()}
+                    </View>
+                  )}
+
+                  {/* 3. Ticket Info / Booking Link */}
+                  {stop.requiresTicket === true && stop.ticketInfo && (
+                    <View style={styles.expandableSectionBlock}>
+                      <TextComponent bold style={styles.sectionLabel} color={theme.textPrimary}>
+                        ℹ️ {t('additionalTicketInfo' as any) || 'Additional Ticket Info'}
+                      </TextComponent>
+                      {renderTicketInfo(stop.ticketInfo)}
+                    </View>
+                  )}
+                </View>
+              )}
 
               {/* Transit Pill */}
               {!isLast && distanceText && (
@@ -381,8 +535,8 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   stopCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'stretch',
     borderRadius: 16,
     padding: 12,
     shadowColor: '#000',
@@ -390,6 +544,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.03,
     shadowRadius: 8,
     elevation: 2,
+  },
+  stopCardMainRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
   },
   stopImage: {
     width: 50,
@@ -432,9 +591,23 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 6,
   },
+  metaBadgeOutline: {
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
   metaBadgeText: {
     fontSize: 10,
     fontWeight: '600',
+  },
+  expandTextTrigger: {
+    paddingVertical: 3,
+    paddingHorizontal: 4,
+    justifyContent: 'center',
+  },
+  expandText: {
+    fontSize: 10.5,
   },
   navButton: {
     width: 32,
@@ -480,5 +653,56 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 16,
     opacity: 0.75,
+  },
+  expandablePanel: {
+    marginTop: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 12,
+    gap: 12,
+    width: '100%',
+  },
+  expandableSectionBlock: {
+    gap: 4,
+  },
+  sectionLabel: {
+    fontSize: 11,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+    opacity: 0.9,
+  },
+  hoursRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 3,
+    borderBottomWidth: 0.5,
+    borderBottomColor: 'rgba(148,163,184,0.1)',
+  },
+  hoursDay: {
+    fontSize: 11,
+  },
+  hoursTime: {
+    fontSize: 11,
+  },
+  ticketLinkContainer: {
+    gap: 6,
+    marginTop: 2,
+  },
+  ticketInfoText: {
+    fontSize: 11,
+    lineHeight: 15,
+  },
+  ticketLinkButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    marginTop: 2,
+  },
+  ticketLinkButtonText: {
+    fontSize: 10,
   },
 });
