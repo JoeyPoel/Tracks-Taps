@@ -34,7 +34,7 @@ const INITIAL_DRAFT: TourDraft = {
     challenges: [],
     bingoChallenges: [],
     distance: '0',
-    duration: '0',
+    duration: '',
     points: 0,
     startLat: undefined,
     startLng: undefined,
@@ -117,7 +117,7 @@ export function useTourDraft(persistenceId?: number | null) {
     }, [tourDraft, persistenceId, isRestored]);
 
     // Calculate derived metrics
-    const { distance, duration, points } = useTourCalculations(tourDraft.stops, tourDraft.modes);
+    const { distance, points } = useTourCalculations(tourDraft.stops, tourDraft.modes);
 
     // Sync calculated metrics to draft
     // Note: We use useEffect to only update when values actually change and differ from draft
@@ -125,7 +125,6 @@ export function useTourDraft(persistenceId?: number | null) {
         setTourDraft(prev => {
             const updates: Partial<TourDraft> = {};
             if (distance !== undefined && prev.distance !== distance) updates.distance = distance;
-            if (duration !== undefined && prev.duration !== duration) updates.duration = duration;
             if (prev.points !== points) updates.points = points;
 
             // Auto-set start location from first stop
@@ -144,7 +143,7 @@ export function useTourDraft(persistenceId?: number | null) {
             }
             return prev;
         });
-    }, [distance, duration, points, tourDraft.stops]); // Add tourDraft.stops dependency
+    }, [distance, points, tourDraft.stops]); // Add tourDraft.stops dependency
 
     const updateDraft = (key: keyof TourDraft, value: any) => {
         setTourDraft(prev => ({ ...prev, [key]: value }));

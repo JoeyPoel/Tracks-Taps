@@ -103,6 +103,11 @@ export function useCreateTour() {
         if (currentStep < steps.length - 1) {
             setCurrentStep(currentStep + 1);
         } else {
+            const parsedDuration = parseInt(tourDraft.duration);
+            if (!tourDraft.duration || isNaN(parsedDuration) || parsedDuration <= 0) {
+                Alert.alert(t('missingInfo') || "Missing Info", "Please specify the duration (in minutes) for this tour.");
+                return;
+            }
             submitTour(tourDraft);
         }
     };
