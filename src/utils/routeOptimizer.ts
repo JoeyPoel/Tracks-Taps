@@ -24,20 +24,57 @@ export function haversineDistance(lat1: any, lon1: any, lat2: any, lon2: any): n
 }
 
 /**
- * Applies the 2-opt local search algorithm to uncross segments and minimize total walking distance.
+ * Queries OSRM table API to retrieve the walking distance matrix between the user and remaining stops.
  */
-export function twoOpt(route: Stop[]): Stop[] {
-    if (route.length < 4) {
+async function getOSRMDistanceTable(coords: { latitude: number; longitude: number }[]): Promise<number[][] | null> {
+    if (coords.length < 2) return null;
+    const coordsStr = coords.map(c => `${c.longitude},${c.latitude}`).join(';');
+    const url = `https://router.project-osrm.org/table/v1/foot/${coordsStr}?annotations=distance`;
+    try {
+        const response = await fetch(url, { signal: AbortSignal.timeout(6000) });
+        if (response.ok) {
+            const data = await response.json();
+            if (data && data.distances) {
+                // Convert OSRM meters to kilometers
+                return data.distances.map((row: any) =>
+                    row.map((val: any) => (val !== null ? val / 1000.0 : 999.0))
+                );
+            }
+        }
+    } catch (e) {
+        console.warn('⚠️ OSRM route optimization table fetch failed, using Haversine:', e);
+    }
+    return null;
+}
+
+function getHaversineDistanceTable(coords: { latitude: number; longitude: number }[]): number[][] {
+    const n = coords.length;
+    const matrix: number[][] = Array(n).fill(null).map(() => Array(n).fill(0));
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+            if (i !== j) {
+                matrix[i][j] = haversineDistance(coords[i].latitude, coords[i].longitude, coords[j].latitude, coords[j].longitude);
+            }
+        }
+    }
+    return matrix;
+}
+
+export function twoOpt(route: (Stop & { _tempIdx: number })[], distMatrix: number[][]): Stop[] {
+    // Route starts with user location at index 0 (fixed), followed by stops
+    // We want to optimize the whole path starting from the user's GPS coordinates
+    const routeWithUser = [{ _tempIdx: 0 } as any, ...route];
+    if (routeWithUser.length < 4) {
         return route;
     }
 
-    let bestRoute = [...route];
+    let bestRoute = [...routeWithUser];
     let improved = true;
 
-    const getRouteDistance = (r: Stop[]): number => {
+    const getRouteDistance = (r: any[]): number => {
         let d = 0.0;
         for (let i = 0; i < r.length - 1; i++) {
-            d += haversineDistance(r[i].latitude, r[i].longitude, r[i + 1].latitude, r[i + 1].longitude);
+            d += distMatrix[r[i]._tempIdx][r[i + 1]._tempIdx];
         }
         return d;
     };
@@ -46,6 +83,7 @@ export function twoOpt(route: Stop[]): Stop[] {
 
     while (improved) {
         improved = false;
+        // i starts at 1, so the user location at index 0 remains fixed!
         for (let i = 1; i < bestRoute.length - 2; i++) {
             for (let j = i + 1; j < bestRoute.length; j++) {
                 if (j - i === 1) {
@@ -71,17 +109,18 @@ export function twoOpt(route: Stop[]): Stop[] {
         }
     }
 
-    return bestRoute;
+    // Return the route excluding the user location node at index 0
+    return bestRoute.slice(1);
 }
 
 /**
  * Optimizes the remaining stops layout starting from the user's current GPS location.
  */
-export function optimizeRemainingRoute(
+export async function optimizeRemainingRoute(
     remainingStops: Stop[],
     userLat: number,
     userLng: number
-): Stop[] {
+): Promise<Stop[]> {
     if (remainingStops.length === 0) {
         return [];
     }
@@ -99,14 +138,27 @@ export function optimizeRemainingRoute(
     }
 
     const stopsToOptimize = regularStops.length > 0 ? regularStops : remainingStops;
-    const remaining = [...stopsToOptimize];
+    
+    // Nodes to calculate matrix: Index 0 is the user's starting location
+    const nodes = [
+        { latitude: userLat, longitude: userLng },
+        ...stopsToOptimize
+    ];
 
-    // Find the first stop: the closest remaining stop to user location
+    const distMatrix = await getOSRMDistanceTable(nodes) || getHaversineDistanceTable(nodes);
+
+    // Map stops to their index in distMatrix (index in nodes)
+    const remaining = stopsToOptimize.map((stop, idx) => ({
+        ...stop,
+        _tempIdx: idx + 1 // Offset by 1 because index 0 is the user location
+    }));
+
+    // Find the first stop: the closest remaining stop to user location (user index is 0)
     let closestIdx = 0;
-    let closestDist = haversineDistance(userLat, userLng, remaining[0].latitude, remaining[0].longitude);
+    let closestDist = distMatrix[0][remaining[0]._tempIdx];
 
     for (let i = 1; i < remaining.length; i++) {
-        const dist = haversineDistance(userLat, userLng, remaining[i].latitude, remaining[i].longitude);
+        const dist = distMatrix[0][remaining[i]._tempIdx];
         if (dist < closestDist) {
             closestDist = dist;
             closestIdx = i;
@@ -119,20 +171,10 @@ export function optimizeRemainingRoute(
     // Nearest Neighbor construction
     while (remaining.length > 0) {
         let nextClosestIdx = 0;
-        let nextClosestDist = haversineDistance(
-            current.latitude,
-            current.longitude,
-            remaining[0].latitude,
-            remaining[0].longitude
-        );
+        let nextClosestDist = distMatrix[current._tempIdx][remaining[0]._tempIdx];
 
         for (let i = 1; i < remaining.length; i++) {
-            const dist = haversineDistance(
-                current.latitude,
-                current.longitude,
-                remaining[i].latitude,
-                remaining[i].longitude
-            );
+            const dist = distMatrix[current._tempIdx][remaining[i]._tempIdx];
             if (dist < nextClosestDist) {
                 nextClosestDist = dist;
                 nextClosestIdx = i;
@@ -144,12 +186,15 @@ export function optimizeRemainingRoute(
     }
 
     // Apply 2-opt refinement
-    let optimized = twoOpt(bestOrdered);
+    let optimized = twoOpt(bestOrdered, distMatrix);
+
+    // Clean up temporary index fields
+    const cleaned = optimized.map(({ _tempIdx, ...rest }) => rest as Stop);
 
     // Append finale stop back at the very end if we separated it
     if (finaleStop && regularStops.length > 0) {
-        optimized.push(finaleStop);
+        cleaned.push(finaleStop);
     }
 
-    return optimized;
+    return cleaned;
 }
