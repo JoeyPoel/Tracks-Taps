@@ -83,12 +83,8 @@ export function twoOpt(route: (Stop & { _tempIdx: number })[], distMatrix: numbe
 
     while (improved) {
         improved = false;
-        // i starts at 1, so the user location at index 0 remains fixed!
-        for (let i = 1; i < bestRoute.length - 2; i++) {
-            for (let j = i + 1; j < bestRoute.length; j++) {
-                if (j - i === 1) {
-                    continue; // adjacent edges cannot be swapped
-                }
+        for (let i = 1; i < bestRoute.length - 1; i++) {
+            for (let j = i + 2; j <= bestRoute.length; j++) {
 
                 // Propose a swap: reverse the segment from i to j-1
                 const newRoute = [...bestRoute];
