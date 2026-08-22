@@ -35,9 +35,20 @@ async function getOSRMDistanceTable(coords: { latitude: number; longitude: numbe
         if (response.ok) {
             const data = await response.json();
             if (data && data.distances) {
-                // Convert OSRM meters to kilometers
-                return data.distances.map((row: any) =>
-                    row.map((val: any) => (val !== null ? val / 1000.0 : 999.0))
+                // Convert OSRM meters to kilometers, falling back to Haversine if a pair is unroutable (null)
+                return data.distances.map((row: any, i: number) =>
+                    row.map((val: any, j: number) => {
+                        if (val !== null) {
+                            return val / 1000.0;
+                        } else {
+                            return haversineDistance(
+                                coords[i].latitude,
+                                coords[i].longitude,
+                                coords[j].latitude,
+                                coords[j].longitude
+                            );
+                        }
+                    })
                 );
             }
         }
